@@ -17,35 +17,35 @@ from agent import (
 )
 
 
-SOURCE = Source("Источник", "https://example.org/source", "Подтверждённый факт.", "запрос")
-VALID_REPORT = """## Краткий вывод
+SOURCE = Source("Правовой источник", "https://pravo.gov.ru/example", "Текст условной нормы.", "запрос")
+VALID_REPORT = """## Краткий ответ
 
-Подтверждённый вывод [1].
+Ответ на основе источника [1].
 
-## Основные факты
+## Правовое основание
 
-- Подтверждённый факт [1].
+Условная норма [1].
 
-## Подробный анализ
+## Актуальность и изменения
 
-Подтверждённый анализ [1].
+Изменения проверены по источнику [1].
 
-## Противоречия и ограничения
+## Как применить к ситуации
 
-Противоречий не обнаружено.
+Следует сверить обстоятельства с текстом нормы.
 
-## Выводы
+## Ограничения
 
-Итоговый вывод [1].
+Это информационная справка.
 """
 
 
 class JsonParsingTests(unittest.TestCase):
     def test_plain_json(self):
-        self.assertEqual(extract_json('{"queries": ["тема"]}'), {"queries": ["тема"]})
+        self.assertEqual(extract_json('{"queries": ["норма"]}'), {"queries": ["норма"]})
 
     def test_markdown_json(self):
-        self.assertEqual(extract_json('```json\n{"queries": ["тема"]}\n```'), {"queries": ["тема"]})
+        self.assertEqual(extract_json('```json\n{"queries": ["норма"]}\n```'), {"queries": ["норма"]})
 
     def test_invalid_json(self):
         with self.assertRaises(AgentError):
@@ -55,9 +55,9 @@ class JsonParsingTests(unittest.TestCase):
 class SourceTests(unittest.TestCase):
     def test_deduplicates_and_limits(self):
         sources = [
-            Source("A", "https://example.org/a", "1", "q"),
-            Source("A copy", "https://example.org/a/", "2", "q"),
-            Source("B", "https://example.org/b", "3", "q"),
+            Source("A", "https://pravo.gov.ru/a", "1", "q"),
+            Source("A copy", "https://pravo.gov.ru/a/", "2", "q"),
+            Source("B", "https://pravo.gov.ru/b", "3", "q"),
         ]
         result = deduplicate(sources, 1)
         self.assertEqual(len(result), 1)
@@ -77,8 +77,8 @@ class ReportValidationTests(unittest.TestCase):
         self.assertTrue(any("которых нет" in issue for issue in validate_report(report, [SOURCE])))
 
     def test_rejects_missing_section(self):
-        report = VALID_REPORT.replace("## Выводы", "### Выводы")
-        self.assertTrue(any("Выводы" in issue for issue in validate_report(report, [SOURCE])))
+        report = VALID_REPORT.replace("## Ограничения", "### Ограничения")
+        self.assertTrue(any("Ограничения" in issue for issue in validate_report(report, [SOURCE])))
 
 
 class RepairingModel:
@@ -90,7 +90,7 @@ class RepairingModel:
 
 class ReportRepairTests(unittest.TestCase):
     def test_repairs_report_once(self):
-        report, repaired = build_validated_report(RepairingModel(), "Тема", [SOURCE])
+        report, repaired = build_validated_report(RepairingModel(), "Вопрос", [SOURCE])
         self.assertTrue(repaired)
         self.assertEqual(validate_report(report, [SOURCE]), [])
 
@@ -105,18 +105,17 @@ class ConfigurationTests(unittest.TestCase):
 class DemoRunTests(unittest.TestCase):
     def test_complete_demo_run(self):
         with tempfile.TemporaryDirectory() as directory:
-            report_path, run_path = run("Тестовая тема", 3, 6, Path(directory), demo=True)
+            report_path, run_path = run("Тестовый правовой вопрос", 3, 6, Path(directory), demo=True)
             report = report_path.read_text(encoding="utf-8")
             journal = json.loads(run_path.read_text(encoding="utf-8"))
-            self.assertIn("# Тестовая тема", report)
-            self.assertIn("Демонстрационный режим", report)
-            self.assertIn("## Источники", report)
+            self.assertIn("# Тестовый правовой вопрос", report)
+            self.assertIn("Дата проверки изменений", report)
+            self.assertIn("не индивидуальная юридическая консультация", report)
             self.assertTrue(journal["demo"])
             self.assertTrue(journal["report_validated"])
-            self.assertEqual(journal["queries"][0], "Тестовая тема")
-            self.assertEqual(len(journal["queries"]), 3)
+            self.assertTrue(journal["legal_update_check"]["performed"])
+            self.assertGreaterEqual(len(journal["legal_update_check"]["queries"]), 1)
             self.assertEqual(len(journal["sources"]), 2)
-            self.assertTrue(journal["research_rounds"][0]["sufficient"])
 
 
 class IterativeModel:
@@ -124,13 +123,15 @@ class IterativeModel:
         self.assessments = 0
 
     def complete(self, system, user):
+        if "legal_update_queries" in system:
+            return json.dumps({"legal_update_queries": ["проверка поправок"], "notes": "Обязательная проверка."})
         if "additional_queries" in system:
             self.assessments += 1
             if self.assessments == 1:
                 return json.dumps(
-                    {"sufficient": False, "additional_queries": ["второй"], "reason": "Нужны дополнительные данные."}
+                    {"sufficient": False, "additional_queries": ["второй"], "reason": "Нужна ещё одна норма."}
                 )
-            return json.dumps({"sufficient": True, "additional_queries": [], "reason": "Данных достаточно."})
+            return json.dumps({"sufficient": True, "additional_queries": [], "reason": "Норм достаточно."})
         if "queries" in system:
             return json.dumps({"queries": ["первый"]})
         return VALID_REPORT
@@ -142,20 +143,22 @@ class IterativeSearch:
 
     def search(self, query, limit):
         self.calls.append(query)
-        return [Source(f"Источник: {query}", f"https://example.org/{query}", "Материал.", query)]
+        return [Source(f"Источник: {query}", f"https://pravo.gov.ru/{query}", "Материал.", query)]
 
 
 class IterativeResearchTests(unittest.TestCase):
-    def test_runs_additional_search_when_needed(self):
+    def test_additional_research_and_mandatory_update_check(self):
         model = IterativeModel()
         search = IterativeSearch()
         with patch("agent.OpenAICompatibleModel", return_value=model), patch("agent.TavilySearch", return_value=search):
             with tempfile.TemporaryDirectory() as directory:
-                _, run_path = run("Тема", 1, 6, Path(directory))
+                _, run_path = run("Вопрос", 1, 6, Path(directory))
                 journal = json.loads(run_path.read_text(encoding="utf-8"))
-        self.assertEqual(search.calls, ["Тема", "второй"])
+        self.assertEqual(search.calls[:3], ["Вопрос", "второй", "проверка поправок"])
+        self.assertEqual(len(search.calls), 4)
         self.assertEqual(len(journal["research_rounds"]), 2)
-        self.assertEqual(len(journal["sources"]), 2)
+        self.assertTrue(journal["legal_update_check"]["performed"])
+        self.assertEqual(journal["legal_update_check"]["queries"][0], "проверка поправок")
 
 
 if __name__ == "__main__":

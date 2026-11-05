@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Локальный ИИ-агент для поиска информации и подготовки отчётов."""
+"""Локальный ИИ-помощник по законодательству РФ с проверкой изменений."""
 
 from __future__ import annotations
 
@@ -17,13 +17,14 @@ from typing import Any, Protocol
 
 
 REQUIRED_SECTIONS = (
-    "Краткий вывод",
-    "Основные факты",
-    "Подробный анализ",
-    "Противоречия и ограничения",
-    "Выводы",
+    "Краткий ответ",
+    "Правовое основание",
+    "Актуальность и изменения",
+    "Как применить к ситуации",
+    "Ограничения",
 )
-CITATION_SECTIONS = ("Краткий вывод", "Основные факты", "Подробный анализ")
+CITATION_SECTIONS = ("Краткий ответ", "Правовое основание", "Актуальность и изменения")
+LEGAL_DISCLAIMER = "Информационная справка, а не индивидуальная юридическая консультация. Перед принятием решения проверьте текст нормы и при необходимости обратитесь к юристу."
 
 
 class AgentError(RuntimeError):
@@ -133,6 +134,13 @@ class TavilySearch:
     def __init__(self) -> None:
         self.api_key = os.getenv("TAVILY_API_KEY", "").strip()
         self.url = os.getenv("TAVILY_API_URL", "https://api.tavily.com/search")
+        self.domains = [
+            item.strip()
+            for item in os.getenv(
+                "LEGAL_SEARCH_DOMAINS", "pravo.gov.ru,www.consultant.ru,www.garant.ru"
+            ).split(",")
+            if item.strip()
+        ]
         if not self.api_key:
             raise AgentError("Задайте TAVILY_API_KEY в файле .env.")
 
@@ -145,6 +153,7 @@ class TavilySearch:
                 "max_results": limit,
                 "include_answer": False,
                 "include_raw_content": "text",
+                "include_domains": self.domains,
             },
             {"Authorization": f"Bearer {self.api_key}"},
             timeout=60,
@@ -172,28 +181,30 @@ class TavilySearch:
 
 class DemoModel:
     def complete(self, system: str, user: str) -> str:
+        if "legal_update_queries" in system:
+            return json.dumps(
+                {"queries": ["условная проверка последних изменений"], "notes": "Демонстрационная проверка изменений."},
+                ensure_ascii=False,
+            )
         if "additional_queries" in system:
             return json.dumps(
-                {"sufficient": True, "additional_queries": [], "reason": "Демонстрационные материалы получены."},
+                {"sufficient": True, "additional_queries": [], "reason": "Демонстрационные правовые материалы получены."},
                 ensure_ascii=False,
             )
         if "queries" in system:
-            topic = user.split("Тема:", 1)[-1].splitlines()[0].strip()
-            return json.dumps({"queries": [topic, f"{topic}: основные факты", f"{topic}: ограничения"]}, ensure_ascii=False)
+            topic = user.split("Вопрос:", 1)[-1].splitlines()[0].strip()
+            return json.dumps({"queries": [topic, f"{topic}: нормы права", f"{topic}: последние изменения"]}, ensure_ascii=False)
         return (
-            "## Краткий вывод\n\n"
-            "Демонстрационный запуск успешно проверяет полный цикл работы агента [1]. "
-            "Для реального исследования необходимо подключить модель и поисковый API.\n\n"
-            "## Основные факты\n\n"
-            "- Агент формирует поисковые запросы и объединяет результаты без дублей [1].\n"
-            "- Отчёт создаётся только на основании переданных источников [1][2].\n\n"
-            "## Подробный анализ\n\n"
-            "В обычном режиме здесь появится анализ материалов, найденных по вашей теме [1]. "
-            "Демонстрационные источники являются условными и не содержат реальных фактов.\n\n"
-            "## Противоречия и ограничения\n\n"
-            "Это локальная проверка без обращения к внешним сервисам; качество реального поиска в ней не оценивается.\n\n"
-            "## Выводы\n\n"
-            "Прототип готов к настройке реальных API-ключей и проведению исследования."
+            "## Краткий ответ\n\n"
+            "Демонстрационный запуск проверяет цикл юридического помощника; реальный правовой вывод здесь не формируется [1].\n\n"
+            "## Правовое основание\n\n"
+            "В рабочем режиме агент должен указать точные нормы только при наличии их текста в источниках [1][2].\n\n"
+            "## Актуальность и изменения\n\n"
+            "Перед ответом выполняется отдельный поиск последних изменений; в демонстрации используются условные данные [1].\n\n"
+            "## Как применить к ситуации\n\n"
+            "Для реального ответа необходимо подключить модель и поисковый API, затем проверить нормы по ссылкам.\n\n"
+            "## Ограничения\n\n"
+            "Демонстрационные источники условны. Это не юридическая консультация."
         )
 
 
@@ -237,9 +248,10 @@ def format_materials(sources: list[Source]) -> str:
 
 def plan_queries(model: LanguageModel, topic: str, count: int) -> list[str]:
     response = model.complete(
-        "Ты планируешь исследование. Верни только JSON с ключом queries: список разнообразных поисковых запросов. "
-        "Не добавляй пояснений. Учитывай актуальность, первоисточники и возможные противоречия.",
-        f"Тема: {topic}\nКоличество поисковых запросов: {count}",
+        "Ты планируешь правовое исследование по законодательству РФ. Верни только JSON с ключом queries: "
+        "список разнообразных запросов для поиска действующих норм, точных статей и официальных текстов. "
+        "Не добавляй пояснений. Не полагайся на память модели о содержании законов.",
+        f"Вопрос: {topic}\nКоличество поисковых запросов: {count}",
     )
     raw_queries = extract_json(response).get("queries", [])
     queries = [str(item).strip() for item in raw_queries if str(item).strip()]
@@ -252,8 +264,9 @@ def assess_sources(model: LanguageModel, topic: str, sources: list[Source]) -> t
     response = model.complete(
         "Ты оцениваешь полноту исследования. Верни только JSON с полями: sufficient (boolean), "
         "additional_queries (список до 3 новых запросов), reason (краткое обоснование). "
-        "Материалов достаточно, если они позволяют ответить на основные аспекты темы и содержат подтверждения важных фактов. "
-        "Если данных достаточно, additional_queries должен быть пустым. Не выдумывай факты.",
+        "Материалов достаточно, если они содержат применимые нормы, точные реквизиты и позволяют ответить на вопрос. "
+        "Отдельно учитывай, нужны ли подзаконные акты или судебная практика. Если данных достаточно, additional_queries пуст. "
+        "Не выдумывай нормы и факты.",
         f"Тема: {topic}\n\nМатериалы:\n\n{format_materials(sources)}",
     )
     data = extract_json(response)
@@ -267,13 +280,31 @@ def assess_sources(model: LanguageModel, topic: str, sources: list[Source]) -> t
     return sufficient, list(dict.fromkeys(queries))[:3], str(data.get("reason", "")).strip()
 
 
+def plan_legal_update_check(model: LanguageModel, question: str, sources: list[Source], checked_on: str) -> tuple[list[str], str]:
+    """Всегда готовит отдельный поиск поправок и новых редакций."""
+    response = model.complete(
+        "Ты проверяешь актуальность правовых норм РФ. Верни только JSON с полями legal_update_queries "
+        "(список от 1 до 3 запросов) и notes. Запросы должны искать последние изменения, новые редакции, "
+        "даты вступления в силу и признание норм утратившими силу. Не утверждай, что норма действует, без источника.",
+        f"Вопрос: {question}\nДата проверки: {checked_on}\n\nМатериалы:\n\n{format_materials(sources)}",
+    )
+    data = extract_json(response)
+    raw_queries = data.get("legal_update_queries", data.get("queries", []))
+    if not isinstance(raw_queries, list):
+        raise AgentError("Запросы для проверки изменений имеют неверный формат.")
+    queries = [str(item).strip() for item in raw_queries if str(item).strip()]
+    fallback = f"{question} последние изменения действующая редакция {checked_on[:4]}"
+    return list(dict.fromkeys([*queries, fallback]))[:3], str(data.get("notes", "")).strip()
+
+
 def build_report(model: LanguageModel, topic: str, sources: list[Source]) -> str:
     return model.complete(
-        "Ты исследовательский агент. Пиши по-русски, точно и без выдуманных фактов. "
-        "Используй только переданные материалы. Каждое существенное утверждение сопровождай ссылкой [N]. "
-        "Если данных мало, прямо укажи это. Не добавляй раздел источников: он будет сформирован отдельно. "
-        "Используй разделы: Краткий вывод, Основные факты, Подробный анализ, Противоречия и ограничения, Выводы.",
-        f"Тема исследования: {topic}\n\nМатериалы:\n\n{format_materials(sources)}",
+        "Ты юридический помощник по законодательству РФ. Пиши по-русски простыми словами. "
+        "Используй только переданные материалы и никогда не называй статью, номер или редакцию без подтверждения в источнике. "
+        "Каждое правовое утверждение сопровождай ссылкой [N]. Отдельно укажи, какие изменения проверены и что подтвердить не удалось. "
+        "Не выдавай ответ за индивидуальную юридическую консультацию. Не добавляй раздел источников. "
+        "Используй разделы: Краткий ответ, Правовое основание, Актуальность и изменения, Как применить к ситуации, Ограничения.",
+        f"Правовой вопрос: {topic}\n\nМатериалы:\n\n{format_materials(sources)}",
     )
 
 
@@ -348,15 +379,17 @@ def save_results(
     demo: bool,
     research_log: list[dict[str, Any]],
     report_repaired: bool,
+    update_check: dict[str, Any],
+    checked_on: str,
 ) -> tuple[Path, Path]:
     output_dir.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
-    report_path = output_dir / f"отчёт-{stamp}.md"
+    report_path = output_dir / f"ответ-{stamp}.md"
     run_path = output_dir / f"журнал-{stamp}.json"
     source_list = "\n".join(f"{i}. [{s.title}]({s.url})" for i, s in enumerate(sources, start=1))
     warning = "\n> **Демонстрационный режим:** источники и факты условны.\n" if demo else ""
     report_path.write_text(
-        f"# {topic}\n{warning}\n{report.strip()}\n\n## Источники\n\n{source_list}\n",
+        f"# {topic}\n\n**Дата проверки изменений:** {checked_on}\n\n> {LEGAL_DISCLAIMER}\n{warning}\n{report.strip()}\n\n## Источники\n\n{source_list}\n",
         encoding="utf-8",
     )
     run_path.write_text(
@@ -370,6 +403,8 @@ def save_results(
                 "research_rounds": research_log,
                 "report_validated": True,
                 "report_repaired": report_repaired,
+                "legal_update_check": update_check,
+                "checked_on": checked_on,
                 "report_file": report_path.name,
             },
             ensure_ascii=False,
@@ -381,6 +416,7 @@ def save_results(
 
 
 def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo: bool = False) -> tuple[Path, Path]:
+    checked_on = datetime.now(timezone.utc).date().isoformat()
     if demo:
         model: LanguageModel = DemoModel()
         search: SearchProvider = DemoSearch()
@@ -388,12 +424,12 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
         model = OpenAICompatibleModel()
         search = TavilySearch()
 
-    print("[1/5] Планирую исследование…")
+    print("[1/6] Планирую правовое исследование…")
     queries = plan_queries(model, topic, query_count)
     executed_queries = set(queries)
     print("      Запросы: " + "; ".join(queries))
 
-    print("[2/5] Ищу и читаю источники…")
+    print("[2/6] Ищу нормы и читаю источники…")
     per_query = max(2, min(5, source_limit))
     found, errors = search_queries(search, queries, per_query)
     sources = deduplicate(found, source_limit)
@@ -402,7 +438,7 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
         raise AgentError("Не найдено пригодных источников." + (f"\n{details}" if details else ""))
     print(f"      Выбрано источников: {len(sources)}")
 
-    print("[3/5] Оцениваю полноту материалов…")
+    print("[3/6] Оцениваю полноту правовых материалов…")
     research_log: list[dict[str, Any]] = []
     additional_round = 0
     while True:
@@ -431,20 +467,40 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
         sources = deduplicate([*sources, *found], source_limit)
         print(f"      Выбрано источников: {len(sources)}")
 
-    print("[4/5] Готовлю и проверяю отчёт…")
+    print("[4/6] Обязательно проверяю последние изменения…")
+    update_queries, update_notes = plan_legal_update_check(model, topic, sources, checked_on)
+    new_update_queries = [query for query in update_queries if query not in executed_queries]
+    if not new_update_queries:
+        new_update_queries = [f"{topic} изменения действующая редакция {checked_on[:4]}"]
+    queries.extend(new_update_queries)
+    executed_queries.update(new_update_queries)
+    update_found, update_errors = search_queries(search, new_update_queries, per_query)
+    sources = deduplicate([*sources, *update_found], source_limit)
+    update_check = {
+        "performed": True,
+        "queries": new_update_queries,
+        "notes": update_notes,
+        "new_sources_found": len(update_found),
+        "errors": update_errors,
+    }
+    print(f"      Проверочных запросов: {len(new_update_queries)}; источников всего: {len(sources)}")
+
+    print("[5/6] Готовлю и проверяю правовой ответ…")
     report, report_repaired = build_validated_report(model, topic, sources)
     if report_repaired:
         print("      Отчёт исправлен после автоматической проверки.")
     else:
         print("      Структура и ссылки прошли проверку.")
 
-    print("[5/5] Сохраняю результаты…")
-    return save_results(output_dir, topic, queries, sources, report, demo, research_log, report_repaired)
+    print("[6/6] Сохраняю результаты…")
+    return save_results(
+        output_dir, topic, queries, sources, report, demo, research_log, report_repaired, update_check, checked_on
+    )
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Локальный ИИ-агент для исследований и отчётов")
-    parser.add_argument("topic", help="Тема исследования в кавычках")
+    parser = argparse.ArgumentParser(description="Локальный ИИ-помощник по законодательству РФ")
+    parser.add_argument("topic", help="Правовой вопрос в кавычках")
     parser.add_argument("--queries", type=int, default=3, help="Число первоначальных поисковых запросов, 1–5")
     parser.add_argument("--sources", type=int, default=6, help="Максимум источников, 1–10")
     parser.add_argument("--output-dir", type=Path, default=Path("результаты"), help="Папка результатов")
