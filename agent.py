@@ -16,6 +16,16 @@ from pathlib import Path
 from typing import Any, Protocol
 
 
+REQUIRED_SECTIONS = (
+    "Краткий вывод",
+    "Основные факты",
+    "Подробный анализ",
+    "Противоречия и ограничения",
+    "Выводы",
+)
+CITATION_SECTIONS = ("Краткий вывод", "Основные факты", "Подробный анализ")
+
+
 class AgentError(RuntimeError):
     """Понятная ошибка выполнения агента."""
 
@@ -162,18 +172,23 @@ class TavilySearch:
 
 class DemoModel:
     def complete(self, system: str, user: str) -> str:
+        if "additional_queries" in system:
+            return json.dumps(
+                {"sufficient": True, "additional_queries": [], "reason": "Демонстрационные материалы получены."},
+                ensure_ascii=False,
+            )
         if "queries" in system:
             topic = user.split("Тема:", 1)[-1].splitlines()[0].strip()
             return json.dumps({"queries": [topic, f"{topic}: основные факты", f"{topic}: ограничения"]}, ensure_ascii=False)
         return (
             "## Краткий вывод\n\n"
-            "Демонстрационный запуск успешно проверяет полный цикл работы агента. "
+            "Демонстрационный запуск успешно проверяет полный цикл работы агента [1]. "
             "Для реального исследования необходимо подключить модель и поисковый API.\n\n"
             "## Основные факты\n\n"
             "- Агент формирует поисковые запросы и объединяет результаты без дублей [1].\n"
             "- Отчёт создаётся только на основании переданных источников [1][2].\n\n"
             "## Подробный анализ\n\n"
-            "В обычном режиме здесь появится анализ материалов, найденных по вашей теме. "
+            "В обычном режиме здесь появится анализ материалов, найденных по вашей теме [1]. "
             "Демонстрационные источники являются условными и не содержат реальных фактов.\n\n"
             "## Противоречия и ограничения\n\n"
             "Это локальная проверка без обращения к внешним сервисам; качество реального поиска в ней не оценивается.\n\n"
@@ -211,6 +226,15 @@ def deduplicate(sources: list[Source], limit: int) -> list[Source]:
     return list(unique.values())
 
 
+def format_materials(sources: list[Source]) -> str:
+    materials = []
+    for index, source in enumerate(sources, start=1):
+        materials.append(
+            f"[{index}] {source.title}\nURL: {source.url}\nТекст:\n{source.text[:9000]}"
+        )
+    return "\n\n---\n\n".join(materials)
+
+
 def plan_queries(model: LanguageModel, topic: str, count: int) -> list[str]:
     response = model.complete(
         "Ты планируешь исследование. Верни только JSON с ключом queries: список разнообразных поисковых запросов. "
@@ -224,22 +248,107 @@ def plan_queries(model: LanguageModel, topic: str, count: int) -> list[str]:
     return list(dict.fromkeys([topic, *queries]))[:count]
 
 
+def assess_sources(model: LanguageModel, topic: str, sources: list[Source]) -> tuple[bool, list[str], str]:
+    response = model.complete(
+        "Ты оцениваешь полноту исследования. Верни только JSON с полями: sufficient (boolean), "
+        "additional_queries (список до 3 новых запросов), reason (краткое обоснование). "
+        "Материалов достаточно, если они позволяют ответить на основные аспекты темы и содержат подтверждения важных фактов. "
+        "Если данных достаточно, additional_queries должен быть пустым. Не выдумывай факты.",
+        f"Тема: {topic}\n\nМатериалы:\n\n{format_materials(sources)}",
+    )
+    data = extract_json(response)
+    sufficient = data.get("sufficient")
+    if not isinstance(sufficient, bool):
+        raise AgentError("Оценка полноты исследования имеет неверный формат.")
+    raw_queries = data.get("additional_queries", [])
+    if not isinstance(raw_queries, list):
+        raise AgentError("Дополнительные запросы имеют неверный формат.")
+    queries = [str(item).strip() for item in raw_queries if str(item).strip()]
+    return sufficient, list(dict.fromkeys(queries))[:3], str(data.get("reason", "")).strip()
+
+
 def build_report(model: LanguageModel, topic: str, sources: list[Source]) -> str:
-    materials = []
-    for index, source in enumerate(sources, start=1):
-        materials.append(
-            f"[{index}] {source.title}\nURL: {source.url}\nТекст:\n{source.text[:9000]}"
-        )
     return model.complete(
         "Ты исследовательский агент. Пиши по-русски, точно и без выдуманных фактов. "
         "Используй только переданные материалы. Каждое существенное утверждение сопровождай ссылкой [N]. "
         "Если данных мало, прямо укажи это. Не добавляй раздел источников: он будет сформирован отдельно. "
         "Используй разделы: Краткий вывод, Основные факты, Подробный анализ, Противоречия и ограничения, Выводы.",
-        f"Тема исследования: {topic}\n\nМатериалы:\n\n" + "\n\n---\n\n".join(materials),
+        f"Тема исследования: {topic}\n\nМатериалы:\n\n{format_materials(sources)}",
     )
 
 
-def save_results(output_dir: Path, topic: str, queries: list[str], sources: list[Source], report: str, demo: bool) -> tuple[Path, Path]:
+def section_text(report: str, section: str) -> str:
+    match = re.search(
+        rf"^##\s+{re.escape(section)}\s*$\n(.*?)(?=^##\s+|\Z)",
+        report,
+        flags=re.MULTILINE | re.DOTALL,
+    )
+    return match.group(1).strip() if match else ""
+
+
+def validate_report(report: str, sources: list[Source]) -> list[str]:
+    """Проверяет структуру, наличие цитат и допустимость ссылок."""
+    issues: list[str] = []
+    for section in REQUIRED_SECTIONS:
+        if not section_text(report, section):
+            issues.append(f"Отсутствует или пуст раздел «{section}».")
+    for section in CITATION_SECTIONS:
+        text = section_text(report, section)
+        if text and not re.search(r"\[\d+\]", text):
+            issues.append(f"В разделе «{section}» нет ссылки на источник.")
+    citations = {int(value) for value in re.findall(r"\[(\d+)\]", report)}
+    invalid = sorted(number for number in citations if not 1 <= number <= len(sources))
+    if invalid:
+        issues.append(f"Есть ссылки на несуществующие источники: {invalid}.")
+    allowed_urls = {source.url for source in sources}
+    external_links = set(re.findall(r"\[[^\]]+\]\((https?://[^)]+)\)", report))
+    unknown_links = sorted(external_links - allowed_urls)
+    if unknown_links:
+        issues.append(f"Есть ссылки, которых нет в материалах: {unknown_links}.")
+    return issues
+
+
+def build_validated_report(model: LanguageModel, topic: str, sources: list[Source]) -> tuple[str, bool]:
+    """Создаёт отчёт и при необходимости выполняет одно исправление."""
+    report = build_report(model, topic, sources)
+    issues = validate_report(report, sources)
+    if not issues:
+        return report, False
+    repaired = model.complete(
+        "Ты исправляешь исследовательский отчёт. Используй только переданные материалы, не добавляй новых фактов. "
+        "Устрани все перечисленные проблемы, сохрани русский язык и формат Markdown. "
+        "Не добавляй итоговый раздел источников. Верни только исправленный отчёт.",
+        f"Тема: {topic}\n\nПроблемы:\n- " + "\n- ".join(issues)
+        + f"\n\nОтчёт:\n{report}\n\nМатериалы:\n\n{format_materials(sources)}",
+    )
+    remaining = validate_report(repaired, sources)
+    if remaining:
+        raise AgentError("Отчёт не прошёл проверку после исправления: " + " ".join(remaining))
+    return repaired, True
+
+
+def search_queries(search: SearchProvider, queries: list[str], per_query: int) -> tuple[list[Source], list[str]]:
+    found: list[Source] = []
+    errors: list[str] = []
+    for query in queries:
+        try:
+            found.extend(search.search(query, per_query))
+        except AgentError as exc:
+            errors.append(f"{query}: {exc}")
+            print(f"      Предупреждение: {exc}", file=sys.stderr)
+    return found, errors
+
+
+def save_results(
+    output_dir: Path,
+    topic: str,
+    queries: list[str],
+    sources: list[Source],
+    report: str,
+    demo: bool,
+    research_log: list[dict[str, Any]],
+    report_repaired: bool,
+) -> tuple[Path, Path]:
     output_dir.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
     report_path = output_dir / f"отчёт-{stamp}.md"
@@ -258,6 +367,9 @@ def save_results(output_dir: Path, topic: str, queries: list[str], sources: list
                 "demo": demo,
                 "queries": queries,
                 "sources": [asdict(source) for source in sources],
+                "research_rounds": research_log,
+                "report_validated": True,
+                "report_repaired": report_repaired,
                 "report_file": report_path.name,
             },
             ensure_ascii=False,
@@ -276,37 +388,64 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
         model = OpenAICompatibleModel()
         search = TavilySearch()
 
-    print("[1/4] Планирую исследование…")
+    print("[1/5] Планирую исследование…")
     queries = plan_queries(model, topic, query_count)
+    executed_queries = set(queries)
     print("      Запросы: " + "; ".join(queries))
 
-    print("[2/4] Ищу и читаю источники…")
-    found: list[Source] = []
-    errors: list[str] = []
+    print("[2/5] Ищу и читаю источники…")
     per_query = max(2, min(5, source_limit))
-    for query in queries:
-        try:
-            found.extend(search.search(query, per_query))
-        except AgentError as exc:
-            errors.append(f"{query}: {exc}")
-            print(f"      Предупреждение: {exc}", file=sys.stderr)
+    found, errors = search_queries(search, queries, per_query)
     sources = deduplicate(found, source_limit)
     if not sources:
         details = "\n".join(errors)
         raise AgentError("Не найдено пригодных источников." + (f"\n{details}" if details else ""))
     print(f"      Выбрано источников: {len(sources)}")
 
-    print("[3/4] Готовлю отчёт…")
-    report = build_report(model, topic, sources)
+    print("[3/5] Оцениваю полноту материалов…")
+    research_log: list[dict[str, Any]] = []
+    additional_round = 0
+    while True:
+        sufficient, additional_queries, reason = assess_sources(model, topic, sources)
+        research_log.append(
+            {
+                "round": additional_round,
+                "sufficient": sufficient,
+                "reason": reason,
+                "additional_queries": additional_queries,
+                "source_count": len(sources),
+                "errors": errors,
+            }
+        )
+        print(f"      {reason or ('Материалов достаточно.' if sufficient else 'Требуются дополнительные источники.')}")
+        new_queries = [query for query in additional_queries if query not in executed_queries]
+        if sufficient or additional_round >= 2 or len(sources) >= source_limit or not new_queries:
+            if not sufficient and additional_round >= 2:
+                print("      Достигнут лимит дополнительного поиска; продолжаю с доступными материалами.")
+            break
+        additional_round += 1
+        queries.extend(new_queries)
+        executed_queries.update(new_queries)
+        print(f"      Дополнительный поиск {additional_round}/2: " + "; ".join(new_queries))
+        found, errors = search_queries(search, new_queries, per_query)
+        sources = deduplicate([*sources, *found], source_limit)
+        print(f"      Выбрано источников: {len(sources)}")
 
-    print("[4/4] Сохраняю результаты…")
-    return save_results(output_dir, topic, queries, sources, report, demo)
+    print("[4/5] Готовлю и проверяю отчёт…")
+    report, report_repaired = build_validated_report(model, topic, sources)
+    if report_repaired:
+        print("      Отчёт исправлен после автоматической проверки.")
+    else:
+        print("      Структура и ссылки прошли проверку.")
+
+    print("[5/5] Сохраняю результаты…")
+    return save_results(output_dir, topic, queries, sources, report, demo, research_log, report_repaired)
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Локальный ИИ-агент для исследований и отчётов")
     parser.add_argument("topic", help="Тема исследования в кавычках")
-    parser.add_argument("--queries", type=int, default=3, help="Число поисковых запросов, 1–5")
+    parser.add_argument("--queries", type=int, default=3, help="Число первоначальных поисковых запросов, 1–5")
     parser.add_argument("--sources", type=int, default=6, help="Максимум источников, 1–10")
     parser.add_argument("--output-dir", type=Path, default=Path("результаты"), help="Папка результатов")
     parser.add_argument("--demo", action="store_true", help="Проверка без API-ключей и внешних запросов")
