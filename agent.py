@@ -196,6 +196,11 @@ class DemoModel:
                 {"sufficient": True, "additional_queries": [], "reason": "Демонстрационные правовые материалы получены."},
                 ensure_ascii=False,
             )
+        if "consistent" in system:
+            return json.dumps(
+                {"consistent": True, "issues": []},
+                ensure_ascii=False,
+            )
         if "queries" in system:
             topic = user.split("Вопрос:", 1)[-1].splitlines()[0].strip()
             return json.dumps({"queries": [topic, f"{topic}: нормы права", f"{topic}: последние изменения"]}, ensure_ascii=False)
@@ -320,14 +325,19 @@ def plan_court_practice_check(model: LanguageModel, question: str, checked_on: s
     return list(dict.fromkeys([*queries, fallback]))[:3], str(data.get("notes", "")).strip()
 
 
-def build_report(model: LanguageModel, topic: str, sources: list[Source]) -> str:
+def build_report(model: LanguageModel, topic: str, sources: list[Source], session_context: str = "") -> str:
+    context_block = (
+        "\n\nКонтекст предыдущих вопросов этой сессии (учитывай, если вопрос продолжает их):\n" + session_context
+        if session_context
+        else ""
+    )
     return model.complete(
         "Ты юридический помощник по законодательству РФ. Пиши по-русски простыми словами. "
         "Используй только переданные материалы и никогда не называй статью, номер или редакцию без подтверждения в источнике. "
         "Каждое правовое утверждение сопровождай ссылкой [N]. Отдельно укажи, какие изменения проверены и что подтвердить не удалось. "
         "Не выдавай ответ за индивидуальную юридическую консультацию. Не добавляй раздел источников. "
         "Используй разделы: Краткий ответ, Правовое основание, Актуальность и изменения, Как применить к ситуации, Ограничения.",
-        f"Правовой вопрос: {topic}\n\nМатериалы:\n\n{format_materials(sources)}",
+        f"Правовой вопрос: {topic}{context_block}\n\nМатериалы:\n\n{format_materials(sources)}",
     )
 
 
@@ -381,9 +391,9 @@ def validate_report(report: str, sources: list[Source]) -> list[str]:
     return issues
 
 
-def build_validated_report(model: LanguageModel, topic: str, sources: list[Source]) -> tuple[str, bool]:
+def build_validated_report(model: LanguageModel, topic: str, sources: list[Source], session_context: str = "") -> tuple[str, bool]:
     """Создаёт отчёт и при необходимости выполняет одно исправление."""
-    report = build_report(model, topic, sources)
+    report = build_report(model, topic, sources, session_context)
     issues = validate_report(report, sources)
     if not issues:
         return report, False
@@ -398,6 +408,41 @@ def build_validated_report(model: LanguageModel, topic: str, sources: list[Sourc
     if remaining:
         raise AgentError("Отчёт не прошёл проверку после исправления: " + " ".join(remaining))
     return repaired, True
+
+
+def reflect_on_report(model: LanguageModel, topic: str, report: str, sources: list[Source]) -> tuple[str, dict[str, Any]]:
+    """Самопроверка готового ответа: модель ищет противоречия и неподтверждённые выводы.
+
+    Этап вспомогательный: при сбое самой самопроверки исходный ответ сохраняется,
+    а запись в журнале помечается performed=False (как этап судебной практики).
+    """
+    response = extract_json(
+        model.complete(
+            "Ты проверяешь готовый юридический ответ по законодательству РФ. Ищи только реальные проблемы: "
+            "противоречия между разделами, выводы, которые не следуют из правовых оснований, "
+            "утверждения без ссылки на источник там, где она нужна. "
+            'Верни только JSON: {"consistent": true|false, "issues": ["краткое описание проблемы"]}. '
+            "Если проблем нет, верни пустой список issues и consistent=true. Не придумывай проблемы.",
+            f"Вопрос: {topic}\n\nОтвет:\n{report}\n\nМатериалы:\n\n{format_materials(sources)}",
+        )
+    )
+    issues = [str(issue).strip() for issue in response.get("issues", []) if str(issue).strip()]
+    consistent = bool(response.get("consistent", not issues)) and not issues
+    journal: dict[str, Any] = {"performed": True, "consistent": consistent, "issues": issues, "repaired": False}
+    if consistent:
+        return report, journal
+    repaired = model.complete(
+        "Ты исправляешь юридический ответ по замечаниям самопроверки. Используй только переданные материалы, "
+        "не добавляй новых фактов. Устрани перечисленные противоречия, сохрани русский язык, формат Markdown "
+        "и обязательные разделы. Не добавляй итоговый раздел источников. Верни только исправленный ответ.",
+        f"Вопрос: {topic}\n\nЗамечания:\n- " + "\n- ".join(issues)
+        + f"\n\nОтвет:\n{report}\n\nМатериалы:\n\n{format_materials(sources)}",
+    )
+    validation = validate_report(repaired, sources)
+    if validation:
+        raise AgentError("Ответ после самопроверки не прошёл структурную проверку: " + " ".join(validation))
+    journal["repaired"] = True
+    return repaired, journal
 
 
 def search_queries(search: SearchProvider, queries: list[str], per_query: int) -> tuple[list[Source], list[str]]:
@@ -423,6 +468,7 @@ def save_results(
     report_repaired: bool,
     update_check: dict[str, Any],
     court_check: dict[str, Any],
+    reflection: dict[str, Any],
     checked_on: str,
 ) -> tuple[Path, Path]:
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -448,6 +494,7 @@ def save_results(
                 "report_repaired": report_repaired,
                 "legal_update_check": update_check,
                 "court_practice_check": court_check,
+                "self_reflection": reflection,
                 "checked_on": checked_on,
                 "report_file": report_path.name,
             },
@@ -459,7 +506,7 @@ def save_results(
     return report_path, run_path
 
 
-def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo: bool = False) -> tuple[Path, Path]:
+def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo: bool = False, session_context: str = "") -> tuple[Path, Path]:
     checked_on = datetime.now(timezone.utc).date().isoformat()
     if demo:
         model: LanguageModel = DemoModel()
@@ -477,12 +524,12 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
         ]
         court_search = TavilySearch(domains=court_domains)
 
-    print("[1/7] Планирую правовое исследование…")
+    print("[1/8] Планирую правовое исследование…")
     queries = plan_queries(model, topic, query_count)
     executed_queries = set(queries)
     print("      Запросы: " + "; ".join(queries))
 
-    print("[2/7] Ищу нормы и читаю источники…")
+    print("[2/8] Ищу нормы и читаю источники…")
     per_query = max(2, min(5, source_limit))
     found, errors = search_queries(search, queries, per_query)
     sources = deduplicate(found, source_limit)
@@ -491,7 +538,7 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
         raise AgentError("Не найдено пригодных источников." + (f"\n{details}" if details else ""))
     print(f"      Выбрано источников: {len(sources)}")
 
-    print("[3/7] Оцениваю полноту правовых материалов…")
+    print("[3/8] Оцениваю полноту правовых материалов…")
     research_log: list[dict[str, Any]] = []
     additional_round = 0
     while True:
@@ -520,7 +567,7 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
         sources = deduplicate([*sources, *found], source_limit)
         print(f"      Выбрано источников: {len(sources)}")
 
-    print("[4/7] Обязательно проверяю последние изменения…")
+    print("[4/8] Обязательно проверяю последние изменения…")
     update_queries, update_notes = plan_legal_update_check(model, topic, sources, checked_on)
     new_update_queries = [query for query in update_queries if query not in executed_queries]
     if not new_update_queries:
@@ -538,7 +585,7 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
     }
     print(f"      Проверочных запросов: {len(new_update_queries)}; источников всего: {len(sources)}")
 
-    print("[5/7] Ищу судебную практику…")
+    print("[5/8] Ищу судебную практику…")
     try:
         court_queries, court_notes = plan_court_practice_check(model, topic, checked_on)
     except AgentError as exc:
@@ -568,16 +615,29 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
         }
         print(f"      Запросов по практике: {len(new_court_queries)}; источников всего: {len(sources)}")
 
-    print("[6/7] Готовлю и проверяю правовой ответ…")
-    report, report_repaired = build_validated_report(model, topic, sources)
+    print("[6/8] Готовлю и проверяю правовой ответ…")
+    report, report_repaired = build_validated_report(model, topic, sources, session_context)
     if report_repaired:
         print("      Отчёт исправлен после автоматической проверки.")
     else:
         print("      Структура и ссылки прошли проверку.")
 
-    print("[7/7] Сохраняю результаты…")
+    print("[7/8] Самопроверка ответа…")
+    try:
+        report, reflection = reflect_on_report(model, topic, report, sources)
+    except AgentError as exc:
+        # Самопроверка — вспомогательный этап: её сбой не отменяет ответ.
+        reflection = {"performed": False, "consistent": None, "issues": [], "repaired": False, "errors": [str(exc)]}
+        print(f"      Этап пропущен: {exc}")
+    else:
+        if reflection["repaired"]:
+            print(f"      Найдено замечаний: {len(reflection['issues'])}; ответ исправлен.")
+        else:
+            print("      Противоречий не найдено.")
+
+    print("[8/8] Сохраняю результаты…")
     return save_results(
-        output_dir, topic, queries, sources, report, demo, research_log, report_repaired, update_check, court_check, checked_on
+        output_dir, topic, queries, sources, report, demo, research_log, report_repaired, update_check, court_check, reflection, checked_on
     )
 
 

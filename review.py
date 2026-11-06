@@ -28,6 +28,7 @@ from agent import (
     extract_json,
     load_dotenv,
 )
+from doctext import read_document_file, resolve_document
 
 MIN_DOCUMENT_CHARS = 20
 MIN_QUOTE_CHARS = 10
@@ -146,13 +147,14 @@ class DemoReviewModel:
 
 def handle_review(payload: dict[str, Any]) -> dict[str, Any]:
     """Валидирует запрос и выполняет проверку договора."""
-    document = payload.get("document", "")
-    if not isinstance(document, str) or len(document.strip()) < MIN_DOCUMENT_CHARS:
-        raise ValueError(f"Поле «document» обязательно: текст договора от {MIN_DOCUMENT_CHARS} символов.")
+    document = resolve_document(payload)
+    if len(document) < MIN_DOCUMENT_CHARS:
+        raise ValueError(f"Текст договора слишком короткий: нужно от {MIN_DOCUMENT_CHARS} символов.")
     demo = bool(payload.get("demo", False))
     model: LanguageModel = DemoReviewModel() if demo else OpenAICompatibleModel()
     result, repaired = review_contract(model, document.strip())
     return {
+        "status": "draft",
         "summary": result["summary"].strip(),
         "risks": result.get("risks", []),
         "missing_clauses": result.get("missing_clauses", []),
@@ -165,15 +167,15 @@ def handle_review(payload: dict[str, Any]) -> dict[str, Any]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Проверка договора: риски и отсутствующие условия")
-    parser.add_argument("file", type=Path, help="Текстовый файл с договором в кодировке UTF-8")
+    parser.add_argument("file", type=Path, help="Файл с договором: .txt (UTF-8) или .docx")
     parser.add_argument("--demo", action="store_true", help="Проверка без API-ключей и внешних запросов")
     args = parser.parse_args()
     if not args.file.exists():
         print(f"Ошибка: файл не найден: {args.file}", file=sys.stderr)
         return 1
     load_dotenv()
-    document = args.file.read_text(encoding="utf-8")
     try:
+        document = read_document_file(args.file.read_bytes(), args.file.name)
         result = handle_review({"document": document, "demo": args.demo})
     except (AgentError, ValueError) as exc:
         print(f"\nОшибка: {exc}", file=sys.stderr)
