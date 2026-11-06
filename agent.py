@@ -361,7 +361,7 @@ def validate_report(report: str, sources: list[Source]) -> list[str]:
     issues: list[str] = []
     for section in REQUIRED_SECTIONS:
         if not section_text(report, section):
-            issues.append(f"Отсутствует или пуст раздел «{section}}».")
+            issues.append(f"Отсутствует или пуст раздел «{section}».")
     for section in CITATION_SECTIONS:
         text = section_text(report, section)
         if text and not re.search(r"\[\d+\]", text):
