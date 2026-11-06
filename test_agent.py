@@ -12,6 +12,7 @@ from agent import (
     build_validated_report,
     deduplicate,
     extract_json,
+    reflect_on_report,
     run,
     validate_report,
 )
@@ -95,6 +96,27 @@ class ReportRepairTests(unittest.TestCase):
         self.assertEqual(validate_report(report, [SOURCE]), [])
 
 
+class RecordingModel:
+    def __init__(self):
+        self.users = []
+
+    def complete(self, system, user):
+        self.users.append(user)
+        return VALID_REPORT
+
+
+class SessionContextTests(unittest.TestCase):
+    def test_session_context_reaches_report_prompt(self):
+        model = RecordingModel()
+        build_validated_report(model, "Вопрос", [SOURCE], session_context="Ранее обсуждали аренду.")
+        self.assertTrue(any("Ранее обсуждали аренду." in user for user in model.users))
+
+    def test_without_session_context_prompt_unchanged(self):
+        model = RecordingModel()
+        build_validated_report(model, "Вопрос", [SOURCE])
+        self.assertTrue(all("Контекст предыдущих вопросов" not in user for user in model.users))
+
+
 class ConfigurationTests(unittest.TestCase):
     def test_model_requires_configuration(self):
         with patch.dict(os.environ, {}, clear=True):
@@ -116,6 +138,8 @@ class DemoRunTests(unittest.TestCase):
             self.assertTrue(journal["legal_update_check"]["performed"])
             self.assertGreaterEqual(len(journal["legal_update_check"]["queries"]), 1)
             self.assertTrue(journal["court_practice_check"]["performed"])
+            self.assertTrue(journal["self_reflection"]["performed"])
+            self.assertTrue(journal["self_reflection"]["consistent"])
             self.assertEqual(len(journal["sources"]), 2)
 
 
@@ -183,6 +207,50 @@ class ArticleFactcheckTests(unittest.TestCase):
         report = VALID_REPORT.replace("Условная норма [1].", "Условная норма по ст. 395 ГК РФ [1].")
         issues = validate_report(report, [source])
         self.assertTrue(any("статьи" in issue for issue in issues))
+
+
+class ConsistentModel:
+    def complete(self, system, user):
+        return json.dumps({"consistent": True, "issues": []})
+
+
+class ReflectingModel:
+    """Самопроверка находит противоречие, исправление возвращает валидный отчёт."""
+
+    def complete(self, system, user):
+        if "consistent" in system:
+            return json.dumps({"consistent": False, "issues": ["Разделы противоречат друг другу."]})
+        if "Замечания:" in user:
+            return VALID_REPORT
+        return VALID_REPORT
+
+
+class BrokenReflectionModel:
+    """Самопроверка возвращает не-JSON: этап должен деградировать без падения."""
+
+    def complete(self, system, user):
+        if "consistent" in system:
+            return "это не JSON"
+        return VALID_REPORT
+
+
+class SelfReflectionTests(unittest.TestCase):
+    def test_consistent_report_passes(self):
+        report, journal = reflect_on_report(ConsistentModel(), "Вопрос", VALID_REPORT, [SOURCE])
+        self.assertEqual(report, VALID_REPORT)
+        self.assertTrue(journal["performed"])
+        self.assertTrue(journal["consistent"])
+        self.assertFalse(journal["repaired"])
+
+    def test_issues_trigger_repair(self):
+        report, journal = reflect_on_report(ReflectingModel(), "Вопрос", VALID_REPORT, [SOURCE])
+        self.assertTrue(journal["repaired"])
+        self.assertEqual(journal["issues"], ["Разделы противоречат друг другу."])
+        self.assertEqual(validate_report(report, [SOURCE]), [])
+
+    def test_broken_reflection_raises_for_caller_to_catch(self):
+        with self.assertRaises(AgentError):
+            reflect_on_report(BrokenReflectionModel(), "Вопрос", VALID_REPORT, [SOURCE])
 
 
 class CourtFailingModel(IterativeModel):
