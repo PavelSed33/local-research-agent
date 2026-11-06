@@ -131,10 +131,10 @@ class OpenAICompatibleModel:
 
 
 class TavilySearch:
-    def __init__(self) -> None:
+    def __init__(self, domains: list[str] | None = None) -> None:
         self.api_key = os.getenv("TAVILY_API_KEY", "").strip()
         self.url = os.getenv("TAVILY_API_URL", "https://api.tavily.com/search")
-        self.domains = [
+        self.domains = domains if domains is not None else [
             item.strip()
             for item in os.getenv(
                 "LEGAL_SEARCH_DOMAINS", "pravo.gov.ru,www.consultant.ru,www.garant.ru"
@@ -184,6 +184,11 @@ class DemoModel:
         if "legal_update_queries" in system:
             return json.dumps(
                 {"queries": ["условная проверка последних изменений"], "notes": "Демонстрационная проверка изменений."},
+                ensure_ascii=False,
+            )
+        if "court_queries" in system:
+            return json.dumps(
+                {"court_queries": ["условный поиск судебной практики"], "notes": "Демонстрационный поиск практики."},
                 ensure_ascii=False,
             )
         if "additional_queries" in system:
@@ -297,6 +302,24 @@ def plan_legal_update_check(model: LanguageModel, question: str, sources: list[S
     return list(dict.fromkeys([*queries, fallback]))[:3], str(data.get("notes", "")).strip()
 
 
+def plan_court_practice_check(model: LanguageModel, question: str, checked_on: str) -> tuple[list[str], str]:
+    """Готовит отдельный поиск судебной практики по вопросу."""
+    response = model.complete(
+        "Ты подбираешь судебную практику РФ. Верни только JSON с полями court_queries "
+        "(список от 1 до 3 запросов) и notes. Запросы должны искать решения арбитражных судов и "
+        "судов общей юрисдикции, позиции Верховного Суда РФ и обзоры практики по теме вопроса. "
+        "Не выдумывай номера дел и не утверждай, что практика единообразна, без источника.",
+        f"Вопрос: {question}\nДата проверки: {checked_on}",
+    )
+    data = extract_json(response)
+    raw_queries = data.get("court_queries", data.get("queries", []))
+    if not isinstance(raw_queries, list):
+        raise AgentError("Запросы для поиска судебной практики имеют неверный формат.")
+    queries = [str(item).strip() for item in raw_queries if str(item).strip()]
+    fallback = f"{question} судебная практика {checked_on[:4]}"
+    return list(dict.fromkeys([*queries, fallback]))[:3], str(data.get("notes", "")).strip()
+
+
 def build_report(model: LanguageModel, topic: str, sources: list[Source]) -> str:
     return model.complete(
         "Ты юридический помощник по законодательству РФ. Пиши по-русски простыми словами. "
@@ -317,12 +340,28 @@ def section_text(report: str, section: str) -> str:
     return match.group(1).strip() if match else ""
 
 
+ARTICLE_PATTERN = re.compile(r"(?:статья|статье|статьи|ст\.)\s*(\d+(?:\.\d+)?)", re.IGNORECASE)
+
+
+def find_unconfirmed_articles(report: str, sources: list[Source]) -> list[str]:
+    """Находит статьи, упомянутые в ответе, но отсутствующие в текстах источников."""
+    mentioned = set(ARTICLE_PATTERN.findall(report))
+    if not mentioned:
+        return []
+    corpus = "\n".join(source.text for source in sources)
+    missing = []
+    for number in sorted(mentioned):
+        if not re.search(rf"ст[^\d]{{0,10}}{re.escape(number)}(?!\d)", corpus, re.IGNORECASE):
+            missing.append(number)
+    return missing
+
+
 def validate_report(report: str, sources: list[Source]) -> list[str]:
     """Проверяет структуру, наличие цитат и допустимость ссылок."""
     issues: list[str] = []
     for section in REQUIRED_SECTIONS:
         if not section_text(report, section):
-            issues.append(f"Отсутствует или пуст раздел «{section}».")
+            issues.append(f"Отсутствует или пуст раздел «{section}}».")
     for section in CITATION_SECTIONS:
         text = section_text(report, section)
         if text and not re.search(r"\[\d+\]", text):
@@ -336,6 +375,9 @@ def validate_report(report: str, sources: list[Source]) -> list[str]:
     unknown_links = sorted(external_links - allowed_urls)
     if unknown_links:
         issues.append(f"Есть ссылки, которых нет в материалах: {unknown_links}.")
+    missing_articles = find_unconfirmed_articles(report, sources)
+    if missing_articles:
+        issues.append(f"Упомянуты статьи, которых нет в источниках: {missing_articles}.")
     return issues
 
 
@@ -380,6 +422,7 @@ def save_results(
     research_log: list[dict[str, Any]],
     report_repaired: bool,
     update_check: dict[str, Any],
+    court_check: dict[str, Any],
     checked_on: str,
 ) -> tuple[Path, Path]:
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -404,6 +447,7 @@ def save_results(
                 "report_validated": True,
                 "report_repaired": report_repaired,
                 "legal_update_check": update_check,
+                "court_practice_check": court_check,
                 "checked_on": checked_on,
                 "report_file": report_path.name,
             },
@@ -420,16 +464,25 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
     if demo:
         model: LanguageModel = DemoModel()
         search: SearchProvider = DemoSearch()
+        court_search: SearchProvider = DemoSearch()
     else:
         model = OpenAICompatibleModel()
         search = TavilySearch()
+        court_domains = [
+            item.strip()
+            for item in os.getenv(
+                "COURT_SEARCH_DOMAINS", "kad.arbitr.ru,vsrf.ru,sudact.ru"
+            ).split(",")
+            if item.strip()
+        ]
+        court_search = TavilySearch(domains=court_domains)
 
-    print("[1/6] Планирую правовое исследование…")
+    print("[1/7] Планирую правовое исследование…")
     queries = plan_queries(model, topic, query_count)
     executed_queries = set(queries)
     print("      Запросы: " + "; ".join(queries))
 
-    print("[2/6] Ищу нормы и читаю источники…")
+    print("[2/7] Ищу нормы и читаю источники…")
     per_query = max(2, min(5, source_limit))
     found, errors = search_queries(search, queries, per_query)
     sources = deduplicate(found, source_limit)
@@ -438,7 +491,7 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
         raise AgentError("Не найдено пригодных источников." + (f"\n{details}" if details else ""))
     print(f"      Выбрано источников: {len(sources)}")
 
-    print("[3/6] Оцениваю полноту правовых материалов…")
+    print("[3/7] Оцениваю полноту правовых материалов…")
     research_log: list[dict[str, Any]] = []
     additional_round = 0
     while True:
@@ -467,7 +520,7 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
         sources = deduplicate([*sources, *found], source_limit)
         print(f"      Выбрано источников: {len(sources)}")
 
-    print("[4/6] Обязательно проверяю последние изменения…")
+    print("[4/7] Обязательно проверяю последние изменения…")
     update_queries, update_notes = plan_legal_update_check(model, topic, sources, checked_on)
     new_update_queries = [query for query in update_queries if query not in executed_queries]
     if not new_update_queries:
@@ -485,16 +538,46 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
     }
     print(f"      Проверочных запросов: {len(new_update_queries)}; источников всего: {len(sources)}")
 
-    print("[5/6] Готовлю и проверяю правовой ответ…")
+    print("[5/7] Ищу судебную практику…")
+    try:
+        court_queries, court_notes = plan_court_practice_check(model, topic, checked_on)
+    except AgentError as exc:
+        # Практика — вспомогательный этап: его сбой не отменяет ответ.
+        court_check = {
+            "performed": False,
+            "queries": [],
+            "notes": "",
+            "new_sources_found": 0,
+            "errors": [str(exc)],
+        }
+        print(f"      Этап пропущен: {exc}")
+    else:
+        new_court_queries = [query for query in court_queries if query not in executed_queries]
+        if not new_court_queries:
+            new_court_queries = [f"{topic} судебная практика {checked_on[:4]}"]
+        queries.extend(new_court_queries)
+        executed_queries.update(new_court_queries)
+        court_found, court_errors = search_queries(court_search, new_court_queries, per_query)
+        sources = deduplicate([*sources, *court_found], source_limit)
+        court_check = {
+            "performed": True,
+            "queries": new_court_queries,
+            "notes": court_notes,
+            "new_sources_found": len(court_found),
+            "errors": court_errors,
+        }
+        print(f"      Запросов по практике: {len(new_court_queries)}; источников всего: {len(sources)}")
+
+    print("[6/7] Готовлю и проверяю правовой ответ…")
     report, report_repaired = build_validated_report(model, topic, sources)
     if report_repaired:
         print("      Отчёт исправлен после автоматической проверки.")
     else:
         print("      Структура и ссылки прошли проверку.")
 
-    print("[6/6] Сохраняю результаты…")
+    print("[7/7] Сохраняю результаты…")
     return save_results(
-        output_dir, topic, queries, sources, report, demo, research_log, report_repaired, update_check, checked_on
+        output_dir, topic, queries, sources, report, demo, research_log, report_repaired, update_check, court_check, checked_on
     )
 
 

@@ -115,6 +115,7 @@ class DemoRunTests(unittest.TestCase):
             self.assertTrue(journal["report_validated"])
             self.assertTrue(journal["legal_update_check"]["performed"])
             self.assertGreaterEqual(len(journal["legal_update_check"]["queries"]), 1)
+            self.assertTrue(journal["court_practice_check"]["performed"])
             self.assertEqual(len(journal["sources"]), 2)
 
 
@@ -125,6 +126,8 @@ class IterativeModel:
     def complete(self, system, user):
         if "legal_update_queries" in system:
             return json.dumps({"legal_update_queries": ["проверка поправок"], "notes": "Обязательная проверка."})
+        if "court_queries" in system:
+            return json.dumps({"court_queries": ["судебная практика по теме"], "notes": "Поиск практики."})
         if "additional_queries" in system:
             self.assessments += 1
             if self.assessments == 1:
@@ -155,10 +158,51 @@ class IterativeResearchTests(unittest.TestCase):
                 _, run_path = run("Вопрос", 1, 6, Path(directory))
                 journal = json.loads(run_path.read_text(encoding="utf-8"))
         self.assertEqual(search.calls[:3], ["Вопрос", "второй", "проверка поправок"])
-        self.assertEqual(len(search.calls), 4)
+        self.assertEqual(len(search.calls), 6)
         self.assertEqual(len(journal["research_rounds"]), 2)
         self.assertTrue(journal["legal_update_check"]["performed"])
         self.assertEqual(journal["legal_update_check"]["queries"][0], "проверка поправок")
+        self.assertTrue(journal["court_practice_check"]["performed"])
+        self.assertEqual(journal["court_practice_check"]["queries"][0], "судебная практика по теме")
+
+
+class ArticleFactcheckTests(unittest.TestCase):
+    def test_article_confirmed_by_source(self):
+        source = Source("Норма", "https://pravo.gov.ru/norm", "Текст нормы: ст. 395 ГК РФ о процентах.", "q")
+        report = VALID_REPORT.replace("Условная норма [1].", "Условная норма по ст. 395 ГК РФ [1].")
+        issues = validate_report(report, [source])
+        self.assertFalse(any("статьи" in issue for issue in issues))
+
+    def test_article_not_in_sources_is_flagged(self):
+        report = VALID_REPORT.replace("Условная норма [1].", "Условная норма по ст. 395 ГК РФ [1].")
+        issues = validate_report(report, [SOURCE])
+        self.assertTrue(any("статьи" in issue for issue in issues))
+
+    def test_similar_article_number_does_not_confirm(self):
+        source = Source("Норма", "https://pravo.gov.ru/norm", "Текст нормы: ст. 1395 ГК РФ.", "q")
+        report = VALID_REPORT.replace("Условная норма [1].", "Условная норма по ст. 395 ГК РФ [1].")
+        issues = validate_report(report, [source])
+        self.assertTrue(any("статьи" in issue for issue in issues))
+
+
+class CourtFailingModel(IterativeModel):
+    def complete(self, system, user):
+        if "court_queries" in system:
+            return "это не JSON"
+        return super().complete(system, user)
+
+
+class CourtStageDegradationTests(unittest.TestCase):
+    def test_court_stage_failure_does_not_break_run(self):
+        model = CourtFailingModel()
+        search = IterativeSearch()
+        with patch("agent.OpenAICompatibleModel", return_value=model), patch("agent.TavilySearch", return_value=search):
+            with tempfile.TemporaryDirectory() as directory:
+                _, run_path = run("Вопрос", 1, 6, Path(directory))
+                journal = json.loads(run_path.read_text(encoding="utf-8"))
+        self.assertFalse(journal["court_practice_check"]["performed"])
+        self.assertTrue(journal["legal_update_check"]["performed"])
+        self.assertTrue(journal["report_validated"])
 
 
 if __name__ == "__main__":
