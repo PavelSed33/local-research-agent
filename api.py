@@ -3,7 +3,8 @@
 
 Эндпоинты:
   GET  /health — проверка работоспособности и готовности конфигурации;
-  POST /ask    — правовой вопрос → {answer, sources, checked_on, disclaimer}.
+  POST /ask    — правовой вопрос → {answer, sources, checked_on, disclaimer};
+  POST /review — текст договора → {summary, risks, missing_clauses, disclaimer}.
 
 Запуск: python api.py
 Настройки через переменные окружения:
@@ -26,10 +27,11 @@ from pathlib import Path
 from typing import Any
 
 from agent import LEGAL_DISCLAIMER, AgentError, load_dotenv, run
+from review import handle_review
 
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8080
-MAX_BODY_BYTES = 16 * 1024
+MAX_BODY_BYTES = 2 * 1024 * 1024
 SERVICE_NAME = "legal-research-agent"
 API_VERSION = "1.0"
 
@@ -87,6 +89,7 @@ def health_payload() -> dict[str, Any]:
         "status": "ok",
         "service": SERVICE_NAME,
         "version": API_VERSION,
+        "endpoints": ["GET /health", "POST /ask", "POST /review"],
         "llm_configured": bool(os.getenv("LLM_API_KEY") and os.getenv("LLM_MODEL")),
         "tavily_configured": bool(os.getenv("TAVILY_API_KEY")),
         "demo_available": True,
@@ -133,11 +136,11 @@ class LegalApiHandler(BaseHTTPRequestHandler):
         if self.path == "/health":
             self._send_json(200, health_payload())
         else:
-            self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, POST /ask."})
+            self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, POST /ask, POST /review."})
 
     def do_POST(self) -> None:
-        if self.path != "/ask":
-            self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, POST /ask."})
+        if self.path not in ("/ask", "/review"):
+            self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, POST /ask, POST /review."})
             return
         if not self._authorized():
             # Соединение закрываем: непрочитанное тело запроса не должно
@@ -147,8 +150,11 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             return
         try:
             payload = self._read_payload()
-            result = handle_ask(payload, Path(self.server.output_dir))
-        except RequestValidationError as exc:
+            if self.path == "/ask":
+                result = handle_ask(payload, Path(self.server.output_dir))
+            else:
+                result = handle_review(payload)
+        except ValueError as exc:
             self._send_json(400, {"error": str(exc)})
         except AgentError as exc:
             self._send_json(502, {"error": str(exc)})
@@ -183,7 +189,7 @@ def main() -> int:
     server = create_server(host, port, output_dir, api_token)
     auth_note = "включена (API_TOKEN)" if server.api_token else "отключена (задайте API_TOKEN)"
     print(f"HTTP API юридического помощника: http://{host}:{port}")
-    print(f"Эндпоинты: GET /health, POST /ask. Авторизация: {auth_note}.")
+    print(f"Эндпоинты: GET /health, POST /ask, POST /review. Авторизация: {auth_note}.")
     print(f"Результаты сохраняются в: {server.output_dir.resolve()}")
     try:
         server.serve_forever()

@@ -3,7 +3,7 @@ FROM python:3.12-slim
 WORKDIR /app
 
 # Сторонних зависимостей нет: только стандартная библиотека Python.
-COPY agent.py api.py ./
+COPY agent.py api.py review.py ./
 
 ENV API_HOST=0.0.0.0 \
     API_PORT=8080 \

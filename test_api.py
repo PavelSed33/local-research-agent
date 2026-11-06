@@ -97,6 +97,29 @@ class AskEndpointTests(ApiTestCase):
         self.assertEqual(status, 400)
 
 
+REVIEW_DOCUMENT = (
+    "ДОГОВОР АРЕНДЫ № 12. ООО «Арендодатель» и ООО «Арендатор» заключили договор. "
+    "Арендодатель вправе в одностороннем порядке изменить размер арендной платы."
+)
+
+
+class ReviewEndpointTests(ApiTestCase):
+    def test_review_demo_returns_risks(self):
+        status, payload = self.request(
+            "POST", "/review", {"document": REVIEW_DOCUMENT, "demo": True}
+        )
+        self.assertEqual(status, 200)
+        self.assertEqual(len(payload["risks"]), 1)
+        self.assertEqual(payload["disclaimer"], LEGAL_DISCLAIMER)
+        self.assertTrue(payload["checked_on"])
+        self.assertTrue(payload["demo"])
+
+    def test_review_without_document_returns_400(self):
+        status, payload = self.request("POST", "/review", {"demo": True})
+        self.assertEqual(status, 400)
+        self.assertIn("document", payload["error"])
+
+
 class TokenAuthTests(ApiTestCase):
     api_token = "test-secret-token"
 
