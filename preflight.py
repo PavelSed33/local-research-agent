@@ -12,7 +12,10 @@ from legal_evidence import evidence_report
 
 def inspect_runtime() -> dict:
     required = ['LLM_API_KEY', 'LLM_MODEL', 'TAVILY_API_KEY']
-    missing = [name for name in required if not os.getenv(name, '').strip()]
+    placeholders = {'замените_на_ключ_модели', 'замените_на_название_модели', 'замените_на_ключ_tavily',
+                    'your_api_key', 'your_model', 'your_tavily_api_key', 'changeme'}
+    missing = [name for name in required if not os.getenv(name, '').strip()
+               or os.getenv(name, '').strip().casefold() in placeholders]
     invalid = []
     for name, default in [('LLM_BASE_URL', 'https://api.openai.com/v1'),
                           ('TAVILY_API_URL', 'https://api.tavily.com/search')]:
