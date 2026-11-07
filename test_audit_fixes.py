@@ -604,6 +604,19 @@ class TargetLawAmendmentScopeTests(unittest.TestCase):
         self.assertEqual(result["items"], [])
 
 
+
+class Law152FixtureInventoryTests(unittest.TestCase):
+    def test_fixture_quantifies_unmapped_amendment_citations(self):
+        fixture_path = Path(__file__).parent / "fixtures" / "152fz_amendment_map.json"
+        fixture = json.loads(fixture_path.read_text(encoding="utf-8"))
+        inventory = fixture["consolidated_citation_inventory"]
+        self.assertEqual(len(inventory), 35)
+        self.assertEqual(fixture["inventory_summary"]["total_citations"], 35)
+        self.assertEqual(fixture["inventory_summary"]["not_mapped"], 32)
+        self.assertFalse(fixture["verified"])
+        self.assertFalse(fixture["coverage_verified"])
+        self.assertTrue(all(item["official_text_retrieved"] is False for item in inventory))
+
 class AmendmentLinkAuditTests(unittest.TestCase):
     def test_extracts_amendment_citations_from_snapshot_annotation(self):
         from legal_history import extract_amendment_references
