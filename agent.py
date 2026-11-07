@@ -421,7 +421,7 @@ def section_text(report: str, section: str) -> str:
     return match.group(1).strip() if match else ""
 
 
-ARTICLE_PATTERN = re.compile(r"(?<!\\w)(?:статья|статье|статьи|ст\\.)\\s*(\\d+(?:\\.\\d+)?)(?![\\d.])", re.IGNORECASE)
+ARTICLE_PATTERN = re.compile(r"(?<!\w)(?:статья|статье|статьи|ст\.)\s*(\d+(?:\.\d+)?)(?![\d.])", re.IGNORECASE)
 
 
 def find_unconfirmed_articles(report: str, sources: list[Source]) -> list[str]:
@@ -429,7 +429,7 @@ def find_unconfirmed_articles(report: str, sources: list[Source]) -> list[str]:
     mentioned = set(ARTICLE_PATTERN.findall(report))
     if not mentioned:
         return []
-    corpus = "\\n".join(source.text for source in sources)
+    corpus = "\n".join(source.text for source in sources)
     confirmed = set(ARTICLE_PATTERN.findall(corpus))
     return sorted(mentioned - confirmed, key=lambda value: tuple(int(part) for part in value.split(".")))
 
