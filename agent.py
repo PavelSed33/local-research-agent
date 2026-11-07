@@ -347,6 +347,10 @@ def classify_source_authority(url: str) -> str:
         return "unclassified"
     if host == "pravo.gov.ru" or host.endswith(".pravo.gov.ru"):
         return "official_legal_portal"
+    if host == "mintrud.gov.ru":
+        return "government_legal_reproduction"
+    if host == "epp.genproc.gov.ru":
+        return "official_legal_explanation"
     if host == "vsrf.ru" or host.endswith(".vsrf.ru") or host == "kad.arbitr.ru" or host.endswith(".arbitr.ru") or host.endswith(".sudrf.ru"):
         return "official_court"
     if host == "sudact.ru" or host.endswith(".sudact.ru"):
@@ -360,6 +364,8 @@ def source_authority_label(url: str) -> str:
     labels = {
         "official_legal_portal": "официальный портал правовой информации",
         "official_court": "официальный судебный сайт",
+        "government_legal_reproduction": "ведомственная копия правового текста; не исходная публикация",
+        "official_legal_explanation": "разъяснение государственного органа; не текст изменяющего акта",
         "case_law_aggregator": "агрегатор судебных актов",
         "secondary_legal_reference": "коммерческая правовая справочная система",
         "unclassified": "источник не классифицирован",
