@@ -574,6 +574,45 @@ class AmendmentLinkAuditTests(unittest.TestCase):
         self.assertEqual(result["links"][0]["effective_from_candidate"], "2020-01-01")
         self.assertFalse(result["verified"])
 
+
+    def test_act_wide_transition_date_is_not_assigned_to_one_article(self):
+        from legal_history import audit_amendment_links
+
+        source_text = (
+            "Наименование: Федеральный закон о внесении изменений. "
+            "Номер: 261-ФЗ. Дата подписания: 25.07.2011. "
+            "Идентификатор официальной публикации: pub-261. "
+            "Внести в Федеральный закон от 27.07.2006 № 152-ФЗ следующие изменения: "
+            "1) в статье 1 часть 1 изложить в следующей редакции. "
+            "Настоящий Федеральный закон вступает в силу со дня его официального опубликования."
+        )
+        candidate = {
+            "provision_id": "Статья 1",
+            "act_title": "Федеральный закон о внесении изменений",
+            "act_number": "261-ФЗ",
+            "act_signed_date": "2011-07-25",
+            "official_publication_id": "pub-261",
+            "source_url": "https://publication.pravo.gov.ru/document/pub-261",
+            "source_text": source_text,
+            "amendment_quote": (
+                "Внести в Федеральный закон от 27.07.2006 № 152-ФЗ следующие изменения: "
+                "1) в статье 1 часть 1 изложить в следующей редакции."
+            ),
+            "target_act_quote": "Федеральный закон от 27.07.2006 № 152-ФЗ",
+            "transition_quote": (
+                "Настоящий Федеральный закон вступает в силу со дня его официального опубликования."
+            ),
+            "effective_from": "2011-07-25",
+            "effective_date_quote": (
+                "Настоящий Федеральный закон вступает в силу со дня его официального опубликования."
+            ),
+        }
+        result = audit_amendment_links([{"provision_id": "Статья 1"}], [candidate])
+        self.assertEqual(result["link_count"], 1)
+        self.assertTrue(result["links"][0]["transition_clause_found"])
+        self.assertIsNone(result["links"][0]["effective_from_candidate"])
+        self.assertFalse(result["verified"])
+
     def test_rejects_nonmatching_article(self):
         from legal_history import audit_amendment_links
         candidate = {
