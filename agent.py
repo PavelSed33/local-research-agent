@@ -409,6 +409,93 @@ def plan_legal_update_check(model: LanguageModel, question: str, sources: list[S
     return deduplicate_queries([*queries, fallback])[:3], str(data.get("notes", "")).strip()
 
 
+def extract_provision_history(
+    model: LanguageModel, question: str, sources: list[Source]
+) -> dict[str, Any]:
+    """Extract candidate effective-date events, then verify every quote against source text."""
+    from legal_history import build_provision_timeline
+
+    official_sources = [
+        source for source in sources
+        if (urlsplit(source.url).hostname or "").lower() in {
+            "publication.pravo.gov.ru", "pravo.gov.ru", "www.pravo.gov.ru"
+        }
+        and source.url.startswith("https://")
+    ]
+    if not official_sources:
+        return {
+            "status": "no_official_evidence", "verified": False, "periods": [],
+            "limitation": "Нет официальных публикаций для извлечения дат вступления конкретной нормы в силу.",
+        }
+    prompt = (
+        "Извлеки из переданных ОФИЦИАЛЬНЫХ источников только явно подтверждённые события изменения "
+        "одной конкретной нормы РФ. Верни JSON: provision_id (точное обозначение акта, статьи, части, "
+        "пункта), events (массив объектов: effective_from в YYYY-MM-DD, act_title, act_number, "
+        "official_publication_id, source_url, effective_date_quote). Не используй дату принятия, "
+        "подписания, опубликования или дату редакции вместо даты вступления в силу. Учитывай специальные "
+        "переходные положения. Каждая цитата должна дословно присутствовать в одном из источников и "
+        "содержать указанную дату. Не выводи события по косвенным данным. Если область нормы или дата "
+        "неясна, верни пустой массив. Не утверждай полноту истории изменений."
+    )
+    material = format_materials(official_sources[:8])
+    try:
+        data = extract_json(model.complete(prompt, f"Вопрос: {question}\n\nОфициальные материалы:\n{material}"))
+    except AgentError as exc:
+        return {
+            "status": "extraction_failed", "verified": False, "periods": [],
+            "errors": [str(exc)],
+        }
+    provision_id = str(data.get("provision_id") or "").strip()
+    raw_events = data.get("events", [])
+    if not isinstance(raw_events, list):
+        raw_events = []
+    by_url = {source.url: source for source in official_sources}
+    validated_events: list[dict[str, Any]] = []
+    rejected: list[str] = []
+    for index, event in enumerate(raw_events[:20]):
+        if not isinstance(event, dict):
+            rejected.append(f"Событие {index + 1}: неверный формат.")
+            continue
+        source = by_url.get(event.get("source_url"))
+        if source is None:
+            rejected.append(f"Событие {index + 1}: ссылка не совпадает с полученным официальным источником.")
+            continue
+        quote = str(event.get("effective_date_quote") or "").strip()
+        publication_id = str(event.get("official_publication_id") or "").strip()
+        act_title = str(event.get("act_title") or "").strip()
+        act_number = str(event.get("act_number") or "").strip()
+        if not quote or quote not in source.text:
+            rejected.append(f"Событие {index + 1}: цитата даты не найдена дословно в источнике.")
+            continue
+        if not publication_id or publication_id not in source.text:
+            rejected.append(f"Событие {index + 1}: идентификатор публикации не подтверждён текстом источника.")
+            continue
+        if not act_title or act_title not in source.text or not act_number or act_number not in source.text:
+            rejected.append(f"Событие {index + 1}: реквизиты изменяющего акта не подтверждены текстом.")
+            continue
+        validated_events.append({
+            "provision_id": provision_id,
+            "effective_from": event.get("effective_from"),
+            "act_title": act_title,
+            "act_number": act_number,
+            "official_publication_id": publication_id,
+            "official_url": source.url,
+            "effective_date_quote": quote,
+        })
+    result = build_provision_timeline(provision_id, validated_events, timeline_complete=False)
+    result["events_rejected"] = rejected
+    result["verified"] = False
+    result["timeline_complete"] = False
+    if result.get("periods"):
+        result["status"] = "candidate_timeline_incomplete"
+        result["limitation"] = (
+            "Периоды рассчитаны только по найденным и дословно подтверждённым событиям. "
+            "Полнота истории поправок и переходных положений не установлена, поэтому результат не является "
+            "подтверждением юридического периода действия нормы."
+        )
+    return result
+
+
 def plan_court_practice_check(model: LanguageModel, question: str, checked_on: str) -> tuple[list[str], str]:
     """Готовит отдельный поиск судебной практики по вопросу."""
     response = model.complete(
@@ -761,21 +848,8 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
     queries.extend(new_update_queries)
     executed_queries.update(_normalized_query_key(query) for query in new_update_queries)
     update_found, update_errors = search_queries(search, new_update_queries, per_query)
-    # Keep legal-update evidence separate from the general research cap.
-    # Otherwise a full initial source list silently discards the very materials
-    # retrieved to verify amendments and current editions.
-    update_sources = deduplicate([*update_found, *ips_sources], 5)
-    portal_update_sources = [
-        source for source in update_sources
-        if (urlsplit(source.url).hostname or "").lower() == "publication.pravo.gov.ru"
-    ]
-    portal_errors = [
-        error for error in update_errors if "PravoPortalSearch" in error
-    ]
     # The integrated full-text bank is a separate official source from the
-    # publication feed. Search it independently and preserve its revision
-    # snapshots as evidence, without treating an edition date as an effective
-    # date for every provision.
+    # publication feed. Search it independently before assembling update_sources.
     ips_sources: list[Source] = []
     ips_errors: list[str] = []
     if ips_bank is not None:
@@ -785,6 +859,21 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
             except AgentError as exc:
                 ips_errors.append(str(exc))
     ips_sources = deduplicate(ips_sources, 2)
+    update_sources = deduplicate([*update_found, *ips_sources], 5)
+    portal_update_sources = [
+        source for source in update_sources
+        if (urlsplit(source.url).hostname or "").lower() == "publication.pravo.gov.ru"
+    ]
+    portal_errors = [
+        error for error in update_errors if "PravoPortalSearch" in error
+    ]
+    try:
+        provision_history = extract_provision_history(model, topic, update_sources)
+    except Exception as exc:
+        provision_history = {
+            "status": "extraction_failed", "verified": False, "periods": [],
+            "errors": [str(exc)],
+        }
     ips_check = {
         "attempted": ips_bank is not None,
         "performed": bool(ips_sources),
@@ -795,6 +884,7 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
             else "no_matching_document"
         ) if ips_bank is not None else "demo_not_configured",
         "documents_with_text": len(ips_sources),
+        "provision_history": provision_history,
         "errors": ips_errors,
         "limitation": (
             "Банк предоставляет официальные тексты и снимки редакций. Дата редакции не равна "
