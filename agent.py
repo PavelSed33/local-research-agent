@@ -597,7 +597,10 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
     except AgentError as exc:
         # Практика — вспомогательный этап: его сбой не отменяет ответ.
         court_check = {
+            "attempted": True,
             "performed": False,
+            "verified": False,
+            "status": "planning_failed",
             "queries": [],
             "notes": "",
             "new_sources_found": 0,
