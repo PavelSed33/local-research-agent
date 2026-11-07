@@ -1034,6 +1034,43 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
     amendment_chain_audit["retrieval_coverage"] = amendment_retrieval_audit
     amendment_chain_audit["retrieval_errors"] = amendment_errors
 
+    # For the 152-FZ control case, independently parse the literal scope
+    # instructions in every retrieved official amendment publication. This is
+    # a candidate map only: no scope or completeness claim is inferred from
+    # consolidated-text citations or secondary sources.
+    from legal_history import extract_target_law_amendment_scope
+    target_law_scope_audits: list[dict[str, Any]] = []
+    for amendment_source in amendment_sources[:12]:
+        scope_audit = extract_target_law_amendment_scope(
+            amendment_source.text, target_law_number="152-ФЗ"
+        )
+        if scope_audit.get("target_law_found"):
+            target_law_scope_audits.append({
+                "act_title": amendment_source.title,
+                "source_url": amendment_source.url,
+                **scope_audit,
+            })
+    amendment_chain_audit["target_law_scope_audit"] = {
+        "target_law_number": "152-ФЗ",
+        "status": (
+            "scope_candidates_found" if target_law_scope_audits
+            else "no_scoped_official_amendment_texts"
+        ),
+        "official_texts_examined": len(amendment_sources[:12]),
+        "acts_with_target_law_mention": len(target_law_scope_audits),
+        "candidate_items": sum(
+            len(item.get("items", [])) for item in target_law_scope_audits
+        ),
+        "acts": target_law_scope_audits,
+        "verified": False,
+        "coverage_verified": False,
+        "limitation": (
+            "Область поправок извлечена только из буквальных инструкций в полученных "
+            "официальных текстах. Неполученные акты, переходные положения и полнота архива "
+            "не покрыты; отсутствие кандидатов не означает отсутствия поправок."
+        ),
+    }
+
     ips_check = {
         "attempted": ips_bank is not None,
         "performed": bool(ips_sources),
