@@ -152,10 +152,22 @@ class PravoIpsBank:
             revision = (params.get("rdk") or [None])[0]
             if revision and revision.isdigit() and revision not in revision_ids:
                 revision_ids.append(revision)
-        revision_ids = revision_ids[:MAX_REVISIONS]
+        # Reserve one slot for the live/current text: the revision selector list
+        # usually contains only historical rdk entries, not the current page.
+        revision_ids = revision_ids[:MAX_REVISIONS - 1]
 
         snapshots: list[RevisionSnapshot] = []
         remaining_chars = MAX_HISTORY_TEXT_CHARS
+        if current_text and remaining_chars > 0:
+            current_bounded_text = current_text[:min(MAX_SNAPSHOT_TEXT_CHARS, remaining_chars)]
+            current_date = _parse_date(current_text)
+            snapshots.append(RevisionSnapshot(
+                document_id=document_id, revision_id="",
+                edition_date=current_date, text=current_bounded_text,
+                url=f"{BASE_URL}/proxy/ips/?docbody=&nd={document_id}",
+            ))
+            remaining_chars -= len(current_bounded_text)
+
         for revision_id in revision_ids:
             if remaining_chars <= 0:
                 break
@@ -163,9 +175,17 @@ class PravoIpsBank:
             if text:
                 bounded_text = text[:min(MAX_SNAPSHOT_TEXT_CHARS, remaining_chars)]
                 remaining_chars -= len(bounded_text)
+                revision_date = _parse_date(text)
+                # Identical current/revision snapshots can occur in the legacy
+                # selector list. Avoid a false duplicate-date gap for exact copies.
+                if any(
+                    item.edition_date == revision_date and item.text == bounded_text
+                    for item in snapshots
+                ):
+                    continue
                 snapshots.append(RevisionSnapshot(
                     document_id=document_id, revision_id=revision_id,
-                    edition_date=_parse_date(text), text=bounded_text,
+                    edition_date=revision_date, text=bounded_text,
                     url=f"{BASE_URL}/proxy/ips/?docbody=&nd={document_id}&rdk={revision_id}",
                 ))
 
