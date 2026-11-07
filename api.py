@@ -28,6 +28,7 @@ import os
 import re
 import sys
 import threading
+import tempfile
 import time
 import uuid
 from datetime import datetime, timezone
@@ -108,8 +109,13 @@ def parse_int_field(payload: dict[str, Any], field: str, default: int, minimum: 
     return value
 
 
-def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore | None = None) -> dict[str, Any]:
+def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore | None = None, *, persist_results: bool = True) -> dict[str, Any]:
     """Выполняет полный цикл агента и возвращает структурированный ответ."""
+    if not persist_results:
+        with tempfile.TemporaryDirectory(prefix="legal-research-") as directory:
+            result = handle_ask(payload, Path(directory), sessions, persist_results=True)
+            result.update(report_file=None, journal_file=None, results_persisted=False)
+            return result
     question = payload.get("question", "")
     if not isinstance(question, str) or not question.strip():
         raise RequestValidationError("Поле «question» обязательно и не должно быть пустым.")
@@ -137,6 +143,7 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
         demo=demo,
         session_context=context,
         as_of=as_of,
+        verbose=False,
     )
     answer = report_path.read_text(encoding="utf-8")
     journal = json.loads(journal_path.read_text(encoding="utf-8"))
@@ -155,6 +162,7 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
         "disclaimer": LEGAL_DISCLAIMER,
         "demo": journal["demo"],
         "session_id": session_id,
+        "results_persisted": True,
         "report_file": str(report_path),
         "journal_file": str(journal_path),
     }
@@ -389,7 +397,7 @@ class LegalApiHandler(BaseHTTPRequestHandler):
         try:
             payload = self._read_payload()
             if self.path == "/ask":
-                result = handle_ask(payload, Path(self.server.output_dir), self.server.sessions)
+                result = handle_ask(payload, Path(self.server.output_dir), self.server.sessions, persist_results=self.server.persist_results)
             elif self.path == "/review":
                 result = handle_review(payload)
             elif self.path == "/extract":
@@ -401,7 +409,7 @@ class LegalApiHandler(BaseHTTPRequestHandler):
         except AgentError as exc:
             self._send_json(502, {"error": str(exc)})
         except Exception as exc:  # noqa: BLE001 — последняя линия защиты сервиса
-            print(f"Внутренняя ошибка API: {exc!r}", file=sys.stderr)
+            print(f"Внутренняя ошибка API: {type(exc).__name__}", file=sys.stderr)
             self._send_json(500, {"error": "Внутренняя ошибка сервиса."})
         else:
             self._send_json(200, result)
@@ -412,6 +420,7 @@ def create_server(
     port: int = DEFAULT_PORT,
     output_dir: Path | str = Path("результаты"),
     api_token: str = "",
+    persist_results: bool = False,
 ) -> ThreadingHTTPServer:
     normalized_host = host.strip().lower()
     is_loopback = normalized_host == "localhost"
@@ -428,6 +437,7 @@ def create_server(
     server = BoundedThreadingHTTPServer((host, port), LegalApiHandler)
     server.output_dir = Path(output_dir)
     server.api_token = api_token.strip()
+    server.persist_results = persist_results
     server.sessions = SessionStore()
     return server
 
@@ -443,7 +453,10 @@ def main() -> int:
     output_dir = Path(os.getenv("API_OUTPUT_DIR", "результаты"))
     api_token = os.getenv("API_TOKEN", "")
     try:
-        server = create_server(host, port, output_dir, api_token)
+        persistence = os.getenv("API_PERSIST_RESEARCH", "false").strip().lower()
+        if persistence not in {"true", "false"}:
+            raise ValueError("API_PERSIST_RESEARCH должен быть true или false.")
+        server = create_server(host, port, output_dir, api_token, persist_results=persistence == "true")
     except ValueError as exc:
         print(f"Ошибка конфигурации: {exc}", file=sys.stderr)
         return 1

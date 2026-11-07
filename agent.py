@@ -89,12 +89,12 @@ def post_json(url: str, payload: dict[str, Any], headers: dict[str, str], timeou
                     raise AgentError("Сервис вернул JSON не в виде объекта.")
                 return value
         except urllib.error.HTTPError as exc:
-            body = exc.read(500).decode("utf-8", errors="replace")
-            last_error = AgentError(f"Сервис вернул HTTP {exc.code}: {body}")
+            exc.close()
+            last_error = AgentError(f"Сервис вернул HTTP {exc.code}.")
             if exc.code not in retryable_statuses or attempt:
                 raise last_error from exc
         except urllib.error.URLError as exc:
-            last_error = AgentError(f"Не удалось подключиться к сервису: {exc.reason}")
+            last_error = AgentError("Не удалось подключиться к сервису.")
             if attempt:
                 raise last_error from exc
         except json.JSONDecodeError as exc:
@@ -773,7 +773,7 @@ def reflect_on_report(model: LanguageModel, topic: str, report: str, sources: li
     return repaired, journal
 
 
-def search_queries(search: SearchProvider, queries: list[str], per_query: int) -> tuple[list[Source], list[str]]:
+def search_queries(search: SearchProvider, queries: list[str], per_query: int, *, verbose: bool = True) -> tuple[list[Source], list[str]]:
     found: list[Source] = []
     errors: list[str] = []
     for query in queries:
@@ -781,10 +781,12 @@ def search_queries(search: SearchProvider, queries: list[str], per_query: int) -
             found.extend(search.search(query, per_query))
             for provider_error in getattr(search, "last_errors", []):
                 errors.append(f"{query}: {provider_error}")
-                print(f"      Предупреждение: {provider_error}", file=sys.stderr)
+                if verbose:
+                    print(f"      Предупреждение: {provider_error}", file=sys.stderr)
         except AgentError as exc:
             errors.append(f"{query}: {exc}")
-            print(f"      Предупреждение: {exc}", file=sys.stderr)
+            if verbose:
+                print(f"      Предупреждение: {exc}", file=sys.stderr)
     return found, errors
 
 
@@ -903,7 +905,8 @@ def validate_as_of(value: str | None) -> str | None:
     return value
 
 
-def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo: bool = False, session_context: str = "", as_of: str | None = None) -> tuple[Path, Path]:
+def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo: bool = False, session_context: str = "", as_of: str | None = None, verbose: bool = True) -> tuple[Path, Path]:
+    log = print if verbose else lambda *args, **kwargs: None
     checked_on = current_check_date()
     legal_as_of = validate_as_of(as_of) or checked_on
     original_topic = topic
@@ -935,21 +938,21 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
         ]
         court_search = TavilySearch(domains=court_domains)
 
-    print("[1/8] Планирую правовое исследование…")
+    log("[1/8] Планирую правовое исследование…")
     queries = plan_queries(model, topic, query_count)
     executed_queries = {_normalized_query_key(query) for query in queries}
-    print("      Запросы: " + "; ".join(queries))
+    log("      Запросы: " + "; ".join(queries))
 
-    print("[2/8] Ищу нормы и читаю источники…")
+    log("[2/8] Ищу нормы и читаю источники…")
     per_query = max(2, min(5, source_limit))
-    found, errors = search_queries(search, queries, per_query)
+    found, errors = search_queries(search, queries, per_query, verbose=verbose)
     sources = deduplicate(found, source_limit)
     if not sources:
         details = "\n".join(errors)
         raise AgentError("Не найдено пригодных источников." + (f"\n{details}" if details else ""))
-    print(f"      Выбрано источников: {len(sources)}")
+    log(f"      Выбрано источников: {len(sources)}")
 
-    print("[3/8] Оцениваю полноту правовых материалов…")
+    log("[3/8] Оцениваю полноту правовых материалов…")
     research_log: list[dict[str, Any]] = []
     additional_round = 0
     while True:
@@ -964,29 +967,29 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
                 "errors": errors,
             }
         )
-        print(f"      {reason or ('Материалов достаточно.' if sufficient else 'Требуются дополнительные источники.')}")
+        log(f"      {reason or ('Материалов достаточно.' if sufficient else 'Требуются дополнительные источники.')}")
         new_queries = [query for query in deduplicate_queries(additional_queries) if _normalized_query_key(query) not in executed_queries]
         if sufficient or additional_round >= 2 or len(sources) >= source_limit or not new_queries:
             if not sufficient and additional_round >= 2:
-                print("      Достигнут лимит дополнительного поиска; продолжаю с доступными материалами.")
+                log("      Достигнут лимит дополнительного поиска; продолжаю с доступными материалами.")
             break
         additional_round += 1
         queries.extend(new_queries)
         executed_queries.update(_normalized_query_key(query) for query in new_queries)
-        print(f"      Дополнительный поиск {additional_round}/2: " + "; ".join(new_queries))
-        found, round_errors = search_queries(search, new_queries, per_query)
+        log(f"      Дополнительный поиск {additional_round}/2: " + "; ".join(new_queries))
+        found, round_errors = search_queries(search, new_queries, per_query, verbose=verbose)
         errors.extend(round_errors)
         sources = deduplicate([*sources, *found], source_limit)
-        print(f"      Выбрано источников: {len(sources)}")
+        log(f"      Выбрано источников: {len(sources)}")
 
-    print("[4/8] Обязательно проверяю последние изменения…")
+    log("[4/8] Обязательно проверяю последние изменения…")
     update_queries, update_notes = plan_legal_update_check(model, topic, sources, legal_as_of)
     new_update_queries = [query for query in deduplicate_queries(update_queries) if _normalized_query_key(query) not in executed_queries]
     if not new_update_queries:
         new_update_queries = [f"{topic} изменения действующая редакция {legal_as_of[:4]}"]
     queries.extend(new_update_queries)
     executed_queries.update(_normalized_query_key(query) for query in new_update_queries)
-    update_found, update_errors = search_queries(search, new_update_queries, per_query)
+    update_found, update_errors = search_queries(search, new_update_queries, per_query, verbose=verbose)
     # The integrated full-text bank is a separate official source from the
     # publication feed. Search it independently before assembling update_sources.
     ips_sources: list[Source] = []
@@ -1166,9 +1169,9 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
         "amendment_chain_audit": amendment_chain_audit,
         "errors": update_errors,
     }
-    print(f"      Проверочных запросов: {len(new_update_queries)}; источников всего: {len(sources)}")
+    log(f"      Проверочных запросов: {len(new_update_queries)}; источников всего: {len(sources)}")
 
-    print("[5/8] Ищу судебную практику…")
+    log("[5/8] Ищу судебную практику…")
     try:
         court_queries, court_notes = plan_court_practice_check(model, topic, legal_as_of)
     except AgentError as exc:
@@ -1183,14 +1186,14 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
             "new_sources_found": 0,
             "errors": [str(exc)],
         }
-        print(f"      Этап пропущен: {exc}")
+        log(f"      Этап пропущен: {exc}")
     else:
         new_court_queries = [query for query in deduplicate_queries(court_queries) if _normalized_query_key(query) not in executed_queries]
         if not new_court_queries:
             new_court_queries = [f"{topic} судебная практика {legal_as_of[:4]}"]
         queries.extend(new_court_queries)
         executed_queries.update(_normalized_query_key(query) for query in new_court_queries)
-        court_found, court_errors = search_queries(court_search, new_court_queries, per_query)
+        court_found, court_errors = search_queries(court_search, new_court_queries, per_query, verbose=verbose)
         # Reserve up to three slots for case-law evidence as well.
         court_sources = deduplicate(court_found, 3)
         court_check = {
@@ -1203,7 +1206,7 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
             "new_sources_found": len(court_found),
             "errors": court_errors,
         }
-        print(f"      Запросов по практике: {len(new_court_queries)}; источников всего: {len(sources)}")
+        log(f"      Запросов по практике: {len(new_court_queries)}; источников всего: {len(sources)}")
 
     # The user-configured source_limit applies to the core legal research.
     # Add separately capped evidence for amendments and case law so those
@@ -1214,27 +1217,27 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
         source_limit + 6,
     )
 
-    print("[6/8] Готовлю и проверяю правовой ответ…")
+    log("[6/8] Готовлю и проверяю правовой ответ…")
     report, report_repaired = build_validated_report(model, topic, sources, session_context)
     if report_repaired:
-        print("      Отчёт исправлен после автоматической проверки.")
+        log("      Отчёт исправлен после автоматической проверки.")
     else:
-        print("      Структура и ссылки прошли проверку.")
+        log("      Структура и ссылки прошли проверку.")
 
-    print("[7/8] Самопроверка ответа…")
+    log("[7/8] Самопроверка ответа…")
     try:
         report, reflection = reflect_on_report(model, topic, report, sources)
     except AgentError as exc:
         # Самопроверка — вспомогательный этап: её сбой не отменяет ответ.
         reflection = {"performed": False, "consistent": None, "issues": [], "repaired": False, "errors": [str(exc)]}
-        print(f"      Этап пропущен: {exc}")
+        log(f"      Этап пропущен: {exc}")
     else:
         if reflection["repaired"]:
-            print(f"      Найдено замечаний: {len(reflection['issues'])}; ответ исправлен.")
+            log(f"      Найдено замечаний: {len(reflection['issues'])}; ответ исправлен.")
         else:
-            print("      Противоречий не найдено.")
+            log("      Противоречий не найдено.")
 
-    print("[8/8] Сохраняю результаты…")
+    log("[8/8] Сохраняю результаты…")
     return save_results(
         output_dir, original_topic, queries, sources, report, demo, research_log, report_repaired, update_check, court_check, reflection, checked_on, legal_as_of
     )
