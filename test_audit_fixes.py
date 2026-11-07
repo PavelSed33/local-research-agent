@@ -363,5 +363,145 @@ class OfficialIntegratedLegalBankTests(unittest.TestCase):
 
 
 
+class ProvisionEffectivePeriodTests(unittest.TestCase):
+    def _event(self, effective_from, number, quote):
+        return {
+            "provision_id": "ФЗ-123:ст.5:ч.2",
+            "effective_from": effective_from,
+            "act_title": "Федеральный закон",
+            "act_number": number,
+            "official_publication_id": "0001202401010001",
+            "official_url": "https://publication.pravo.gov.ru/document/0001202401010001",
+            "effective_date_quote": quote,
+        }
+
+    def test_builds_non_overlapping_periods_from_effective_dates(self):
+        from legal_history import build_provision_timeline
+
+        result = build_provision_timeline(
+            "ФЗ-123:ст.5:ч.2",
+            [
+                self._event("2020-01-01", "123-ФЗ", "Вступает в силу с 01.01.2020"),
+                self._event("2024-03-01", "456-ФЗ", "Вступает в силу с 01.03.2024"),
+            ],
+            timeline_complete=True,
+        )
+        self.assertTrue(result["verified"])
+        self.assertEqual(result["status"], "verified_timeline")
+        self.assertEqual(result["periods"][0]["valid_from"], "2020-01-01")
+        self.assertEqual(result["periods"][0]["valid_to"], "2024-02-29")
+        self.assertEqual(result["periods"][1]["valid_from"], "2024-03-01")
+        self.assertIsNone(result["periods"][1]["valid_to"])
+
+    def test_incomplete_timeline_is_never_verified(self):
+        from legal_history import build_provision_timeline
+
+        result = build_provision_timeline(
+            "ФЗ-123:ст.5:ч.2",
+            [self._event("2024-03-01", "456-ФЗ", "Вступает в силу с 01.03.2024")],
+            timeline_complete=False,
+        )
+        self.assertFalse(result["verified"])
+        self.assertEqual(result["status"], "candidate_timeline_incomplete")
+
+    def test_rejects_wrong_scope_quote_and_nonofficial_source(self):
+        from legal_history import build_provision_timeline
+
+        event = self._event("2024-03-01", "456-ФЗ", "Опубликован 01.03.2024")
+        event["provision_id"] = "другая норма"
+        event["official_url"] = "https://example.com/act"
+        result = build_provision_timeline("ФЗ-123:ст.5:ч.2", [event], timeline_complete=True)
+        self.assertFalse(result["verified"])
+        self.assertEqual(result["periods"], [])
+        self.assertEqual(result["status"], "insufficient_or_invalid_evidence")
+
+    def test_rejects_conflicting_events_on_same_date(self):
+        from legal_history import build_provision_timeline
+
+        result = build_provision_timeline(
+            "ФЗ-123:ст.5:ч.2",
+            [
+                self._event("2024-03-01", "456-ФЗ", "Вступает в силу с 01.03.2024"),
+                self._event("2024-03-01", "789-ФЗ", "Вступает в силу с 01.03.2024"),
+            ],
+            timeline_complete=True,
+        )
+        self.assertEqual(result["status"], "conflicting_same_day_events")
+        self.assertFalse(result["verified"])
+
+    def test_agent_extracts_only_events_with_verbatim_official_quotes(self):
+        import json
+        from agent import extract_provision_history
+
+        source_text = (
+            "Федеральный закон № 456-ФЗ. Статья 5, часть 2. "
+            "Вступает в силу с 01.03.2024. Официальная публикация 0001202401010001."
+        )
+        source = Source(
+            "Официальная публикация", 
+            "https://publication.pravo.gov.ru/document/0001202401010001",
+            source_text, "проверка",
+        )
+        payload = {
+            "provision_id": "ФЗ-456:ст.5:ч.2",
+            "provision_source_url": source.url,
+            "provision_quote": "Статья 5, часть 2",
+            "events": [{
+                "effective_from": "2024-03-01",
+                "act_title": "Федеральный закон",
+                "act_number": "456-ФЗ",
+                "official_publication_id": "0001202401010001",
+                "source_url": source.url,
+                "effective_date_quote": "Вступает в силу с 01.03.2024",
+            }],
+        }
+
+        class Model:
+            def complete(self, system, user):
+                return json.dumps(payload, ensure_ascii=False)
+
+        result = extract_provision_history(Model(), "проверить ФЗ-456 ст.5 ч.2", [source])
+        self.assertEqual(result["status"], "candidate_timeline_incomplete")
+        self.assertFalse(result["verified"])
+        self.assertEqual(result["periods"][0]["valid_from"], "2024-03-01")
+
+    def test_agent_rejects_hallucinated_effective_date_quote(self):
+        import json
+        from agent import extract_provision_history
+
+        source = Source(
+            "Официальная публикация",
+            "https://publication.pravo.gov.ru/document/0001202401010001",
+            "Федеральный закон № 456-ФЗ. Статья 5, часть 2. Опубликован 01.03.2024. "
+            "Официальная публикация 0001202401010001.",
+            "проверка",
+        )
+        payload = {
+            "provision_id": "ФЗ-456:ст.5:ч.2",
+            "provision_source_url": source.url,
+            "provision_quote": "Статья 5, часть 2",
+            "events": [{
+                "effective_from": "2024-03-01",
+                "act_title": "Федеральный закон",
+                "act_number": "456-ФЗ",
+                "official_publication_id": "0001202401010001",
+                "source_url": source.url,
+                "effective_date_quote": "Вступает в силу с 01.03.2024",
+            }],
+        }
+
+        class Model:
+            def complete(self, system, user):
+                return json.dumps(payload, ensure_ascii=False)
+
+        result = extract_provision_history(Model(), "проверить ФЗ-456 ст.5 ч.2", [source])
+        self.assertEqual(result["status"], "no_effective_date_events")
+        self.assertFalse(result["verified"])
+        self.assertEqual(result["periods"], [])
+        self.assertTrue(result["events_rejected"])
+
+
+
+
 if __name__ == "__main__":
     unittest.main()
