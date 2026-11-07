@@ -566,6 +566,44 @@ class AmendmentRetrievalAuditTests(unittest.TestCase):
         self.assertEqual(result["retrieved_count"], 0)
         self.assertEqual(result["not_retrieved_count"], 1)
 
+
+class TargetLawAmendmentScopeTests(unittest.TestCase):
+    def test_extracts_article_12_parts_from_265fz_amendment_instruction(self):
+        from legal_history import extract_target_law_amendment_scope
+
+        act_text = """Федеральный закон от 26 июля 2026 года № 265-ФЗ
+О внесении изменений в статью 12 Федерального закона "О персональных данных"
+Статья 1
+Внести в статью 12 Федерального закона от 27 июля 2006 года № 152-ФЗ
+"О персональных данных" следующие изменения:
+1) в части 2 второе предложение изложить в следующей редакции: "Текст.";
+2) в пункте 2 части 5 слова "старые" исключить;
+3) в части 10 слова "старые" исключить;
+4) в части 11 слова "старые" исключить.
+Статья 7
+1. Настоящий Федеральный закон вступает в силу со дня его официального опубликования,
+за исключением статьи 2 настоящего Федерального закона.
+2. Статья 2 настоящего Федерального закона вступает в силу с 1 сентября 2027 года.
+"""
+        result = extract_target_law_amendment_scope(act_text, "152-ФЗ")
+        self.assertEqual(result["status"], "scope_candidates_extracted")
+        self.assertEqual(result["target_article"], "12")
+        self.assertEqual(
+            [item["subprovision"] for item in result["items"]],
+            ["часть 2", "пункт 2 части 5", "часть 10", "часть 11"],
+        )
+        self.assertFalse(result["verified"])
+
+    def test_does_not_treat_incidental_mention_as_amendment_instruction(self):
+        from legal_history import extract_target_law_amendment_scope
+
+        result = extract_target_law_amendment_scope(
+            "См. Федеральный закон от 27.07.2006 № 152-ФЗ. Настоящий акт регулирует иные вопросы."
+        )
+        self.assertEqual(result["status"], "target_law_mentioned_no_scoped_instruction")
+        self.assertEqual(result["items"], [])
+
+
 class AmendmentLinkAuditTests(unittest.TestCase):
     def test_extracts_amendment_citations_from_snapshot_annotation(self):
         from legal_history import extract_amendment_references
