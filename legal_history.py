@@ -335,7 +335,7 @@ def audit_amendment_links(
         article_number = re.escape(article_match.group(1))
         if not re.search(
             r"(?:внести|вносятся|внесение|изложить|дополнить|признать)\b"
-            r".{0,600}стать[ьюеи]\s+" + article_number + r"(?:\D|$)",
+            r".{0,600}(?:в\s+)?стать[ьяеюи]\s+" + article_number + r"(?:\D|$)",
             amendment_quote,
             re.IGNORECASE | re.DOTALL,
         ):
