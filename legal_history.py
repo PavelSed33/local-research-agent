@@ -321,6 +321,9 @@ def extract_target_law_amendment_scope(
 
     article = instruction.group("article")
     tail = act_text[instruction.end():]
+    next_act_section = re.search(r"(?m)^\\s*Статья\\s+\\d+\\b", tail)
+    if next_act_section:
+        tail = tail[:next_act_section.start()]
     clause_matches = list(re.finditer(
         r"(?ms)^\s*(\d+)\)\s*(.*?)(?=^\s*\d+\)\s*|\Z)",
         tail,
