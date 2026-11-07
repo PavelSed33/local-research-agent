@@ -1,6 +1,7 @@
 """Local fact collection for LAW-01; never a compliance certificate."""
 from agent import current_check_date, validate_as_of
 from legal_coverage import coverage_report
+from legal_evidence import evidence_report
 
 COMMON = {
     'scope_established': 'Установлены оператор, субъекты данных и применимость 152-ФЗ?',
@@ -60,6 +61,7 @@ def handle_privacy_check(payload):
             'summary': 'Уточнение обстоятельств обработки; правомерность не установлена.',
             'questions': missing, 'unresolved_items': unresolved,
             'research_cards': cards, 'sources': coverage['sources'],
+            'local_evidence': evidence_report([card['id'] for card in cards], date),
             'verified': False, 'lawyer_reviewed': False,
             'limitation': 'Ответы на анкету — заявления пользователя, не доказательства. '
                           'Согласие и ALLOW_CLOUD_DOCUMENTS не подтверждают законность всей обработки. '

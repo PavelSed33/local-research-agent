@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 
 from agent import current_check_date, validate_as_of
+from legal_evidence import evidence_report
 
 
 def coverage_report(module_ids=None, as_of=None):
@@ -13,6 +14,15 @@ def coverage_report(module_ids=None, as_of=None):
             any(not isinstance(mid, str) or mid not in known for mid in module_ids)):
         raise ValueError('module_ids должен содержать известные ID LAW-01 … LAW-09.')
     selected = known if module_ids is None else set(module_ids)
+    evidence = evidence_report([card['id'] for card in data['cards'] if card['module_id'] in selected], date)
+    by_card = {}
+    for entry in evidence['entries']:
+        for quote in entry['quotes']:
+            by_card.setdefault(quote['card_id'], []).append({
+                'capture_id': entry['id'], 'kind': entry['kind'], 'url': entry['url'],
+                'captured_on': entry['captured_on'], 'temporal_status': entry['temporal_status'],
+                'capture_kind': entry['capture_kind'], 'file': entry['file'], 'sha256': entry['sha256'],
+                'original_publication': False, 'period_supported': False, **quote, 'verified': False})
     modules = []
     for module in data['modules']:
         if module['id'] not in selected:
@@ -25,12 +35,16 @@ def coverage_report(module_ids=None, as_of=None):
                         'research_card_count': len(cards), 'accepted_provision_count': 0,
                         'verified': False, 'cards': [{**card, 'status': 'incomplete_history',
                             'source_found': bool(card['source_ids']), 'quote_checked': False,
-                            'period_supported': False, 'verified': False} for card in cards]})
+                            'period_supported': False, 'verified': False,
+                            'supporting_evidence': by_card.get(card['id'], [])} for card in cards]})
     used = {sid for module in modules for card in module['cards'] for sid in card['source_ids']}
     sources = [source for source in data['sources'] if source['id'] in used]
     return {'spec_version': data['spec_version'], 'as_of': date,
             'registry_checked_on': data['checked_on'], 'checked_on': current_check_date(),
             'modules': modules, 'sources': sources, 'verified': False,
+            'evidence_summary': {'capture_count': len(evidence['entries']),
+                                 'checked_quote_count': sum(len(e['quotes']) for e in evidence['entries']),
+                                 'original_publication_count': 0, 'errors': evidence['errors'], 'verified': False},
             'limitation': 'Это очередь исследования и пробелы, не подтверждение действия норм на дату ситуации. '
                           'Ни один модуль ещё не прошёл юридическую приёмку.'}
 

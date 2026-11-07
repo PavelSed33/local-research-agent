@@ -38,6 +38,11 @@ def smoke(base_url: str) -> list[str]:
         with urllib.request.urlopen(request, timeout=30) as response:
             result = json.load(response)
         assert key in result, path
+        if path == '/legal/coverage':
+            assert result['verified'] is False
+            assert not result['evidence_summary']['errors']
+        if path == '/privacy/check':
+            assert result['status'] == 'needs_facts' and result['verified'] is False
         passed.append('POST ' + path)
     return passed
 
