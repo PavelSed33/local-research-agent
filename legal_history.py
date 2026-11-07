@@ -302,13 +302,13 @@ def extract_target_law_amendment_scope(
     # Recognize the amendment instruction, e.g. "Внести в статью 12
     # Федерального закона ... № 152-ФЗ следующие изменения".
     instruction = re.search(
-        r"Внести\s+в\s+статью\s+(?P<article>\\d+(?:\\.\\d+)?)"
-        r"(?:(?!\\n\\s*Статья\\s+\\d).){0,1200}?"
-        r"(?:Федерального\\s+закона|Федеральный\\s+закон)"
-        r"(?:(?!\\n\\s*Статья\\s+\\d).){0,500}?"
+        r"Внести\s+в\s+статью\s+(?P<article>\d+(?:\.\d+)?)"
+        r"(?:(?!\n\s*Статья\s+\d).){0,1200}?"
+        r"(?:Федерального\s+закона|Федеральный\s+закон)"
+        r"(?:(?!\n\s*Статья\s+\d).){0,500}?"
         + re.escape(normalized_number)
-        + r"(?:(?!\\n\\s*Статья\\s+\\d).){0,300}?"
-        r"следующие\\s+изменения\\s*:",
+        + r"(?:(?!\n\s*Статья\s+\d).){0,300}?"
+        r"следующие\s+изменения\s*:",
         act_text,
         re.IGNORECASE | re.DOTALL,
     )
@@ -322,7 +322,7 @@ def extract_target_law_amendment_scope(
     article = instruction.group("article")
     tail = act_text[instruction.end():]
     clause_matches = list(re.finditer(
-        r"(?ms)^\\s*(\\d+)\\)\\s*(.*?)(?=^\\s*\\d+\\)\\s*|\\Z)",
+        r"(?ms)^\s*(\d+)\)\s*(.*?)(?=^\s*\d+\)\s*|\Z)",
         tail,
     ))
     items: list[dict[str, Any]] = []
@@ -333,13 +333,13 @@ def extract_target_law_amendment_scope(
         if not clause:
             continue
         subprovisions = re.findall(
-            r"\\bв\\s+(?:пункте\\s+(\\d+)\\s+)?части\\s+(\\d+(?:\\.\\d+)?)\\b",
+            r"\bв\s+(?:пункте\s+(\d+)\s+)?части\s+(\d+(?:\.\d+)?)\b",
             clause,
             re.IGNORECASE,
         )
         if not subprovisions:
             subprovisions = re.findall(
-                r"\\bв\\s+пункте\\s+(\\d+(?:\\.\\d+)?)\\b",
+                r"\bв\s+пункте\s+(\d+(?:\.\d+)?)\b",
                 clause,
                 re.IGNORECASE,
             )
