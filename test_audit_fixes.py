@@ -11,7 +11,9 @@ from agent import Source
 from api import create_server, handle_ask, SessionStore, SESSION_MAX_COUNT
 from redline import diff_documents, MAX_DIFF_DOCUMENT_CHARS
 from registry import build_registry, MAX_REGISTRY_FILE_BYTES
-from doctext import MAX_DOCX_BYTES, MAX_DOCX_XML_BYTES, ensure_document_transfer_allowed, extract_docx_text
+from doctext import MAX_DOCX_BYTES, MAX_DOCX_XML_BYTES, MAX_INPUT_FILE_BYTES, ensure_document_transfer_allowed, extract_docx_text, parse_demo_flag, read_document_path
+from review import handle_review
+from extract import handle_extract
 
 
 class DocxResourceLimitTests(unittest.TestCase):
@@ -126,6 +128,28 @@ class SecondAuditRegressionTests(unittest.TestCase):
         self.assertEqual(rows, [])
         self.assertEqual(extractions, [])
         self.assertTrue(any("больше допустимых" in note for note in skipped))
+
+
+class StrictDocumentInputTests(unittest.TestCase):
+    def test_review_rejects_string_demo_flag(self):
+        with self.assertRaisesRegex(ValueError, "demo.*логическим"):
+            handle_review({"document": "Текст договора достаточно длинный.", "demo": "false"})
+
+    def test_extract_rejects_integer_demo_flag(self):
+        with self.assertRaisesRegex(ValueError, "demo.*логическим"):
+            handle_extract({"document": "Текст договора достаточно длинный.", "demo": 1})
+
+    def test_demo_flag_defaults_to_false(self):
+        self.assertIs(parse_demo_flag({}), False)
+        self.assertIs(parse_demo_flag({"demo": True}), True)
+
+    def test_cli_file_size_is_checked_before_read(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "large.txt"
+            with path.open("wb") as handle:
+                handle.truncate(MAX_INPUT_FILE_BYTES + 1)
+            with self.assertRaisesRegex(ValueError, "превышает допустимый размер"):
+                read_document_path(path)
 
 if __name__ == "__main__":
     unittest.main()
