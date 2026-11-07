@@ -895,7 +895,6 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
             else "no_matching_document"
         ) if ips_bank is not None else "demo_not_configured",
         "documents_with_text": len(ips_sources),
-        "provision_history": provision_history,
         "errors": ips_errors,
         "limitation": (
             "Банк предоставляет официальные тексты и снимки редакций. Дата редакции не равна "
@@ -929,6 +928,7 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
         "new_sources_found": len(update_found),
         "official_portal": official_portal_check,
         "integrated_legal_bank": ips_check,
+        "provision_history": provision_history,
         "errors": update_errors,
     }
     print(f"      Проверочных запросов: {len(new_update_queries)}; источников всего: {len(sources)}")
