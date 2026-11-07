@@ -602,6 +602,9 @@ def search_queries(search: SearchProvider, queries: list[str], per_query: int) -
     for query in queries:
         try:
             found.extend(search.search(query, per_query))
+            for provider_error in getattr(search, "last_errors", []):
+                errors.append(f"{query}: {provider_error}")
+                print(f"      Предупреждение: {provider_error}", file=sys.stderr)
         except AgentError as exc:
             errors.append(f"{query}: {exc}")
             print(f"      Предупреждение: {exc}", file=sys.stderr)
@@ -639,9 +642,13 @@ def save_results(
     warning = "\n> **Демонстрационный режим:** источники и факты условны.\n" if demo else ""
     update_status = "подтверждена" if update_check.get("verified") is True else "не подтверждена автоматически"
     court_status = "подтверждена" if court_check.get("verified") is True else "не подтверждена автоматически"
+    portal_check = update_check.get("official_portal", {})
+    portal_status = portal_check.get("status", "not_configured")
+    portal_count = portal_check.get("records_with_text", 0)
     verification_note = (
         "\n## Статус юридической проверки\n\n"
         f"- Актуальность редакций: {update_status} (статус поиска: {update_check.get('status', 'unknown')}).\n"
+        f"- Официальный портал правовой информации: {portal_status}; публикаций с полученным текстом: {portal_count}.\n"
         f"- Судебная практика: {court_status} (статус поиска: {court_check.get('status', 'unknown')}).\n"
         "- Найденные материалы сами по себе не доказывают, что норма действует на дату проверки или что судебная позиция является устойчивой. "
         "Проверяйте дату вступления изменений в силу и полный текст первичного источника.\n"
@@ -680,10 +687,15 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
     if demo:
         model: LanguageModel = DemoModel()
         search: SearchProvider = DemoSearch()
+        portal_search = None
         court_search: SearchProvider = DemoSearch()
     else:
+        from pravo_portal import FederatedLegalSearch, PravoPortalSearch
+
         model = OpenAICompatibleModel()
-        search = TavilySearch()
+        tavily_search = TavilySearch()
+        portal_search = PravoPortalSearch()
+        search = FederatedLegalSearch(portal_search, tavily_search)
         court_domains = [
             item.strip()
             for item in os.getenv(
@@ -749,6 +761,30 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
     # Otherwise a full initial source list silently discards the very materials
     # retrieved to verify amendments and current editions.
     update_sources = deduplicate(update_found, 3)
+    portal_update_sources = [
+        source for source in update_sources
+        if classify_source_authority(source.url) == "official_legal_portal"
+    ]
+    portal_errors = [
+        error for error in update_errors if "PravoPortalSearch" in error
+    ]
+    official_portal_check = {
+        "attempted": portal_search is not None,
+        "performed": bool(portal_update_sources),
+        "verified": False,
+        "status": (
+            "official_publications_found"
+            if portal_update_sources
+            else "unavailable" if portal_errors
+            else "no_matching_publication"
+        ) if portal_search is not None else "demo_not_configured",
+        "records_with_text": len(portal_update_sources),
+        "note": (
+            "Официально опубликованные акты получены через публичный read-only интерфейс. "
+            "Это подтверждает публикацию и доступность текста, но не консолидированную редакцию закона."
+        ),
+        "errors": portal_errors,
+    }
     update_check = {
         "attempted": True,
         "performed": bool(update_sources),
@@ -757,6 +793,7 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
         "queries": new_update_queries,
         "notes": update_notes,
         "new_sources_found": len(update_found),
+        "official_portal": official_portal_check,
         "errors": update_errors,
     }
     print(f"      Проверочных запросов: {len(new_update_queries)}; источников всего: {len(sources)}")
