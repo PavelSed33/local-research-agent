@@ -41,6 +41,8 @@ from agent import LEGAL_DISCLAIMER, AgentError, load_dotenv, run, validate_as_of
 from extract import handle_extract
 from redline import handle_diff
 from review import handle_review
+from legal_review import handle_legal_review
+from case_law import handle_case_law
 
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8080
@@ -51,7 +53,7 @@ MAX_QUESTION_CHARS = 12_000
 SESSION_MAX_ENTRIES = 10
 SESSION_MAX_COUNT = 1_000
 SERVICE_NAME = "legal-research-agent"
-API_VERSION = "1.2"
+API_VERSION = "1.3"
 SESSION_TTL_SECONDS = 3600
 SESSION_ANSWER_CHARS = 500
 SESSION_ID_PATTERN = re.compile(r"^[A-Za-z0-9-]{1,64}$")
@@ -196,7 +198,7 @@ def health_payload() -> dict[str, Any]:
         "status": "ok",
         "service": SERVICE_NAME,
         "version": API_VERSION,
-        "endpoints": ["GET /health", "GET /openapi.json", "POST /ask", "POST /review", "POST /extract", "POST /diff", "POST /sessions/delete"],
+        "endpoints": ["GET /health", "GET /openapi.json", "POST /ask", "POST /review", "POST /extract", "POST /diff", "POST /sessions/delete", "POST /review/legal", "POST /case-law/check"],
         "llm_configured": bool(os.getenv("LLM_API_KEY") and os.getenv("LLM_MODEL")),
         "tavily_configured": bool(os.getenv("TAVILY_API_KEY")),
         "demo_available": True,
@@ -218,6 +220,27 @@ def openapi_spec() -> dict[str, Any]:
             "description": "Локальный юридический ИИ-помощник по законодательству РФ.",
         },
         "paths": {
+            "/review/legal": {"post": {
+                "summary": "Проверка договора с цитатами правовых источников и уточнением фактов",
+                "requestBody": {"required": True, "content": {"application/json": {"schema": {
+                    "type": "object", "properties": {**document_property,
+                        "profile": {"type": "string", "enum": ["business", "consumer", "employment"]},
+                        "as_of": {"type": "string", "format": "date"},
+                        "facts": {"type": "object", "additionalProperties": {"type": "boolean", "nullable": True}}
+                    }}}}},
+                "responses": {"200": {"description": "Черновик или запрос уточнений; verified=false"},
+                              "400": {"description": "Ошибка ввода"}, "401": {"description": "Нужен токен"},
+                              "502": {"description": "Ошибка внешнего сервиса"}}}},
+            "/case-law/check": {"post": {
+                "summary": "Поиск судебных актов со сверкой реквизитов по цитатам",
+                "requestBody": {"required": True, "content": {"application/json": {"schema": {
+                    "type": "object", "required": ["question"], "properties": {
+                        "question": {"type": "string", "maxLength": 12000},
+                        "as_of": {"type": "string", "format": "date"}, "demo": {"type": "boolean"}
+                    }}}}},
+                "responses": {"200": {"description": "Выборочные акты, verified=false"},
+                              "400": {"description": "Ошибка ввода"}, "401": {"description": "Нужен токен"},
+                              "502": {"description": "Ошибка внешнего сервиса"}}}},
             "/sessions/delete": {
                 "post": {
                     "summary": "Удалить историю сессии из памяти; незавершённые запросы не восстановят её",
@@ -412,7 +435,26 @@ class LegalApiHandler(BaseHTTPRequestHandler):
         return hmac.compare_digest(supplied, expected)
 
     def do_GET(self) -> None:
-        if self.path == "/health":
+        assets = {"/": ("index.html", "text/html"), "/app.js": ("app.js", "text/javascript"),
+                  "/style.css": ("style.css", "text/css")}
+        if self.path in assets:
+            name, content_type = assets[self.path]
+            try:
+                body = (Path(__file__).parent / "web" / name).read_bytes()
+            except OSError:
+                self._send_json(503, {"error": "Файлы интерфейса не установлены."})
+                return
+            self.send_response(200)
+            self.send_header("Content-Type", content_type + "; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("X-Content-Type-Options", "nosniff")
+            self.send_header("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'none'")
+            self.send_header("Connection", "close")
+            self.close_connection = True
+            self.end_headers()
+            self.wfile.write(body)
+        elif self.path == "/health":
             self._send_json(200, health_payload())
         elif self.path == "/openapi.json":
             self._send_json(200, openapi_spec())
@@ -420,7 +462,7 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /sessions/delete."})
 
     def do_POST(self) -> None:
-        if self.path not in ("/ask", "/review", "/extract", "/diff", "/sessions/delete"):
+        if self.path not in ("/ask", "/review", "/review/legal", "/case-law/check", "/extract", "/diff", "/sessions/delete"):
             self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /sessions/delete."})
             return
         if not self._authorized():
@@ -438,6 +480,10 @@ class LegalApiHandler(BaseHTTPRequestHandler):
                 result = {"deleted": self.server.sessions.delete(session_id)}
             elif self.path == "/ask":
                 result = handle_ask(payload, Path(self.server.output_dir), self.server.sessions, persist_results=self.server.persist_results)
+            elif self.path == "/review/legal":
+                result = handle_legal_review(payload)
+            elif self.path == "/case-law/check":
+                result = handle_case_law(payload)
             elif self.path == "/review":
                 result = handle_review(payload)
             elif self.path == "/extract":
