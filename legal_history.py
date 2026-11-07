@@ -6,6 +6,7 @@ Only explicitly scoped, officially sourced effective-date events are accepted.
 from __future__ import annotations
 
 from datetime import date, timedelta
+import re
 from urllib.parse import urlsplit
 from typing import Any
 
@@ -189,6 +190,8 @@ def audit_revision_chain(
                         else "removed" if provision_id not in right_sections
                         else "text_changed"
                     ),
+                    "before_excerpt": left_sections.get(provision_id, "")[:4000],
+                    "after_excerpt": right_sections.get(provision_id, "")[:4000],
                 })
 
     event_dates: set[date] = set()
@@ -247,3 +250,128 @@ def _provision_sections(text: str) -> dict[str, str]:
         body = re.sub(r"\s+", " ", text[match.start():end]).strip()
         sections[heading] = body
     return sections
+
+
+def extract_amendment_references(text: str) -> list[dict[str, str]]:
+    """Extract amendment-act citations printed in consolidated legal text."""
+    if not isinstance(text, str) or not text:
+        return []
+    pattern = re.compile(
+        r"(?:Федерального\s+закона|Федеральным\s+законом)\s+от\s+"
+        r"(\d{2}\.\d{2}\.\d{4})\s*(?:г\.?\s*)?(?:N|№)\s*"
+        r"([\d-]+\s*-?\s*ФЗ)",
+        re.IGNORECASE,
+    )
+    found: dict[tuple[str, str], dict[str, str]] = {}
+    for match in pattern.finditer(text):
+        raw_date, raw_number = match.groups()
+        try:
+            parsed = date(int(raw_date[6:]), int(raw_date[3:5]), int(raw_date[:2]))
+        except ValueError:
+            continue
+        number = re.sub(r"\s+", "", raw_number).replace("--", "-").upper()
+        found[(parsed.isoformat(), number)] = {
+            "signed_date": parsed.isoformat(),
+            "act_number": number,
+            "citation": match.group(0),
+        }
+    return list(found.values())
+
+
+def audit_amendment_links(
+    changed_provisions: list[dict[str, Any]],
+    candidates: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Validate proposed links to official amendment acts and transition clauses."""
+    linked: list[dict[str, Any]] = []
+    rejected: list[str] = []
+    changes = {
+        str(item.get("provision_id") or "").strip(): item
+        for item in changed_provisions if isinstance(item, dict)
+    }
+    for index, candidate in enumerate(candidates[:100] if isinstance(candidates, list) else []):
+        if not isinstance(candidate, dict):
+            rejected.append(f"Связь {index + 1}: неверный формат.")
+            continue
+        provision_id = str(candidate.get("provision_id") or "").strip()
+        change = changes.get(provision_id)
+        source_text = str(candidate.get("source_text") or "")
+        source_url = candidate.get("source_url")
+        act_number = str(candidate.get("act_number") or "").strip()
+        publication_id = str(candidate.get("official_publication_id") or "").strip()
+        amendment_quote = str(candidate.get("amendment_quote") or "").strip()
+        transition_quote = str(candidate.get("transition_quote") or "").strip()
+        if change is None:
+            rejected.append(f"Связь {index + 1}: статья не найдена среди обнаруженных изменений.")
+            continue
+        if not _valid_official_url(source_url):
+            rejected.append(f"Связь {index + 1}: источник не является официальным HTTPS-источником.")
+            continue
+        if not act_number or act_number not in source_text:
+            rejected.append(f"Связь {index + 1}: номер изменяющего акта не найден в источнике.")
+            continue
+        if not publication_id or publication_id not in source_text:
+            rejected.append(f"Связь {index + 1}: идентификатор публикации не найден в источнике.")
+            continue
+        if not amendment_quote or amendment_quote not in source_text:
+            rejected.append(f"Связь {index + 1}: цитата изменения не найдена дословно.")
+            continue
+        article_match = re.search(r"Статья\s+(\d+(?:\.\d+)?)", provision_id, re.IGNORECASE)
+        if not article_match:
+            rejected.append(f"Связь {index + 1}: не удалось разобрать номер изменённой статьи.")
+            continue
+        article_number = re.escape(article_match.group(1))
+        if not re.search(
+            r"(?:внести|вносятся|внесение|изложить|дополнить|признать)\b"
+            r".{0,600}стать[ьюеи]\s+" + article_number + r"(?:\D|$)",
+            amendment_quote,
+            re.IGNORECASE | re.DOTALL,
+        ):
+            rejected.append(
+                f"Связь {index + 1}: цитата не связывает изменяющий акт с изменённой статьёй."
+            )
+            continue
+        effective_from = candidate.get("effective_from")
+        effective_date_quote = str(candidate.get("effective_date_quote") or "").strip()
+        transition_verified = bool(transition_quote and transition_quote in source_text)
+        parsed_effective = _iso_date(effective_from)
+        if parsed_effective is None or not effective_date_quote or effective_date_quote not in transition_quote:
+            parsed_effective = None
+            effective_date_quote = ""
+        elif (
+            parsed_effective.strftime("%d.%m.%Y") not in transition_quote
+            and parsed_effective.isoformat() not in transition_quote
+        ):
+            parsed_effective = None
+            effective_date_quote = ""
+        linked.append({
+            "provision_id": provision_id,
+            "change_window": {
+                "from_snapshot_date": change.get("from_snapshot_date"),
+                "to_snapshot_date": change.get("to_snapshot_date"),
+            },
+            "act_number": act_number,
+            "act_title": str(candidate.get("act_title") or ""),
+            "official_publication_id": publication_id,
+            "official_url": source_url,
+            "amendment_quote": amendment_quote,
+            "transition_clause_found": transition_verified,
+            "transition_quote": transition_quote if transition_verified else "",
+            "effective_from_candidate": parsed_effective.isoformat() if parsed_effective else None,
+            "effective_date_quote": effective_date_quote,
+            "link_verified": True,
+            "effective_date_verified": bool(parsed_effective),
+            "verified": False,
+            "limitation": (
+                "Дословная связь с изменяющим актом подтверждена, но полнота цепочки поправок "
+                "и применимость переходных положений не доказаны."
+            ),
+        })
+    return {
+        "status": "candidate_links_found" if linked else "no_verified_amendment_links",
+        "links": linked,
+        "link_count": len(linked),
+        "rejected": rejected,
+        "verified": False,
+        "coverage_verified": False,
+    }
