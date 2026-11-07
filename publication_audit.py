@@ -13,11 +13,12 @@ from agent import AgentError
 from pravo_portal import PravoPortalSearch, _extract_document_text
 
 
-def archive_act(signed_date: str, act_number: str, output_dir: Path) -> Path:
+def archive_act(signed_date: str, act_number: str, output_dir: Path, *, publication_id: str | None = None) -> Path:
     folder = output_dir / uuid.uuid4().hex
     folder.mkdir(parents=True, exist_ok=False)
     result = {
         'signed_date': signed_date, 'act_number': act_number,
+        'requested_publication_id': publication_id,
         'attempted_at': datetime.now(timezone.utc).isoformat(),
         'verified': False, 'coverage_verified': False,
         'status': 'retrieval_failed', 'publications': [],
@@ -25,7 +26,7 @@ def archive_act(signed_date: str, act_number: str, output_dir: Path) -> Path:
     }
     try:
         portal = PravoPortalSearch()
-        sources = portal.search_act(signed_date, act_number)
+        sources = portal.search_act(signed_date, act_number, publication_id=publication_id)
         if not sources:
             raise AgentError('Не получено ни одной публикации.')
         for index, source in enumerate(sources):
@@ -61,8 +62,9 @@ def main() -> int:
     parser.add_argument('signed_date')
     parser.add_argument('act_number')
     parser.add_argument('--output-dir', type=Path, default=Path('publication-evidence'))
+    parser.add_argument("--publication-id", help="Известный 16-значный номер официальной публикации")
     args = parser.parse_args()
-    manifest = archive_act(args.signed_date, args.act_number, args.output_dir)
+    manifest = archive_act(args.signed_date, args.act_number, args.output_dir, publication_id=args.publication_id)
     print(manifest)
     return 0 if json.loads(manifest.read_text(encoding='utf-8'))['status'] == 'text_retrieved_unverified' else 1
 
