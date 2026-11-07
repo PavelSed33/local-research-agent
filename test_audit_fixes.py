@@ -92,7 +92,7 @@ class ResearchEvidenceRetentionTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             with patch.object(agent, "OpenAICompatibleModel", return_value=Model()), patch.object(
                 agent, "TavilySearch", return_value=Search()
-            ):
+            ), patch("pravo_portal.PravoPortalSearch", return_value=Search()):
                 _, journal_path = agent.run(
                     "тестовый вопрос", 1, 1, Path(directory)
                 )
