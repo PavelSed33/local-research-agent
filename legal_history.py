@@ -233,8 +233,11 @@ def _provision_sections(text: str) -> dict[str, str]:
     """Split plain text by recognizable Russian article headings."""
     import re
 
+    # IPS HTML text is flattened into whitespace-separated text, so article
+    # headings may not begin a physical line. Match capitalized legal headings
+    # anywhere while avoiding lowercase references such as "согласно статье 5".
     pattern = re.compile(
-        r"(?im)^\s*(Статья\s+\d+(?:\.\d+)?(?:\s*\\[[^\\]]+\\])?\.?[^\\n]*)"
+        r"(?<![а-яё])((?:Статья|СТАТЬЯ)\s+\d+(?:\.\d+)?(?:\s*\[[^\]]+\])?\.?)"
     )
     matches = list(pattern.finditer(text))
     sections: dict[str, str] = {}
