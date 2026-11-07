@@ -32,7 +32,7 @@ from agent import (
     load_dotenv,
 )
 from doctext import ensure_document_transfer_allowed, parse_demo_flag, read_document_path, resolve_document
-from review import MIN_DOCUMENT_CHARS, MIN_QUOTE_CHARS, normalize_text
+from review import MIN_DOCUMENT_CHARS, MIN_QUOTE_CHARS, MAX_DOCUMENT_CHARS, normalize_text, safe_quote_fields
 
 ENTITY_LISTS = ("parties", "amounts", "dates", "penalties")
 REQUIRED_FIELDS = {
@@ -114,7 +114,10 @@ def validate_extraction(result: dict[str, Any], document: str) -> list[str]:
                 date_value = entry.get("date")
                 if isinstance(date_value, str) and not _valid_contract_date(date_value.strip()):
                     issues.append(f"{label}: дата должна быть реальной календарной датой в формате ДД.ММ.ГГГГ или ГГГГ-ММ-ДД.")
-            quote = str(entry.get("quote", "")).strip()
+            raw_quote = entry.get('quote')
+            if not isinstance(raw_quote, str):
+                issues.append(f'{label}: quote должна быть строкой.')
+            quote = raw_quote.strip() if isinstance(raw_quote, str) else ''
             if len(quote) < MIN_QUOTE_CHARS:
                 issues.append(f"{label}: цитата короче {MIN_QUOTE_CHARS} символов.")
             elif normalize_text(quote) not in corpus:
@@ -135,7 +138,13 @@ def validate_extraction(result: dict[str, Any], document: str) -> list[str]:
         if not isinstance(entry, dict):
             issues.append(f"Поле {field} должно быть объектом или null.")
             continue
-        quote = str(entry.get("quote", "")).strip()
+        label = 'duration' if field == 'term' else 'court'
+        if not isinstance(entry.get(label), str) or not entry[label].strip():
+            issues.append(f'Поле {field}.{label} должно быть непустой строкой.')
+        raw_quote = entry.get('quote')
+        if not isinstance(raw_quote, str):
+            issues.append(f'Поле {field}: quote должна быть строкой.')
+        quote = raw_quote.strip() if isinstance(raw_quote, str) else ''
         if len(quote) < MIN_QUOTE_CHARS:
             issues.append(f"Поле {field}: цитата короче {MIN_QUOTE_CHARS} символов.")
         elif normalize_text(quote) not in corpus:
@@ -178,13 +187,22 @@ def build_extract_prompt(document: str) -> tuple[str, str]:
     return system, user
 
 
+def safe_extraction(result: dict) -> dict:
+    clean = {section: [safe_quote_fields(entry, (*REQUIRED_FIELDS[section], 'quote',
+                        *(('inn', 'ogrn') if section == 'parties' else ())))
+                       for entry in result[section]] for section in ENTITY_LISTS}
+    for field, label in (('term', 'duration'), ('jurisdiction', 'court')):
+        clean[field] = safe_quote_fields(result[field], (label, 'quote')) if result.get(field) is not None else None
+    return {**clean, 'verified': False, 'lawyer_reviewed': False}
+
+
 def extract_entities(model: LanguageModel, document: str) -> tuple[dict[str, Any], bool]:
     """Извлекает сущности; при ошибках структуры или цитат — одна попытка исправления."""
     system, user = build_extract_prompt(document)
     result = extract_json(model.complete(system, user))
     issues = validate_extraction(result, document)
     if not issues:
-        return result, False
+        return safe_extraction(result), False
     repaired = extract_json(
         model.complete(
             "Ты исправляешь JSON-результат извлечения реквизитов договора. Устрани все перечисленные проблемы, "
@@ -197,7 +215,7 @@ def extract_entities(model: LanguageModel, document: str) -> tuple[dict[str, Any
     remaining = validate_extraction(repaired, document)
     if remaining:
         raise AgentError("Извлечение реквизитов не прошло контроль после исправления: " + " ".join(remaining))
-    return repaired, True
+    return safe_extraction(repaired), True
 
 
 def _line_with(document: str, start: int) -> str:
@@ -260,8 +278,8 @@ class DemoExtractModel:
 def handle_extract(payload: dict[str, Any]) -> dict[str, Any]:
     """Валидирует запрос и выполняет извлечение реквизитов."""
     document = resolve_document(payload)
-    if len(document) < MIN_DOCUMENT_CHARS:
-        raise ValueError(f"Текст договора слишком короткий: нужно от {MIN_DOCUMENT_CHARS} символов.")
+    if not MIN_DOCUMENT_CHARS <= len(document) <= MAX_DOCUMENT_CHARS:
+        raise ValueError(f"Текст договора должен содержать от {MIN_DOCUMENT_CHARS} до {MAX_DOCUMENT_CHARS} символов.")
     demo = parse_demo_flag(payload)
     if not demo:
         ensure_document_transfer_allowed()
@@ -269,6 +287,8 @@ def handle_extract(payload: dict[str, Any]) -> dict[str, Any]:
     result, repaired = extract_entities(model, document.strip())
     return {
         "status": "draft",
+        "verified": False,
+        "lawyer_reviewed": False,
         "parties": result.get("parties", []),
         "amounts": result.get("amounts", []),
         "dates": result.get("dates", []),
@@ -304,3 +324,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

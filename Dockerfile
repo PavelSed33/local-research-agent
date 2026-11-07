@@ -16,8 +16,10 @@ ENV API_HOST=0.0.0.0 \
 
 # LLM_API_KEY, LLM_MODEL, LLM_BASE_URL, TAVILY_API_KEY и API_TOKEN
 # передаются при запуске контейнера через -e или --env-file.
-RUN mkdir -p /data/results
+RUN mkdir -p /data/results && chown -R 10001:10001 /data
 VOLUME ["/data"]
+
+USER 10001:10001
 
 EXPOSE 8080
 

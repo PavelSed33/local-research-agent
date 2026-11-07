@@ -51,6 +51,25 @@ def normalize_text(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
 
+MAX_DOCUMENT_CHARS = 200_000
+
+
+def safe_quote_fields(record: dict, fields: tuple[str, ...]) -> dict:
+    """Keep only declared string fields after validation; flags belong to the program."""
+    return {**{key: record[key] for key in fields if isinstance(record.get(key), str)},
+            'quote_checked': True, 'verified': False, 'lawyer_reviewed': False}
+
+
+def safe_review_risk(record: dict) -> dict:
+    return {**safe_quote_fields(record, ('category', 'severity', 'quote', 'comment', 'recommendation')),
+            'legal_basis': [], 'basis_status': 'no_legal_evidence'}
+
+
+def safe_review_result(result: dict) -> dict:
+    return {'summary': result['summary'], 'risks': [safe_review_risk(risk) for risk in result['risks']],
+            'missing_clauses': result.get('missing_clauses', []), 'verified': False, 'lawyer_reviewed': False}
+
+
 def validate_review(result: dict[str, Any], document: str) -> list[str]:
     """Проверяет структуру результата и вхождение цитат в текст договора."""
     issues: list[str] = []
@@ -117,7 +136,7 @@ def review_contract(model: LanguageModel, document: str) -> tuple[dict[str, Any]
     result = extract_json(model.complete(system, user))
     issues = validate_review(result, document)
     if not issues:
-        return result, False
+        return safe_review_result(result), False
     repaired = extract_json(
         model.complete(
             "Ты исправляешь JSON-результат проверки договора. Устрани все перечисленные проблемы, "
@@ -130,7 +149,7 @@ def review_contract(model: LanguageModel, document: str) -> tuple[dict[str, Any]
     remaining = validate_review(repaired, document)
     if remaining:
         raise AgentError("Проверка договора не прошла контроль после исправления: " + " ".join(remaining))
-    return repaired, True
+    return safe_review_result(repaired), True
 
 
 class DemoReviewModel:
@@ -160,8 +179,8 @@ class DemoReviewModel:
 def handle_review(payload: dict[str, Any]) -> dict[str, Any]:
     """Валидирует запрос и выполняет проверку договора."""
     document = resolve_document(payload)
-    if len(document) < MIN_DOCUMENT_CHARS:
-        raise ValueError(f"Текст договора слишком короткий: нужно от {MIN_DOCUMENT_CHARS} символов.")
+    if not MIN_DOCUMENT_CHARS <= len(document) <= MAX_DOCUMENT_CHARS:
+        raise ValueError(f"Текст договора должен содержать от {MIN_DOCUMENT_CHARS} до {MAX_DOCUMENT_CHARS} символов.")
     demo = parse_demo_flag(payload)
     if not demo:
         ensure_document_transfer_allowed()
@@ -169,6 +188,8 @@ def handle_review(payload: dict[str, Any]) -> dict[str, Any]:
     result, repaired = review_contract(model, document.strip())
     return {
         "status": "draft",
+        "verified": False,
+        "lawyer_reviewed": False,
         "summary": result["summary"].strip(),
         "risks": result.get("risks", []),
         "missing_clauses": result.get("missing_clauses", []),
@@ -200,3 +221,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

@@ -55,7 +55,7 @@ MAX_QUESTION_CHARS = 12_000
 SESSION_MAX_ENTRIES = 10
 SESSION_MAX_COUNT = 1_000
 SERVICE_NAME = "legal-research-agent"
-API_VERSION = "1.6"
+API_VERSION = "1.7"
 SESSION_TTL_SECONDS = 3600
 SESSION_ANSWER_CHARS = 500
 SESSION_ID_PATTERN = re.compile(r"^[A-Za-z0-9-]{1,64}$")
@@ -178,6 +178,8 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
         sessions.remember(session_id, question, answer, expected_session=session_identity)
     return {
         "answer": answer,
+        "verified": False,
+        "lawyer_reviewed": False,
         "sources": [
             {"title": source["title"], "url": source["url"]}
             for source in journal["sources"]
@@ -207,14 +209,14 @@ def health_payload() -> dict[str, Any]:
     }
 
 
-def openapi_spec() -> dict[str, Any]:
+def openapi_spec(*, require_auth: bool = True) -> dict[str, Any]:
     """Машинное описание API (OpenAPI 3.0) для интеграции с оркестраторами."""
     document_property = {
         "document": {"type": "string", "description": "Полный текст договора (UTF-8)"},
         "document_base64": {"type": "string", "description": "Договор в формате DOCX, закодированный в base64"},
         "demo": {"type": "boolean", "default": False, "description": "Демонстрационный режим без внешних запросов"},
     }
-    return {
+    spec = {
         "openapi": "3.0.3",
         "info": {
             "title": SERVICE_NAME,
@@ -378,6 +380,13 @@ def openapi_spec() -> dict[str, Any]:
             },
         },
     }
+    spec['components'] = {'securitySchemes': {'ApiToken': {
+        'type': 'http', 'scheme': 'bearer',
+        'description': 'Токен API_TOKEN сервера; это не ключ модели или поискового провайдера.'}}}
+    for path in spec['paths'].values():
+        if 'post' in path:
+            path['post']['security'] = [{'ApiToken': []}] if require_auth else []
+    return spec
 
 
 class BoundedThreadingHTTPServer(ThreadingHTTPServer):
@@ -488,7 +497,7 @@ class LegalApiHandler(BaseHTTPRequestHandler):
         elif self.path == "/health":
             self._send_json(200, health_payload())
         elif self.path == "/openapi.json":
-            self._send_json(200, openapi_spec())
+            self._send_json(200, openapi_spec(require_auth=bool(self.server.api_token)))
         elif self.path == "/privacy/options":
             self._send_json(200, privacy_options())
         elif self.path == "/review/options":
