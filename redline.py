@@ -21,7 +21,7 @@ from pathlib import Path
 from typing import Any
 
 from agent import LEGAL_DISCLAIMER
-from doctext import read_document_file, resolve_document
+from doctext import read_document_path, resolve_document
 from review import MIN_DOCUMENT_CHARS
 
 MAX_CHANGED_PAIRS_NOTE = "Количество удалённых и добавленных строк в блоке различается."
@@ -106,8 +106,8 @@ def main() -> int:
             print(f"Ошибка: файл не найден: {path}", file=sys.stderr)
             return 1
     try:
-        old = read_document_file(args.old_file.read_bytes(), args.old_file.name)
-        new = read_document_file(args.new_file.read_bytes(), args.new_file.name)
+        old = read_document_path(args.old_file)
+        new = read_document_path(args.new_file)
         result = handle_diff({"document_a": old, "document_b": new})
     except ValueError as exc:
         print(f"\nОшибка: {exc}", file=sys.stderr)
