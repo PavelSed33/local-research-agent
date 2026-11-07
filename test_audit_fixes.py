@@ -8,8 +8,8 @@ from pathlib import Path
 from unittest.mock import patch
 
 import agent
-from agent import Source, current_check_date, deduplicate_queries, extract_json
-from api import create_server, handle_ask, SessionStore, SESSION_MAX_COUNT
+from agent import Source, current_check_date, deduplicate_queries, extract_json, find_unconfirmed_articles, reflect_on_report
+from api import create_server, handle_ask, SessionStore, SESSION_MAX_COUNT, LegalApiHandler
 from redline import diff_documents, MAX_DIFF_DOCUMENT_CHARS
 from registry import build_registry, MAX_REGISTRY_FILE_BYTES
 from doctext import MAX_DOCX_BYTES, MAX_DOCX_XML_BYTES, MAX_INPUT_FILE_BYTES, ensure_document_transfer_allowed, extract_docx_text, parse_demo_flag, read_document_path
@@ -216,6 +216,18 @@ class UserChangeRegressionTests(unittest.TestCase):
             "agent.time.sleep"
         ):
             self.assertEqual(agent.post_json("https://example.test", {}, {}), {"ok": True})
+
+    def test_article_number_match_does_not_accept_decimal_prefix(self):
+        report = "## Правовое основание\nСогласно статье 15 ГК РФ."
+        sources = [Source("Источник", "https://example.test", "См. статью 15.1 закона.", "q")]
+        self.assertEqual(find_unconfirmed_articles(report, sources), ["15"])
+
+    def test_reflection_rejects_string_boolean(self):
+        class Model:
+            def complete(self, system, user):
+                return '{"consistent": "false", "issues": []}'
+        with self.assertRaisesRegex(agent.AgentError, "consistent неверного типа"):
+            reflect_on_report(Model(), "тема", "отчёт", [])
 
 
 if __name__ == "__main__":
