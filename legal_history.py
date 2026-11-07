@@ -234,13 +234,13 @@ def _provision_sections(text: str) -> dict[str, str]:
     import re
 
     pattern = re.compile(
-        r"(?im)^\\s*(Статья\\s+\\d+(?:\\.\\d+)?(?:\\s*\\[[^\\]]+\\])?\\.?[^\\n]*)"
+        r"(?im)^\s*(Статья\s+\d+(?:\.\d+)?(?:\s*\\[[^\\]]+\\])?\.?[^\\n]*)"
     )
     matches = list(pattern.finditer(text))
     sections: dict[str, str] = {}
     for index, match in enumerate(matches):
         end = matches[index + 1].start() if index + 1 < len(matches) else len(text)
-        heading = re.sub(r"\\s+", " ", match.group(1)).strip().rstrip(".")
-        body = re.sub(r"\\s+", " ", text[match.start():end]).strip()
+        heading = re.sub(r"\s+", " ", match.group(1)).strip().rstrip(".")
+        body = re.sub(r"\s+", " ", text[match.start():end]).strip()
         sections[heading] = body
     return sections
