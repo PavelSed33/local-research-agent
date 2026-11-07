@@ -985,8 +985,19 @@
               "rule": "Article 29(1): the law enters into force on 01.01.2011; Article 29(2)-(4) exceptions do not include Article 23",
               "source_class": "secondary reproduction of Article 23 and Article 29"
             },
-            "source_verification_note": "Article 23 expressly rewrites Article 9 part 4 and adds part 4.1. Article 29 sets the general effective date. This is a confirmed in-scope candidate mapping based on a secondary full-act reproduction; the original official portal publication body was not retrieved.",
-            "secondary_source_class": "secondary_legal_database_or_reference_copy"
+            "source_verification_note": "Article 23 expressly rewrites Article 9 part 4 and adds part 4.1. Article 29 sets the general effective date. This is a confirmed in-scope candidate mapping based on a secondary full-act reproduction; the original official portal publication body was not retrieved. Дополнительно обнаружена копия полного текста на поддомене nalog.gov.ru; она фиксируется как размещённая государственным органом копия, но не как оригинальная запись официального опубликования. Вторичная библиографическая запись указывает Российскую газету №169 от 02.08.2010.",
+            "secondary_source_class": "secondary_legal_database_or_reference_copy",
+            "government_hosted_full_text_copy": {
+              "url": "https://www.nalog.gov.ru/html/sites/www.rn31.nalog.ru/zak/227fz.pdf",
+              "host": "nalog.gov.ru",
+              "classification": "government-hosted reproduction of the law text; not the original official publication record",
+              "publication_metadata_secondary": {
+                "edition": "Российская газета",
+                "issue": "169",
+                "date": "2010-08-02",
+                "corroborating_source": "https://www.kontur-extern.ru/info/normativ/document/1/160297-federalny-zakon-ot-27-07-2010-n-227-fz"
+              }
+            }
           }
         ],
         "gaps": [
