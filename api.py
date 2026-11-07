@@ -55,7 +55,7 @@ MAX_QUESTION_CHARS = 12_000
 SESSION_MAX_ENTRIES = 10
 SESSION_MAX_COUNT = 1_000
 SERVICE_NAME = "legal-research-agent"
-API_VERSION = "1.5"
+API_VERSION = "1.6"
 SESSION_TTL_SECONDS = 3600
 SESSION_ANSWER_CHARS = 500
 SESSION_ID_PATTERN = re.compile(r"^[A-Za-z0-9-]{1,64}$")
@@ -263,13 +263,13 @@ def openapi_spec() -> dict[str, Any]:
                               "400": {"description": "Ошибка ввода"}, "401": {"description": "Нужен токен"},
                               "502": {"description": "Ошибка внешнего сервиса"}}}},
             "/case-law/check": {"post": {
-                "summary": "Поиск судебных актов со сверкой реквизитов по цитатам",
+                "summary": "Судебные материалы: реквизиты, фрагменты исхода и истории с проверкой цитат",
                 "requestBody": {"required": True, "content": {"application/json": {"schema": {
                     "type": "object", "required": ["question"], "properties": {
                         "question": {"type": "string", "maxLength": 12000},
                         "as_of": {"type": "string", "format": "date"}, "demo": {"type": "boolean"}
                     }}}}},
-                "responses": {"200": {"description": "Выборочные акты, verified=false"},
+                "responses": {"200": {"description": "Выборочные материалы, verified=false. act_type/instance/outcome/case_facts — цитатные фрагменты или not_established; subsequent_history — неполная цепочка. non_case_materials отделены от актов по делам; сопоставимость и вступление в силу не установлены."},
                               "400": {"description": "Ошибка ввода"}, "401": {"description": "Нужен токен"},
                               "502": {"description": "Ошибка внешнего сервиса"}}}},
             "/sessions/delete": {
