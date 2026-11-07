@@ -1328,6 +1328,25 @@
         "official_text_retrieved": false,
         "source_class": "secondary_full_act_text_and_reference_copy",
         "note": "Вторичная PDF-копия полного текста закона. Оригинал официальной публикации не получен."
+      },
+      {
+        "act": "313-ФЗ",
+        "date": "2010-11-29",
+        "official_publication_id": null,
+        "official_publication_url": null,
+        "checked_articles": [
+          "3",
+          "6",
+          "9"
+        ],
+        "result": "not_in_scope",
+        "basis": "Статья 11 закона 313-ФЗ дополняет часть 2 статьи 10 152-ФЗ пунктом 8. В проверенном полном тексте поправка адресована статье 10; изменений статей 3, 6 или 9 не установлено.",
+        "secondary_sources": [
+          "https://www.consultant.ru/document/cons_doc_LAW_107277/3eeafbd3bdb64673818bd5cba64081209bddc7a4/"
+        ],
+        "official_text_retrieved": false,
+        "source_class": "secondary_full_act_text_and_reference_copy",
+        "note": "Текст статьи 11 проверен по вторичной копии ConsultantPlus. Оригинал официальной публикации и её идентификатор не получены."
       }
     ],
     "source_discrepancies": []
