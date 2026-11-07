@@ -613,8 +613,10 @@ class Law152FixtureInventoryTests(unittest.TestCase):
         inventory = fixture["consolidated_citation_inventory"]
         self.assertEqual(len(inventory), 35)
         self.assertEqual(fixture["inventory_summary"]["total_citations"], 35)
-        self.assertEqual(fixture["inventory_summary"]["partial_scope_candidates"], 15)
-        self.assertEqual(fixture["inventory_summary"]["not_mapped"], 20)
+        self.assertEqual(fixture["inventory_summary"]["partial_scope_candidates"], 16)
+        self.assertEqual(fixture["inventory_summary"]["not_mapped"], 19)
+        self.assertEqual(sum(item["scope_mapping_status"] == "partial_candidate" for item in inventory), 16)
+        self.assertEqual(sum(item["scope_mapping_status"] == "not_mapped" for item in inventory), 19)
         scoped = fixture["article_scoped_inventory"]
         self.assertEqual(len(scoped["articles"]), 3)
         self.assertEqual(scoped["summary"]["articles_covered"], 3)
@@ -631,7 +633,8 @@ class Law152FixtureInventoryTests(unittest.TestCase):
             item["act_number"] == "123-ФЗ" and item["act_date"] == "2011-06-04"
             and item["scope"] == ["пункт 5.1 части 2"] and item["effective_from"] == "2011-06-18"
             for item in scoped["articles"][1]["candidate_amendments"]
-        ))        self.assertTrue(any(
+        ))
+        self.assertTrue(any(
             item["act_number"] == "148-ФЗ" and item["scope"] == ["часть 1.1"]
             for article in scoped["articles"] if article["article"] == "6"
             for item in article["candidate_amendments"]
@@ -643,7 +646,6 @@ class Law152FixtureInventoryTests(unittest.TestCase):
         self.assertEqual(len(portal["identified_records"]), 5)
         self.assertIn("0001202408080031", {item["publication_id"] for item in portal["identified_records"]})
         self.assertTrue(all(not item["body_retrieved"] for item in portal["identified_records"]))
-        self.assertFalse(scoped["summary"]["verified"])
         self.assertFalse(scoped["summary"]["verified"])
         self.assertTrue(all(
             item["official_text_retrieved"] is False
