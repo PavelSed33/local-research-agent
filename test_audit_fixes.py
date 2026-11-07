@@ -557,7 +557,7 @@ class AmendmentLinkAuditTests(unittest.TestCase):
             "official_publication_id": "0001201107250001",
             "source_url": "https://publication.pravo.gov.ru/document/0001201107250001",
             "source_text": source_text,
-            "amendment_quote": "Внести в Федеральный закон от 27.07.2006 № 152-ФЗ статью 1 следующие изменения: в статье 1 часть 1 изложить в следующей редакции.",
+            "amendment_quote": "Внести в Федеральный закон от 27.07.2006 № 152-ФЗ следующие изменения: 1) в статье 1 часть 1 изложить в следующей редакции.",
             "target_act_quote": "Федеральный закон от 27.07.2006 № 152-ФЗ",
             "transition_quote": "Статья 1 настоящего Федерального закона вступает в силу с 01.01.2020.",
             "effective_from": "2020-01-01",
