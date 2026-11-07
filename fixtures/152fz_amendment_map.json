@@ -346,7 +346,21 @@
         "261-ФЗ от 25.07.2011"
       ],
       "result": "Идентифицированы пять номеров официальных публикаций, но загрузить оригинальные тела документов с publication.pravo.gov.ru не удалось. Номер публикации и вторичная копия не равны получению первичного текста.",
-      "caveat": "Не повышать official_text_retrieved, verified или coverage_verified без фактически прочитанного оригинального документа."
+      "caveat": "Не повышать official_text_retrieved, verified или coverage_verified без фактически прочитанного оригинального документа.",
+      "non_portal_official_publication_evidence": [
+        {
+          "act": "261-ФЗ",
+          "date": "2011-07-25",
+          "publication_medium": "Российская газета",
+          "issue": "№ 162",
+          "publication_date": "2011-07-27",
+          "portal_publication_id": null,
+          "body_retrieved": false,
+          "source_class": "secondary bibliographic record",
+          "source_url": "https://www.kontur-extern.ru/info/normativ/document/1/182955-federalnyy-zakon-ot-25-07-2011-n-261-fz",
+          "notes": "Act predates the portal publication records identified for the other five acts. No portal ID is asserted; this record does not count as retrieval of the original act body."
+        }
+      ]
     },
     "articles": [
       {
@@ -361,19 +375,25 @@
             ],
             "basis": "текущая редакционная помета; текст статьи 1 закона 261-ФЗ прямо заменяет статью 3",
             "scope_status": "explicit_in_secondary_act_copy",
-            "effective_from": null,
-            "effective_date_status": "не проверена по официальному переходному положению",
+            "effective_from": "2011-07-27",
+            "effective_date_status": "The amending act entered into force on official publication (secondary publication record: Rossiyskaya Gazeta 2011-07-27); Article 3(2) retroactively applies the amended 152-FZ provisions to legal relationships from 2011-07-01. Secondary reproduction; not primary-source verified.",
             "secondary_sources": [
-              "https://www.consultant.ru/document/cons_doc_LAW_61801/4f41fe599ce341751e4e34dc50a4b676674c1416/",
-              "https://sudact.ru/law/federalnyi-zakon-ot-25072011-n-261-fz-o/"
+              "https://www.consultant.ru/document/cons_doc_LAW_117437/3d0cac60971a511280cbba229d9b6329c07731f/",
+              "https://www.kontur-extern.ru/info/normativ/document/1/182955-federalnyy-zakon-ot-25-07-2011-n-261-fz"
             ],
             "official_text_retrieved": false,
             "official_publication_identified": false,
             "official_publication_id": null,
             "official_document_url": null,
             "official_retrieval_status": "publication_id_not_resolved",
-            "transition_provision": null,
-            "source_verification_note": "Secondary consolidated materials state that the revised Article 3 and other provisions apply to legal relationships from 2011-07-01; the original official publication and transitional article were not fetched. Do not treat the date as primary-source verified."
+            "transition_provision": {
+              "act_effective_date": "2011-07-27",
+              "act_effective_rule": "Article 3(1): the amending law enters into force on the date of official publication",
+              "retroactive_application_from": "2011-07-01",
+              "retroactive_rule": "Article 3(2): provisions of 152-FZ as amended apply to legal relationships arising from 2011-07-01",
+              "source_class": "secondary reproduction of Article 3 and secondary bibliographic record for Rossiyskaya Gazeta; original primary publication not retrieved"
+            },
+            "source_verification_note": "The secondary full text of Article 1 expressly replaces Article 3, Article 6 and Article 9 of 152-FZ. Article 3(1) sets entry into force on official publication; Article 3(2) separately gives retroactive application to legal relationships from 2011-07-01. A secondary bibliographic record identifies Rossiyskaya Gazeta No. 162 dated 2011-07-27. Keep official_text_retrieved=false and do not assign a portal publication ID."
           },
           {
             "act_date": "2020-12-30",
@@ -418,19 +438,25 @@
             ],
             "basis": "редакционная помета к статье; полный текст акта содержит перечень поправок к 152-ФЗ",
             "scope_status": "explicit_in_secondary_act_copy",
-            "effective_from": null,
-            "effective_date_status": "не проверена по официальному переходному положению",
+            "effective_from": "2011-07-27",
+            "effective_date_status": "The amending act entered into force on official publication (secondary publication record: Rossiyskaya Gazeta 2011-07-27); Article 3(2) retroactively applies the amended 152-FZ provisions to legal relationships from 2011-07-01. Secondary reproduction; not primary-source verified.",
             "secondary_sources": [
-              "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/",
-              "https://sudact.ru/law/federalnyi-zakon-ot-25072011-n-261-fz-o/"
+              "https://www.consultant.ru/document/cons_doc_LAW_117437/3d0cac60971a511280cbba229d9b6329c07731f/",
+              "https://www.kontur-extern.ru/info/normativ/document/1/182955-federalnyy-zakon-ot-25-07-2011-n-261-fz"
             ],
             "official_text_retrieved": false,
             "official_publication_identified": false,
             "official_publication_id": null,
             "official_document_url": null,
             "official_retrieval_status": "publication_id_not_resolved",
-            "transition_provision": null,
-            "source_verification_note": "Secondary consolidated materials state that the revised Article 3 and other provisions apply to legal relationships from 2011-07-01; the original official publication and transitional article were not fetched. Do not treat the date as primary-source verified."
+            "transition_provision": {
+              "act_effective_date": "2011-07-27",
+              "act_effective_rule": "Article 3(1): the amending law enters into force on the date of official publication",
+              "retroactive_application_from": "2011-07-01",
+              "retroactive_rule": "Article 3(2): provisions of 152-FZ as amended apply to legal relationships arising from 2011-07-01",
+              "source_class": "secondary reproduction of Article 3 and secondary bibliographic record for Rossiyskaya Gazeta; original primary publication not retrieved"
+            },
+            "source_verification_note": "The secondary full text of Article 1 expressly replaces Article 3, Article 6 and Article 9 of 152-FZ. Article 3(1) sets entry into force on official publication; Article 3(2) separately gives retroactive application to legal relationships from 2011-07-01. A secondary bibliographic record identifies Rossiyskaya Gazeta No. 162 dated 2011-07-27. Keep official_text_retrieved=false and do not assign a portal publication ID."
           },
           {
             "act_date": "2013-04-05",
@@ -644,19 +670,25 @@
             ],
             "basis": "редакционная помета к статье и текст акта, который содержит её полную новую редакцию",
             "scope_status": "explicit_in_secondary_act_copy",
-            "effective_from": null,
-            "effective_date_status": "не проверена по официальному переходному положению",
+            "effective_from": "2011-07-27",
+            "effective_date_status": "The amending act entered into force on official publication (secondary publication record: Rossiyskaya Gazeta 2011-07-27); Article 3(2) retroactively applies the amended 152-FZ provisions to legal relationships from 2011-07-01. Secondary reproduction; not primary-source verified.",
             "secondary_sources": [
-              "https://www.consultant.ru/document/cons_doc_LAW_61801/6c94959bc017ac80140621762d2ac59f6006b08c/",
-              "https://sudact.ru/law/federalnyi-zakon-ot-25072011-n-261-fz-o/"
+              "https://www.consultant.ru/document/cons_doc_LAW_117437/3d0cac60971a511280cbba229d9b6329c07731f/",
+              "https://www.kontur-extern.ru/info/normativ/document/1/182955-federalnyy-zakon-ot-25-07-2011-n-261-fz"
             ],
             "official_text_retrieved": false,
             "official_publication_identified": false,
             "official_publication_id": null,
             "official_document_url": null,
             "official_retrieval_status": "publication_id_not_resolved",
-            "transition_provision": null,
-            "source_verification_note": "Secondary consolidated materials state that the revised Article 3 and other provisions apply to legal relationships from 2011-07-01; the original official publication and transitional article were not fetched. Do not treat the date as primary-source verified."
+            "transition_provision": {
+              "act_effective_date": "2011-07-27",
+              "act_effective_rule": "Article 3(1): the amending law enters into force on the date of official publication",
+              "retroactive_application_from": "2011-07-01",
+              "retroactive_rule": "Article 3(2): provisions of 152-FZ as amended apply to legal relationships arising from 2011-07-01",
+              "source_class": "secondary reproduction of Article 3 and secondary bibliographic record for Rossiyskaya Gazeta; original primary publication not retrieved"
+            },
+            "source_verification_note": "The secondary full text of Article 1 expressly replaces Article 3, Article 6 and Article 9 of 152-FZ. Article 3(1) sets entry into force on official publication; Article 3(2) separately gives retroactive application to legal relationships from 2011-07-01. A secondary bibliographic record identifies Rossiyskaya Gazeta No. 162 dated 2011-07-27. Keep official_text_retrieved=false and do not assign a portal publication ID."
           },
           {
             "act_date": "2020-12-30",
