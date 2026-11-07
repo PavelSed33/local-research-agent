@@ -300,6 +300,7 @@ def audit_amendment_links(
         act_number = str(candidate.get("act_number") or "").strip()
         publication_id = str(candidate.get("official_publication_id") or "").strip()
         amendment_quote = str(candidate.get("amendment_quote") or "").strip()
+        target_act_quote = str(candidate.get("target_act_quote") or "").strip()
         transition_quote = str(candidate.get("transition_quote") or "").strip()
         if change is None:
             rejected.append(f"Связь {index + 1}: статья не найдена среди обнаруженных изменений.")
@@ -319,6 +320,13 @@ def audit_amendment_links(
             continue
         if not amendment_quote or amendment_quote not in source_text:
             rejected.append(f"Связь {index + 1}: цитата изменения не найдена дословно.")
+            continue
+        if (
+            not target_act_quote
+            or target_act_quote not in source_text
+            or target_act_quote not in amendment_quote
+        ):
+            rejected.append(f"Связь {index + 1}: цитата не подтверждает идентичность изменяемого закона.")
             continue
         article_match = re.search(r"Статья\s+(\d+(?:\.\d+)?)", provision_id, re.IGNORECASE)
         if not article_match:
@@ -350,7 +358,9 @@ def audit_amendment_links(
         if (
             parsed_effective is None
             or not effective_date_quote
+            or not transition_verified
             or effective_date_quote not in transition_quote
+            or effective_date_quote not in source_text
             or not article_specific_effective_clause
         ):
             parsed_effective = None
