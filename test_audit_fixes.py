@@ -545,7 +545,7 @@ class AmendmentLinkAuditTests(unittest.TestCase):
         from legal_history import audit_amendment_links
         source_text = (
             "Наименование: Федеральный закон о внесении изменений. "
-            "Номер: 261-ФЗ. Идентификатор официальной публикации: 0001201107250001. "
+            "Номер: 261-ФЗ. Дата подписания: 25.07.2011. Идентификатор официальной публикации: 0001201107250001. "
             "Внести в Федеральный закон от 27.07.2006 № 152-ФЗ следующие изменения: 1) в статье 1 часть 1 изложить в следующей редакции. "
             "в статье 1 часть 1 изложить в следующей редакции. "
             "Статья 1 настоящего Федерального закона вступает в силу с 01.01.2020."
@@ -554,6 +554,7 @@ class AmendmentLinkAuditTests(unittest.TestCase):
             "provision_id": "Статья 1",
             "act_title": "Федеральный закон о внесении изменений",
             "act_number": "261-ФЗ",
+            "act_signed_date": "2011-07-25",
             "official_publication_id": "0001201107250001",
             "source_url": "https://publication.pravo.gov.ru/document/0001201107250001",
             "source_text": source_text,
@@ -578,10 +579,11 @@ class AmendmentLinkAuditTests(unittest.TestCase):
         candidate = {
             "provision_id": "Статья 1",
             "act_number": "261-ФЗ",
+            "act_signed_date": "2011-07-25",
             "official_publication_id": "pub-1",
             "source_url": "https://publication.pravo.gov.ru/document/pub-1",
             "act_title": "Закон о поправках",
-            "source_text": "Закон о поправках 261-ФЗ pub-1 Внести изменения в статью 2.",
+            "source_text": "Закон о поправках 261-ФЗ 25.07.2011 pub-1 Внести изменения в статью 2.",
             "amendment_quote": "Внести изменения в статью 2.",
             "target_act_quote": "Федеральный закон № 152-ФЗ",
         }
