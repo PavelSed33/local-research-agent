@@ -7,6 +7,7 @@ from typing import Any
 from agent import (AgentError, LEGAL_DISCLAIMER, OpenAICompatibleModel, TavilySearch,
                    Source, classify_source_authority, current_check_date, extract_json,
                    format_materials, validate_as_of)
+from legal_catalog import review_checklist
 from doctext import ensure_document_transfer_allowed, parse_demo_flag, resolve_document
 from review import (DemoReviewModel, MIN_DOCUMENT_CHARS, build_review_prompt,
                     normalize_text, validate_review)
@@ -69,12 +70,16 @@ def handle_legal_review(payload: dict[str, Any]) -> dict[str, Any]:
     scope = applicability(profile, payload.get('facts', {}))
     demo = parse_demo_flag(payload)
     as_of = validate_as_of(payload.get('as_of')) or current_check_date()
+    contract_type = payload.get('contract_type', 'general')
+    if not isinstance(contract_type, str):
+        raise ValueError('contract_type должен быть строкой.')
+    checklist = review_checklist(profile, contract_type, as_of)
     document = resolve_document(payload)
     if not MIN_DOCUMENT_CHARS <= len(document) <= 200_000:
         raise ValueError('Текст договора должен содержать от 20 до 200000 символов.')
     base = {'profile': profile, 'applicability': scope, 'as_of': as_of,
             'checked_on': current_check_date(), 'verified': False, 'demo': demo,
-            'disclaimer': LEGAL_DISCLAIMER, 'sources': []}
+            'disclaimer': LEGAL_DISCLAIMER, 'sources': [], 'checklist': checklist}
     if scope['status'] != 'candidate_scope':
         return {**base, 'status': scope['status'], 'summary': 'Уточните обстоятельства для выбранного сценария.',
                 'risks': [], 'missing_clauses': []}
@@ -83,7 +88,8 @@ def handle_legal_review(payload: dict[str, Any]) -> dict[str, Any]:
     if not demo:
         ensure_document_transfer_allowed()
         # Only the generic profile goes to web search, never the contract text.
-        query = f"{PROFILES[profile]['law']} существенные условия ответственность расторжение редакция на {as_of}"
+        references = "; ".join(dict.fromkeys(rule["law_reference"] for rule in checklist["rules"]))
+        query = f"{PROFILES[profile]['law']} {contract_type} {references} редакция на {as_of}"
         try:
             sources = TavilySearch().search(query, 5)
         except AgentError:
@@ -99,6 +105,7 @@ def handle_legal_review(payload: dict[str, Any]) -> dict[str, Any]:
         'Различай дату ситуации и дату проверки; не утверждай актуальность редакции без доказательств.'
     )
     user = (f"Профиль: {profile}. Дата ситуации: {as_of}.\nИсточники:\n{format_materials(sources)}"
+            f"\nПлан проверки (не доказательство нормы): {json.dumps(checklist, ensure_ascii=False)}"
             f"\nТекст договора:\n{document}")
     result = extract_json(model.complete(system, user))
     issues = validate_legal_bases(result, document, sources)

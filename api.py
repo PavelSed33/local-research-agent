@@ -225,6 +225,7 @@ def openapi_spec() -> dict[str, Any]:
                 "requestBody": {"required": True, "content": {"application/json": {"schema": {
                     "type": "object", "properties": {**document_property,
                         "profile": {"type": "string", "enum": ["business", "consumer", "employment"]},
+                        "contract_type": {"type": "string", "enum": ["general", "supply", "lease", "services", "work"]},
                         "as_of": {"type": "string", "format": "date"},
                         "facts": {"type": "object", "additionalProperties": {"type": "boolean", "nullable": True}}
                     }}}}},
