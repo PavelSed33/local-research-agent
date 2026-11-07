@@ -92,7 +92,9 @@ class ResearchEvidenceRetentionTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             with patch.object(agent, "OpenAICompatibleModel", return_value=Model()), patch.object(
                 agent, "TavilySearch", return_value=Search()
-            ), patch("pravo_portal.PravoPortalSearch", return_value=Search()):
+            ), patch("pravo_portal.PravoPortalSearch", return_value=Search()), patch(
+                "pravo_ips.PravoIpsBank", return_value=Search()
+            ):
                 _, journal_path = agent.run(
                     "тестовый вопрос", 1, 1, Path(directory)
                 )
@@ -312,6 +314,50 @@ class OfficialPravoPortalIntegrationTests(unittest.TestCase):
             client = PravoPortalSearch()
             with self.assertRaisesRegex(agent.AgentError, "больше 2 МиБ"):
                 client._get("/api/Documents", {"Name": "тест"})
+
+
+class OfficialIntegratedLegalBankTests(unittest.TestCase):
+    def test_history_selects_snapshot_not_later_than_requested_date(self):
+        from pravo_ips import PravoIpsBank
+
+        search_page = (
+            '<html><a href="?docbody=&nd=102000001&rdk=1">Федеральный закон № 1-ФЗ</a></html>'
+        )
+        history_page = (
+            '<html>Редакция от 01.01.2024'
+            '<a href="?docbody=&nd=102000001&rdk=1">редакция 2020</a>'
+            '<a href="?docbody=&nd=102000001&rdk=2">редакция 2024</a></html>'
+        )
+        old_page = '<html>Редакция от 01.01.2020 Текст старой редакции.</html>'
+        new_page = '<html>Редакция от 01.01.2024 Текст новой редакции.</html>'
+        with patch("urllib.request.urlopen", side_effect=[
+            io.BytesIO(search_page.encode()),
+            io.BytesIO(history_page.encode()),
+            io.BytesIO(old_page.encode()),
+            io.BytesIO(new_page.encode()),
+        ]):
+            sources = PravoIpsBank().search("тестовый закон", 1, as_of="2022-06-01")
+        self.assertEqual(len(sources), 1)
+        self.assertIn("Редакция-снимок: 2020-01-01", sources[0].text)
+        self.assertIn("Текст старой редакции", sources[0].text)
+        self.assertIn("не является официальным опубликованием", sources[0].text)
+        self.assertIn("не равна", sources[0].text)
+
+    def test_bank_refuses_invalid_document_ids_and_dates(self):
+        from pravo_ips import PravoIpsBank
+
+        bank = PravoIpsBank()
+        with self.assertRaisesRegex(agent.AgentError, "идентификатор"):
+            bank.get_history("../102000001")
+        with self.assertRaisesRegex(agent.AgentError, "формате"):
+            bank.get_history("102000001", as_of="01.01.2024")
+
+    def test_date_parser_rejects_impossible_edition_date(self):
+        from pravo_ips import _parse_date
+
+        self.assertIsNone(_parse_date("Редакция от 31.02.2024"))
+        self.assertEqual(_parse_date("Редакция от 01.02.2024"), "2024-02-01")
+
 
 
 if __name__ == "__main__":
