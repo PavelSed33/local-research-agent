@@ -558,7 +558,9 @@ class AmendmentLinkAuditTests(unittest.TestCase):
             "source_url": "https://publication.pravo.gov.ru/document/0001201107250001",
             "source_text": source_text,
             "amendment_quote": "Внести в Федеральный закон статью 1 следующие изменения: в статье 1 часть 1 изложить в следующей редакции.",
-            "transition_quote": "Настоящий Федеральный закон вступает в силу со дня его официального опубликования.",
+            "transition_quote": "Статья 1 настоящего Федерального закона вступает в силу с 01.01.2020.",
+            "effective_from": "2020-01-01",
+            "effective_date_quote": "Статья 1 настоящего Федерального закона вступает в силу с 01.01.2020.",
         }
         result = audit_amendment_links(
             [{"provision_id": "Статья 1", "from_snapshot_date": "2010-01-01", "to_snapshot_date": "2012-01-01"}],
@@ -567,7 +569,7 @@ class AmendmentLinkAuditTests(unittest.TestCase):
         self.assertEqual(result["link_count"], 1)
         self.assertTrue(result["links"][0]["link_verified"])
         self.assertTrue(result["links"][0]["transition_clause_found"])
-        self.assertIsNone(result["links"][0]["effective_from_candidate"])
+        self.assertEqual(result["links"][0]["effective_from_candidate"], "2020-01-01")
         self.assertFalse(result["verified"])
 
     def test_rejects_nonmatching_article(self):
@@ -577,7 +579,8 @@ class AmendmentLinkAuditTests(unittest.TestCase):
             "act_number": "261-ФЗ",
             "official_publication_id": "pub-1",
             "source_url": "https://publication.pravo.gov.ru/document/pub-1",
-            "source_text": "261-ФЗ pub-1 Внести изменения в статью 2.",
+            "act_title": "Закон о поправках",
+            "source_text": "Закон о поправках 261-ФЗ pub-1 Внести изменения в статью 2.",
             "amendment_quote": "Внести изменения в статью 2.",
         }
         result = audit_amendment_links([{"provision_id": "Статья 1"}], [candidate])
