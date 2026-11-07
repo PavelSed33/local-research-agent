@@ -455,8 +455,8 @@ def section_text(report: str, section: str) -> str:
     return match.group(1).strip() if match else ""
 
 
-ARTICLE_PATTERN = re.compile(r"(?<!\w)(?:статья|статье|статьи|ст\.)\s*(\d+(?:\.\d+)?)(?![\d.])", re.IGNORECASE)
-ARTICLE_MENTION_PATTERN = re.compile(r"(?<!\w)(?:статья|статье|статьи|ст\.)\s*(\d+(?:\.\d+)?)(?![\d.])", re.IGNORECASE)
+ARTICLE_PATTERN = re.compile(r"(?<!\w)(?:статья|статье|статьи|ст\.)\s*(\d+(?:\.\d+)?)(?!\d|\.\d)", re.IGNORECASE)
+ARTICLE_MENTION_PATTERN = re.compile(r"(?<!\w)(?:статья|статье|статьи|ст\.)\s*(\d+(?:\.\d+)?)(?!\d|\.\d)", re.IGNORECASE)
 ACT_ALIASES: dict[str, re.Pattern[str]] = {
     "ГК РФ": re.compile(r"\b(?:ГК\s*РФ|Гражданск(?:ий|ого)\s+кодекс(?:\s+Российской Федерации|\s+РФ)?)\b", re.IGNORECASE),
     "ТК РФ": re.compile(r"\b(?:ТК\s*РФ|Трудов(?:ой|ого)\s+кодекс(?:\s+Российской Федерации|\s+РФ)?)\b", re.IGNORECASE),
