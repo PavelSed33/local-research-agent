@@ -530,6 +530,60 @@ class ProvisionEffectivePeriodTests(unittest.TestCase):
 
 
 
+
+class AmendmentLinkAuditTests(unittest.TestCase):
+    def test_extracts_amendment_citations_from_snapshot_annotation(self):
+        from legal_history import extract_amendment_references
+        refs = extract_amendment_references(
+            "(часть 1 в ред. Федерального закона от 25.07.2011 N 261-ФЗ)"
+        )
+        self.assertEqual(len(refs), 1)
+        self.assertEqual(refs[0]["signed_date"], "2011-07-25")
+        self.assertEqual(refs[0]["act_number"], "261-ФЗ")
+
+    def test_requires_exact_official_amendment_and_transition_quotes(self):
+        from legal_history import audit_amendment_links
+        source_text = (
+            "Наименование: Федеральный закон о внесении изменений. "
+            "Номер: 261-ФЗ. Идентификатор официальной публикации: 0001201107250001. "
+            "Внести в Федеральный закон статью 1 следующие изменения: "
+            "в статье 1 часть 1 изложить в следующей редакции. "
+            "Настоящий Федеральный закон вступает в силу со дня его официального опубликования."
+        )
+        candidate = {
+            "provision_id": "Статья 1",
+            "act_title": "Федеральный закон о внесении изменений",
+            "act_number": "261-ФЗ",
+            "official_publication_id": "0001201107250001",
+            "source_url": "https://publication.pravo.gov.ru/document/0001201107250001",
+            "source_text": source_text,
+            "amendment_quote": "Внести в Федеральный закон статью 1 следующие изменения: в статье 1 часть 1 изложить в следующей редакции.",
+            "transition_quote": "Настоящий Федеральный закон вступает в силу со дня его официального опубликования.",
+        }
+        result = audit_amendment_links(
+            [{"provision_id": "Статья 1", "from_snapshot_date": "2010-01-01", "to_snapshot_date": "2012-01-01"}],
+            [candidate],
+        )
+        self.assertEqual(result["link_count"], 1)
+        self.assertTrue(result["links"][0]["link_verified"])
+        self.assertTrue(result["links"][0]["transition_clause_found"])
+        self.assertIsNone(result["links"][0]["effective_from_candidate"])
+        self.assertFalse(result["verified"])
+
+    def test_rejects_nonmatching_article(self):
+        from legal_history import audit_amendment_links
+        candidate = {
+            "provision_id": "Статья 1",
+            "act_number": "261-ФЗ",
+            "official_publication_id": "pub-1",
+            "source_url": "https://publication.pravo.gov.ru/document/pub-1",
+            "source_text": "261-ФЗ pub-1 Внести изменения в статью 2.",
+            "amendment_quote": "Внести изменения в статью 2.",
+        }
+        result = audit_amendment_links([{"provision_id": "Статья 1"}], [candidate])
+        self.assertEqual(result["link_count"], 0)
+        self.assertFalse(result["verified"])
+
 class RevisionChainCoverageTests(unittest.TestCase):
     def test_detects_changed_articles_between_dated_snapshots(self):
         from legal_history import audit_revision_chain
