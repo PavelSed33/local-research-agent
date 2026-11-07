@@ -11,15 +11,19 @@
       "signed_date": "2011-07-25",
       "act_number": "261-ФЗ",
       "target_provisions": [
-        "Статья 1, часть 1"
+        "Статья 1, часть 1",
+        "Статья 1, часть 2, пункт 3 (признан утратившим силу)"
       ],
       "evidence_kind": "редакционная помета в консолидированном тексте",
-      "effective_from": null,
-      "effective_date_status": "не установлена",
+      "effective_from": "2011-07-27",
+      "effective_date_status": "Secondary full text of Article 3: the amending act itself enters into force on official publication (bibliographic record gives 2011-07-27); Article 3(2) separately applies the amended 152-FZ provisions to legal relationships from 2011-07-01. Not primary-source verified.",
       "official_publication_id": null,
       "source_url": "https://rosguard.gov.ru/document/article/federalnyj-zakon-ot-27-iyulya-2006-g--152fz",
-      "status": "scope_candidate_only",
-      "gap": "Нужен полный текст официальной публикации изменяющего акта и точная переходная норма."
+      "status": "scope_and_transition_candidate_supported_by_official_consolidated_copy_and_secondary_act_text",
+      "gap": "Original 261-FZ body in Rossiyskaya Gazeta / SZ RF and the exact issue correction still need retrieval; the official consolidated Ministry copy corroborates editorial scope, not the original amending act text.",
+      "retroactive_application_from": "2011-07-01",
+      "official_consolidated_source_url": "https://mintrud.gov.ru/docs/laws/130",
+      "secondary_act_text_url": "https://www.consultant.ru/document/cons_doc_LAW_117437/3d0cac60971a511280cbba229d9b6329c07731f/"
     },
     {
       "signed_date": "2022-07-14",
