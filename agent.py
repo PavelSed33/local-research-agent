@@ -766,7 +766,7 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
     update_sources = deduplicate([*update_found, *ips_sources], 5)
     portal_update_sources = [
         source for source in update_sources
-        if classify_source_authority(source.url) == "official_legal_portal"
+        if (urlsplit(source.url).hostname or "").lower() == "publication.pravo.gov.ru"
     ]
     portal_errors = [
         error for error in update_errors if "PravoPortalSearch" in error
