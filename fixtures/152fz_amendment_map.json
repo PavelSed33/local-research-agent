@@ -298,9 +298,45 @@
     "inventory_basis": "Аннотации к действующей редакции статей в КонсультантПлюс и тексты отдельных актов в справочных системах; это поисковые зацепки, а не официальные первичные публикации.",
     "official_portal_retrieval": {
       "attempted": true,
-      "status": "not_retrieved_for_articles_3_6_9",
-      "retrieved_official_texts": 0,
-      "note": "Поиск по официальному порталу publication.pravo.gov.ru не вернул доступные для чтения первичные тексты перечисленных актов. Наличие вторичной копии или редакционной пометы не засчитывается как получение официального текста."
+      "portal": "https://publication.pravo.gov.ru/",
+      "directly_retrieved_document_bodies": 0,
+      "identified_official_publication_records": 4,
+      "identified_records": [
+        {
+          "act": "519-ФЗ",
+          "date": "2020-12-30",
+          "publication_id": "0001202012300044",
+          "url": "https://publication.pravo.gov.ru/document/0001202012300044",
+          "body_retrieved": false
+        },
+        {
+          "act": "123-ФЗ",
+          "date": "2020-04-24",
+          "publication_id": "0001202004240030",
+          "url": "https://publication.pravo.gov.ru/document/0001202004240030",
+          "body_retrieved": false
+        },
+        {
+          "act": "266-ФЗ",
+          "date": "2022-07-14",
+          "publication_id": "0001202207140080",
+          "url": "https://publication.pravo.gov.ru/document/0001202207140080",
+          "body_retrieved": false
+        },
+        {
+          "act": "156-ФЗ",
+          "date": "2025-06-24",
+          "publication_id": "0001202506240021",
+          "url": "https://publication.pravo.gov.ru/document/0001202506240021",
+          "body_retrieved": false
+        }
+      ],
+      "unresolved_publication_ids": [
+        "261-ФЗ от 25.07.2011",
+        "233-ФЗ от 08.08.2024"
+      ],
+      "result": "Официальные карточки публикаций идентифицированы для четырёх актов, но загрузить тела документов с портала не удалось (таймаут/ошибка чтения). Идентификация номера публикации не равна получению и разбору первичного текста.",
+      "caveat": "Не повышать official_text_retrieved, verified или coverage_verified без фактически прочитанного оригинального документа."
     },
     "articles": [
       {
@@ -321,7 +357,13 @@
               "https://www.consultant.ru/document/cons_doc_LAW_61801/4f41fe599ce341751e4e34dc50a4b676674c1416/",
               "https://sudact.ru/law/federalnyi-zakon-ot-25072011-n-261-fz-o/"
             ],
-            "official_text_retrieved": false
+            "official_text_retrieved": false,
+            "official_publication_identified": false,
+            "official_publication_id": null,
+            "official_document_url": null,
+            "official_retrieval_status": "publication_id_not_resolved",
+            "transition_provision": null,
+            "source_verification_note": "Secondary consolidated materials state that the revised Article 3 and other provisions apply to legal relationships from 2011-07-01; the original official publication and transitional article were not fetched. Do not treat the date as primary-source verified."
           },
           {
             "act_date": "2020-12-30",
@@ -336,7 +378,17 @@
             "secondary_sources": [
               "https://www.consultant.ru/document/cons_doc_LAW_61801/4f41fe599ce341751e4e34dc50a4b676674c1416/"
             ],
-            "official_text_retrieved": false
+            "official_text_retrieved": false,
+            "official_publication_identified": true,
+            "official_publication_id": "0001202012300044",
+            "official_document_url": "https://publication.pravo.gov.ru/document/0001202012300044",
+            "official_retrieval_status": "official_publication_record_identified_body_unavailable",
+            "transition_provision": {
+              "general_effective_date": "2021-03-01",
+              "exception": "paragraph 10 of item 5 of Article 1 effective 2021-07-01",
+              "source_class": "secondary reproduction citing official publication; original portal body inaccessible"
+            },
+            "source_verification_note": "Publication number is cited by ConsultantPlus/Garant; portal document URL timed out in this retrieval. The delayed clause must be mapped to the exact 152-FZ provision before assigning provision-level dates."
           }
         ],
         "gaps": [
@@ -362,7 +414,13 @@
               "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/",
               "https://sudact.ru/law/federalnyi-zakon-ot-25072011-n-261-fz-o/"
             ],
-            "official_text_retrieved": false
+            "official_text_retrieved": false,
+            "official_publication_identified": false,
+            "official_publication_id": null,
+            "official_document_url": null,
+            "official_retrieval_status": "publication_id_not_resolved",
+            "transition_provision": null,
+            "source_verification_note": "Secondary consolidated materials state that the revised Article 3 and other provisions apply to legal relationships from 2011-07-01; the original official publication and transitional article were not fetched. Do not treat the date as primary-source verified."
           },
           {
             "act_date": "2013-04-05",
@@ -439,7 +497,16 @@
             "secondary_sources": [
               "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/"
             ],
-            "official_text_retrieved": false
+            "official_text_retrieved": false,
+            "official_publication_identified": true,
+            "official_publication_id": "0001202004240030",
+            "official_document_url": "https://publication.pravo.gov.ru/document/0001202004240030",
+            "official_retrieval_status": "official_publication_record_identified_body_unavailable",
+            "transition_provision": {
+              "general_effective_date": "2020-07-01",
+              "source_class": "secondary document index; original portal body inaccessible"
+            },
+            "source_verification_note": "The law title expressly says it amends Articles 6 and 10 of 152-FZ. The 01.07.2020 effective date is stated in the accessible copy, but is not promoted to primary-source verified."
           },
           {
             "act_date": "2021-07-02",
@@ -469,7 +536,17 @@
             "secondary_sources": [
               "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/"
             ],
-            "official_text_retrieved": false
+            "official_text_retrieved": false,
+            "official_publication_identified": true,
+            "official_publication_id": "0001202012300044",
+            "official_document_url": "https://publication.pravo.gov.ru/document/0001202012300044",
+            "official_retrieval_status": "official_publication_record_identified_body_unavailable",
+            "transition_provision": {
+              "general_effective_date": "2021-03-01",
+              "exception": "paragraph 10 of item 5 of Article 1 effective 2021-07-01",
+              "source_class": "secondary reproduction citing official publication; original portal body inaccessible"
+            },
+            "source_verification_note": "Publication number is cited by ConsultantPlus/Garant; portal document URL timed out in this retrieval. The delayed clause must be mapped to the exact 152-FZ provision before assigning provision-level dates."
           },
           {
             "act_date": "2022-07-14",
@@ -485,7 +562,17 @@
             "secondary_sources": [
               "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/"
             ],
-            "official_text_retrieved": false
+            "official_text_retrieved": false,
+            "official_publication_identified": true,
+            "official_publication_id": "0001202207140080",
+            "official_document_url": "https://publication.pravo.gov.ru/document/0001202207140080",
+            "official_retrieval_status": "official_publication_record_identified_body_unavailable",
+            "transition_provision": {
+              "general_effective_date": "2022-09-01",
+              "exception": "specific provisions may have other effective dates",
+              "source_class": "secondary review referencing the official portal record"
+            },
+            "source_verification_note": "Official publication number and date are confirmed by an indexed publication notice; the original portal document body timed out. Need parse Article 5 for each provision-specific exception."
           },
           {
             "act_date": "2024-08-08",
@@ -500,7 +587,13 @@
             "secondary_sources": [
               "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/"
             ],
-            "official_text_retrieved": false
+            "official_text_retrieved": false,
+            "official_publication_identified": false,
+            "official_publication_id": null,
+            "official_document_url": null,
+            "official_retrieval_status": "publication_id_not_resolved",
+            "transition_provision": null,
+            "source_verification_note": "Act title and amendment to 152-FZ Articles 6 and 10 are confirmed in secondary government notice; exact official publication ID and Article 3 transition provision not yet resolved."
           },
           {
             "act_date": "2025-02-28",
@@ -542,7 +635,13 @@
               "https://www.consultant.ru/document/cons_doc_LAW_61801/6c94959bc017ac80140621762d2ac59f6006b08c/",
               "https://sudact.ru/law/federalnyi-zakon-ot-25072011-n-261-fz-o/"
             ],
-            "official_text_retrieved": false
+            "official_text_retrieved": false,
+            "official_publication_identified": false,
+            "official_publication_id": null,
+            "official_document_url": null,
+            "official_retrieval_status": "publication_id_not_resolved",
+            "transition_provision": null,
+            "source_verification_note": "Secondary consolidated materials state that the revised Article 3 and other provisions apply to legal relationships from 2011-07-01; the original official publication and transitional article were not fetched. Do not treat the date as primary-source verified."
           },
           {
             "act_date": "2020-12-30",
@@ -557,7 +656,17 @@
             "secondary_sources": [
               "https://www.consultant.ru/document/cons_doc_LAW_61801/6c94959bc017ac80140621762d2ac59f6006b08c/"
             ],
-            "official_text_retrieved": false
+            "official_text_retrieved": false,
+            "official_publication_identified": true,
+            "official_publication_id": "0001202012300044",
+            "official_document_url": "https://publication.pravo.gov.ru/document/0001202012300044",
+            "official_retrieval_status": "official_publication_record_identified_body_unavailable",
+            "transition_provision": {
+              "general_effective_date": "2021-03-01",
+              "exception": "paragraph 10 of item 5 of Article 1 effective 2021-07-01",
+              "source_class": "secondary reproduction citing official publication; original portal body inaccessible"
+            },
+            "source_verification_note": "Publication number is cited by ConsultantPlus/Garant; portal document URL timed out in this retrieval. The delayed clause must be mapped to the exact 152-FZ provision before assigning provision-level dates."
           },
           {
             "act_date": "2022-07-14",
@@ -572,7 +681,17 @@
             "secondary_sources": [
               "https://www.consultant.ru/document/cons_doc_LAW_61801/6c94959bc017ac80140621762d2ac59f6006b08c/"
             ],
-            "official_text_retrieved": false
+            "official_text_retrieved": false,
+            "official_publication_identified": true,
+            "official_publication_id": "0001202207140080",
+            "official_document_url": "https://publication.pravo.gov.ru/document/0001202207140080",
+            "official_retrieval_status": "official_publication_record_identified_body_unavailable",
+            "transition_provision": {
+              "general_effective_date": "2022-09-01",
+              "exception": "specific provisions may have other effective dates",
+              "source_class": "secondary review referencing the official portal record"
+            },
+            "source_verification_note": "Official publication number and date are confirmed by an indexed publication notice; the original portal document body timed out. Need parse Article 5 for each provision-specific exception."
           },
           {
             "act_date": "2025-06-24",
@@ -588,7 +707,17 @@
               "https://www.consultant.ru/document/cons_doc_LAW_61801/6c94959bc017ac80140621762d2ac59f6006b08c/",
               "https://base.garant.ru/12148567/"
             ],
-            "official_text_retrieved": false
+            "official_text_retrieved": false,
+            "official_publication_identified": true,
+            "official_publication_id": "0001202506240021",
+            "official_document_url": "https://publication.pravo.gov.ru/document/0001202506240021",
+            "official_retrieval_status": "official_publication_record_identified_body_unavailable",
+            "transition_provision": {
+              "general_effective_date": null,
+              "exception": "must inspect Article 7",
+              "source_class": "secondary consolidated citation"
+            },
+            "source_verification_note": "Official publication ID is independently cited by a secondary consolidated legal text; portal body request timed out. Do not infer effective date from 24.06.2025."
           }
         ],
         "gaps": [
@@ -603,7 +732,17 @@
       "candidate_act_article_links": 17,
       "official_act_texts_retrieved": 0,
       "verified": false,
-      "coverage_verified": false
-    }
+      "coverage_verified": false,
+      "official_publication_records_identified": 4,
+      "note": "Four official publication records have been identified by publication number, but zero original document bodies were successfully retrieved and parsed from the official portal."
+    },
+    "gaps": [
+      "Получить тело официальной публикации 0001202012300044 (519-ФЗ) и точно сопоставить исключение с частью/пунктом 152-ФЗ.",
+      "Получить тело официальной публикации 0001202004240030 (123-ФЗ) и проверить статью 8 о вступлении в силу.",
+      "Получить тело официальной публикации 0001202207140080 (266-ФЗ), разобрать статью 5 и разнести исключения по каждому изменённому положению.",
+      "Разрешить официальные номера публикаций и получить тексты 261-ФЗ от 25.07.2011 и 233-ФЗ от 08.08.2024.",
+      "Получить тело официальной публикации 0001202506240021 (156-ФЗ), разобрать статью 7 и связать переходные сроки с частью 1 статьи 9.",
+      "Не использовать даты из вторичных справочных систем как первично подтверждённые даты действия."
+    ]
   }
 }
