@@ -415,3 +415,72 @@ def audit_amendment_links(
         "verified": False,
         "coverage_verified": False,
     }
+
+
+def audit_amendment_retrieval(
+    references: list[dict[str, str]],
+    publications: list[dict[str, str]],
+    query_limit: int = 8,
+) -> dict[str, Any]:
+    """Report which citation-derived act references were actually retrieved.
+
+    This is retrieval accounting only. A metadata match does not prove that an
+    act amended the provision or that all relevant acts were discovered.
+    """
+    safe_limit = max(0, min(int(query_limit), 100))
+    bounded_references = [
+        item for item in references[:100]
+        if isinstance(item, dict)
+        and item.get("signed_date")
+        and item.get("act_number")
+    ]
+    queried = bounded_references[:safe_limit]
+    unqueried = bounded_references[safe_limit:]
+    official = [
+        item for item in publications[:100]
+        if isinstance(item, dict) and _valid_official_url(item.get("url"))
+    ]
+    retrieved: list[dict[str, str]] = []
+    missing: list[dict[str, str]] = []
+    for reference in queried:
+        try:
+            signed = date.fromisoformat(reference["signed_date"])
+        except ValueError:
+            missing.append(reference)
+            continue
+        date_tokens = (signed.strftime("%d.%m.%Y"), signed.isoformat())
+        match = next(
+            (
+                source for source in official
+                if reference["act_number"] in str(source.get("text") or "")
+                and any(token in str(source.get("text") or "") for token in date_tokens)
+            ),
+            None,
+        )
+        if match:
+            retrieved.append({
+                **reference,
+                "source_title": str(match.get("title") or ""),
+                "source_url": str(match.get("url") or ""),
+            })
+        else:
+            missing.append(reference)
+    return {
+        "reference_count": len(bounded_references),
+        "query_limit": safe_limit,
+        "queried_count": len(queried),
+        "retrieved_count": len(retrieved),
+        "not_retrieved_count": len(missing),
+        "not_queried_count": len(unqueried),
+        "retrieved": retrieved,
+        "not_retrieved": missing,
+        "not_queried": unqueried,
+        "retrieval_complete_for_extracted_references": bool(
+            bounded_references and not missing and not unqueried
+        ),
+        "verified": False,
+        "limitation": (
+            "Сверка реквизитов показывает только факт получения публикации-кандидата; "
+            "она не доказывает связь акта с нормой и полноту обнаружения поправок."
+        ),
+    }
