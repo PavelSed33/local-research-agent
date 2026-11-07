@@ -112,14 +112,18 @@ def _extract_document_text(value: Any) -> str:
 class PravoPortalSearch:
     """Search official publication records and fetch each available full text."""
 
-    def __init__(self, base_url: str | None = None, timeout: int = 20) -> None:
+    def __init__(self, base_url: str | None = None, timeout: int | None = None) -> None:
         self.base_url = (base_url or os.getenv("PRAVO_PORTAL_API_BASE_URL", DEFAULT_BASE_URL)).rstrip("/")
         parsed = urllib.parse.urlsplit(self.base_url)
         if parsed.scheme != "https" or parsed.hostname not in {
             "publication.pravo.gov.ru", "pravo.gov.ru"
         }:
             raise AgentError("PRAVO_PORTAL_API_BASE_URL должен указывать на официальный HTTPS-домен портала.")
-        self.timeout = max(3, min(int(timeout), 45))
+        configured_timeout = timeout if timeout is not None else os.getenv("PRAVO_PORTAL_TIMEOUT_SECONDS", "8")
+        try:
+            self.timeout = max(3, min(int(configured_timeout), 20))
+        except (TypeError, ValueError) as exc:
+            raise AgentError("PRAVO_PORTAL_TIMEOUT_SECONDS должен быть числом от 3 до 20.") from exc
         self.last_records: list[dict[str, Any]] = []
 
     def _get(self, path: str, params: dict[str, Any]) -> Any:
@@ -156,7 +160,9 @@ class PravoPortalSearch:
     def search(self, query: str, limit: int) -> list[Source]:
         if not isinstance(query, str) or not query.strip():
             return []
-        limit = max(1, min(int(limit), 10))
+        # Keep the public portal's fan-out bounded: one search and at most
+        # two document-text requests per query.
+        limit = max(1, min(int(limit), 2))
         response = self._get(
             "/api/Documents",
             {"Name": query.strip()[:300], "NumberSearchType": 0},
@@ -235,14 +241,23 @@ class PravoPortalSearch:
 class FederatedLegalSearch:
     """Combine official portal search with the existing web-search provider."""
 
-    def __init__(self, *providers: Any) -> None:
+    def __init__(self, *providers: Any, portal_query_budget: int = 4) -> None:
         self.providers = providers
         self.last_errors: list[str] = []
+        self.portal_query_budget = max(0, min(int(portal_query_budget), 10))
+        self.portal_queries_used = 0
 
     def search(self, query: str, limit: int) -> list[Source]:
         self.last_errors = []
         results: list[Source] = []
-        for provider in self.providers:
+        for index, provider in enumerate(self.providers):
+            # The first provider is the official portal. Bound the number of
+            # portal round-trips during one research run; Tavily still handles
+            # every query.
+            if index == 0:
+                if self.portal_queries_used >= self.portal_query_budget:
+                    continue
+                self.portal_queries_used += 1
             try:
                 results.extend(provider.search(query, limit))
             except AgentError as exc:
