@@ -8,12 +8,18 @@ import json
 import os
 import re
 import sys
+import time
 import urllib.error
 import urllib.request
 from dataclasses import asdict, dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Protocol
+
+try:
+    from zoneinfo import ZoneInfo
+except ImportError:  # pragma: no cover - Python < 3.9
+    ZoneInfo = None  # type: ignore[assignment,misc]
 
 
 REQUIRED_SECTIONS = (
@@ -61,22 +67,68 @@ def load_dotenv(path: Path = Path(".env")) -> None:
 
 
 def post_json(url: str, payload: dict[str, Any], headers: dict[str, str], timeout: int = 90) -> dict[str, Any]:
-    request = urllib.request.Request(
-        url,
-        data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
-        headers={"Content-Type": "application/json", **headers},
-        method="POST",
-    )
-    try:
-        with urllib.request.urlopen(request, timeout=timeout) as response:
-            return json.loads(response.read().decode("utf-8"))
-    except urllib.error.HTTPError as exc:
-        body = exc.read().decode("utf-8", errors="replace")[:500]
-        raise AgentError(f"Сервис вернул HTTP {exc.code}: {body}") from exc
-    except urllib.error.URLError as exc:
-        raise AgentError(f"Не удалось подключиться к сервису: {exc.reason}") from exc
-    except json.JSONDecodeError as exc:
-        raise AgentError("Сервис вернул некорректный JSON.") from exc
+    """POST JSON with one bounded retry for transient upstream failures."""
+    retryable_statuses = {429, 500, 502, 503, 504}
+    encoded = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+    last_error: Exception | None = None
+    for attempt in range(2):
+        request = urllib.request.Request(
+            url,
+            data=encoded,
+            headers={"Content-Type": "application/json", **headers},
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=timeout) as response:
+                raw = response.read(5 * 1024 * 1024 + 1)
+                if len(raw) > 5 * 1024 * 1024:
+                    raise AgentError("Сервис вернул слишком большой ответ.")
+                value = json.loads(raw.decode("utf-8"))
+                if not isinstance(value, dict):
+                    raise AgentError("Сервис вернул JSON не в виде объекта.")
+                return value
+        except urllib.error.HTTPError as exc:
+            body = exc.read(500).decode("utf-8", errors="replace")
+            last_error = AgentError(f"Сервис вернул HTTP {exc.code}: {body}")
+            if exc.code not in retryable_statuses or attempt:
+                raise last_error from exc
+        except urllib.error.URLError as exc:
+            last_error = AgentError(f"Не удалось подключиться к сервису: {exc.reason}")
+            if attempt:
+                raise last_error from exc
+        except json.JSONDecodeError as exc:
+            raise AgentError("Сервис вернул некорректный JSON.") from exc
+        if attempt == 0:
+            time.sleep(1)
+    raise AgentError(str(last_error or "Не удалось выполнить запрос."))
+
+
+def current_check_date() -> str:
+    """Return the calendar date in Moscow (UTC+3), independent of host timezone."""
+    if ZoneInfo is not None:
+        try:
+            return datetime.now(ZoneInfo("Europe/Moscow")).date().isoformat()
+        except (OSError, ValueError):
+            pass
+    return datetime.now(timezone(timedelta(hours=3))).date().isoformat()
+
+
+def _normalized_query_key(query: str) -> str:
+    return " ".join(query.split()).casefold()
+
+
+def deduplicate_queries(queries: list[str]) -> list[str]:
+    result: list[str] = []
+    seen: set[str] = set()
+    for query in queries:
+        if not isinstance(query, str):
+            continue
+        clean = " ".join(query.split())
+        key = _normalized_query_key(clean)
+        if clean and key not in seen:
+            seen.add(key)
+            result.append(clean)
+    return result
 
 
 def extract_json(text: str) -> dict[str, Any]:
@@ -86,13 +138,20 @@ def extract_json(text: str) -> dict[str, Any]:
     try:
         value = json.loads(cleaned)
     except json.JSONDecodeError:
-        match = re.search(r"\{.*\}", cleaned, flags=re.DOTALL)
-        if not match:
-            raise AgentError("Модель не вернула ожидаемый JSON.")
-        try:
-            value = json.loads(match.group(0))
-        except json.JSONDecodeError as exc:
-            raise AgentError("Модель вернула повреждённый JSON.") from exc
+        decoder = json.JSONDecoder()
+        value = None
+        for index, char in enumerate(cleaned):
+            if char != "{":
+                continue
+            try:
+                candidate, _ = decoder.raw_decode(cleaned[index:])
+            except json.JSONDecodeError:
+                continue
+            if isinstance(candidate, dict):
+                value = candidate
+                break
+        if value is None:
+            raise AgentError("Модель не вернула корректный JSON-объект.")
     if not isinstance(value, dict):
         raise AgentError("Ожидался JSON-объект.")
     return value
@@ -472,10 +531,15 @@ def save_results(
     checked_on: str,
 ) -> tuple[Path, Path]:
     output_dir.mkdir(parents=True, exist_ok=True)
-    stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S-%f")
     report_path = output_dir / f"ответ-{stamp}.md"
     run_path = output_dir / f"журнал-{stamp}.json"
-    source_list = "\n".join(f"{i}. [{s.title}]({s.url})" for i, s in enumerate(sources, start=1))
+    source_list = "\n".join(f"{i}. [{s.title[:500]}]({s.url[:2000]})" for i, s in enumerate(sources, start=1))
+    journal_sources = [
+        {**asdict(source), "title": source.title[:500], "url": source.url[:2000],
+         "query": source.query[:1000], "text": source.text[:9000]}
+        for source in sources[:16]
+    ]
     warning = "\n> **Демонстрационный режим:** источники и факты условны.\n" if demo else ""
     report_path.write_text(
         f"# {topic}\n\n**Дата проверки изменений:** {checked_on}\n\n> {LEGAL_DISCLAIMER}\n{warning}\n{report.strip()}\n\n## Источники\n\n{source_list}\n",
@@ -488,7 +552,7 @@ def save_results(
                 "topic": topic,
                 "demo": demo,
                 "queries": queries,
-                "sources": [asdict(source) for source in sources],
+                "sources": journal_sources,
                 "research_rounds": research_log,
                 "report_validated": True,
                 "report_repaired": report_repaired,
@@ -507,7 +571,7 @@ def save_results(
 
 
 def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo: bool = False, session_context: str = "") -> tuple[Path, Path]:
-    checked_on = datetime.now(timezone.utc).date().isoformat()
+    checked_on = current_check_date()
     if demo:
         model: LanguageModel = DemoModel()
         search: SearchProvider = DemoSearch()
@@ -526,7 +590,7 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
 
     print("[1/8] Планирую правовое исследование…")
     queries = plan_queries(model, topic, query_count)
-    executed_queries = set(queries)
+    executed_queries = {_normalized_query_key(query) for query in queries}
     print("      Запросы: " + "; ".join(queries))
 
     print("[2/8] Ищу нормы и читаю источники…")
@@ -554,26 +618,27 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
             }
         )
         print(f"      {reason or ('Материалов достаточно.' if sufficient else 'Требуются дополнительные источники.')}")
-        new_queries = [query for query in additional_queries if query not in executed_queries]
+        new_queries = [query for query in deduplicate_queries(additional_queries) if _normalized_query_key(query) not in executed_queries]
         if sufficient or additional_round >= 2 or len(sources) >= source_limit or not new_queries:
             if not sufficient and additional_round >= 2:
                 print("      Достигнут лимит дополнительного поиска; продолжаю с доступными материалами.")
             break
         additional_round += 1
         queries.extend(new_queries)
-        executed_queries.update(new_queries)
+        executed_queries.update(_normalized_query_key(query) for query in new_queries)
         print(f"      Дополнительный поиск {additional_round}/2: " + "; ".join(new_queries))
-        found, errors = search_queries(search, new_queries, per_query)
+        found, round_errors = search_queries(search, new_queries, per_query)
+        errors.extend(round_errors)
         sources = deduplicate([*sources, *found], source_limit)
         print(f"      Выбрано источников: {len(sources)}")
 
     print("[4/8] Обязательно проверяю последние изменения…")
     update_queries, update_notes = plan_legal_update_check(model, topic, sources, checked_on)
-    new_update_queries = [query for query in update_queries if query not in executed_queries]
+    new_update_queries = [query for query in deduplicate_queries(update_queries) if _normalized_query_key(query) not in executed_queries]
     if not new_update_queries:
         new_update_queries = [f"{topic} изменения действующая редакция {checked_on[:4]}"]
     queries.extend(new_update_queries)
-    executed_queries.update(new_update_queries)
+    executed_queries.update(_normalized_query_key(query) for query in new_update_queries)
     update_found, update_errors = search_queries(search, new_update_queries, per_query)
     # Keep legal-update evidence separate from the general research cap.
     # Otherwise a full initial source list silently discards the very materials
@@ -608,11 +673,11 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
         }
         print(f"      Этап пропущен: {exc}")
     else:
-        new_court_queries = [query for query in court_queries if query not in executed_queries]
+        new_court_queries = [query for query in deduplicate_queries(court_queries) if _normalized_query_key(query) not in executed_queries]
         if not new_court_queries:
             new_court_queries = [f"{topic} судебная практика {checked_on[:4]}"]
         queries.extend(new_court_queries)
-        executed_queries.update(new_court_queries)
+        executed_queries.update(_normalized_query_key(query) for query in new_court_queries)
         court_found, court_errors = search_queries(court_search, new_court_queries, per_query)
         # Reserve up to three slots for case-law evidence as well.
         court_sources = deduplicate(court_found, 3)
