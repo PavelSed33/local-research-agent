@@ -3,17 +3,18 @@ import os
 import tempfile
 import unittest
 import zipfile
+import urllib.error
 from pathlib import Path
 from unittest.mock import patch
 
 import agent
-from agent import Source
+from agent import Source, current_check_date, deduplicate_queries, extract_json
 from api import create_server, handle_ask, SessionStore, SESSION_MAX_COUNT
 from redline import diff_documents, MAX_DIFF_DOCUMENT_CHARS
 from registry import build_registry, MAX_REGISTRY_FILE_BYTES
 from doctext import MAX_DOCX_BYTES, MAX_DOCX_XML_BYTES, MAX_INPUT_FILE_BYTES, ensure_document_transfer_allowed, extract_docx_text, parse_demo_flag, read_document_path
-from review import handle_review
-from extract import handle_extract
+from review import handle_review, validate_review
+from extract import handle_extract, validate_extraction
 
 
 class DocxResourceLimitTests(unittest.TestCase):
@@ -150,6 +151,72 @@ class StrictDocumentInputTests(unittest.TestCase):
                 handle.truncate(MAX_INPUT_FILE_BYTES + 1)
             with self.assertRaisesRegex(ValueError, "превышает допустимый размер"):
                 read_document_path(path)
+
+
+class UserChangeRegressionTests(unittest.TestCase):
+    def test_extract_json_uses_first_complete_object_not_greedy_match(self):
+        self.assertEqual(extract_json('prefix {"first": 1} suffix {"second": 2}'), {"first": 1})
+
+    def test_query_deduplication_ignores_case_and_whitespace(self):
+        self.assertEqual(
+            deduplicate_queries([" Закон 15 ", "закон 15", "ЗАКОН 16"]),
+            ["Закон 15", "ЗАКОН 16"],
+        )
+
+    def test_check_date_is_iso_formatted(self):
+        from datetime import date
+        self.assertEqual(date.fromisoformat(current_check_date()).isoformat(), current_check_date())
+
+    def test_review_requires_nonempty_recommendation(self):
+        document = "Стороны согласовали условия договора и порядок оплаты."
+        result = {
+            "summary": "Краткое резюме.",
+            "risks": [{
+                "category": "цена и порядок расчётов",
+                "severity": "medium",
+                "quote": "порядок оплаты",
+                "comment": "Условие недостаточно определённое.",
+                "recommendation": "",
+            }],
+            "missing_clauses": [],
+        }
+        self.assertTrue(any("recommendation" in issue for issue in validate_review(result, document)))
+
+    def test_extract_rejects_invalid_calendar_date_and_currency_format(self):
+        document = "Договор заключён 31.02.2025. Сумма составляет 100 рублей."
+        result = {
+            "parties": [],
+            "amounts": [{
+                "label": "Цена",
+                "value": "100 рублей",
+                "currency": "rub",
+                "quote": "Сумма составляет 100 рублей.",
+            }],
+            "dates": [{
+                "label": "Дата заключения",
+                "date": "31.02.2025",
+                "quote": "Договор заключён 31.02.2025.",
+            }],
+            "penalties": [],
+            "term": None,
+            "jurisdiction": None,
+        }
+        issues = validate_extraction(result, document)
+        self.assertTrue(any("currency" in issue for issue in issues))
+        self.assertTrue(any("реальной календарной датой" in issue for issue in issues))
+
+    def test_retry_post_json_after_transient_http_error(self):
+        class Response(io.BytesIO):
+            pass
+
+        transient = urllib.error.HTTPError(
+            "https://example.test", 503, "unavailable", {}, io.BytesIO(b"temporary")
+        )
+        with patch("urllib.request.urlopen", side_effect=[transient, Response(b'{"ok": true}')]), patch(
+            "agent.time.sleep"
+        ):
+            self.assertEqual(agent.post_json("https://example.test", {}, {}), {"ok": True})
+
 
 if __name__ == "__main__":
     unittest.main()
