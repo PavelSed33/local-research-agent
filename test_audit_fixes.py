@@ -363,6 +363,33 @@ class OfficialIntegratedLegalBankTests(unittest.TestCase):
 
 
 
+    def test_history_returns_full_snapshot_text_and_runs_revision_audit(self):
+        from pravo_ips import PravoIpsBank
+
+        history_page = (
+            '<html><a href="?docbody=&nd=102000001&rdk=1">редакция 2020</a>'
+            '<a href="?docbody=&nd=102000001&rdk=2">редакция 2024</a></html>'
+        )
+        old_page = '<html>Редакция от 01.01.2020\\nСтатья 1. Старый текст.\\nСтатья 2. Без изменений.</html>'
+        new_page = '<html>Редакция от 01.01.2024\\nСтатья 1. Новый текст.\\nСтатья 2. Без изменений.</html>'
+        with patch("urllib.request.urlopen", side_effect=[
+            io.BytesIO(history_page.encode()),
+            io.BytesIO(old_page.encode()),
+            io.BytesIO(new_page.encode()),
+        ]):
+            result = PravoIpsBank().get_history("102000001")
+
+        self.assertEqual(len(result["snapshots"]), 2)
+        self.assertIn("Старый текст", result["snapshots"][0]["text"])
+        self.assertIn("Новый текст", result["snapshots"][1]["text"])
+        audit = result["revision_chain_audit"]
+        self.assertFalse(audit["verified"])
+        self.assertFalse(audit["coverage_verified"])
+        self.assertEqual(audit["change_count"], 1)
+        self.assertEqual(audit["changed_provisions"][0]["change_kind"], "text_changed")
+
+
+
 class ProvisionEffectivePeriodTests(unittest.TestCase):
     def _event(self, effective_from, number, quote):
         return {
