@@ -153,7 +153,7 @@
     {
       "signed_date": "2013-12-21",
       "act_number": "363-ФЗ",
-      "scope_mapping_status": "partial_candidate",
+      "scope_mapping_status": "not_mapped",
       "official_text_retrieved": false
     },
     {
@@ -297,10 +297,10 @@
   ],
   "inventory_summary": {
     "total_citations": 35,
-    "partial_scope_candidates": 15,
-    "not_mapped": 20,
+    "partial_scope_candidates": 14,
+    "not_mapped": 21,
     "source_quality": "Список реквизитов извлечён из официального консолидированного текста Минтруда; постатейные связи дополнены вторичными полными текстами и редакционными пометами. Все частичные связи остаются кандидатными до проверки оригиналов изменяющих публикаций.",
-    "caveat": "Повторяющиеся номера актов допустимы: идентификатор — пара дата подписания + номер. Статус partial_candidate означает найденную связь по статье/положению, но не первичную юридическую верификацию."
+    "caveat": "Статус partial_candidate означает найденную связь по статье/положению, но не первичную юридическую верификацию. Неоднозначные/противоречивые редакционные пометы не засчитываются без текста изменяющего акта."
   },
   "article_scoped_inventory": {
     "inventory_basis": "Аннотации к действующей редакции статей в КонсультантПлюс и тексты отдельных актов в справочных системах; это поисковые зацепки, а не официальные первичные публикации.",
@@ -479,12 +479,20 @@
             ],
             "basis": "редакционная помета непосредственно под пунктом 4",
             "scope_status": "explicit_in_secondary_consolidated_annotation",
-            "effective_from": null,
-            "effective_date_status": "нужна первичная проверка даты",
+            "effective_from": "2013-04-19",
+            "effective_date_status": "Статья 36 устанавливает вступление через 10 дней после официального опубликования; вторичная справка фиксирует публикацию 08.04.2013, поэтому дата действия — 19.04.2013. Оригинал публикации не загружен.",
             "secondary_sources": [
-              "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/"
+              "https://www.consultant.ru/document/cons_doc_LAW_144623/f51700d2ae0027918bb1e3e6d0bdc304780a94f5/",
+              "https://www.consultant.ru/document/cons_doc_LAW_144623/cf263474fe8f61f36de177f9d0320494463bf210/",
+              "https://base.garant.ru/70353470/"
             ],
-            "official_text_retrieved": false
+            "official_text_retrieved": false,
+            "transition_provision": {
+              "general_effective_date": "2013-04-19",
+              "rule": "Article 36: enters into force after ten days from official publication; secondary record identifies publication 08.04.2013",
+              "source_class": "secondary reproduction of Articles 33 and 36 plus bibliographic publication record"
+            },
+            "source_verification_note": "Article 33(1) of 43-ФЗ expressly changes Article 6 part 1 point 4 of 152-ФЗ. Article 36 sets the ten-day rule. The secondary bibliographic record identifies official publication on 08.04.2013. Original official publication body not retrieved."
           },
           {
             "act_date": "2017-07-01",
@@ -523,27 +531,19 @@
             ],
             "basis": "аннотации к пункту 3 и новому пункту 3.1",
             "scope_status": "explicit_in_secondary_consolidated_annotation",
-            "effective_from": null,
-            "effective_date_status": "нужна первичная проверка даты",
+            "effective_from": "2017-08-10",
+            "effective_date_status": "Статья 6 закона не устанавливает отдельную дату; по вторичной библиографической записи закон опубликован 30.07.2017 и вступил в силу по истечении 10 дней — 10.08.2017. Оригинал публикации не загружен.",
             "secondary_sources": [
-              "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/"
+              "https://www.consultant.ru/document/cons_doc_LAW_221222/ad890e68b83c920baeae9bb9fdc9b94feb1af0ad/",
+              "https://www.kontur-extern.ru/info/normativ/document/1/298014-federalnyy-zakon-ot-29-07-2017-n-223-fz"
             ],
-            "official_text_retrieved": false
-          },
-          {
-            "act_date": "2013-12-21",
-            "act_number": "363-ФЗ",
-            "scope": [
-              "пункт 5 части 1"
-            ],
-            "basis": "редакционная помета к пункту 5",
-            "scope_status": "explicit_in_secondary_consolidated_annotation",
-            "effective_from": null,
-            "effective_date_status": "нужна первичная проверка даты",
-            "secondary_sources": [
-              "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/"
-            ],
-            "official_text_retrieved": false
+            "official_text_retrieved": false,
+            "transition_provision": {
+              "general_effective_date": "2017-08-10",
+              "rule": "Article 6 has no special commencement clause; the secondary bibliographic record identifies official publication 30.07.2017 and commencement after ten days",
+              "source_class": "secondary full text of Article 4 and secondary bibliographic record"
+            },
+            "source_verification_note": "Article 4(2) of 223-ФЗ changes Article 6 part 1 point 3 and adds point 3.1. Article 7 separately repeals Article 1 part 2 point 5 of 152-ФЗ; that repeal is outside tracked Articles 3/6/9. Original official publication body not retrieved."
           },
           {
             "act_date": "2016-07-03",
@@ -554,12 +554,19 @@
             ],
             "basis": "редакционные пометы к пунктам 5 и 7",
             "scope_status": "explicit_in_secondary_consolidated_annotation",
-            "effective_from": null,
-            "effective_date_status": "нужна первичная проверка даты",
+            "effective_from": "2017-01-01",
+            "effective_date_status": "Статья 7 закона устанавливает вступление в силу с 01.01.2017; подтверждено вторичными справочными реквизитами. Оригинал публикации не загружен.",
             "secondary_sources": [
-              "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/"
+              "https://www.kontur-extern.ru/info/normativ/document/1/289196-federalnyy-zakon-ot-03-07-2016-n-231-fz",
+              "https://normativ.kontur.ru/document/1/289196-federalnyy-zakon-ot-03-07-2016-n-231-fz"
             ],
-            "official_text_retrieved": false
+            "official_text_retrieved": false,
+            "transition_provision": {
+              "general_effective_date": "2017-01-01",
+              "rule": "Article 7: the law enters into force on 01.01.2017",
+              "source_class": "secondary full-act text and bibliographic reference"
+            },
+            "source_verification_note": "The current consolidated Article 6 annotation attributes changes to points 5 and 7 to 231-ФЗ. The secondary act record states commencement on 01.01.2017. Original official publication body not retrieved."
           },
           {
             "act_date": "2020-04-24",
@@ -835,15 +842,15 @@
     ],
     "summary": {
       "articles_covered": 3,
-      "candidate_act_article_links": 18,
+      "candidate_act_article_links": 17,
       "official_act_texts_retrieved": 0,
       "verified": false,
       "candidate_links_by_article": {
         "3": 2,
-        "6": 12,
+        "6": 11,
         "9": 4
       },
-      "distinct_candidate_acts": 13,
+      "distinct_candidate_acts": 12,
       "note": "Подсчёт включает связи, найденные по вторичным текстам и редакционным пометам официального консолидированного текста; не означает первичную юридическую верификацию."
     },
     "gaps": [
@@ -853,7 +860,8 @@
       "Разрешить официальные номера публикаций и получить тексты 261-ФЗ от 25.07.2011 и 233-ФЗ от 08.08.2024.",
       "Получить тело официальной публикации 0001202506240021 (156-ФЗ), разобрать статью 7 и связать переходные сроки с частью 1 статьи 9.",
       "Не использовать даты из вторичных справочных систем как первично подтверждённые даты действия.",
-      "Для добавленной связи 148-ФЗ → статья 6, часть 1.1 установлены статья изменяющего закона (статья 11) и дата по вторичной копии/библиографической записи; оригинальная официальная публикация и её ID не получены."
+      "Для добавленной связи 148-ФЗ → статья 6, часть 1.1 установлены статья изменяющего закона (статья 11) и дата по вторичной копии/библиографической записи; оригинальная официальная публикация и её ID не получены.",
+      "Сверить конфликтующую редакционную помету для пункта 5 части 1 статьи 6: она ссылается на 363-ФЗ от 21.12.2013, полный текст которого не содержит поправок к 152-ФЗ; связь исключена до разрешения расхождения."
     ],
     "official_consolidated_sources": [
       {
@@ -980,6 +988,75 @@
         "official_publication_id": "0001202506240021",
         "official_publication_url": "https://publication.pravo.gov.ru/document/0001202506240021",
         "official_portal_page_accessible_in_research_session": false
+      },
+      {
+        "act": "43-ФЗ",
+        "date": "2013-04-05",
+        "source_class": "secondary_legal_database_or_reference_copy",
+        "urls": [
+          "https://www.consultant.ru/document/cons_doc_LAW_144623/f51700d2ae0027918bb1e3e6d0bdc304780a94f5/",
+          "https://www.consultant.ru/document/cons_doc_LAW_144623/cf263474fe8f61f36de177f9d0320494463bf210/"
+        ],
+        "primary_official_text_retrieved": false,
+        "note": "Вторичные тексты статьи 33 (поправка к статье 6 часть 1 пункт 4 152-ФЗ) и статьи 36 (вступление в силу после 10 дней от официального опубликования).",
+        "official_publication_id": null,
+        "official_publication_url": null,
+        "official_portal_page_accessible_in_research_session": false
+      },
+      {
+        "act": "223-ФЗ",
+        "date": "2017-07-29",
+        "source_class": "secondary_legal_database_or_reference_copy",
+        "urls": [
+          "https://www.consultant.ru/document/cons_doc_LAW_221222/ad890e68b83c920baeae9bb9fdc9b94feb1af0ad/",
+          "https://www.kontur-extern.ru/info/normativ/document/1/298014-federalnyy-zakon-ot-29-07-2017-n-223-fz"
+        ],
+        "primary_official_text_retrieved": false,
+        "note": "Вторичная копия статьи 4 подтверждает изменение статьи 6 части 1 пункта 3 и добавление пункта 3.1; библиографическая запись указывает публикацию 30.07.2017 и вступление 10.08.2017.",
+        "official_publication_id": null,
+        "official_publication_url": null,
+        "official_portal_page_accessible_in_research_session": false
+      },
+      {
+        "act": "231-ФЗ",
+        "date": "2016-07-03",
+        "source_class": "secondary_legal_database_or_reference_copy",
+        "urls": [
+          "https://www.kontur-extern.ru/info/normativ/document/1/289196-federalnyy-zakon-ot-03-07-2016-n-231-fz",
+          "https://normativ.kontur.ru/document/1/289196-federalnyy-zakon-ot-03-07-2016-n-231-fz"
+        ],
+        "primary_official_text_retrieved": false,
+        "note": "Вторичные тексты/реквизиты; статья 7 указывает вступление в силу 01.01.2017; консолидированная статья 6 связывает с актом пункты 5 и 7.",
+        "official_publication_id": null,
+        "official_publication_url": null,
+        "official_portal_page_accessible_in_research_session": false
+      },
+      {
+        "act": "363-ФЗ",
+        "date": "2013-12-21",
+        "source_class": "secondary_legal_database_or_reference_copy",
+        "urls": [
+          "https://www.consultant.ru/document/cons_doc_LAW_156013/",
+          "https://www.consultant.ru/document/cons_doc_LAW_156013/ad890e68b83c920baeae9bb9fdc9b94feb1af0ad/"
+        ],
+        "primary_official_text_retrieved": false,
+        "note": "Полный вторичный текст проверен для исключения ложной связи: закон не вносит поправки в 152-ФЗ. Упоминание 152-ФЗ в статье 4 — отсылка, а не изменение.",
+        "official_publication_id": null,
+        "official_publication_url": null,
+        "official_portal_page_accessible_in_research_session": false
+      },
+      {
+        "act": "363-ФЗ",
+        "date": "2009-12-27",
+        "source_class": "secondary_legal_database_or_reference_copy",
+        "urls": [
+          "https://www.gov45.ru/assets/files/electronic_government/zaschita_personal_dannyh/zakon_rf_2009-12-27_363-fz.pdf"
+        ],
+        "primary_official_text_retrieved": false,
+        "note": "Вторичная PDF-копия: статья 1 меняет статьи 19 и 25 152-ФЗ; целевые статьи 3, 6, 9 не затронуты.",
+        "official_publication_id": null,
+        "official_publication_url": null,
+        "official_portal_page_accessible_in_research_session": false
       }
     ],
     "out_of_scope_amendment_checks": [
@@ -1062,6 +1139,55 @@
         "official_text_retrieved": false,
         "source_class": "secondary_full_act_text_and_reference_copy",
         "note": "Официальный идентификатор публикации подтверждён вторичными реквизитами; оригинальное тело публикации не загружено. Отложенное вступление основной поправки не меняет её предметную область: статья 10."
+      },
+      {
+        "act": "363-ФЗ",
+        "date": "2013-12-21",
+        "checked_articles": [
+          "3",
+          "6",
+          "9"
+        ],
+        "result": "not_in_scope",
+        "basis": "Проверенный полный текст закона 363-ФЗ от 21.12.2013 не содержит поправок к 152-ФЗ: статья 4 меняет закон об ипотеке, а статья 6 — закон о кредитных историях. Ссылка на 152-ФЗ в статье 4 описывает обязанность при уступке прав, но не вносит изменения в 152-ФЗ. Поэтому прежняя кандидатная связь с пунктом 5 части 1 статьи 6 не подтверждается текстом изменяющего акта.",
+        "secondary_sources": [
+          "https://www.consultant.ru/document/cons_doc_LAW_156013/",
+          "https://www.consultant.ru/document/cons_doc_LAW_156013/ad890e68b83c920baeae9bb9fdc9b94feb1af0ad/"
+        ],
+        "official_text_retrieved": false,
+        "source_class": "secondary_full_act_text_and_reference_copy",
+        "note": "Это контроль против ложноположительной связи. Оригинал официальной публикации не загружен; первичная юридическая верификация не заявляется."
+      },
+      {
+        "act": "363-ФЗ",
+        "date": "2009-12-27",
+        "checked_articles": [
+          "3",
+          "6",
+          "9"
+        ],
+        "result": "not_in_scope",
+        "basis": "Статья 1 закона 363-ФЗ от 27.12.2009 меняет статьи 19 и 25 152-ФЗ, но не статьи 3, 6 или 9.",
+        "secondary_sources": [
+          "https://www.gov45.ru/assets/files/electronic_government/zaschita_personal_dannyh/zakon_rf_2009-12-27_363-fz.pdf"
+        ],
+        "official_text_retrieved": false,
+        "source_class": "secondary_full_act_text_and_reference_copy",
+        "note": "Вторичная PDF-копия полного текста закона. Оригинал официальной публикации не получен."
+      }
+    ],
+    "source_discrepancies": [
+      {
+        "act": "363-ФЗ",
+        "date": "2013-12-21",
+        "provision": "статья 6 часть 1 пункт 5 152-ФЗ",
+        "issue": "В одной из вторичных консолидированных редакционных помет встречается ссылка на 363-ФЗ от 21.12.2013, однако проверенный полный текст этого закона не содержит поправок к 152-ФЗ. Статья 4 меняет закон об ипотеке, статья 6 — закон о кредитных историях.",
+        "resolution": "Удалить связь из candidate_amendments и классифицировать акт как not_in_scope до появления подтверждающего текста изменяющего закона.",
+        "sources": [
+          "https://www.consultant.ru/document/cons_doc_LAW_156013/",
+          "https://www.consultant.ru/document/cons_doc_LAW_156013/ad890e68b83c920baeae9bb9fdc9b94feb1af0ad/"
+        ],
+        "verified": false
       }
     ]
   }
