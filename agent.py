@@ -895,6 +895,14 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
             else "no_matching_document"
         ) if ips_bank is not None else "demo_not_configured",
         "documents_with_text": len(ips_sources),
+        "revision_chain_audits": [
+            json.loads(match.group(1))
+            for source in ips_sources
+            for match in re.finditer(
+                r"Диагностика цепочки редакций: (\{.*?\})(?=\n|$)",
+                source.text,
+            )
+        ],
         "errors": ips_errors,
         "limitation": (
             "Банк предоставляет официальные тексты и снимки редакций. Дата редакции не равна "
