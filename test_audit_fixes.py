@@ -8,6 +8,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import agent
+from pravo_portal import PravoPortalSearch, FederatedLegalSearch
 from agent import Source, current_check_date, deduplicate_queries, extract_json, find_unconfirmed_articles, reflect_on_report, classify_source_authority
 from api import create_server, handle_ask, SessionStore, SESSION_MAX_COUNT, LegalApiHandler
 from redline import diff_documents, MAX_DIFF_DOCUMENT_CHARS
@@ -261,6 +262,55 @@ class LegalCitationProvenanceTests(unittest.TestCase):
         self.assertEqual(classify_source_authority("https://sudact.ru/"), "case_law_aggregator")
         self.assertEqual(classify_source_authority("https://www.consultant.ru/"), "secondary_legal_reference")
         self.assertEqual(classify_source_authority("https://unknown.example/"), "unclassified")
+
+
+
+class OfficialPravoPortalIntegrationTests(unittest.TestCase):
+    def test_search_fetches_official_document_text_and_dates(self):
+        search_response = json.dumps([{
+            "EoNumber": "123456789",
+            "DocumentName": "Федеральный закон",
+            "DocumentNumber": "123-ФЗ",
+            "SignDate": "2025-01-10",
+            "PubDate": "2025-01-11",
+            "EffectiveDate": "2025-02-01",
+        }]).encode("utf-8")
+        text_response = json.dumps({"Text": "<p>Текст официального акта.</p>"}).encode("utf-8")
+        with patch("urllib.request.urlopen", side_effect=[
+            io.BytesIO(search_response), io.BytesIO(text_response)
+        ]) as mocked:
+            client = PravoPortalSearch()
+            sources = client.search("Федеральный закон", 3)
+        self.assertEqual(len(sources), 1)
+        self.assertIn("publication.pravo.gov.ru", sources[0].url)
+        self.assertIn("123-ФЗ", sources[0].text)
+        self.assertIn("2025-02-01", sources[0].text)
+        self.assertIn("Текст официального акта.", sources[0].text)
+        self.assertEqual(mocked.call_count, 2)
+
+    def test_portal_refuses_non_official_or_non_https_base_url(self):
+        with self.assertRaisesRegex(agent.AgentError, "официальный HTTPS-домен"):
+            PravoPortalSearch("http://example.com")
+
+    def test_federated_search_keeps_tavily_results_when_portal_is_down(self):
+        class BrokenPortal:
+            def search(self, query, limit):
+                raise agent.AgentError("портал временно недоступен")
+        class WorkingSearch:
+            def search(self, query, limit):
+                return [Source("Найденный источник", "https://example.test/law", "Текст", query)]
+        combined = FederatedLegalSearch(BrokenPortal(), WorkingSearch())
+        results = combined.search("закон", 2)
+        self.assertEqual(len(results), 1)
+        self.assertTrue(any("портал временно недоступен" in item for item in combined.last_errors))
+
+    def test_portal_response_size_is_bounded(self):
+        class LargeResponse(io.BytesIO):
+            pass
+        with patch("urllib.request.urlopen", return_value=LargeResponse(b"x" * (2 * 1024 * 1024 + 1))):
+            client = PravoPortalSearch()
+            with self.assertRaisesRegex(agent.AgentError, "больше 2 МиБ"):
+                client._get("/api/Documents", {"Name": "тест"})
 
 
 if __name__ == "__main__":
