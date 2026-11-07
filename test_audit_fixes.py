@@ -531,6 +531,41 @@ class ProvisionEffectivePeriodTests(unittest.TestCase):
 
 
 
+
+class AmendmentRetrievalAuditTests(unittest.TestCase):
+    def test_reports_retrieved_missing_and_unqueried_amendment_refs(self):
+        from legal_history import audit_amendment_retrieval
+
+        references = [
+            {"signed_date": "2011-07-25", "act_number": "261-ФЗ"},
+            {"signed_date": "2012-03-01", "act_number": "35-ФЗ"},
+            {"signed_date": "2013-06-10", "act_number": "99-ФЗ"},
+        ]
+        publications = [{
+            "title": "Федеральный закон о поправках",
+            "url": "https://publication.pravo.gov.ru/document/pub-261",
+            "text": "Дата подписания: 25.07.2011. Номер: 261-ФЗ. ID: pub-261.",
+        }]
+        result = audit_amendment_retrieval(references, publications, query_limit=2)
+        self.assertEqual(result["retrieved_count"], 1)
+        self.assertEqual(result["not_retrieved_count"], 1)
+        self.assertEqual(result["not_queried_count"], 1)
+        self.assertFalse(result["retrieval_complete_for_extracted_references"])
+        self.assertFalse(result["verified"])
+
+    def test_rejects_nonofficial_or_wrong_date_metadata(self):
+        from legal_history import audit_amendment_retrieval
+
+        result = audit_amendment_retrieval(
+            [{"signed_date": "2011-07-25", "act_number": "261-ФЗ"}],
+            [
+                {"url": "https://example.com/act", "text": "25.07.2011 261-ФЗ"},
+                {"url": "https://publication.pravo.gov.ru/document/pub", "text": "01.01.2012 261-ФЗ"},
+            ],
+        )
+        self.assertEqual(result["retrieved_count"], 0)
+        self.assertEqual(result["not_retrieved_count"], 1)
+
 class AmendmentLinkAuditTests(unittest.TestCase):
     def test_extracts_amendment_citations_from_snapshot_annotation(self):
         from legal_history import extract_amendment_references
