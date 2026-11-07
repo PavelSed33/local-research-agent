@@ -546,6 +546,38 @@ class RevisionChainCoverageTests(unittest.TestCase):
         self.assertFalse(result["verified"])
         self.assertFalse(result["coverage_verified"])
 
+
+    def test_audits_article_heading_in_real_152fz_excerpt(self):
+        from legal_history import audit_revision_chain
+
+        # Article 1 excerpt from Federal Law 27.07.2006 No. 152-FZ.
+        # The small text mutation is synthetic and tests detection only; these
+        # are not represented as authentic historical editions of the statute.
+        article = (
+            "Федеральный закон от 27.07.2006 № 152-ФЗ О персональных данных. "
+            "Глава 1. Общие положения. "
+            "Статья 1. Сфера действия настоящего Федерального закона "
+            "1. Настоящим Федеральным законом регулируются отношения, связанные "
+            "с обработкой персональных данных, осуществляемой юридическими лицами "
+            "с использованием средств автоматизации."
+        )
+        changed = article.replace(
+            "юридическими лицами с использованием средств автоматизации",
+            "юридическими лицами и физическими лицами с использованием средств автоматизации",
+        )
+        result = audit_revision_chain(
+            [
+                {"edition_date": "2020-01-01", "text": article},
+                {"edition_date": "2024-01-01", "text": changed},
+            ],
+            [],
+        )
+        self.assertEqual(result["change_count"], 1)
+        self.assertEqual(result["changed_provisions"][0]["provision_id"],
+                         "Статья 1. Сфера действия настоящего Федерального закона")
+        self.assertEqual(result["changed_provisions"][0]["change_kind"], "text_changed")
+        self.assertFalse(result["coverage_verified"])
+
     def test_reports_missing_or_undated_snapshots(self):
         from legal_history import audit_revision_chain
 
