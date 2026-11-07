@@ -103,7 +103,7 @@ def evidence_report(card_ids=None, as_of=None, *, corpus_dir=None):
 
 def cached_contract_sources(as_of):
     """Only a court interpretation currently belongs in the civil review context."""
-    report = evidence_report(['LAW-02:310'], as_of)
+    report = evidence_report(['LAW-02:310', 'LAW-02:421'], as_of)
     return [Source(entry['title'], entry['url'], entry['text'], 'local incomplete web extract')
             for entry in report['entries'] if entry['temporal_status'] == 'incomplete_history']
 

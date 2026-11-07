@@ -3,7 +3,7 @@ FROM python:3.12-slim
 WORKDIR /app
 
 # Сторонних зависимостей нет: только стандартная библиотека Python.
-COPY agent.py api.py review.py extract.py doctext.py registry.py redline.py legal_history.py pravo_portal.py pravo_ips.py legal_review.py case_law.py preflight.py legal_catalog.py legal_coverage.py privacy_review.py legal_evidence.py ./
+COPY agent.py api.py review.py extract.py doctext.py registry.py redline.py legal_history.py pravo_portal.py pravo_ips.py legal_review.py case_law.py preflight.py legal_catalog.py legal_coverage.py privacy_review.py legal_evidence.py contract_scope.py ./
 
 COPY web ./web
 COPY fixtures/contract_rule_catalog.json ./fixtures/

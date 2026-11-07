@@ -41,7 +41,7 @@ from agent import LEGAL_DISCLAIMER, AgentError, load_dotenv, run, validate_as_of
 from extract import handle_extract
 from redline import handle_diff
 from review import handle_review
-from legal_review import handle_legal_review
+from legal_review import handle_legal_review, review_options
 from case_law import handle_case_law
 from legal_coverage import coverage_report
 from privacy_review import handle_privacy_check, privacy_options
@@ -55,7 +55,7 @@ MAX_QUESTION_CHARS = 12_000
 SESSION_MAX_ENTRIES = 10
 SESSION_MAX_COUNT = 1_000
 SERVICE_NAME = "legal-research-agent"
-API_VERSION = "1.4"
+API_VERSION = "1.5"
 SESSION_TTL_SECONDS = 3600
 SESSION_ANSWER_CHARS = 500
 SESSION_ID_PATTERN = re.compile(r"^[A-Za-z0-9-]{1,64}$")
@@ -200,7 +200,7 @@ def health_payload() -> dict[str, Any]:
         "status": "ok",
         "service": SERVICE_NAME,
         "version": API_VERSION,
-        "endpoints": ["GET /health", "GET /openapi.json", "POST /ask", "POST /review", "POST /extract", "POST /diff", "POST /sessions/delete", "POST /review/legal", "POST /case-law/check", "POST /legal/coverage", "GET /privacy/options", "POST /privacy/check"],
+        "endpoints": ["GET /health", "GET /openapi.json", "POST /ask", "POST /review", "POST /extract", "POST /diff", "POST /sessions/delete", "POST /review/legal", "POST /case-law/check", "POST /legal/coverage", "GET /privacy/options", "POST /privacy/check", "GET /review/options"],
         "llm_configured": bool(os.getenv("LLM_API_KEY") and os.getenv("LLM_MODEL")),
         "tavily_configured": bool(os.getenv("TAVILY_API_KEY")),
         "demo_available": True,
@@ -222,6 +222,9 @@ def openapi_spec() -> dict[str, Any]:
             "description": "Локальный юридический ИИ-помощник по законодательству РФ.",
         },
         "paths": {
+            "/review/options": {"get": {
+                "summary": "Вопросы по профилю, типу договора и специальному режиму; ответы не заменяют квалификацию",
+                "responses": {"200": {"description": "Профили и дополнительные ключи facts"}}}},
             "/legal/coverage": {"post": {
                 "summary": "Матрица исследования норм и открытых пробелов по ТЗ",
                 "requestBody": {"content": {"application/json": {"schema": {
@@ -488,6 +491,8 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             self._send_json(200, openapi_spec())
         elif self.path == "/privacy/options":
             self._send_json(200, privacy_options())
+        elif self.path == "/review/options":
+            self._send_json(200, review_options())
         else:
             self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /sessions/delete."})
 
@@ -582,8 +587,11 @@ def main() -> int:
         return 1
     auth_note = "включена (API_TOKEN)" if server.api_token else "локальный доступ без токена"
     print(f"HTTP API юридического помощника: http://{host}:{port}")
-    print(f"Эндпоинты: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /sessions/delete. Авторизация: {auth_note}.")
-    print(f"Результаты сохраняются в: {server.output_dir.resolve()}")
+    print("Эндпоинты: " + ", ".join(health_payload()["endpoints"]) + f". Авторизация: {auth_note}.")
+    if server.persist_results:
+        print(f"Постоянные результаты /ask сохраняются в: {server.output_dir.resolve()}")
+    else:
+        print("Результаты /ask временные и удаляются после обработки; память сессий управляется отдельно.")
     try:
         server.serve_forever()
     except KeyboardInterrupt:

@@ -49,7 +49,9 @@ class LegalCatalogTests(unittest.TestCase):
         result = handle_legal_review({'document': 'Условный договор оказания услуг для проверки.',
                                      'profile': 'consumer', 'contract_type': 'services', 'demo': True,
                                      'facts': {'customer_is_individual': True, 'personal_use': True, 'seller_is_business': True}})
-        self.assertTrue(result['checklist']['rules'])
+        self.assertEqual(result['status'], 'needs_facts')
+        self.assertFalse(result['checklist']['rules'])
+        self.assertTrue(result['checklist']['deferred_rules'])
         self.assertFalse(result['checklist']['verified'])
 
     def test_catalog_does_not_count_as_fetched_quote_evidence(self):

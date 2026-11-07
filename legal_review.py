@@ -11,6 +11,7 @@ from agent import (AgentError, LEGAL_DISCLAIMER, OpenAICompatibleModel, TavilySe
 from legal_catalog import review_checklist, review_timing
 from legal_coverage import contract_coverage
 from legal_evidence import cached_contract_sources, evidence_report
+from contract_scope import contract_qualification, scope_options
 from doctext import ensure_document_transfer_allowed, parse_demo_flag, resolve_document
 from review import (DemoReviewModel, MIN_DOCUMENT_CHARS, build_review_prompt,
                     normalize_text, validate_review)
@@ -23,6 +24,12 @@ PROFILES = {
         'seller_is_business': 'Продавец или исполнитель действует как предприниматель?'}},
     'employment': {'law': 'Трудовой кодекс РФ', 'facts': {'employment_relationship': 'Проверяется именно трудовой договор?'}},
 }
+
+
+def review_options():
+    return {'profiles': {name: {'questions': value['facts']} for name, value in PROFILES.items()},
+            'contract_types': {name: {'questions': value['questions']} for name, value in scope_options().items()},
+            'verified': False}
 
 
 def applicability(profile: str, facts: dict) -> dict:
@@ -81,8 +88,13 @@ def handle_legal_review(payload: dict[str, Any]) -> dict[str, Any]:
     contract_type = payload.get('contract_type', 'general')
     if not isinstance(contract_type, str):
         raise ValueError('contract_type должен быть строкой.')
+    qualification = contract_qualification(profile, contract_type, payload.get('facts', {}))
     timing = review_timing(as_of, payload.get('contract_signed_on'), payload.get('review_event', 'unspecified'))
     checklist = review_checklist(profile, contract_type, as_of, contract_signed_on=timing['contract_signed_on'])
+    if qualification['status'] in {'needs_facts', 'needs_qualification'}:
+        checklist['deferred_rules'] = checklist['rules']
+        checklist['rules'] = []
+    checklist['qualification_status'] = qualification['status']
     coverage = contract_coverage(profile, as_of)
     document = resolve_document(payload)
     if not MIN_DOCUMENT_CHARS <= len(document) <= 200_000:
@@ -90,9 +102,13 @@ def handle_legal_review(payload: dict[str, Any]) -> dict[str, Any]:
     base = {'profile': profile, 'applicability': scope, 'as_of': as_of,
             'checked_on': current_check_date(), 'verified': False, 'demo': demo,
             'disclaimer': LEGAL_DISCLAIMER, 'sources': [], 'checklist': checklist, 'temporal_context': timing,
-            'legal_coverage': coverage}
+            'legal_coverage': coverage, 'contract_qualification': qualification}
     if scope['status'] != 'candidate_scope':
         return {**base, 'status': scope['status'], 'summary': 'Уточните обстоятельства для выбранного сценария.',
+                'risks': [], 'missing_clauses': []}
+    if qualification['status'] in {'needs_facts', 'needs_qualification'}:
+        return {**base, 'status': qualification['status'],
+                'summary': 'Уточните содержание обязательств и режим договора до специализированной проверки.',
                 'risks': [], 'missing_clauses': []}
     errors = []
     sources = []
@@ -102,7 +118,7 @@ def handle_legal_review(payload: dict[str, Any]) -> dict[str, Any]:
         ensure_document_transfer_allowed()
         if profile != 'employment':
             cached = cached_contract_sources(as_of)
-            capture_report = evidence_report(['LAW-02:310'], as_of)
+            capture_report = evidence_report(['LAW-02:310', 'LAW-02:421'], as_of)
             captures = {entry['url']: entry for entry in capture_report['entries']}
             base['local_evidence'] = capture_report
         # Only the generic profile goes to web search, never the contract text.
@@ -127,10 +143,14 @@ def handle_legal_review(payload: dict[str, Any]) -> dict[str, Any]:
         ' Локальные веб-извлечения прерывисты и не являются исходными HTTP-ответами. '
         'Дата получения не доказывает действие нормы; при неполной истории укажи пробел. '
         'Разъяснение суда не выдавай за первичный текст статьи закона.'
+        ' Выбранный тип договора и ответы пользователя — неподтверждённые исходные данные, а не итоговая квалификация. '
+        'Не определяй вид договора только по названию; при обнаружении смешанного или специального режима '
+        'поставь вопрос о квалификации и не переноси автоматически правила одного вида на другой.'
     )
     user = (f"Профиль: {profile}. Временные обстоятельства: {json.dumps(timing, ensure_ascii=False)}.\nИсточники:\n{format_materials(sources)}"
             f"\nПлан проверки (не доказательство нормы): {json.dumps(checklist, ensure_ascii=False)}"
             f"\nПробелы покрытия: {json.dumps(coverage, ensure_ascii=False)}"
+            f"\nЗаявленные обстоятельства квалификации: {json.dumps(qualification, ensure_ascii=False)}"
             f"\nТекст договора:\n{document}")
     result = extract_json(model.complete(system, user))
     issues = validate_legal_bases(result, document, sources)
