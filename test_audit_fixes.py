@@ -574,7 +574,7 @@ class RevisionChainCoverageTests(unittest.TestCase):
         )
         self.assertEqual(result["change_count"], 1)
         self.assertEqual(result["changed_provisions"][0]["provision_id"],
-                         "Статья 1. Сфера действия настоящего Федерального закона")
+                         "Статья 1")
         self.assertEqual(result["changed_provisions"][0]["change_kind"], "text_changed")
         self.assertFalse(result["coverage_verified"])
 
