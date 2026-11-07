@@ -8,6 +8,7 @@
   POST /review       — текст договора → {summary, risks, missing_clauses, disclaimer};
   POST /extract      — текст договора → {parties, amounts, dates, penalties, term, jurisdiction};
   POST /diff         — две редакции договора → {summary, changes, diff}.
+  POST /sessions/delete — удалить историю сессии из памяти.
 
 Запуск: python api.py
 Настройки через переменные окружения:
@@ -78,12 +79,34 @@ class SessionStore:
         lines = [f"Вопрос: {item['question']}\nКраткий ответ: {item['answer']}" for item in entries]
         return "\n---\n".join(lines)
 
-    def remember(self, session_id: str, question: str, answer: str) -> None:
+    def begin(self, session_id: str) -> tuple[str, object]:
+        """Capture session identity so deletion also invalidates in-flight updates."""
+        now = time.time()
+        with self._lock:
+            self._purge_expired(now)
+            session = self._sessions.get(session_id)
+            if session is None:
+                if len(self._sessions) >= SESSION_MAX_COUNT:
+                    self._sessions.popitem(last=False)
+                session = {"updated": now, "entries": []}
+                self._sessions[session_id] = session
+            entries = list(session["entries"])
+        context = "\n---\n".join(f"Вопрос: {item['question']}\nКраткий ответ: {item['answer']}" for item in entries)
+        return context, session
+
+    def delete(self, session_id: str) -> bool:
+        with self._lock:
+            self._purge_expired(time.time())
+            return self._sessions.pop(session_id, None) is not None
+
+    def remember(self, session_id: str, question: str, answer: str, *, expected_session: object | None = None) -> None:
         """Запоминает пару вопрос/ответ (ответ усечённо) в сессии."""
         now = time.time()
         with self._lock:
             self._purge_expired(now)
             session = self._sessions.get(session_id)
+            if expected_session is not None and session is not expected_session:
+                return
             if session is None:
                 if len(self._sessions) >= SESSION_MAX_COUNT:
                     self._sessions.popitem(last=False)
@@ -123,14 +146,14 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
         raise RequestValidationError(f"Вопрос не должен превышать {MAX_QUESTION_CHARS} символов.")
     as_of = validate_as_of(payload.get("as_of"))
     session_id = payload.get("session_id")
-    if session_id is not None and (not isinstance(session_id, str) or not SESSION_ID_PATTERN.match(session_id)):
+    if session_id is not None and (not isinstance(session_id, str) or not SESSION_ID_PATTERN.fullmatch(session_id)):
         raise RequestValidationError("Поле «session_id» должно быть строкой из 1–64 символов: латиница, цифры, дефис.")
     query_count = parse_int_field(payload, "queries", 3, 1, 5)
     source_limit = parse_int_field(payload, "sources", 6, 1, 10)
     demo = payload.get("demo", False)
     if not isinstance(demo, bool):
         raise RequestValidationError("Поле «demo» должно быть логическим значением true или false.")
-    context = sessions.context(session_id) if sessions and session_id else ""
+    context, session_identity = sessions.begin(session_id) if sessions and session_id else ("", None)
 
     # Отдельная папка на запрос: имена файлов внутри не пересекаются.
     stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
@@ -148,7 +171,7 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
     answer = report_path.read_text(encoding="utf-8")
     journal = json.loads(journal_path.read_text(encoding="utf-8"))
     if sessions and session_id:
-        sessions.remember(session_id, question, answer)
+        sessions.remember(session_id, question, answer, expected_session=session_identity)
     return {
         "answer": answer,
         "sources": [
@@ -173,7 +196,7 @@ def health_payload() -> dict[str, Any]:
         "status": "ok",
         "service": SERVICE_NAME,
         "version": API_VERSION,
-        "endpoints": ["GET /health", "GET /openapi.json", "POST /ask", "POST /review", "POST /extract", "POST /diff"],
+        "endpoints": ["GET /health", "GET /openapi.json", "POST /ask", "POST /review", "POST /extract", "POST /diff", "POST /sessions/delete"],
         "llm_configured": bool(os.getenv("LLM_API_KEY") and os.getenv("LLM_MODEL")),
         "tavily_configured": bool(os.getenv("TAVILY_API_KEY")),
         "demo_available": True,
@@ -195,6 +218,18 @@ def openapi_spec() -> dict[str, Any]:
             "description": "Локальный юридический ИИ-помощник по законодательству РФ.",
         },
         "paths": {
+            "/sessions/delete": {
+                "post": {
+                    "summary": "Удалить историю сессии из памяти; незавершённые запросы не восстановят её",
+                    "requestBody": {"required": True, "content": {"application/json": {"schema": {
+                        "type": "object", "required": ["session_id"],
+                        "properties": {"session_id": {"type": "string", "pattern": "^[A-Za-z0-9-]{1,64}$"}}
+                    }}}},
+                    "responses": {"200": {"description": "deleted=true/false"},
+                                  "400": {"description": "Неверный session_id"},
+                                  "401": {"description": "Требуется Bearer-токен"}}
+                }
+            },
             "/health": {
                 "get": {
                     "summary": "Проверка работоспособности и готовности конфигурации",
@@ -382,11 +417,11 @@ class LegalApiHandler(BaseHTTPRequestHandler):
         elif self.path == "/openapi.json":
             self._send_json(200, openapi_spec())
         else:
-            self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff."})
+            self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /sessions/delete."})
 
     def do_POST(self) -> None:
-        if self.path not in ("/ask", "/review", "/extract", "/diff"):
-            self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff."})
+        if self.path not in ("/ask", "/review", "/extract", "/diff", "/sessions/delete"):
+            self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /sessions/delete."})
             return
         if not self._authorized():
             # Соединение закрываем: непрочитанное тело запроса не должно
@@ -396,7 +431,12 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             return
         try:
             payload = self._read_payload()
-            if self.path == "/ask":
+            if self.path == "/sessions/delete":
+                session_id = payload.get("session_id")
+                if not isinstance(session_id, str) or not SESSION_ID_PATTERN.fullmatch(session_id):
+                    raise RequestValidationError("Требуется корректный session_id: латиница, цифры, дефис, 1–64 символа.")
+                result = {"deleted": self.server.sessions.delete(session_id)}
+            elif self.path == "/ask":
                 result = handle_ask(payload, Path(self.server.output_dir), self.server.sessions, persist_results=self.server.persist_results)
             elif self.path == "/review":
                 result = handle_review(payload)
@@ -462,7 +502,7 @@ def main() -> int:
         return 1
     auth_note = "включена (API_TOKEN)" if server.api_token else "локальный доступ без токена"
     print(f"HTTP API юридического помощника: http://{host}:{port}")
-    print(f"Эндпоинты: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff. Авторизация: {auth_note}.")
+    print(f"Эндпоинты: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /sessions/delete. Авторизация: {auth_note}.")
     print(f"Результаты сохраняются в: {server.output_dir.resolve()}")
     try:
         server.serve_forever()
