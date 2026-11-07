@@ -8,6 +8,7 @@ all provisions in that edition entered into force.
 from __future__ import annotations
 
 import html
+import json
 import re
 import urllib.error
 import urllib.parse
@@ -23,6 +24,8 @@ BASE_URL = "https://pravo.gov.ru"
 MAX_RESPONSE_BYTES = 2 * 1024 * 1024
 MAX_DOCUMENTS = 3
 MAX_REVISIONS = 8
+MAX_SNAPSHOT_TEXT_CHARS = 12000
+MAX_HISTORY_TEXT_CHARS = MAX_REVISIONS * MAX_SNAPSHOT_TEXT_CHARS
 
 
 class _PageParser(HTMLParser):
@@ -152,19 +155,24 @@ class PravoIpsBank:
         revision_ids = revision_ids[:MAX_REVISIONS]
 
         snapshots: list[RevisionSnapshot] = []
+        remaining_chars = MAX_HISTORY_TEXT_CHARS
         for revision_id in revision_ids:
+            if remaining_chars <= 0:
+                break
             text, _ = self._page(document_id, revision_id)
             if text:
+                bounded_text = text[:min(MAX_SNAPSHOT_TEXT_CHARS, remaining_chars)]
+                remaining_chars -= len(bounded_text)
                 snapshots.append(RevisionSnapshot(
                     document_id=document_id, revision_id=revision_id,
-                    edition_date=_parse_date(text), text=text[:12000],
+                    edition_date=_parse_date(text), text=bounded_text,
                     url=f"{BASE_URL}/proxy/ips/?docbody=&nd={document_id}&rdk={revision_id}",
                 ))
 
         if not snapshots:
             snapshots.append(RevisionSnapshot(
                 document_id=document_id, revision_id="",
-                edition_date=_parse_date(current_text), text=current_text[:12000],
+                edition_date=_parse_date(current_text), text=current_text[:MAX_SNAPSHOT_TEXT_CHARS],
                 url=f"{BASE_URL}/proxy/ips/?docbody=&nd={document_id}",
             ))
 
@@ -177,12 +185,18 @@ class PravoIpsBank:
         elif not target and dated:
             selected = max(dated, key=lambda item: item.edition_date or "")
 
+        snapshot_records = [
+            {"revision_id": item.revision_id, "edition_date": item.edition_date,
+             "url": item.url, "text": item.text}
+            for item in sorted(snapshots, key=lambda item: item.edition_date or "")
+        ]
+        from legal_history import audit_revision_chain
+        revision_chain_audit = audit_revision_chain(snapshot_records, [])
+
         return {
             "document_id": document_id, "as_of": as_of,
-            "snapshots": [
-                {"revision_id": item.revision_id, "edition_date": item.edition_date, "url": item.url}
-                for item in sorted(snapshots, key=lambda item: item.edition_date or "")
-            ],
+            "snapshots": snapshot_records,
+            "revision_chain_audit": revision_chain_audit,
             "selected_snapshot": (
                 {"revision_id": selected.revision_id, "edition_date": selected.edition_date,
                  "url": selected.url, "text": selected.text} if selected else None
@@ -234,6 +248,9 @@ class PravoIpsBank:
                 "Доступные снимки редакций: " + "; ".join(
                     f"{item['revision_id'] or 'current'}={item['edition_date'] or 'дата не указана'}"
                     for item in history["snapshots"]
+                ),
+                "Диагностика цепочки редакций: " + json.dumps(
+                    history["revision_chain_audit"], ensure_ascii=False
                 ),
             ]
             sources.append(Source(
