@@ -190,8 +190,8 @@ def audit_revision_chain(
                         else "removed" if provision_id not in right_sections
                         else "text_changed"
                     ),
-                    "before_excerpt": left_sections.get(provision_id, "")[:4000],
-                    "after_excerpt": right_sections.get(provision_id, "")[:4000],
+                    "before_excerpt": left_sections.get(provision_id, "")[:1800],
+                    "after_excerpt": right_sections.get(provision_id, "")[:1800],
                 })
 
     event_dates: set[date] = set()
@@ -220,7 +220,7 @@ def audit_revision_chain(
         "status": "revision_chain_gaps_detected" if gaps else "revision_chain_compared_incomplete",
         "snapshot_count": len(snapshots),
         "dated_snapshot_count": len(dated),
-        "changed_provisions": changed[:200],
+        "changed_provisions": changed[:80],
         "change_count": len(changed),
         "gaps": gaps,
         "coverage_verified": False,
@@ -307,8 +307,12 @@ def audit_amendment_links(
         if not _valid_official_url(source_url):
             rejected.append(f"Связь {index + 1}: источник не является официальным HTTPS-источником.")
             continue
+        act_title = str(candidate.get("act_title") or "").strip()
         if not act_number or act_number not in source_text:
             rejected.append(f"Связь {index + 1}: номер изменяющего акта не найден в источнике.")
+            continue
+        if not act_title or act_title not in source_text:
+            rejected.append(f"Связь {index + 1}: наименование изменяющего акта не найдено в источнике.")
             continue
         if not publication_id or publication_id not in source_text:
             rejected.append(f"Связь {index + 1}: идентификатор публикации не найден в источнике.")
@@ -335,7 +339,20 @@ def audit_amendment_links(
         effective_date_quote = str(candidate.get("effective_date_quote") or "").strip()
         transition_verified = bool(transition_quote and transition_quote in source_text)
         parsed_effective = _iso_date(effective_from)
-        if parsed_effective is None or not effective_date_quote or effective_date_quote not in transition_quote:
+        article_specific_effective_clause = bool(
+            re.search(r"вступает\s+в\s+силу", effective_date_quote, re.IGNORECASE)
+            and re.search(
+                r"стать[ьяеюи]\s+" + article_number,
+                effective_date_quote,
+                re.IGNORECASE,
+            )
+        )
+        if (
+            parsed_effective is None
+            or not effective_date_quote
+            or effective_date_quote not in transition_quote
+            or not article_specific_effective_clause
+        ):
             parsed_effective = None
             effective_date_quote = ""
         elif (
