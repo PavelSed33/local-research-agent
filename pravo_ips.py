@@ -193,7 +193,7 @@ class PravoIpsBank:
             ),
         }
 
-    def search(self, query: str, limit: int = 3) -> list[Source]:
+    def search(self, query: str, limit: int = 3, as_of: str | None = None) -> list[Source]:
         query = str(query or "").strip()
         if not query:
             return []
@@ -219,7 +219,7 @@ class PravoIpsBank:
 
         sources: list[Source] = []
         for document_id, title in found:
-            history = self.get_history(document_id)
+            history = self.get_history(document_id, as_of=as_of)
             snapshot = history.get("selected_snapshot")
             if not snapshot:
                 continue
