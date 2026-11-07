@@ -934,6 +934,68 @@
         "official_publication_url": "https://publication.pravo.gov.ru/document/0001202506240021",
         "official_portal_page_accessible_in_research_session": false
       }
+    ],
+    "out_of_scope_amendment_checks": [
+      {
+        "act": "519-ФЗ",
+        "date": "2024-12-28",
+        "official_publication_id": "0001202412280021",
+        "official_publication_url": "https://publication.pravo.gov.ru/document/0001202412280021",
+        "checked_articles": [
+          "3",
+          "6",
+          "9"
+        ],
+        "result": "not_in_scope",
+        "basis": "Название и статья 1 изменяющего акта ограничивают поправки статьями 10 и 11 152-ФЗ; изменений статей 3, 6 или 9 не установлено.",
+        "secondary_sources": [
+          "https://www.consultant.ru/document/cons_doc_LAW_494799/",
+          "https://base.garant.ru/411232503/"
+        ],
+        "official_text_retrieved": false,
+        "source_class": "secondary_full_act_text_and_reference_copy",
+        "note": "Номер официальной публикации идентифицирован по вторичным реквизитам; оригинальное тело официальной публикации не загружено."
+      },
+      {
+        "act": "121-ФЗ",
+        "date": "2025-05-23",
+        "official_publication_id": "0001202505230034",
+        "official_publication_url": "https://publication.pravo.gov.ru/document/0001202505230034",
+        "checked_articles": [
+          "3",
+          "6",
+          "9"
+        ],
+        "result": "not_in_scope",
+        "basis": "Статья 3 закона 121-ФЗ меняет часть 2 статьи 11 152-ФЗ; изменения статей 3, 6 или 9 в проверенном тексте не выявлены.",
+        "secondary_sources": [
+          "https://www.consultant.ru/document/cons_doc_LAW_505834/30b3f8c55f65557c253227a65b908cc075ce114a/",
+          "https://base.garant.ru/412059740/5ac206a89ea76855804609cd950fcaf7/"
+        ],
+        "official_text_retrieved": false,
+        "source_class": "secondary_full_act_text_and_reference_copy",
+        "note": "Номер официальной публикации идентифицирован по вторичным реквизитам; оригинальное тело официальной публикации не загружено."
+      },
+      {
+        "act": "265-ФЗ",
+        "date": "2026-07-26",
+        "official_publication_id": "0001202607260024",
+        "official_publication_url": "https://publication.pravo.gov.ru/document/0001202607260024",
+        "checked_articles": [
+          "3",
+          "6",
+          "9"
+        ],
+        "result": "not_in_scope",
+        "basis": "Статья 1 изменяющего закона посвящена статье 12 152-ФЗ; перечисленные в текущем fixture изменения статьи 12 не относятся к отслеживаемым статьям 3, 6 или 9.",
+        "secondary_sources": [
+          "https://www.consultant.ru/document/cons_doc_LAW_540340/",
+          "https://base.garant.ru/414652990/"
+        ],
+        "official_text_retrieved": false,
+        "source_class": "secondary_full_act_text_and_reference_copy",
+        "note": "Номер официальной публикации идентифицирован по вторичным реквизитам; оригинальное тело официальной публикации не загружено."
+      }
     ]
   }
 }
