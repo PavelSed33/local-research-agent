@@ -324,12 +324,23 @@ def classify_source_authority(url: str) -> str:
     return "unclassified"
 
 
+def source_authority_label(url: str) -> str:
+    labels = {
+        "official_legal_portal": "официальный портал правовой информации",
+        "official_court": "официальный судебный сайт",
+        "case_law_aggregator": "агрегатор судебных актов",
+        "secondary_legal_reference": "коммерческая правовая справочная система",
+        "unclassified": "источник не классифицирован",
+    }
+    return labels[classify_source_authority(url)]
+
+
 def format_materials(sources: list[Source]) -> str:
     materials = []
     for index, source in enumerate(sources, start=1):
-        authority = classify_source_authority(source.url)
+        authority = source_authority_label(source.url)
         materials.append(
-            f"[{index}] {source.title}\nURL: {source.url}\nКласс происхождения: {authority}\n"
+            f"[{index}] {source.title}\nURL: {source.url}\nПроисхождение: {authority}\n"
             f"Текст:\n{source.text[:9000]}"
         )
     return "\n\n---\n\n".join(materials)
@@ -616,7 +627,7 @@ def save_results(
     report_path = output_dir / f"ответ-{stamp}.md"
     run_path = output_dir / f"журнал-{stamp}.json"
     source_list = "\n".join(
-        f"{i}. [{s.title[:500]}]({s.url[:2000]}) — {classify_source_authority(s.url)}"
+        f"{i}. [{s.title[:500]}]({s.url[:2000]}) — {source_authority_label(s.url)}"
         for i, s in enumerate(sources, start=1)
     )
     journal_sources = [
