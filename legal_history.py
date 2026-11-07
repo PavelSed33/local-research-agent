@@ -298,6 +298,7 @@ def audit_amendment_links(
         source_text = str(candidate.get("source_text") or "")
         source_url = candidate.get("source_url")
         act_number = str(candidate.get("act_number") or "").strip()
+        act_signed_date = str(candidate.get("act_signed_date") or "").strip()
         publication_id = str(candidate.get("official_publication_id") or "").strip()
         amendment_quote = str(candidate.get("amendment_quote") or "").strip()
         target_act_quote = str(candidate.get("target_act_quote") or "").strip()
@@ -314,6 +315,17 @@ def audit_amendment_links(
             continue
         if not act_title or act_title not in source_text:
             rejected.append(f"Связь {index + 1}: наименование изменяющего акта не найдено в источнике.")
+            continue
+        try:
+            parsed_signed_date = date.fromisoformat(act_signed_date)
+        except ValueError:
+            parsed_signed_date = None
+        if (
+            parsed_signed_date is None
+            or parsed_signed_date.strftime("%d.%m.%Y") not in source_text
+            and parsed_signed_date.isoformat() not in source_text
+        ):
+            rejected.append(f"Связь {index + 1}: дата подписания изменяющего акта не подтверждена.")
             continue
         if not publication_id or publication_id not in source_text:
             rejected.append(f"Связь {index + 1}: идентификатор публикации не найден в источнике.")
@@ -378,7 +390,8 @@ def audit_amendment_links(
                 "to_snapshot_date": change.get("to_snapshot_date"),
             },
             "act_number": act_number,
-            "act_title": str(candidate.get("act_title") or ""),
+            "act_signed_date": parsed_signed_date.isoformat(),
+            "act_title": act_title,
             "official_publication_id": publication_id,
             "official_url": source_url,
             "amendment_quote": amendment_quote,
