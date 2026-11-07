@@ -15,6 +15,7 @@ from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Protocol
+from urllib.parse import urlsplit
 
 try:
     from zoneinfo import ZoneInfo
@@ -306,11 +307,41 @@ def deduplicate(sources: list[Source], limit: int) -> list[Source]:
     return list(unique.values())
 
 
+def classify_source_authority(url: str) -> str:
+    """Classify source provenance; this is not a legal-validity determination."""
+    try:
+        host = (urlsplit(url).hostname or "").lower().rstrip(".")
+    except ValueError:
+        return "unclassified"
+    if host == "pravo.gov.ru" or host.endswith(".pravo.gov.ru"):
+        return "official_legal_portal"
+    if host == "vsrf.ru" or host.endswith(".vsrf.ru") or host == "kad.arbitr.ru" or host.endswith(".arbitr.ru") or host.endswith(".sudrf.ru"):
+        return "official_court"
+    if host == "sudact.ru" or host.endswith(".sudact.ru"):
+        return "case_law_aggregator"
+    if host == "consultant.ru" or host.endswith(".consultant.ru") or host == "garant.ru" or host.endswith(".garant.ru"):
+        return "secondary_legal_reference"
+    return "unclassified"
+
+
+def source_authority_label(url: str) -> str:
+    labels = {
+        "official_legal_portal": "официальный портал правовой информации",
+        "official_court": "официальный судебный сайт",
+        "case_law_aggregator": "агрегатор судебных актов",
+        "secondary_legal_reference": "коммерческая правовая справочная система",
+        "unclassified": "источник не классифицирован",
+    }
+    return labels[classify_source_authority(url)]
+
+
 def format_materials(sources: list[Source]) -> str:
     materials = []
     for index, source in enumerate(sources, start=1):
+        authority = source_authority_label(source.url)
         materials.append(
-            f"[{index}] {source.title}\nURL: {source.url}\nТекст:\n{source.text[:9000]}"
+            f"[{index}] {source.title}\nURL: {source.url}\nПроисхождение: {authority}\n"
+            f"Текст:\n{source.text[:9000]}"
         )
     return "\n\n---\n\n".join(materials)
 
@@ -404,7 +435,10 @@ def build_report(model: LanguageModel, topic: str, sources: list[Source], sessio
     )
     return model.complete(
         "Ты юридический помощник по законодательству РФ. Пиши по-русски простыми словами. "
-        "Используй только переданные материалы и никогда не называй статью, номер или редакцию без подтверждения в источнике. "
+        "Используй только переданные материалы. Каждую статью связывай с конкретным кодексом или законом; одного номера статьи недостаточно. "
+        "Не называй редакцию действующей, если источник не подтверждает статус и дату вступления изменений в силу. "
+        "Различай официальный первичный источник, судебный сайт, агрегатор судебных актов и коммерческую справочную систему. "
+        "Не называй единичное судебное решение устойчивой практикой; указывай суд, дату и номер дела только если они есть в источнике. "
         "Каждое правовое утверждение сопровождай ссылкой [N]. Отдельно укажи, какие изменения проверены и что подтвердить не удалось. "
         "Не выдавай ответ за индивидуальную юридическую консультацию. Не добавляй раздел источников. "
         "Используй разделы: Краткий ответ, Правовое основание, Актуальность и изменения, Как применить к ситуации, Ограничения.",
@@ -421,17 +455,60 @@ def section_text(report: str, section: str) -> str:
     return match.group(1).strip() if match else ""
 
 
-ARTICLE_PATTERN = re.compile(r"(?<!\w)(?:статья|статье|статьи|ст\.)\s*(\d+(?:\.\d+)?)(?![\d.])", re.IGNORECASE)
+ARTICLE_PATTERN = re.compile(r"(?<!\w)(?:статья|статье|статьи|ст\.)\s*(\d+(?:\.\d+)?)(?!\d|\.\d)", re.IGNORECASE)
+ARTICLE_MENTION_PATTERN = re.compile(r"(?<!\w)(?:статья|статье|статьи|ст\.)\s*(\d+(?:\.\d+)?)(?!\d|\.\d)", re.IGNORECASE)
+ACT_ALIASES: dict[str, re.Pattern[str]] = {
+    "ГК РФ": re.compile(r"\b(?:ГК\s*РФ|Гражданск(?:ий|ого)\s+кодекс(?:\s+Российской Федерации|\s+РФ)?)\b", re.IGNORECASE),
+    "ТК РФ": re.compile(r"\b(?:ТК\s*РФ|Трудов(?:ой|ого)\s+кодекс(?:\s+Российской Федерации|\s+РФ)?)\b", re.IGNORECASE),
+    "НК РФ": re.compile(r"\b(?:НК\s*РФ|Налогов(?:ый|ого)\s+кодекс(?:\s+Российской Федерации|\s+РФ)?)\b", re.IGNORECASE),
+    "УК РФ": re.compile(r"\b(?:УК\s*РФ|Уголовн(?:ый|ого)\s+кодекс(?:\s+Российской Федерации|\s+РФ)?)\b", re.IGNORECASE),
+    "КоАП РФ": re.compile(r"\b(?:КоАП\s*РФ|Кодекс(?:а)?\s+Российской Федерации\s+об\s+административных\s+правонарушениях)\b", re.IGNORECASE),
+    "АПК РФ": re.compile(r"\b(?:АПК\s*РФ|Арбитражн(?:ый|ого)\s+процессуальн(?:ый|ого)\s+кодекс(?:\s+Российской Федерации|\s+РФ)?)\b", re.IGNORECASE),
+    "ГПК РФ": re.compile(r"\b(?:ГПК\s*РФ|Гражданск(?:ий|ого)\s+процессуальн(?:ый|ого)\s+кодекс(?:\s+Российской Федерации|\s+РФ)?)\b", re.IGNORECASE),
+    "ЖК РФ": re.compile(r"\b(?:ЖК\s*РФ|Жилищн(?:ый|ого)\s+кодекс(?:\s+Российской Федерации|\s+РФ)?)\b", re.IGNORECASE),
+    "СК РФ": re.compile(r"\b(?:СК\s*РФ|Семейн(?:ый|ого)\s+кодекс(?:\s+Российской Федерации|\s+РФ)?)\b", re.IGNORECASE),
+    "ЗК РФ": re.compile(r"\b(?:ЗК\s*РФ|Земельн(?:ый|ого)\s+кодекс(?:\s+Российской Федерации|\s+РФ)?)\b", re.IGNORECASE),
+    "БК РФ": re.compile(r"\b(?:БК\s*РФ|Бюджетн(?:ый|ого)\s+кодекс(?:\s+Российской Федерации|\s+РФ)?)\b", re.IGNORECASE),
+    "КАС РФ": re.compile(r"\b(?:КАС\s*РФ|Кодекс административного судопроизводства Российской Федерации)\b", re.IGNORECASE),
+}
+FEDERAL_LAW_ID_PATTERN = re.compile(r"(?<!\d)(\d{1,4})\s*[-–—]\s*ФЗ\b", re.IGNORECASE)
+
+
+def _article_sort_key(value: str) -> tuple[int, ...]:
+    return tuple(int(part) for part in value.split("."))
+
+
+def _act_ids(text: str) -> set[str]:
+    identifiers = {name for name, pattern in ACT_ALIASES.items() if pattern.search(text)}
+    identifiers.update(f"{match.group(1)}-ФЗ" for match in FEDERAL_LAW_ID_PATTERN.finditer(text))
+    return identifiers
 
 
 def find_unconfirmed_articles(report: str, sources: list[Source]) -> list[str]:
-    """Find exact article-number tokens in source text (not partial numbers)."""
-    mentioned = set(ARTICLE_PATTERN.findall(report))
-    if not mentioned:
-        return []
-    corpus = "\n".join(source.text for source in sources)
-    confirmed = set(ARTICLE_PATTERN.findall(corpus))
-    return sorted(mentioned - confirmed, key=lambda value: tuple(int(part) for part in value.split(".")))
+    """Require each cited article to be linked to the same identifiable act in a source."""
+    unconfirmed: set[str] = set()
+    source_records = []
+    for source in sources:
+        source_text = f"{source.title}\n{source.text}"
+        source_records.append((source_text, _act_ids(source_text)))
+
+    for match in ARTICLE_MENTION_PATTERN.finditer(report):
+        article_number = match.group(1)
+        context = report[max(0, match.start() - 100):min(len(report), match.end() + 100)]
+        act_ids = _act_ids(context)
+        if not act_ids:
+            unconfirmed.add(f"{article_number} (не указан конкретный закон или кодекс)")
+            continue
+        matched_source = False
+        for source_text, source_acts in source_records:
+            if not source_acts.intersection(act_ids):
+                continue
+            if article_number in ARTICLE_PATTERN.findall(source_text):
+                matched_source = True
+                break
+        if not matched_source:
+            unconfirmed.add(f"{article_number} ({', '.join(sorted(act_ids))})")
+    return sorted(unconfirmed, key=lambda value: _article_sort_key(value.split(" ", 1)[0]))
 
 
 def validate_report(report: str, sources: list[Source]) -> list[str]:
@@ -549,15 +626,28 @@ def save_results(
     stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S-%f")
     report_path = output_dir / f"ответ-{stamp}.md"
     run_path = output_dir / f"журнал-{stamp}.json"
-    source_list = "\n".join(f"{i}. [{s.title[:500]}]({s.url[:2000]})" for i, s in enumerate(sources, start=1))
+    source_list = "\n".join(
+        f"{i}. [{s.title[:500]}]({s.url[:2000]}) — {source_authority_label(s.url)}"
+        for i, s in enumerate(sources, start=1)
+    )
     journal_sources = [
         {**asdict(source), "title": source.title[:500], "url": source.url[:2000],
-         "query": source.query[:1000], "text": source.text[:9000]}
+         "query": source.query[:1000], "text": source.text[:9000],
+         "authority_class": classify_source_authority(source.url)}
         for source in sources[:16]
     ]
     warning = "\n> **Демонстрационный режим:** источники и факты условны.\n" if demo else ""
+    update_status = "подтверждена" if update_check.get("verified") is True else "не подтверждена автоматически"
+    court_status = "подтверждена" if court_check.get("verified") is True else "не подтверждена автоматически"
+    verification_note = (
+        "\n## Статус юридической проверки\n\n"
+        f"- Актуальность редакций: {update_status} (статус поиска: {update_check.get('status', 'unknown')}).\n"
+        f"- Судебная практика: {court_status} (статус поиска: {court_check.get('status', 'unknown')}).\n"
+        "- Найденные материалы сами по себе не доказывают, что норма действует на дату проверки или что судебная позиция является устойчивой. "
+        "Проверяйте дату вступления изменений в силу и полный текст первичного источника.\n"
+    )
     report_path.write_text(
-        f"# {topic}\n\n**Дата проверки изменений:** {checked_on}\n\n> {LEGAL_DISCLAIMER}\n{warning}\n{report.strip()}\n\n## Источники\n\n{source_list}\n",
+        f"# {topic}\n\n**Дата проверки изменений:** {checked_on}\n\n> {LEGAL_DISCLAIMER}\n{warning}\n{report.strip()}\n{verification_note}\n## Источники\n\n{source_list}\n",
         encoding="utf-8",
     )
     run_path.write_text(
