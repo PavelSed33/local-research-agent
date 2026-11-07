@@ -7,6 +7,7 @@ from unittest.mock import patch
 
 import agent
 from agent import Source
+from api import create_server
 from doctext import MAX_DOCX_BYTES, MAX_DOCX_XML_BYTES, extract_docx_text
 
 
@@ -21,6 +22,19 @@ class DocxResourceLimitTests(unittest.TestCase):
             archive.writestr("word/document.xml", b"x" * (MAX_DOCX_XML_BYTES + 1))
         with self.assertRaisesRegex(ValueError, "Основной XML документа"):
             extract_docx_text(stream.getvalue())
+
+
+class ApiExposureSecurityTests(unittest.TestCase):
+    def test_external_bind_requires_token(self):
+        with self.assertRaisesRegex(ValueError, "API_TOKEN обязателен"):
+            create_server("0.0.0.0", 0, Path("."), "")
+
+    def test_loopback_bind_can_remain_local_without_token(self):
+        server = create_server("127.0.0.1", 0, Path("."))
+        try:
+            self.assertEqual(server.api_token, "")
+        finally:
+            server.server_close()
 
 
 class ResearchEvidenceRetentionTests(unittest.TestCase):
