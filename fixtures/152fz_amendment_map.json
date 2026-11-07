@@ -834,7 +834,10 @@
       }
     ],
     "summary": {
-      "candidate_links": 18,
+      "articles_covered": 3,
+      "candidate_act_article_links": 18,
+      "official_act_texts_retrieved": 0,
+      "verified": false,
       "candidate_links_by_article": {
         "3": 2,
         "6": 12,
