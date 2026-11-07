@@ -660,8 +660,6 @@ class Law152FixtureInventoryTests(unittest.TestCase):
         self.assertEqual({item["official_publication_id"] for item in amendments_519}, {"0001202012300044"})
         self.assertTrue(all("01.07.2021" in item["effective_date_status"] for item in amendments_519))
         self.assertTrue(all(not item["official_text_retrieved"] for item in amendments_519))
-        self.assertTrue(all("01.07.2021" in item["effective_date_status"] for item in amendments_519))
-        self.assertTrue(all(not item["official_text_retrieved"] for item in amendments_519))
         self.assertTrue(any(
             item["act_number"] == "148-ФЗ" and item["scope"] == ["часть 1.1"]
             for article in scoped["articles"] if article["article"] == "6"
