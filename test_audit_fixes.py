@@ -216,13 +216,13 @@ class UserChangeRegressionTests(unittest.TestCase):
         transient = urllib.error.HTTPError(
             "https://example.test", 503, "unavailable", {}, io.BytesIO(b"temporary")
         )
-        with patch("urllib.request.urlopen", side_effect=[transient, Response(b'{"ok": true}')]), patch(
+        with patch("agent.open_json_request", side_effect=[transient, Response(b'{"ok": true}')]), patch(
             "agent.time.sleep"
         ):
             self.assertEqual(agent.post_json("https://example.test", {}, {}), {"ok": True})
 
     def test_article_number_match_does_not_accept_decimal_prefix(self):
-        report = "## Правовое основание\nСогласно статье 15 ГК РФ."
+        report = "## Правовое основание\nСогласно статье 15 ГК РФ [1]."
         sources = [Source("Источник", "https://example.test", "См. статью 15.1 закона.", "q")]
         self.assertEqual(find_unconfirmed_articles(report, sources), ["15 (ГК РФ)"])
 
@@ -237,12 +237,12 @@ class UserChangeRegressionTests(unittest.TestCase):
 
 class LegalCitationProvenanceTests(unittest.TestCase):
     def test_article_number_from_different_code_does_not_confirm_citation(self):
-        report = "## Правовое основание\\nПрименяется статья 15 ГК РФ."
+        report = "## Правовое основание\\nПрименяется статья 15 ГК РФ [1]."
         sources = [Source("Трудовой кодекс РФ", "https://pravo.gov.ru/law", "Статья 15. Общие положения.", "q")]
         self.assertEqual(find_unconfirmed_articles(report, sources), ["15 (ГК РФ)"])
 
     def test_article_without_identified_statute_is_unconfirmed(self):
-        report = "## Правовое основание\\nПрименяется статья 15."
+        report = "## Правовое основание\\nПрименяется статья 15 [1]."
         sources = [Source("Сборник норм", "https://example.test", "Статья 15. Текст.", "q")]
         self.assertEqual(
             find_unconfirmed_articles(report, sources),
@@ -250,12 +250,12 @@ class LegalCitationProvenanceTests(unittest.TestCase):
         )
 
     def test_article_and_matching_statute_in_same_source_are_confirmed(self):
-        report = "## Правовое основание\\nПрименяется статья 15 ГК РФ."
+        report = "## Правовое основание\\nПрименяется статья 15 ГК РФ [1]."
         sources = [Source("Гражданский кодекс Российской Федерации", "https://pravo.gov.ru/law", "Статья 15. Защита гражданских прав.", "q")]
         self.assertEqual(find_unconfirmed_articles(report, sources), [])
 
     def test_federal_law_number_must_match_source(self):
-        report = "## Правовое основание\\nПрименяется статья 6 152-ФЗ."
+        report = "## Правовое основание\\nПрименяется статья 6 152-ФЗ [1]."
         sources = [Source("Федеральный закон № 149-ФЗ", "https://pravo.gov.ru/law", "Статья 6. Информация.", "q")]
         self.assertEqual(find_unconfirmed_articles(report, sources), ["6 (152-ФЗ)"])
 
@@ -613,22 +613,86 @@ class Law152FixtureInventoryTests(unittest.TestCase):
         fixture_path = Path(__file__).parent / "fixtures" / "152fz_amendment_map.json"
         fixture = json.loads(fixture_path.read_text(encoding="utf-8"))
         inventory = fixture["consolidated_citation_inventory"]
-        self.assertEqual(len(inventory), 35)
-        self.assertEqual(fixture["inventory_summary"]["total_citations"], 35)
-        self.assertEqual(fixture["inventory_summary"]["partial_scope_candidates"], 4)
-        self.assertEqual(fixture["inventory_summary"]["not_mapped"], 31)
+        self.assertEqual(len(inventory), 36)
+        self.assertEqual(fixture["inventory_summary"]["total_citations"], 36)
+        self.assertEqual(fixture["inventory_summary"]["partial_scope_candidates"], 16)
+        self.assertEqual(fixture["inventory_summary"]["not_mapped"], 20)
+        self.assertEqual(sum(item["scope_mapping_status"] == "partial_candidate" for item in inventory), 16)
+        self.assertEqual(sum(item["scope_mapping_status"] == "not_mapped" for item in inventory), 20)
         scoped = fixture["article_scoped_inventory"]
         self.assertEqual(len(scoped["articles"]), 3)
         self.assertEqual(scoped["summary"]["articles_covered"], 3)
-        self.assertEqual(scoped["summary"]["candidate_act_article_links"], 17)
+        self.assertEqual(scoped["summary"]["candidate_act_article_links"], 21)
+        self.assertEqual(scoped["summary"]["candidate_links_by_article"], {"3": 2, "6": 14, "9": 5})
+        self.assertEqual(len({(item["act_date"], item["act_number"]) for article in scoped["articles"] for item in article["candidate_amendments"]}), 16)
+        self.assertTrue(any(item["act_number"] == "363-ФЗ" and "пункт 5 части 1" in item["scope"] for item in scoped["articles"][1]["candidate_amendments"]))
+        self.assertTrue(any(
+            item["act_number"] == "266-ФЗ" and item["act_date"] == "2009-11-25"
+            and item["scope"] == ["пункт 1.1 части 2"] and item["effective_from"] == "2009-12-08"
+            for item in scoped["articles"][1]["candidate_amendments"]
+        ))
+
+        self.assertTrue(any(
+            item["act_number"] == "123-ФЗ" and item["act_date"] == "2011-06-04"
+            and item["scope"] == ["пункт 5.1 части 2"] and item["effective_from"] == "2011-06-18"
+            for item in scoped["articles"][1]["candidate_amendments"]
+        ))
+        amendments_519 = [
+            item for article in scoped["articles"]
+            for item in article["candidate_amendments"]
+            if item["act_number"] == "519-ФЗ"
+        ]
+        self.assertEqual(len(amendments_519), 3)
+        self.assertEqual(
+            {
+                article["article"]: next(
+                    item for item in article["candidate_amendments"]
+                    if item["act_number"] == "519-ФЗ"
+                )["scope"]
+                for article in scoped["articles"]
+                if any(item["act_number"] == "519-ФЗ" for item in article["candidate_amendments"])
+            },
+            {
+                "3": ["пункт 1.1 статьи 3"],
+                "6": ["пункт 10 части 1 (утратил силу)"],
+                "9": ["часть 9"],
+            },
+        )
+        self.assertEqual({item["effective_from"] for item in amendments_519}, {"2021-03-01"})
+        self.assertEqual({item["official_publication_id"] for item in amendments_519}, {"0001202012300044"})
+        self.assertTrue(all("01.07.2021" in item["effective_date_status"] for item in amendments_519))
+        self.assertTrue(all(not item["official_text_retrieved"] for item in amendments_519))
+        self.assertTrue(any(
+            item["act_number"] == "148-ФЗ" and item["scope"] == ["часть 1.1"]
+            for article in scoped["articles"] if article["article"] == "6"
+            for item in article["candidate_amendments"]
+        ))
+        self.assertTrue(any(item["act_number"] == "227-ФЗ" and item["scope"] == ["часть 4", "часть 4.1"] and item["effective_from"] == "2011-01-01" for item in scoped["articles"][2]["candidate_amendments"]))
+        act_227 = next(item for item in scoped["articles"][2]["candidate_amendments"] if item["act_number"] == "227-ФЗ")
+        self.assertEqual(act_227["government_hosted_full_text_copy"]["host"], "nalog.gov.ru")
+        self.assertFalse(act_227["official_text_retrieved"])
+        self.assertFalse(any(item["act_number"] == "204-ФЗ" for article in scoped["articles"] for item in article["candidate_amendments"]))
+        self.assertEqual(scoped["summary"]["out_of_scope_checks"], 20)
+        out_of_scope_pairs = {(item["date"], item["act"]) for item in scoped["out_of_scope_amendment_checks"]}
+        self.assertTrue(all((item["signed_date"], item["act_number"]) in out_of_scope_pairs for item in inventory if item["scope_mapping_status"] == "not_mapped"))
+        self.assertTrue(all(any((row["signed_date"], row["act_number"]) == (item["date"], item["act"]) and row["scope_mapping_status"] == "not_mapped" for row in inventory) for item in scoped["out_of_scope_amendment_checks"]))
+        self.assertTrue(any(item["act"] == "216-ФЗ" and "статьи 10" in item["basis"] for item in scoped["out_of_scope_amendment_checks"]))
+        self.assertTrue(any(item["act"] == "204-ФЗ" and "статьи 10" in item["basis"] for item in scoped["out_of_scope_amendment_checks"]))
+        self.assertTrue(any(item["act"] == "200-ФЗ" and item["date"] == "2025-07-07" for item in scoped["out_of_scope_amendment_checks"]))
+        self.assertTrue(any(item["act_number"] == "265-ФЗ" and item["scope_mapping_status"] == "not_mapped" for item in inventory))
+        self.assertTrue(any(item["act_number"] == "200-ФЗ" and item["signed_date"] == "2025-07-07" and item["scope_mapping_status"] == "not_mapped" for item in inventory))
+        act_200 = next(item for item in scoped["out_of_scope_amendment_checks"] if item["act"] == "200-ФЗ")
+        self.assertIn("https://proinfosoft.ru/assets/files/news/2025/07072025N200.pdf", act_200["secondary_sources"])
+        self.assertFalse(act_200["official_text_retrieved"])
+        self.assertFalse(any(item["act_number"] == "204-ФЗ" for item in scoped["articles"][1]["candidate_amendments"]))
         self.assertEqual(scoped["summary"]["official_act_texts_retrieved"], 0)
         portal = scoped["official_portal_retrieval"]
         self.assertEqual(portal["directly_retrieved_document_bodies"], 0)
         self.assertEqual(portal["identified_official_publication_records"], 5)
         self.assertEqual(len(portal["identified_records"]), 5)
         self.assertIn("0001202408080031", {item["publication_id"] for item in portal["identified_records"]})
+        self.assertIn("0001202012300044", {item["publication_id"] for item in portal["identified_records"]})
         self.assertTrue(all(not item["body_retrieved"] for item in portal["identified_records"]))
-        self.assertFalse(scoped["summary"]["verified"])
         self.assertFalse(scoped["summary"]["verified"])
         self.assertTrue(all(
             item["official_text_retrieved"] is False

@@ -158,7 +158,7 @@ class PravoPortalSearch:
         except json.JSONDecodeError:
             return decoded
 
-    def search_act(self, signed_date: str, act_number: str) -> list[Source]:
+    def search_act(self, signed_date: str, act_number: str, *, publication_id: str | None = None) -> list[Source]:
         """Retrieve a candidate only when its publication metadata matches both keys."""
         try:
             parsed_date = date.fromisoformat(signed_date)
@@ -166,8 +166,10 @@ class PravoPortalSearch:
             raise AgentError("Некорректная дата изменяющего акта.") from None
         if not re.fullmatch(r"[0-9]+-ФЗ", act_number):
             raise AgentError("Ожидается номер федерального закона: N-ФЗ.")
+        if publication_id is not None and (not isinstance(publication_id, str) or not re.fullmatch(r"[0-9]{16}", publication_id)):
+            raise AgentError("Номер официальной публикации должен содержать 16 цифр.")
         query = f"Федеральный закон от {parsed_date.strftime('%d.%m.%Y')} № {act_number}"
-        sources = self.search(query, 2, required_identity=(signed_date, act_number))
+        sources = self.search(query, 2, required_identity=(signed_date, act_number), publication_id=publication_id)
         if not sources:
             raise AgentError(
                 f"Не получен текст официальной публикации с подтверждёнными реквизитами: {query}. "
@@ -175,15 +177,17 @@ class PravoPortalSearch:
             )
         return sources
 
-    def search(self, query: str, limit: int, *, required_identity: tuple[str, str] | None = None) -> list[Source]:
+    def search(self, query: str, limit: int, *, required_identity: tuple[str, str] | None = None, publication_id: str | None = None) -> list[Source]:
         if not isinstance(query, str) or not query.strip():
             return []
         # Keep the public portal's fan-out bounded: one search and at most
         # two document-text requests per query.
         limit = max(1, min(int(limit), 2))
-        response = self._get(
-            "/api/Documents",
-            {"Name": query.strip()[:300], "NumberSearchType": 0},
+        response = (
+            self._get("/api/Document", {"eoNumber": publication_id})
+            if publication_id is not None else self._get(
+                "/api/Documents", {"Name": query.strip()[:300], "NumberSearchType": 0}
+            )
         )
         records = _find_records(response)
         self.last_records = records[:limit]
@@ -196,6 +200,8 @@ class PravoPortalSearch:
             eo_number = _as_text(_value(
                 record, "EoNumber", "eoNumber", "DocumentEONumber", "eo_number"
             ))
+            if publication_id is not None and eo_number != publication_id:
+                continue
             title = _as_text(_value(
                 record, "DocumentName", "Name", "Title", "DocumentTitle"
             )) or "Правовой акт (официальная публикация)"

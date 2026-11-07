@@ -55,6 +55,21 @@
       "transition_article": "Статья 7",
       "status": "official_publication_reference_found_scope_parsed",
       "gap": "Полный официальный портал не удалось открыть из рабочей среды; текст и метаданные сверены по независимой копии. Нужна автоматическая загрузка исходной публикации."
+    },
+    {
+      "signed_date": "2010-07-27",
+      "act_number": "227-ФЗ",
+      "target_provisions": [
+        "Статья 9, часть 4",
+        "Статья 9, часть 4.1"
+      ],
+      "evidence_kind": "статья 23 полного текста изменяющего закона",
+      "effective_from": "2011-01-01",
+      "effective_date_status": "Статья 29(1) закона 227-ФЗ устанавливает общий срок 01.01.2011; специальные исключения статьи 29 не относятся к статье 23.",
+      "official_publication_id": null,
+      "source_url": "https://www.consultant.ru/document/cons_doc_LAW_103104/dcf6a9cdf6136b9a410d2f953eec0cf0887b7b6a/",
+      "status": "scope_and_transition_candidate_supported_by_secondary_full_act_text",
+      "gap": "Оригинальное тело официальной публикации не получено; проверить первичный текст статьи 23 и переходную норму статьи 29."
     }
   ],
   "pending_watchlist": [
@@ -79,7 +94,9 @@
     "Для 233-ФЗ сопоставлена поправка к пункту 9.1 части 1 статьи 6 и вторично разобрана отсрочка до 01.09.2025; получить и проверить оригинальное тело официальной публикации.",
     "Для 156-ФЗ сопоставлена поправка к части 1 статьи 9 и вторично разобрана отсрочка статьи 5 до 01.09.2025; получить и проверить оригинальное тело официальной публикации.",
     "Для 266-ФЗ по вторичному тексту установлена общая дата 01.09.2022 для изменений статьи 6 (пункт 3 статьи 1) и статьи 9 (пункт 4 статьи 1); требуется проверка по оригинальной публикации.",
-    "Для 519-ФЗ специальная дата 01.07.2021 относится к статье 10.1, части 6, пункту 2, а не к трём отслеживаемым изменениям статей 3, 6 и 9; подтвердить по первичной публикации."
+    "Для 519-ФЗ специальная дата 01.07.2021 относится к статье 10.1, части 6, пункту 2, а не к трём отслеживаемым изменениям статей 3, 6 и 9; подтвердить по первичной публикации.",
+    "Для 227-ФЗ от 27.07.2010 добавлена кандидатная связь со статьёй 9 (части 4 и 4.1); требуется загрузить оригинал официальной публикации для первичной проверки.",
+    "Ряд исторических актов 2010–2023 годов теперь классифицирован как out-of-scope по конкретной изменяемой норме; это не заменяет проверку полноты полного списка поправок."
   ],
   "verified": false,
   "coverage_verified": false,
@@ -111,7 +128,7 @@
     {
       "signed_date": "2010-07-27",
       "act_number": "227-ФЗ",
-      "scope_mapping_status": "not_mapped",
+      "scope_mapping_status": "partial_candidate",
       "official_text_retrieved": false
     },
     {
@@ -129,8 +146,9 @@
     {
       "signed_date": "2011-06-04",
       "act_number": "123-ФЗ",
-      "scope_mapping_status": "not_mapped",
-      "official_text_retrieved": false
+      "scope_mapping_status": "partial_candidate",
+      "official_text_retrieved": false,
+      "scope_mapping_note": "Статья 5 закона 04.06.2011 №123-ФЗ прямо дополняет часть 2 статьи 6 152-ФЗ пунктом 5.1. Статья 9 устанавливает вступление закона в силу по истечении 10 дней после опубликования; вторичные источники фиксируют публикацию 07.06.2011, дата 18.06.2011. Оригинал официальной публикации не получен."
     },
     {
       "signed_date": "2011-07-25",
@@ -141,7 +159,7 @@
     {
       "signed_date": "2013-04-05",
       "act_number": "43-ФЗ",
-      "scope_mapping_status": "not_mapped",
+      "scope_mapping_status": "partial_candidate",
       "official_text_retrieved": false
     },
     {
@@ -153,7 +171,7 @@
     {
       "signed_date": "2013-12-21",
       "act_number": "363-ФЗ",
-      "scope_mapping_status": "not_mapped",
+      "scope_mapping_status": "partial_candidate",
       "official_text_retrieved": false
     },
     {
@@ -177,7 +195,7 @@
     {
       "signed_date": "2016-07-03",
       "act_number": "231-ФЗ",
-      "scope_mapping_status": "not_mapped",
+      "scope_mapping_status": "partial_candidate",
       "official_text_retrieved": false
     },
     {
@@ -189,13 +207,13 @@
     {
       "signed_date": "2017-07-01",
       "act_number": "148-ФЗ",
-      "scope_mapping_status": "not_mapped",
+      "scope_mapping_status": "partial_candidate",
       "official_text_retrieved": false
     },
     {
       "signed_date": "2017-07-29",
       "act_number": "223-ФЗ",
-      "scope_mapping_status": "not_mapped",
+      "scope_mapping_status": "partial_candidate",
       "official_text_retrieved": false
     },
     {
@@ -213,7 +231,7 @@
     {
       "signed_date": "2020-04-24",
       "act_number": "123-ФЗ",
-      "scope_mapping_status": "not_mapped",
+      "scope_mapping_status": "partial_candidate",
       "official_text_retrieved": false
     },
     {
@@ -231,7 +249,7 @@
     {
       "signed_date": "2020-12-30",
       "act_number": "519-ФЗ",
-      "scope_mapping_status": "not_mapped",
+      "scope_mapping_status": "partial_candidate",
       "official_text_retrieved": false
     },
     {
@@ -243,7 +261,7 @@
     {
       "signed_date": "2021-07-02",
       "act_number": "331-ФЗ",
-      "scope_mapping_status": "not_mapped",
+      "scope_mapping_status": "partial_candidate",
       "official_text_retrieved": false
     },
     {
@@ -273,7 +291,7 @@
     {
       "signed_date": "2025-02-28",
       "act_number": "23-ФЗ",
-      "scope_mapping_status": "not_mapped",
+      "scope_mapping_status": "partial_candidate",
       "official_text_retrieved": false
     },
     {
@@ -285,22 +303,28 @@
     {
       "signed_date": "2025-06-24",
       "act_number": "156-ФЗ",
+      "scope_mapping_status": "partial_candidate",
+      "official_text_retrieved": false
+    },
+    {
+      "signed_date": "2025-07-07",
+      "act_number": "200-ФЗ",
       "scope_mapping_status": "not_mapped",
       "official_text_retrieved": false
     },
     {
       "signed_date": "2026-07-26",
       "act_number": "265-ФЗ",
-      "scope_mapping_status": "partial_candidate",
+      "scope_mapping_status": "not_mapped",
       "official_text_retrieved": false
     }
   ],
   "inventory_summary": {
-    "total_citations": 35,
-    "partial_scope_candidates": 4,
-    "not_mapped": 31,
-    "source_quality": "Список реквизитов извлечён из консолидированного справочного текста; он является стартовым инвентарём, а не официально удостоверенным исчерпывающим перечнем.",
-    "caveat": "Повторяющиеся номера актов допустимы: идентификатор — пара дата подписания + номер."
+    "total_citations": 36,
+    "partial_scope_candidates": 16,
+    "not_mapped": 20,
+    "source_quality": "Базовый перечень реквизитов взят из официального консолидированного текста Минтруда; рабочий инвентарь дополнен отдельными изменяющими актами, найденными в полных вторичных копиях (в частности, 200-ФЗ от 07.07.2025). Постатейные связи дополнены вторичными полными текстами и редакционными пометами. Все частичные связи остаются кандидатными до проверки оригиналов изменяющих публикаций.",
+    "caveat": "Статус partial_candidate означает найденную связь по статье/положению, но не первичную юридическую верификацию. Неоднозначные/противоречивые редакционные пометы не засчитываются без текста изменяющего акта."
   },
   "article_scoped_inventory": {
     "inventory_basis": "Аннотации к действующей редакции статей в КонсультантПлюс и тексты отдельных актов в справочных системах; это поисковые зацепки, а не официальные первичные публикации.",
@@ -382,8 +406,8 @@
             "effective_from": "2011-07-27",
             "effective_date_status": "The amending act entered into force on official publication (secondary publication record: Rossiyskaya Gazeta 2011-07-27); Article 3(2) retroactively applies the amended 152-FZ provisions to legal relationships from 2011-07-01. Secondary reproduction; not primary-source verified.",
             "secondary_sources": [
-              "https://www.consultant.ru/document/cons_doc_LAW_117437/3d0cac60971a511280cbba229d9b6329c07731f/",
-              "https://www.kontur-extern.ru/info/normativ/document/1/182955-federalnyy-zakon-ot-25-07-2011-n-261-fz"
+              "https://base.garant.ru/12188322/",
+              "https://www.consultant.ru/document/cons_doc_LAW_117437/3d0cac60971a511280cbba229d9b6329c07731f/"
             ],
             "official_text_retrieved": false,
             "official_publication_identified": false,
@@ -399,7 +423,8 @@
             },
             "source_verification_note": "The secondary full text of Article 1 expressly replaces Article 3, Article 6 and Article 9 of 152-FZ. Article 3(1) sets entry into force on official publication; Article 3(2) separately gives retroactive application to legal relationships from 2011-07-01. A secondary bibliographic record identifies Rossiyskaya Gazeta No. 162 dated 2011-07-27. Keep official_text_retrieved=false and do not assign a portal publication ID. The Ministry of Labour's official consolidated 152-FZ text also marks this article as amended by 261-ФЗ; this is corroborating official consolidated-law evidence, not the original amending act.",
             "official_consolidated_law_source_url": "https://mintrud.gov.ru/docs/laws/130",
-            "official_consolidated_law_source_note": "Official Ministry of Labour-hosted consolidated text of 152-FZ contains an editorial note that this article is in the version of 261-FZ. This supports the amendment-scope attribution but is not the original published text of 261-FZ and does not count as retrieved original act text."
+            "official_consolidated_law_source_note": "Official Ministry of Labour-hosted consolidated text of 152-FZ contains an editorial note that this article is in the version of 261-FZ. This supports the amendment-scope attribution but is not the original published text of 261-FZ and does not count as retrieved original act text.",
+            "secondary_source_class": "secondary_legal_database_or_reference_copy"
           },
           {
             "act_date": "2020-12-30",
@@ -409,10 +434,13 @@
             ],
             "basis": "аннотация к пункту 1.1 указывает, что он введён законом 519-ФЗ",
             "scope_status": "explicit_in_secondary_consolidated_annotation",
-            "effective_from": null,
-            "effective_date_status": "нужна сверка официальной переходной нормы",
+            "effective_from": "2021-03-01",
+            "effective_date_status": "Статья 2(1) закона 519-ФЗ устанавливает общую дату вступления в силу 01.03.2021. Исключение — абзац десятый пункта 5 статьи 1 (часть 6 статьи 10.1 о подаче согласия через информационную систему), вступающий в силу 01.07.2021 по статье 2(2); оно не затрагивает изменения статей 3, 6 и 9, внесённые пунктами 1–3 статьи 1. Текст и переходная норма подтверждены вторичными полными копиями; оригинал официальной публикации не получен.",
             "secondary_sources": [
-              "https://www.consultant.ru/document/cons_doc_LAW_61801/4f41fe599ce341751e4e34dc50a4b676674c1416/"
+              "https://base.garant.ru/400157172/",
+              "https://www.consultant.ru/document/cons_doc_LAW_372682/",
+              "https://www.consultant.ru/document/cons_doc_LAW_372682/3d0cac60971a511280cbba229d9b6329c07731f7/",
+              "https://www.kontur-extern.ru/info/normativ/document/1/380023-federalnyy-zakon-ot-30-12-2020-n-519-fz"
             ],
             "official_text_retrieved": false,
             "official_publication_identified": true,
@@ -424,7 +452,13 @@
               "exception": "paragraph 10 of item 5 of Article 1 (Article 10.1, part 6, item 2: consent via the information system) effective 2021-07-01; this exception does not apply to the tracked amendments to Articles 3, 6 or 9",
               "source_class": "secondary reproduction of Articles 1 and 2; original official portal body inaccessible"
             },
-            "source_verification_note": "Article 1 maps the tracked changes exactly: Article 3 point 1.1; Article 6 item 10 part 1 repealed; Article 9 part 9 added. The delayed paragraph 10 of item 5 is Article 10.1 part 6 item 2 and is not one of these three tracked provisions. Secondary text only; official publication body not retrieved."
+            "source_verification_note": "Статья 1 закона 519-ФЗ прямо: пункт 1 дополняет статью 3 пунктом 1.1; пункт 2 признаёт утратившим силу пункт 10 части 1 статьи 6; пункт 3 дополняет статью 9 частью 9. Статья 2(1) вводит закон в силу 01.03.2021. Статья 2(2) откладывает до 01.07.2021 только абзац десятый пункта 5 статьи 1 — норму о подаче согласия через информационную систему по статье 10.1(6)(2), а не поправки к отслеживаемым статьям 3, 6 и 9. Официальная консолидированная редакция Минтруда также помечает пункт 1.1 статьи 3 как введённый 519-ФЗ. Это подтверждающие вторичные и официально-консолидированные источники, но не извлечённое оригинальное тело официальной публикации; official_text_retrieved остаётся false.",
+            "government_corroboration": {
+              "source_id": "mintrud-152-consolidated-20261107",
+              "original_act_body_retrieved": false,
+              "limitation": "Сверены редакционные пометы консолидированной ведомственной копии; подлинная публикация изменяющего акта не получена."
+            },
+            "secondary_source_class": "secondary_legal_database_or_reference_copy"
           }
         ],
         "gaps": [
@@ -437,6 +471,36 @@
         "title": "Условия обработки персональных данных",
         "candidate_amendments": [
           {
+            "act_date": "2009-11-25",
+            "act_number": "266-ФЗ",
+            "scope": [
+              "пункт 1.1 части 2"
+            ],
+            "basis": "статья 1 пункт 1 закона 266-ФЗ прямо дополняет часть 2 статьи 6 пунктом 1.1; это подтверждается действующим официальным консолидированным текстом 152-ФЗ",
+            "scope_status": "explicit_in_secondary_full_act_text_and_official_consolidated_annotation",
+            "effective_from": "2009-12-08",
+            "effective_date_status": "статья 2: вступление в силу по истечении 10 дней после официального опубликования; вторичные библиографические реквизиты указывают публикацию в Российской газете 27.11.2009. Первичный текст публикации не загружен.",
+            "secondary_sources": [
+              "https://www.consultant.ru/document/cons_doc_LAW_94106/",
+              "https://base.garant.ru/196676/",
+              "https://normativ.kontur.ru/document?documentId=145738&moduleId=1"
+            ],
+            "official_text_retrieved": false,
+            "official_publication_identified": false,
+            "official_publication_id": null,
+            "official_document_url": null,
+            "official_retrieval_status": "publication_date_identified_id_not_resolved_body_unavailable",
+            "transition_provision": {
+              "general_effective_date": "2009-12-08",
+              "rule": "Article 2: the law enters into force after 10 days from official publication; secondary bibliographic record identifies Rossiyskaya Gazeta publication on 2009-11-27",
+              "source_class": "secondary reproduction of amendment Article 1 and Article 2 plus secondary bibliographic publication record"
+            },
+            "source_verification_note": "Article 1 point 1 of 266-ФЗ adds point 1.1 to part 2 of Article 6 of 152-ФЗ. The official Ministry of Labour consolidated text independently annotates Article 6 part 2 point 1.1 as introduced by 266-ФЗ. The original official publication body was not retrieved; do not set official_text_retrieved=true.",
+            "official_consolidated_law_source_url": "https://mintrud.gov.ru/docs/laws/130",
+            "official_consolidated_law_source_note": "The official Ministry consolidated text marks Article 6 part 2 point 1.1 as introduced by 266-ФЗ. This confirms the target provision but is not the original publication of the amending act.",
+            "secondary_source_class": "secondary_legal_database_or_reference_copy"
+          },
+          {
             "act_date": "2011-07-25",
             "act_number": "261-ФЗ",
             "scope": [
@@ -447,8 +511,8 @@
             "effective_from": "2011-07-27",
             "effective_date_status": "The amending act entered into force on official publication (secondary publication record: Rossiyskaya Gazeta 2011-07-27); Article 3(2) retroactively applies the amended 152-FZ provisions to legal relationships from 2011-07-01. Secondary reproduction; not primary-source verified.",
             "secondary_sources": [
-              "https://www.consultant.ru/document/cons_doc_LAW_117437/3d0cac60971a511280cbba229d9b6329c07731f/",
-              "https://www.kontur-extern.ru/info/normativ/document/1/182955-federalnyy-zakon-ot-25-07-2011-n-261-fz"
+              "https://base.garant.ru/12188322/",
+              "https://www.consultant.ru/document/cons_doc_LAW_117437/3d0cac60971a511280cbba229d9b6329c07731f/"
             ],
             "official_text_retrieved": false,
             "official_publication_identified": false,
@@ -464,7 +528,8 @@
             },
             "source_verification_note": "The secondary full text of Article 1 expressly replaces Article 3, Article 6 and Article 9 of 152-FZ. Article 3(1) sets entry into force on official publication; Article 3(2) separately gives retroactive application to legal relationships from 2011-07-01. A secondary bibliographic record identifies Rossiyskaya Gazeta No. 162 dated 2011-07-27. Keep official_text_retrieved=false and do not assign a portal publication ID. The Ministry of Labour's official consolidated 152-FZ text also marks this article as amended by 261-ФЗ; this is corroborating official consolidated-law evidence, not the original amending act.",
             "official_consolidated_law_source_url": "https://mintrud.gov.ru/docs/laws/130",
-            "official_consolidated_law_source_note": "Official Ministry of Labour-hosted consolidated text of 152-FZ contains an editorial note that this article is in the version of 261-FZ. This supports the amendment-scope attribution but is not the original published text of 261-FZ and does not count as retrieved original act text."
+            "official_consolidated_law_source_note": "Official Ministry of Labour-hosted consolidated text of 152-FZ contains an editorial note that this article is in the version of 261-FZ. This supports the amendment-scope attribution but is not the original published text of 261-FZ and does not count as retrieved original act text.",
+            "secondary_source_class": "secondary_legal_database_or_reference_copy"
           },
           {
             "act_date": "2013-04-05",
@@ -474,12 +539,48 @@
             ],
             "basis": "редакционная помета непосредственно под пунктом 4",
             "scope_status": "explicit_in_secondary_consolidated_annotation",
-            "effective_from": null,
-            "effective_date_status": "нужна первичная проверка даты",
+            "effective_from": "2013-04-19",
+            "effective_date_status": "Статья 36 устанавливает вступление через 10 дней после официального опубликования; вторичная справка фиксирует публикацию 08.04.2013, поэтому дата действия — 19.04.2013. Оригинал публикации не загружен.",
             "secondary_sources": [
-              "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/"
+              "https://www.consultant.ru/document/cons_doc_LAW_144623/f51700d2ae0027918bb1e3e6d0bdc304780a94f5/",
+              "https://www.consultant.ru/document/cons_doc_LAW_144623/cf263474fe8f61f36de177f9d0320494463bf210/",
+              "https://base.garant.ru/70353470/"
             ],
-            "official_text_retrieved": false
+            "official_text_retrieved": false,
+            "transition_provision": {
+              "general_effective_date": "2013-04-19",
+              "rule": "Article 36: enters into force after ten days from official publication; secondary record identifies publication 08.04.2013",
+              "source_class": "secondary reproduction of Articles 33 and 36 plus bibliographic publication record"
+            },
+            "source_verification_note": "Article 33(1) of 43-ФЗ expressly changes Article 6 part 1 point 4 of 152-ФЗ. Article 36 sets the ten-day rule. The secondary bibliographic record identifies official publication on 08.04.2013. Original official publication body not retrieved."
+          },
+          {
+            "act_date": "2017-07-01",
+            "act_number": "148-ФЗ",
+            "scope": [
+              "часть 1.1"
+            ],
+            "basis": "статья 11 закона 148-ФЗ прямо дополняет статью 6 152-ФЗ частью 1.1; редакционная помета присутствует в официальном консолидированном тексте Минтруда",
+            "scope_status": "explicit_in_secondary_act_text_and_official_consolidated_annotation",
+            "effective_from": "2017-07-01",
+            "effective_date_status": "статья 12 закона 148-ФЗ предусматривает вступление в силу со дня официального опубликования; вторичная библиографическая запись указывает публикацию 01.07.2017. Первичная публикация не получена",
+            "secondary_sources": [
+              "https://www.consultant.ru/document/cons_doc_LAW_219027/3eeafbd3bdb64673818bd5cba64081209bddc7a4/",
+              "https://base.garant.ru/71708988/"
+            ],
+            "official_text_retrieved": false,
+            "official_publication_identified": false,
+            "official_publication_id": null,
+            "official_document_url": null,
+            "official_retrieval_status": "publication_id_not_resolved",
+            "transition_provision": {
+              "act_effective_date": "2017-07-01",
+              "act_effective_rule": "Article 12: the amending law enters into force on the date of official publication; secondary bibliographic record identifies publication on 2017-07-01",
+              "source_class": "secondary reproduction of Articles 11 and 12 and secondary bibliographic record; original official publication not retrieved"
+            },
+            "source_verification_note": "Article 11(1) of 148-ФЗ adds Article 6 part 1.1 of 152-ФЗ. The official Ministry consolidated 152-ФЗ text independently marks part 1.1 as introduced by 148-ФЗ. This supports scope attribution but does not count as retrieval of the original amending act.",
+            "official_consolidated_law_source_url": "https://mintrud.gov.ru/docs/laws/130",
+            "secondary_source_class": "secondary_legal_database_or_reference_copy"
           },
           {
             "act_date": "2017-07-29",
@@ -490,27 +591,19 @@
             ],
             "basis": "аннотации к пункту 3 и новому пункту 3.1",
             "scope_status": "explicit_in_secondary_consolidated_annotation",
-            "effective_from": null,
-            "effective_date_status": "нужна первичная проверка даты",
+            "effective_from": "2017-08-10",
+            "effective_date_status": "Статья 6 закона не устанавливает отдельную дату; по вторичной библиографической записи закон опубликован 30.07.2017 и вступил в силу по истечении 10 дней — 10.08.2017. Оригинал публикации не загружен.",
             "secondary_sources": [
-              "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/"
+              "https://www.consultant.ru/document/cons_doc_LAW_221222/ad890e68b83c920baeae9bb9fdc9b94feb1af0ad/",
+              "https://www.kontur-extern.ru/info/normativ/document/1/298014-federalnyy-zakon-ot-29-07-2017-n-223-fz"
             ],
-            "official_text_retrieved": false
-          },
-          {
-            "act_date": "2013-12-21",
-            "act_number": "363-ФЗ",
-            "scope": [
-              "пункт 5 части 1"
-            ],
-            "basis": "редакционная помета к пункту 5",
-            "scope_status": "explicit_in_secondary_consolidated_annotation",
-            "effective_from": null,
-            "effective_date_status": "нужна первичная проверка даты",
-            "secondary_sources": [
-              "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/"
-            ],
-            "official_text_retrieved": false
+            "official_text_retrieved": false,
+            "transition_provision": {
+              "general_effective_date": "2017-08-10",
+              "rule": "Article 6 has no special commencement clause; the secondary bibliographic record identifies official publication 30.07.2017 and commencement after ten days",
+              "source_class": "secondary full text of Article 4 and secondary bibliographic record"
+            },
+            "source_verification_note": "Article 4(2) of 223-ФЗ changes Article 6 part 1 point 3 and adds point 3.1. Article 7 separately repeals Article 1 part 2 point 5 of 152-ФЗ; that repeal is outside tracked Articles 3/6/9. Original official publication body not retrieved."
           },
           {
             "act_date": "2016-07-03",
@@ -521,12 +614,19 @@
             ],
             "basis": "редакционные пометы к пунктам 5 и 7",
             "scope_status": "explicit_in_secondary_consolidated_annotation",
-            "effective_from": null,
-            "effective_date_status": "нужна первичная проверка даты",
+            "effective_from": "2017-01-01",
+            "effective_date_status": "Статья 7 закона устанавливает вступление в силу с 01.01.2017; подтверждено вторичными справочными реквизитами. Оригинал публикации не загружен.",
             "secondary_sources": [
-              "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/"
+              "https://www.kontur-extern.ru/info/normativ/document/1/289196-federalnyy-zakon-ot-03-07-2016-n-231-fz",
+              "https://normativ.kontur.ru/document/1/289196-federalnyy-zakon-ot-03-07-2016-n-231-fz"
             ],
-            "official_text_retrieved": false
+            "official_text_retrieved": false,
+            "transition_provision": {
+              "general_effective_date": "2017-01-01",
+              "rule": "Article 7: the law enters into force on 01.01.2017",
+              "source_class": "secondary full-act text and bibliographic reference"
+            },
+            "source_verification_note": "The current consolidated Article 6 annotation attributes changes to points 5 and 7 to 231-ФЗ. The secondary act record states commencement on 01.01.2017. Original official publication body not retrieved."
           },
           {
             "act_date": "2020-04-24",
@@ -539,7 +639,8 @@
             "effective_from": "2020-07-01",
             "effective_date_status": "Article 8 expressly sets 2020-07-01; Article 7 point 1 adds Article 6 part 1 point 9.1; secondary reproduction",
             "secondary_sources": [
-              "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/"
+              "https://base.garant.ru/73945195/",
+              "https://www.kontur-extern.ru/info/normativ/document/1/501357-federalnyy-zakon-ot-24-04-2020-n-123-fz"
             ],
             "official_text_retrieved": false,
             "official_publication_identified": true,
@@ -551,7 +652,8 @@
               "exception": "no special exception for Article 7 amendment to Article 6 part 1 point 9.1 stated in Article 8",
               "source_class": "secondary reproduction of Articles 7 and 8"
             },
-            "source_verification_note": "Article 7 point 1 adds Article 6 part 1 point 9.1. Article 8 states the law enters into force 2020-07-01. Original official publication body remains unretrieved."
+            "source_verification_note": "Article 7 point 1 adds Article 6 part 1 point 9.1. Article 8 states the law enters into force 2020-07-01. Original official publication body remains unretrieved.",
+            "secondary_source_class": "secondary_legal_database_or_reference_copy"
           },
           {
             "act_date": "2021-07-02",
@@ -561,12 +663,24 @@
             ],
             "basis": "редакционная помета к пункту 9.1",
             "scope_status": "explicit_in_secondary_consolidated_annotation",
-            "effective_from": null,
-            "effective_date_status": "нужна первичная проверка даты",
+            "effective_from": "2021-07-02",
+            "effective_date_status": "Статья 12 закона 331-ФЗ устанавливает вступление в силу со дня официального опубликования; вторичные реквизиты подтверждают публикацию 02.07.2021 и номер 0001202107020046. Оригинал публикации не загружен.",
             "secondary_sources": [
-              "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/"
+              "https://www.consultant.ru/document/cons_doc_LAW_389015/5bdc78bf7e3015a0ea0c0ea5bef708a6c79e2f0a/",
+              "https://base.garant.ru/401421446/",
+              "https://spa.msu.ru/wp-content/uploads/54-1.pdf"
             ],
-            "official_text_retrieved": false
+            "official_text_retrieved": false,
+            "official_publication_identified": true,
+            "official_publication_id": "0001202107020046",
+            "official_document_url": "https://publication.pravo.gov.ru/document/0001202107020046",
+            "official_retrieval_status": "official_publication_record_identified_body_unavailable",
+            "transition_provision": {
+              "general_effective_date": "2021-07-02",
+              "rule": "Article 12: enters into force on the date of official publication; secondary record identifies publication 02.07.2021",
+              "source_class": "secondary reproduction of Article 5 and Article 12 plus bibliographic record"
+            },
+            "source_verification_note": "Article 5(1) of 331-ФЗ modifies Article 6 part 1 point 9.1 of 152-ФЗ. Article 12 provides same-day commencement on official publication; official publication ID is identified by secondary records, but original portal body was not retrieved."
           },
           {
             "act_date": "2020-12-30",
@@ -577,9 +691,12 @@
             "basis": "аннотация к пункту 10 указывает утрату силы с 01.03.2021 по закону 519-ФЗ",
             "scope_status": "explicit_in_secondary_consolidated_annotation",
             "effective_from": "2021-03-01",
-            "effective_date_status": "дата приведена во вторичной аннотации; официальное переходное положение не получено",
+            "effective_date_status": "Статья 2(1) закона 519-ФЗ устанавливает общую дату вступления в силу 01.03.2021. Исключение — абзац десятый пункта 5 статьи 1 (часть 6 статьи 10.1 о подаче согласия через информационную систему), вступающий в силу 01.07.2021 по статье 2(2); оно не затрагивает изменения статей 3, 6 и 9, внесённые пунктами 1–3 статьи 1. Текст и переходная норма подтверждены вторичными полными копиями; оригинал официальной публикации не получен. Дополнительно дата 01.03.2021 сопоставлена с редакционной пометой в ведомственной консолидированной копии Минтруда; это не получение оригинальной переходной нормы.",
             "secondary_sources": [
-              "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/"
+              "https://base.garant.ru/400157172/",
+              "https://www.consultant.ru/document/cons_doc_LAW_372682/",
+              "https://www.consultant.ru/document/cons_doc_LAW_372682/3d0cac60971a511280cbba229d9b6329c07731f7/",
+              "https://www.kontur-extern.ru/info/normativ/document/1/380023-federalnyy-zakon-ot-30-12-2020-n-519-fz"
             ],
             "official_text_retrieved": false,
             "official_publication_identified": true,
@@ -591,7 +708,13 @@
               "exception": "paragraph 10 of item 5 of Article 1 (Article 10.1, part 6, item 2: consent via the information system) effective 2021-07-01; this exception does not apply to the tracked amendments to Articles 3, 6 or 9",
               "source_class": "secondary reproduction of Articles 1 and 2; original official portal body inaccessible"
             },
-            "source_verification_note": "Article 1 maps the tracked changes exactly: Article 3 point 1.1; Article 6 item 10 part 1 repealed; Article 9 part 9 added. The delayed paragraph 10 of item 5 is Article 10.1 part 6 item 2 and is not one of these three tracked provisions. Secondary text only; official publication body not retrieved."
+            "source_verification_note": "Статья 1 закона 519-ФЗ прямо: пункт 1 дополняет статью 3 пунктом 1.1; пункт 2 признаёт утратившим силу пункт 10 части 1 статьи 6; пункт 3 дополняет статью 9 частью 9. Статья 2(1) вводит закон в силу 01.03.2021. Статья 2(2) откладывает до 01.07.2021 только абзац десятый пункта 5 статьи 1 — норму о подаче согласия через информационную систему по статье 10.1(6)(2), а не поправки к отслеживаемым статьям 3, 6 и 9. Официальная консолидированная редакция Минтруда также помечает пункт 1.1 статьи 3 как введённый 519-ФЗ. Это подтверждающие вторичные и официально-консолидированные источники, но не извлечённое оригинальное тело официальной публикации; official_text_retrieved остаётся false.",
+            "government_corroboration": {
+              "source_id": "mintrud-152-consolidated-20261107",
+              "original_act_body_retrieved": false,
+              "limitation": "Сверены редакционные пометы консолидированной ведомственной копии; подлинная публикация изменяющего акта не получена."
+            },
+            "secondary_source_class": "secondary_legal_database_or_reference_copy"
           },
           {
             "act_date": "2022-07-14",
@@ -605,7 +728,8 @@
             "effective_from": "2022-09-01",
             "effective_date_status": "secondary copy of Article 6: tracked Article 1 points 3 and 4 are not among the delayed exceptions; primary publication body still not retrieved",
             "secondary_sources": [
-              "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/"
+              "https://base.garant.ru/404993577/",
+              "https://www.consultant.ru/document/cons_doc_LAW_421898/"
             ],
             "official_text_retrieved": false,
             "official_publication_identified": true,
@@ -617,7 +741,13 @@
               "exception": "Article 6(2) delays Article 1 point 7, paragraph 5 of subparagraph a of point 10, subparagraph g of point 13, subparagraph d of point 14, subparagraph g of point 15, and Articles 3-5 until 2023-03-01; tracked amendments to Article 6 (point 3) and Article 9 (point 4) are not listed and follow the general date",
               "source_class": "secondary reproduction of Articles 1 and 6"
             },
-            "source_verification_note": "Article 1 point 3 changes Article 6 (paragraphs 5(1), 3 and new 6); point 4 changes Article 9 part 1. Article 6(2) delayed list does not include these points, so the secondary text supports 2022-09-01 for both. Official body remains unretrieved."
+            "source_verification_note": "Article 1 point 3 changes Article 6 (paragraphs 5(1), 3 and new 6); point 4 changes Article 9 part 1. Article 6(2) delayed list does not include these points, so the secondary text supports 2022-09-01 for both. Official body remains unretrieved.",
+            "government_corroboration": {
+              "source_id": "mintrud-152-consolidated-20261107",
+              "original_act_body_retrieved": false,
+              "limitation": "Сверены редакционные пометы консолидированной ведомственной копии; подлинная публикация изменяющего акта не получена."
+            },
+            "secondary_source_class": "secondary_legal_database_or_reference_copy"
           },
           {
             "act_date": "2024-08-08",
@@ -630,7 +760,8 @@
             "effective_from": "2025-09-01",
             "effective_date_status": "пункт 1 статьи 1 входит в перечень пунктов 1-3, 5 статьи 1, отложенных статьёй 3(2) до 01.09.2025; вторичная копия",
             "secondary_sources": [
-              "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/"
+              "https://base.garant.ru/409493125/",
+              "https://www.gb-dnr.ru/normative-base/detail/1387"
             ],
             "official_text_retrieved": false,
             "official_publication_identified": true,
@@ -642,7 +773,8 @@
               "exception": "Article 3(2) delays Articles 1 points 1-3 and 5 and Article 2 until 2025-09-01; tracked Article 6 amendment is Article 1 point 1",
               "source_class": "secondary reproduction of Articles 1 and 3"
             },
-            "source_verification_note": "Article 1 point 1 amends Article 6 part 1 point 9.1. Article 3(2) delays points 1-3 and 5 of Article 1 to 2025-09-01, so this amendment follows that date. The original official portal body remains unretrieved."
+            "source_verification_note": "Article 1 point 1 amends Article 6 part 1 point 9.1. Article 3(2) delays points 1-3 and 5 of Article 1 to 2025-09-01, so this amendment follows that date. The original official portal body remains unretrieved.",
+            "secondary_source_class": "secondary_legal_database_or_reference_copy"
           },
           {
             "act_date": "2025-02-28",
@@ -652,12 +784,80 @@
             ],
             "basis": "часть 1.2 прямо помечена как введённая законом 23-ФЗ",
             "scope_status": "explicit_in_secondary_consolidated_annotation",
-            "effective_from": null,
-            "effective_date_status": "нужна первичная проверка даты",
+            "effective_from": "2025-07-01",
+            "effective_date_status": "Статья 10 закона 23-ФЗ прямо устанавливает вступление в силу с 01.07.2025; вторичные реквизиты указывают официальный номер публикации 0001202502280034. Оригинал публикации не загружен.",
             "secondary_sources": [
-              "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/"
+              "https://www.consultant.ru/document/cons_doc_LAW_499984/3d0cac60971a511280cbba229d9b6329c07731f7/",
+              "https://www.consultant.ru/document/cons_doc_LAW_499984/b62da3aeb315547b6915beadea02920bd7dd4c41/",
+              "https://www.kontur-extern.ru/info/normativ/document/1/489745-federalnyy-zakon-ot-28-02-2025-n-23-fz"
             ],
-            "official_text_retrieved": false
+            "official_text_retrieved": false,
+            "official_publication_identified": true,
+            "official_publication_id": "0001202502280034",
+            "official_document_url": "https://publication.pravo.gov.ru/document/0001202502280034",
+            "official_retrieval_status": "official_publication_record_identified_body_unavailable",
+            "transition_provision": {
+              "general_effective_date": "2025-07-01",
+              "rule": "Article 10(1): the law enters into force on 01.07.2025",
+              "source_class": "secondary reproduction of Articles 1 and 10 plus publication bibliographic record"
+            },
+            "source_verification_note": "Article 1(1) of 23-ФЗ adds Article 6 part 1.2. Article 10(1) sets 01.07.2025. Publication ID is identified in secondary records; original official portal body was not retrieved."
+          },
+          {
+            "act_date": "2013-12-21",
+            "act_number": "363-ФЗ",
+            "scope": [
+              "пункт 5 части 1"
+            ],
+            "basis": "Статья 7 закона 363-ФЗ прямо предписывает изложить пункт 5 части 1 статьи 6 152-ФЗ в новой редакции; это подтверждено полным текстом статьи 7 и историей редакций.",
+            "scope_status": "explicit_in_secondary_full_act_text",
+            "effective_from": "2014-07-01",
+            "effective_date_status": "Статья 12 закона устанавливает вступление в силу с 01.07.2014; вторичная библиографическая запись указывает официальное опубликование на pravo.gov.ru 23.12.2013. Оригинал официальной публикации не загружен.",
+            "secondary_sources": [
+              "https://www.consultant.ru/document/cons_doc_LAW_156013/6a73a7e61adc45fc3dd224c0e7194a1392c8b071/",
+              "https://www.consultant.ru/document/cons_doc_LAW_94223/0f7e930df06dc40475c0b9570f4d824ce35c4f06/",
+              "https://www.kontur-extern.ru/info/normativ/document/1/223103-federalnyy-zakon-ot-21-12-2013-n-363-fz",
+              "https://rospatent.gov.ru/index.php/ru/documents/fed-zakon-152-27072006/download"
+            ],
+            "official_text_retrieved": false,
+            "official_publication_identified": true,
+            "official_publication_id": null,
+            "official_document_url": null,
+            "official_retrieval_status": "publication_date_identified_id_not_resolved_body_unavailable",
+            "transition_provision": {
+              "general_effective_date": "2014-07-01",
+              "rule": "Article 12: the law enters into force on 01.07.2014; secondary bibliographic record identifies official portal publication on 23.12.2013",
+              "source_class": "secondary reproduction of Articles 7 and 12 plus official-consolidated historical note and secondary bibliographic record"
+            },
+            "source_verification_note": "ConsultantPlus Article 7 explicitly amends Article 6 part 1 point 5 of 152-ФЗ; the ConsultantPlus change-history page shows this point was rewritten in the 21.12.2013 edition. This corrects the earlier mistaken exclusion, which relied on reading only the act's first articles and overlooked Article 7. Original official portal publication body not retrieved."
+          },
+          {
+            "act_date": "2011-06-04",
+            "act_number": "123-ФЗ",
+            "scope": [
+              "пункт 5.1 части 2"
+            ],
+            "basis": "статья 5 изменяющего закона прямо дополняет часть 2 статьи 6 152-ФЗ пунктом 5.1",
+            "scope_status": "explicit_in_secondary_full_act_text",
+            "effective_from": "2011-06-18",
+            "effective_date_status": "статья 9: по истечении 10 дней после официального опубликования; вторичные библиографические источники указывают Российскую газету №121 от 07.06.2011 и дату вступления 18.06.2011",
+            "secondary_sources": [
+              "https://www.consultant.ru/document/cons_doc_LAW_114675/5bdc78bf7e3015a0ea0c0ea5bef708a6c79e2f0a/",
+              "https://base.garant.ru/12186467/",
+              "https://www.kontur-extern.ru/info/normativ/document/1/179687-federalnyy-zakon-ot-04-06-2011-n-123-fz"
+            ],
+            "official_text_retrieved": false,
+            "official_publication_identified": false,
+            "official_publication_id": null,
+            "official_document_url": null,
+            "official_retrieval_status": "publication_bibliography_identified_original_portal_body_not_retrieved",
+            "transition_provision": {
+              "general_effective_date": "2011-06-18",
+              "rule": "Article 9: effective after 10 days from official publication; secondary bibliographic records identify Rossiyskaya Gazeta No.121, 07.06.2011. The exception for subparagraph z of Article 1(25) does not apply to Article 5 amendment to 152-FZ.",
+              "source_class": "secondary reproduction of amending act Articles 5 and 9 plus secondary publication metadata"
+            },
+            "source_verification_note": "Article 5 expressly adds point 5.1 to part 2 of Article 6 of 152-FZ. The act's Article 9 sets the general commencement rule; secondary sources identify 18.06.2011. Original official publication body not retrieved; official_text_retrieved remains false.",
+            "secondary_source_class": "secondary_legal_database_or_reference_copy"
           }
         ],
         "gaps": [
@@ -681,8 +881,8 @@
             "effective_from": "2011-07-27",
             "effective_date_status": "The amending act entered into force on official publication (secondary publication record: Rossiyskaya Gazeta 2011-07-27); Article 3(2) retroactively applies the amended 152-FZ provisions to legal relationships from 2011-07-01. Secondary reproduction; not primary-source verified.",
             "secondary_sources": [
-              "https://www.consultant.ru/document/cons_doc_LAW_117437/3d0cac60971a511280cbba229d9b6329c07731f/",
-              "https://www.kontur-extern.ru/info/normativ/document/1/182955-federalnyy-zakon-ot-25-07-2011-n-261-fz"
+              "https://base.garant.ru/12188322/",
+              "https://www.consultant.ru/document/cons_doc_LAW_117437/3d0cac60971a511280cbba229d9b6329c07731f/"
             ],
             "official_text_retrieved": false,
             "official_publication_identified": false,
@@ -698,7 +898,8 @@
             },
             "source_verification_note": "The secondary full text of Article 1 expressly replaces Article 3, Article 6 and Article 9 of 152-FZ. Article 3(1) sets entry into force on official publication; Article 3(2) separately gives retroactive application to legal relationships from 2011-07-01. A secondary bibliographic record identifies Rossiyskaya Gazeta No. 162 dated 2011-07-27. Keep official_text_retrieved=false and do not assign a portal publication ID. The Ministry of Labour's official consolidated 152-FZ text also marks this article as amended by 261-ФЗ; this is corroborating official consolidated-law evidence, not the original amending act.",
             "official_consolidated_law_source_url": "https://mintrud.gov.ru/docs/laws/130",
-            "official_consolidated_law_source_note": "Official Ministry of Labour-hosted consolidated text of 152-FZ contains an editorial note that this article is in the version of 261-FZ. This supports the amendment-scope attribution but is not the original published text of 261-FZ and does not count as retrieved original act text."
+            "official_consolidated_law_source_note": "Official Ministry of Labour-hosted consolidated text of 152-FZ contains an editorial note that this article is in the version of 261-FZ. This supports the amendment-scope attribution but is not the original published text of 261-FZ and does not count as retrieved original act text.",
+            "secondary_source_class": "secondary_legal_database_or_reference_copy"
           },
           {
             "act_date": "2020-12-30",
@@ -708,10 +909,13 @@
             ],
             "basis": "часть 9 прямо помечена как введённая законом 519-ФЗ",
             "scope_status": "explicit_in_secondary_consolidated_annotation",
-            "effective_from": null,
-            "effective_date_status": "нужна сверка переходного положения",
+            "effective_from": "2021-03-01",
+            "effective_date_status": "Статья 2(1) закона 519-ФЗ устанавливает общую дату вступления в силу 01.03.2021. Исключение — абзац десятый пункта 5 статьи 1 (часть 6 статьи 10.1 о подаче согласия через информационную систему), вступающий в силу 01.07.2021 по статье 2(2); оно не затрагивает изменения статей 3, 6 и 9, внесённые пунктами 1–3 статьи 1. Текст и переходная норма подтверждены вторичными полными копиями; оригинал официальной публикации не получен.",
             "secondary_sources": [
-              "https://www.consultant.ru/document/cons_doc_LAW_61801/6c94959bc017ac80140621762d2ac59f6006b08c/"
+              "https://base.garant.ru/400157172/",
+              "https://www.consultant.ru/document/cons_doc_LAW_372682/",
+              "https://www.consultant.ru/document/cons_doc_LAW_372682/3d0cac60971a511280cbba229d9b6329c07731f7/",
+              "https://www.kontur-extern.ru/info/normativ/document/1/380023-federalnyy-zakon-ot-30-12-2020-n-519-fz"
             ],
             "official_text_retrieved": false,
             "official_publication_identified": true,
@@ -723,7 +927,13 @@
               "exception": "paragraph 10 of item 5 of Article 1 (Article 10.1, part 6, item 2: consent via the information system) effective 2021-07-01; this exception does not apply to the tracked amendments to Articles 3, 6 or 9",
               "source_class": "secondary reproduction of Articles 1 and 2; original official portal body inaccessible"
             },
-            "source_verification_note": "Article 1 maps the tracked changes exactly: Article 3 point 1.1; Article 6 item 10 part 1 repealed; Article 9 part 9 added. The delayed paragraph 10 of item 5 is Article 10.1 part 6 item 2 and is not one of these three tracked provisions. Secondary text only; official publication body not retrieved."
+            "source_verification_note": "Статья 1 закона 519-ФЗ прямо: пункт 1 дополняет статью 3 пунктом 1.1; пункт 2 признаёт утратившим силу пункт 10 части 1 статьи 6; пункт 3 дополняет статью 9 частью 9. Статья 2(1) вводит закон в силу 01.03.2021. Статья 2(2) откладывает до 01.07.2021 только абзац десятый пункта 5 статьи 1 — норму о подаче согласия через информационную систему по статье 10.1(6)(2), а не поправки к отслеживаемым статьям 3, 6 и 9. Официальная консолидированная редакция Минтруда также помечает пункт 1.1 статьи 3 как введённый 519-ФЗ. Это подтверждающие вторичные и официально-консолидированные источники, но не извлечённое оригинальное тело официальной публикации; official_text_retrieved остаётся false.",
+            "government_corroboration": {
+              "source_id": "mintrud-152-consolidated-20261107",
+              "original_act_body_retrieved": false,
+              "limitation": "Сверены редакционные пометы консолидированной ведомственной копии; подлинная публикация изменяющего акта не получена."
+            },
+            "secondary_source_class": "secondary_legal_database_or_reference_copy"
           },
           {
             "act_date": "2022-07-14",
@@ -736,7 +946,8 @@
             "effective_from": "2022-09-01",
             "effective_date_status": "secondary copy of Article 6: tracked Article 1 points 3 and 4 are not among the delayed exceptions; primary publication body still not retrieved",
             "secondary_sources": [
-              "https://www.consultant.ru/document/cons_doc_LAW_61801/6c94959bc017ac80140621762d2ac59f6006b08c/"
+              "https://base.garant.ru/404993577/",
+              "https://www.consultant.ru/document/cons_doc_LAW_421898/"
             ],
             "official_text_retrieved": false,
             "official_publication_identified": true,
@@ -748,7 +959,13 @@
               "exception": "Article 6(2) delays Article 1 point 7, paragraph 5 of subparagraph a of point 10, subparagraph g of point 13, subparagraph d of point 14, subparagraph g of point 15, and Articles 3-5 until 2023-03-01; tracked amendments to Article 6 (point 3) and Article 9 (point 4) are not listed and follow the general date",
               "source_class": "secondary reproduction of Articles 1 and 6"
             },
-            "source_verification_note": "Article 1 point 3 changes Article 6 (paragraphs 5(1), 3 and new 6); point 4 changes Article 9 part 1. Article 6(2) delayed list does not include these points, so the secondary text supports 2022-09-01 for both. Official body remains unretrieved."
+            "source_verification_note": "Article 1 point 3 changes Article 6 (paragraphs 5(1), 3 and new 6); point 4 changes Article 9 part 1. Article 6(2) delayed list does not include these points, so the secondary text supports 2022-09-01 for both. Official body remains unretrieved.",
+            "government_corroboration": {
+              "source_id": "mintrud-152-consolidated-20261107",
+              "original_act_body_retrieved": false,
+              "limitation": "Сверены редакционные пометы консолидированной ведомственной копии; подлинная публикация изменяющего акта не получена."
+            },
+            "secondary_source_class": "secondary_legal_database_or_reference_copy"
           },
           {
             "act_date": "2025-06-24",
@@ -759,10 +976,10 @@
             "basis": "редакционная помета к части 1 после 266-ФЗ",
             "scope_status": "explicit_in_secondary_consolidated_annotation",
             "effective_from": "2025-09-01",
-            "effective_date_status": "статья 7(2) прямо откладывает статью 5 до 01.09.2025; установлено по доступной вторичной копии",
+            "effective_date_status": "2025-09-01 additionally corroborated by official prosecutor explanation dated 2025-06-30; original Article 7 still not retrieved",
             "secondary_sources": [
-              "https://www.consultant.ru/document/cons_doc_LAW_61801/6c94959bc017ac80140621762d2ac59f6006b08c/",
-              "https://base.garant.ru/12148567/"
+              "https://base.garant.ru/412210426/",
+              "https://gb-dnr.ru/normative-base/detail/1747"
             ],
             "official_text_retrieved": false,
             "official_publication_identified": true,
@@ -774,7 +991,53 @@
               "exception": "Article 5 (amendment to Article 9 part 1 of 152-FZ) enters into force 2025-09-01 under Article 7(2)",
               "source_class": "secondary reproduction of Articles 5 and 7"
             },
-            "source_verification_note": "Article 5 adds a requirement to Article 9 part 1 that consent be separate from other information/documents. Article 7(2) specifically delays Article 5 until 2025-09-01. Official publication ID identified; original portal body not retrieved."
+            "source_verification_note": "Article 5 adds a requirement to Article 9 part 1 that consent be separate from other information/documents. Article 7(2) specifically delays Article 5 until 2025-09-01. Official publication ID identified; original portal body not retrieved.",
+            "government_corroboration": {
+              "source_id": "mintrud-152-consolidated-20261107",
+              "original_act_body_retrieved": false,
+              "limitation": "Сверены редакционные пометы консолидированной ведомственной копии; подлинная публикация изменяющего акта не получена.",
+              "explanation_source_id": "prosecutor-156-consent-20250630"
+            },
+            "secondary_source_class": "secondary_legal_database_or_reference_copy"
+          },
+          {
+            "act_date": "2010-07-27",
+            "act_number": "227-ФЗ",
+            "scope": [
+              "часть 4",
+              "часть 4.1"
+            ],
+            "basis": "Статья 23 закона 227-ФЗ прямо изменяет часть 4 статьи 9 152-ФЗ и дополняет статью 9 частью 4.1; это предметная поправка к отслеживаемой статье 9.",
+            "scope_status": "explicit_in_secondary_full_act_text",
+            "effective_from": "2011-01-01",
+            "effective_date_status": "Статья 29(1) закона 227-ФЗ устанавливает общую дату вступления 01.01.2011; специальные исключения статьи 29 не относятся к статье 23.",
+            "secondary_sources": [
+              "https://www.consultant.ru/document/cons_doc_LAW_103104/dcf6a9cdf6136b9a410d2f953eec0cf0887b7b6a/",
+              "https://www.kontur-extern.ru/info/normativ/document/1/160297-federalny-zakon-ot-27-07-2010-n-227-fz"
+            ],
+            "official_text_retrieved": false,
+            "official_publication_identified": false,
+            "official_publication_id": null,
+            "official_document_url": null,
+            "official_retrieval_status": "secondary_article_text_and_commencement_clause; original_official_publication_body_not_retrieved",
+            "transition_provision": {
+              "general_effective_date": "2011-01-01",
+              "rule": "Article 29(1): the law enters into force on 01.01.2011; Article 29(2)-(4) exceptions do not include Article 23",
+              "source_class": "secondary reproduction of Article 23 and Article 29"
+            },
+            "source_verification_note": "Article 23 expressly rewrites Article 9 part 4 and adds part 4.1. Article 29 sets the general effective date. This is a confirmed in-scope candidate mapping based on a secondary full-act reproduction; the original official portal publication body was not retrieved. Дополнительно обнаружена копия полного текста на поддомене nalog.gov.ru; она фиксируется как размещённая государственным органом копия, но не как оригинальная запись официального опубликования. Вторичная библиографическая запись указывает Российскую газету №169 от 02.08.2010.",
+            "secondary_source_class": "secondary_legal_database_or_reference_copy",
+            "government_hosted_full_text_copy": {
+              "url": "https://www.nalog.gov.ru/html/sites/www.rn31.nalog.ru/zak/227fz.pdf",
+              "host": "nalog.gov.ru",
+              "classification": "government-hosted reproduction of the law text; not the original official publication record",
+              "publication_metadata_secondary": {
+                "edition": "Российская газета",
+                "issue": "169",
+                "date": "2010-08-02",
+                "corroborating_source": "https://www.kontur-extern.ru/info/normativ/document/1/160297-federalny-zakon-ot-27-07-2010-n-227-fz"
+              }
+            }
           }
         ],
         "gaps": [
@@ -786,12 +1049,17 @@
     ],
     "summary": {
       "articles_covered": 3,
-      "candidate_act_article_links": 17,
+      "candidate_act_article_links": 21,
       "official_act_texts_retrieved": 0,
       "verified": false,
-      "coverage_verified": false,
-      "official_publication_records_identified": 5,
-      "note": "Five official publication records have been identified by publication number, but zero original document bodies were successfully retrieved and parsed from the official portal."
+      "candidate_links_by_article": {
+        "3": 2,
+        "6": 14,
+        "9": 5
+      },
+      "distinct_candidate_acts": 16,
+      "note": "Подсчёт включает связи, найденные по вторичным полным текстам и редакционным пометам официального консолидированного текста; не означает первичную юридическую верификацию. Для 204-ФЗ от 27.07.2010 дополняет пунктом 2.2 часть 2 статьи 10 (статья 2 изменяющего закона), а не статью 6; он учитывается как out-of-scope контроль. Статья 23 закона 227-ФЗ от 27.07.2010 изменяет части 4 и 4.1 статьи 9; статья 29 устанавливает общий срок вступления 01.01.2011. Оригиналы официальных публикаций не получены. 200-ФЗ от 07.07.2025 добавлен в основной инвентарь как отдельный акт: статья 2 изменяет пункт 7 части 2 статьи 10; пункт 2 статьи 1 вступил в силу 07.07.2025, остальная часть закона — 01.03.2027. Полный текст доступен в PDF-копии, подготовленной АО «Кодекс» и сверенной по порталу, но оригинальное тело публикации с портала не загружено.",
+      "out_of_scope_checks": 20
     },
     "gaps": [
       "Получить тело официальной публикации 0001202012300044 (519-ФЗ) и точно сопоставить исключение с частью/пунктом 152-ФЗ.",
@@ -799,7 +1067,9 @@
       "Получить тело официальной публикации 0001202207140080 (266-ФЗ), разобрать статью 5 и разнести исключения по каждому изменённому положению.",
       "Разрешить официальные номера публикаций и получить тексты 261-ФЗ от 25.07.2011 и 233-ФЗ от 08.08.2024.",
       "Получить тело официальной публикации 0001202506240021 (156-ФЗ), разобрать статью 7 и связать переходные сроки с частью 1 статьи 9.",
-      "Не использовать даты из вторичных справочных систем как первично подтверждённые даты действия."
+      "Не использовать даты из вторичных справочных систем как первично подтверждённые даты действия.",
+      "Для добавленной связи 148-ФЗ → статья 6, часть 1.1 установлены статья изменяющего закона (статья 11) и дата по вторичной копии/библиографической записи; оригинальная официальная публикация и её ID не получены.",
+      "Для 363-ФЗ от 21.12.2013 установлена статья 7 (изменяет пункт 5 части 1 статьи 6) и дата вступления 01.07.2014 по статье 12; найти/зафиксировать идентификатор официальной публикации и получить оригинальное тело."
     ],
     "official_consolidated_sources": [
       {
@@ -814,7 +1084,643 @@
         "original_amending_act_body": false,
         "counts_as_original_act_retrieval": false,
         "notes": "Официальная копия консолидированного 152-ФЗ с редакционными пометами. Подтверждает атрибуцию редакции, но не заменяет получение оригинального текста 261-ФЗ."
+      },
+      {
+        "name": "Официальный интернет-портал правовой информации — интегрированный банк «Законодательство России», консолидированный текст 152-ФЗ",
+        "url": "https://pravo.gov.ru/proxy/ips/?bpa=cd00000&bpas=cd00000&docbody=&link_id=0&nd=102801479",
+        "source_type": "official_integrated_bank_consolidated_law",
+        "document_id": "102801479",
+        "relevant_amendment_marks": [
+          "в тексте отражены изменения, внесённые 261-ФЗ, 519-ФЗ, 123-ФЗ, 266-ФЗ, 233-ФЗ и 156-ФЗ"
+        ],
+        "original_amending_act_body": false,
+        "counts_as_original_act_retrieval": false,
+        "notes": "Официальный портал указывает, что тексты федеральных законов в интегрированном полнотекстовом банке имеют статус официальных. Это консолидированный текст 152-ФЗ, а не самостоятельные оригиналы изменяющих актов; он может подтверждать редакционные отметки, но не заменяет получение и проверку оригинальных тел пяти публикаций и 261-ФЗ."
       }
-    ]
-  }
+    ],
+    "secondary_act_text_inventory": [
+      {
+        "act": "123-ФЗ",
+        "date": "2011-06-04",
+        "source_class": "secondary_legal_database_or_reference_copy",
+        "urls": [
+          "https://www.consultant.ru/document/cons_doc_LAW_114675/5bdc78bf7e3015a0ea0c0ea5bef708a6c79e2f0a/",
+          "https://base.garant.ru/12186467/",
+          "https://www.kontur-extern.ru/info/normativ/document/1/179687-federalnyy-zakon-ot-04-06-2011-n-123-fz"
+        ],
+        "primary_official_text_retrieved": false,
+        "note": "Статья 5 изменяющего закона дополняет часть 2 статьи 6 152-ФЗ пунктом 5.1. Статья 9: вступление по истечении 10 дней после опубликования; вторичные источники указывают Российскую газету №121 от 07.06.2011 и дату 18.06.2011. Оригинал официальной публикации не получен.",
+        "official_publication_id": null,
+        "official_publication_url": null,
+        "official_portal_page_accessible_in_research_session": false
+      },
+      {
+        "act": "266-ФЗ",
+        "date": "2009-11-25",
+        "source_class": "secondary_legal_database_or_reference_copy",
+        "urls": [
+          "https://www.consultant.ru/document/cons_doc_LAW_94106/",
+          "https://base.garant.ru/196676/",
+          "https://normativ.kontur.ru/document?documentId=145738&moduleId=1"
+        ],
+        "primary_official_text_retrieved": false,
+        "note": "Вторичный полный текст статьи 1 подтверждает добавление пункта 1.1 части 2 статьи 6; статья 2 устанавливает вступление через 10 дней после официального опубликования. Вторичные библиографические реквизиты указывают публикацию в Российской газете 27.11.2009 и дату вступления 08.12.2009. Оригинал официальной публикации не получен.",
+        "official_publication_id": null,
+        "official_publication_url": null,
+        "official_portal_page_accessible_in_research_session": false
+      },
+      {
+        "act": "261-ФЗ",
+        "date": "2011-07-25",
+        "source_class": "secondary_legal_database_or_reference_copy",
+        "urls": [
+          "https://base.garant.ru/12188322/",
+          "https://www.consultant.ru/document/cons_doc_LAW_117437/3d0cac60971a511280cbba229d9b6329c07731f/"
+        ],
+        "primary_official_text_retrieved": false,
+        "note": "Вторичные полные тексты/справочные копии. Реквизит официальной публикации приведён отдельно, но HTML/PDF оригинала портала в текущей сессии получить не удалось. Эти ссылки не являются полученным оригинальным телом официальной публикации; не повышать official_text_retrieved/verified на их основании.",
+        "official_publication_id": null,
+        "official_publication_url": null,
+        "official_portal_page_accessible_in_research_session": false
+      },
+      {
+        "act": "148-ФЗ",
+        "date": "2017-07-01",
+        "source_class": "secondary_legal_database_or_reference_copy",
+        "urls": [
+          "https://www.consultant.ru/document/cons_doc_LAW_219027/3eeafbd3bdb64673818bd5cba64081209bddc7a4/",
+          "https://base.garant.ru/71708988/"
+        ],
+        "primary_official_text_retrieved": false,
+        "note": "Вторичный полный текст статьи 11 изменяющего закона и справочная копия полного акта. Статья 11 дополняет статью 6 152-ФЗ частью 1.1; статья 12 устанавливает вступление в силу со дня официального опубликования. Библиографическая запись указывает публикацию 01.07.2017. Оригинальное тело официальной публикации и отдельный ID портала не получены.",
+        "official_publication_id": null,
+        "official_publication_url": null,
+        "official_portal_page_accessible_in_research_session": false
+      },
+      {
+        "act": "519-ФЗ",
+        "date": "2020-12-30",
+        "source_class": "secondary_legal_database_or_reference_copy",
+        "urls": [
+          "https://base.garant.ru/400157172/",
+          "https://www.consultant.ru/document/cons_doc_LAW_372682/"
+        ],
+        "primary_official_text_retrieved": false,
+        "note": "Вторичные полные тексты/справочные копии. Реквизит официальной публикации приведён отдельно, но HTML/PDF оригинала портала в текущей сессии получить не удалось. Эти ссылки не являются полученным оригинальным телом официальной публикации; не повышать official_text_retrieved/verified на их основании.",
+        "official_publication_id": "0001202012300044",
+        "official_publication_url": "https://publication.pravo.gov.ru/document/0001202012300044",
+        "official_portal_page_accessible_in_research_session": false
+      },
+      {
+        "act": "123-ФЗ",
+        "date": "2020-04-24",
+        "source_class": "secondary_legal_database_or_reference_copy",
+        "urls": [
+          "https://base.garant.ru/73945195/",
+          "https://www.kontur-extern.ru/info/normativ/document/1/501357-federalnyy-zakon-ot-24-04-2020-n-123-fz"
+        ],
+        "primary_official_text_retrieved": false,
+        "note": "Вторичные полные тексты/справочные копии. Реквизит официальной публикации приведён отдельно, но HTML/PDF оригинала портала в текущей сессии получить не удалось. Эти ссылки не являются полученным оригинальным телом официальной публикации; не повышать official_text_retrieved/verified на их основании.",
+        "official_publication_id": "0001202004240030",
+        "official_publication_url": "https://publication.pravo.gov.ru/document/0001202004240030",
+        "official_portal_page_accessible_in_research_session": false
+      },
+      {
+        "act": "266-ФЗ",
+        "date": "2022-07-14",
+        "source_class": "secondary_legal_database_or_reference_copy",
+        "urls": [
+          "https://base.garant.ru/404993577/",
+          "https://www.consultant.ru/document/cons_doc_LAW_421898/"
+        ],
+        "primary_official_text_retrieved": false,
+        "note": "Вторичные полные тексты/справочные копии. Реквизит официальной публикации приведён отдельно, но HTML/PDF оригинала портала в текущей сессии получить не удалось. Эти ссылки не являются полученным оригинальным телом официальной публикации; не повышать official_text_retrieved/verified на их основании.",
+        "official_publication_id": "0001202207140080",
+        "official_publication_url": "https://publication.pravo.gov.ru/document/0001202207140080",
+        "official_portal_page_accessible_in_research_session": false
+      },
+      {
+        "act": "233-ФЗ",
+        "date": "2024-08-08",
+        "source_class": "secondary_legal_database_or_reference_copy",
+        "urls": [
+          "https://base.garant.ru/409493125/",
+          "https://www.gb-dnr.ru/normative-base/detail/1387"
+        ],
+        "primary_official_text_retrieved": false,
+        "note": "Вторичные полные тексты/справочные копии. Реквизит официальной публикации приведён отдельно, но HTML/PDF оригинала портала в текущей сессии получить не удалось. Эти ссылки не являются полученным оригинальным телом официальной публикации; не повышать official_text_retrieved/verified на их основании.",
+        "official_publication_id": "0001202408080031",
+        "official_publication_url": "https://publication.pravo.gov.ru/document/0001202408080031",
+        "official_portal_page_accessible_in_research_session": false
+      },
+      {
+        "act": "156-ФЗ",
+        "date": "2025-06-24",
+        "source_class": "secondary_legal_database_or_reference_copy",
+        "urls": [
+          "https://base.garant.ru/412210426/",
+          "https://gb-dnr.ru/normative-base/detail/1747"
+        ],
+        "primary_official_text_retrieved": false,
+        "note": "Вторичные полные тексты/справочные копии. Реквизит официальной публикации приведён отдельно, но HTML/PDF оригинала портала в текущей сессии получить не удалось. Эти ссылки не являются полученным оригинальным телом официальной публикации; не повышать official_text_retrieved/verified на их основании.",
+        "official_publication_id": "0001202506240021",
+        "official_publication_url": "https://publication.pravo.gov.ru/document/0001202506240021",
+        "official_portal_page_accessible_in_research_session": false
+      },
+      {
+        "act": "43-ФЗ",
+        "date": "2013-04-05",
+        "source_class": "secondary_legal_database_or_reference_copy",
+        "urls": [
+          "https://www.consultant.ru/document/cons_doc_LAW_144623/f51700d2ae0027918bb1e3e6d0bdc304780a94f5/",
+          "https://www.consultant.ru/document/cons_doc_LAW_144623/cf263474fe8f61f36de177f9d0320494463bf210/"
+        ],
+        "primary_official_text_retrieved": false,
+        "note": "Вторичные тексты статьи 33 (поправка к статье 6 часть 1 пункт 4 152-ФЗ) и статьи 36 (вступление в силу после 10 дней от официального опубликования).",
+        "official_publication_id": null,
+        "official_publication_url": null,
+        "official_portal_page_accessible_in_research_session": false
+      },
+      {
+        "act": "223-ФЗ",
+        "date": "2017-07-29",
+        "source_class": "secondary_legal_database_or_reference_copy",
+        "urls": [
+          "https://www.consultant.ru/document/cons_doc_LAW_221222/ad890e68b83c920baeae9bb9fdc9b94feb1af0ad/",
+          "https://www.kontur-extern.ru/info/normativ/document/1/298014-federalnyy-zakon-ot-29-07-2017-n-223-fz"
+        ],
+        "primary_official_text_retrieved": false,
+        "note": "Вторичная копия статьи 4 подтверждает изменение статьи 6 части 1 пункта 3 и добавление пункта 3.1; библиографическая запись указывает публикацию 30.07.2017 и вступление 10.08.2017.",
+        "official_publication_id": null,
+        "official_publication_url": null,
+        "official_portal_page_accessible_in_research_session": false
+      },
+      {
+        "act": "231-ФЗ",
+        "date": "2016-07-03",
+        "source_class": "secondary_legal_database_or_reference_copy",
+        "urls": [
+          "https://www.kontur-extern.ru/info/normativ/document/1/289196-federalnyy-zakon-ot-03-07-2016-n-231-fz",
+          "https://normativ.kontur.ru/document/1/289196-federalnyy-zakon-ot-03-07-2016-n-231-fz"
+        ],
+        "primary_official_text_retrieved": false,
+        "note": "Вторичные тексты/реквизиты; статья 7 указывает вступление в силу 01.01.2017; консолидированная статья 6 связывает с актом пункты 5 и 7.",
+        "official_publication_id": null,
+        "official_publication_url": null,
+        "official_portal_page_accessible_in_research_session": false
+      },
+      {
+        "act": "363-ФЗ",
+        "date": "2013-12-21",
+        "source_class": "secondary_legal_database_or_reference_copy",
+        "urls": [
+          "https://www.consultant.ru/document/cons_doc_LAW_156013/6a73a7e61adc45fc3dd224c0e7194a1392c8b071/",
+          "https://www.consultant.ru/document/cons_doc_LAW_94223/0f7e930df06dc40475c0b9570f4d824ce35c4f06/",
+          "https://www.kontur-extern.ru/info/normativ/document/1/223103-federalnyy-zakon-ot-21-12-2013-n-363-fz"
+        ],
+        "primary_official_text_retrieved": false,
+        "note": "Полный вторичный текст статьи 7 подтверждает поправку к пункту 5 части 1 статьи 6 152-ФЗ. Ранее внесённая классификация как not_in_scope была ошибочной: просмотренный фрагмент полного закона не включал статью 7. Статья 12 устанавливает вступление в силу 01.07.2014; опубликование на pravo.gov.ru указано как 23.12.2013.",
+        "official_publication_id": null,
+        "official_publication_url": null,
+        "official_portal_page_accessible_in_research_session": false
+      },
+      {
+        "act": "363-ФЗ",
+        "date": "2009-12-27",
+        "source_class": "secondary_legal_database_or_reference_copy",
+        "urls": [
+          "https://www.gov45.ru/assets/files/electronic_government/zaschita_personal_dannyh/zakon_rf_2009-12-27_363-fz.pdf"
+        ],
+        "primary_official_text_retrieved": false,
+        "note": "Вторичная PDF-копия: статья 1 меняет статьи 19 и 25 152-ФЗ; целевые статьи 3, 6, 9 не затронуты.",
+        "official_publication_id": null,
+        "official_publication_url": null,
+        "official_portal_page_accessible_in_research_session": false
+      },
+      {
+        "act": "331-ФЗ",
+        "date": "2021-07-02",
+        "source_class": "secondary_legal_database_or_reference_copy",
+        "urls": [
+          "https://www.consultant.ru/document/cons_doc_LAW_389015/5bdc78bf7e3015a0ea0c0ea5bef708a6c79e2f0a/",
+          "https://base.garant.ru/401421446/",
+          "https://spa.msu.ru/wp-content/uploads/54-1.pdf"
+        ],
+        "primary_official_text_retrieved": false,
+        "note": "Вторичный текст статьи 5 подтверждает поправку к пункту 9.1 части 1 статьи 6; статья 12 устанавливает вступление в силу в день официального опубликования 02.07.2021.",
+        "official_publication_id": "0001202107020046",
+        "official_publication_url": "https://publication.pravo.gov.ru/document/0001202107020046",
+        "official_portal_page_accessible_in_research_session": false
+      },
+      {
+        "act": "23-ФЗ",
+        "date": "2025-02-28",
+        "source_class": "secondary_legal_database_or_reference_copy",
+        "urls": [
+          "https://www.consultant.ru/document/cons_doc_LAW_499984/3d0cac60971a511280cbba229d9b6329c07731f7/",
+          "https://www.consultant.ru/document/cons_doc_LAW_499984/b62da3aeb315547b6915beadea02920bd7dd4c41/",
+          "https://www.kontur-extern.ru/info/normativ/document/1/489745-federalnyy-zakon-ot-28-02-2025-n-23-fz"
+        ],
+        "primary_official_text_retrieved": false,
+        "note": "Вторичные тексты статей 1 и 10: часть 1.2 статьи 6 введена законом 23-ФЗ, вступление в силу — 01.07.2025.",
+        "official_publication_id": "0001202502280034",
+        "official_publication_url": "https://publication.pravo.gov.ru/document/0001202502280034",
+        "official_portal_page_accessible_in_research_session": false
+      }
+    ],
+    "out_of_scope_amendment_checks": [
+      {
+        "act": "519-ФЗ",
+        "date": "2024-12-28",
+        "official_publication_id": "0001202412280021",
+        "official_publication_url": "https://publication.pravo.gov.ru/document/0001202412280021",
+        "checked_articles": [
+          "3",
+          "6",
+          "9"
+        ],
+        "result": "not_in_scope",
+        "basis": "Название и статья 1 изменяющего акта ограничивают поправки статьями 10 и 11 152-ФЗ; изменений статей 3, 6 или 9 не установлено.",
+        "secondary_sources": [
+          "https://www.consultant.ru/document/cons_doc_LAW_494799/",
+          "https://base.garant.ru/411232503/"
+        ],
+        "official_text_retrieved": false,
+        "source_class": "secondary_full_act_text_and_reference_copy",
+        "note": "Номер официальной публикации идентифицирован по вторичным реквизитам; оригинальное тело официальной публикации не загружено."
+      },
+      {
+        "act": "121-ФЗ",
+        "date": "2025-05-23",
+        "official_publication_id": "0001202505230034",
+        "official_publication_url": "https://publication.pravo.gov.ru/document/0001202505230034",
+        "checked_articles": [
+          "3",
+          "6",
+          "9"
+        ],
+        "result": "not_in_scope",
+        "basis": "Статья 3 закона 121-ФЗ меняет часть 2 статьи 11 152-ФЗ; изменения статей 3, 6 или 9 в проверенном тексте не выявлены.",
+        "secondary_sources": [
+          "https://www.consultant.ru/document/cons_doc_LAW_505834/30b3f8c55f65557c253227a65b908cc075ce114a/",
+          "https://base.garant.ru/412059740/5ac206a89ea76855804609cd950fcaf7/"
+        ],
+        "official_text_retrieved": false,
+        "source_class": "secondary_full_act_text_and_reference_copy",
+        "note": "Номер официальной публикации идентифицирован по вторичным реквизитам; оригинальное тело официальной публикации не загружено."
+      },
+      {
+        "act": "265-ФЗ",
+        "date": "2026-07-26",
+        "official_publication_id": "0001202607260024",
+        "official_publication_url": "https://publication.pravo.gov.ru/document/0001202607260024",
+        "checked_articles": [
+          "3",
+          "6",
+          "9"
+        ],
+        "result": "not_in_scope",
+        "basis": "Статья 1 изменяющего закона посвящена статье 12 152-ФЗ; перечисленные в текущем fixture изменения статьи 12 не относятся к отслеживаемым статьям 3, 6 или 9.",
+        "secondary_sources": [
+          "https://www.consultant.ru/document/cons_doc_LAW_540340/",
+          "https://base.garant.ru/414652990/"
+        ],
+        "official_text_retrieved": false,
+        "source_class": "secondary_full_act_text_and_reference_copy",
+        "note": "Номер официальной публикации идентифицирован по вторичным реквизитам; оригинальное тело официальной публикации не загружено."
+      },
+      {
+        "act": "200-ФЗ",
+        "date": "2025-07-07",
+        "official_publication_id": "0001202507070020",
+        "official_publication_url": "https://publication.pravo.gov.ru/document/0001202507070020",
+        "checked_articles": [
+          "3",
+          "6",
+          "9"
+        ],
+        "result": "not_in_scope",
+        "basis": "Статья 2 закона изменяет пункт 7 части 2 статьи 10 152-ФЗ; изменений статей 3, 6 или 9 не установлено. По статье 3(1) основное изменение вступает в силу 01.03.2027; исключение — пункт 2 статьи 1, вступивший в силу в день официального опубликования 07.07.2025.",
+        "secondary_sources": [
+          "https://base.garant.ru/412293502/",
+          "https://www.kontur-extern.ru/info/normativ/document/1/500402-federalnyy-zakon-ot-07-07-2025-n-200-fz",
+          "https://proinfosoft.ru/assets/files/news/2025/07072025N200.pdf"
+        ],
+        "official_text_retrieved": false,
+        "source_class": "secondary_full_act_reproduction_with_portal_verification_imprint",
+        "note": "Официальный идентификатор публикации подтверждён вторичными реквизитами; оригинальное тело публикации не загружено. Отложенное вступление основной поправки не меняет её предметную область: статья 10. Дополнительно зафиксирована PDF-копия полного текста, в колонтитуле которой указано, что электронный текст подготовлен АО «Кодекс» и сверен по официальному интернет-порталу; это подтверждающий вторичный экземпляр, не прямая выгрузка оригинального тела с портала."
+      },
+      {
+        "act": "363-ФЗ",
+        "date": "2009-12-27",
+        "checked_articles": [
+          "3",
+          "6",
+          "9"
+        ],
+        "result": "not_in_scope",
+        "basis": "Статья 1 закона 363-ФЗ от 27.12.2009 меняет статьи 19 и 25 152-ФЗ, но не статьи 3, 6 или 9.",
+        "secondary_sources": [
+          "https://www.gov45.ru/assets/files/electronic_government/zaschita_personal_dannyh/zakon_rf_2009-12-27_363-fz.pdf"
+        ],
+        "official_text_retrieved": false,
+        "source_class": "secondary_full_act_text_and_reference_copy",
+        "note": "Вторичная PDF-копия полного текста закона. Оригинал официальной публикации не получен."
+      },
+      {
+        "act": "313-ФЗ",
+        "date": "2010-11-29",
+        "official_publication_id": null,
+        "official_publication_url": null,
+        "checked_articles": [
+          "3",
+          "6",
+          "9"
+        ],
+        "result": "not_in_scope",
+        "basis": "Статья 11 закона 313-ФЗ дополняет часть 2 статьи 10 152-ФЗ пунктом 8. В проверенном полном тексте поправка адресована статье 10; изменений статей 3, 6 или 9 не установлено.",
+        "secondary_sources": [
+          "https://www.consultant.ru/document/cons_doc_LAW_107277/3eeafbd3bdb64673818bd5cba64081209bddc7a4/"
+        ],
+        "official_text_retrieved": false,
+        "source_class": "secondary_full_act_text_and_reference_copy",
+        "note": "Текст статьи 11 проверен по вторичной копии ConsultantPlus. Оригинал официальной публикации и её идентификатор не получены."
+      },
+      {
+        "act": "123-ФЗ",
+        "date": "2010-06-28",
+        "official_publication_id": null,
+        "official_publication_url": null,
+        "checked_articles": [
+          "3",
+          "6",
+          "9"
+        ],
+        "result": "not_in_scope",
+        "basis": "Статья 1 закона дополняет пунктом 5 часть 2 статьи 1 152-ФЗ; это не статьи 3, 6 или 9.",
+        "secondary_sources": [
+          "https://www.kontur-extern.ru/info/normativ/document/1/158312-federalnyy-zakon-ot-28-06-2010-n-123-fz"
+        ],
+        "official_text_retrieved": false,
+        "source_class": "secondary_full_act_text_and_reference_copy",
+        "note": "Проверенный текст изменяющего закона адресует иную статью 152-ФЗ; оригинал официальной публикации в этой среде не загружен."
+      },
+      {
+        "act": "359-ФЗ",
+        "date": "2010-12-23",
+        "official_publication_id": null,
+        "official_publication_url": null,
+        "checked_articles": [
+          "3",
+          "6",
+          "9"
+        ],
+        "result": "not_in_scope",
+        "basis": "Статья 1 изменяет часть 3 статьи 25 152-ФЗ; это не статьи 3, 6 или 9.",
+        "secondary_sources": [
+          "https://normativ.kontur.ru/document?documentId=170201&moduleId=1",
+          "https://dou17dz.ucoz.ru/fzot23.12.2010-359-fz.pdf"
+        ],
+        "official_text_retrieved": false,
+        "source_class": "secondary_full_act_text_and_reference_copy",
+        "note": "Проверенный текст изменяющего закона адресует иную статью 152-ФЗ; оригинал официальной публикации в этой среде не загружен."
+      },
+      {
+        "act": "205-ФЗ",
+        "date": "2013-07-23",
+        "official_publication_id": null,
+        "official_publication_url": null,
+        "checked_articles": [
+          "3",
+          "6",
+          "9"
+        ],
+        "result": "not_in_scope",
+        "basis": "Редакционная помета к пункту 7.1 части 2 статьи 10 указывает на введение этого пункта законом 205-ФЗ; целевые статьи 3, 6 и 9 не затронуты.",
+        "secondary_sources": [
+          "https://mintrud.gov.ru/docs/laws/130"
+        ],
+        "official_text_retrieved": false,
+        "source_class": "secondary_full_act_text_and_reference_copy",
+        "note": "Проверенный текст изменяющего закона адресует иную статью 152-ФЗ; оригинал официальной публикации в этой среде не загружен."
+      },
+      {
+        "act": "142-ФЗ",
+        "date": "2014-06-04",
+        "official_publication_id": null,
+        "official_publication_url": null,
+        "checked_articles": [
+          "3",
+          "6",
+          "9"
+        ],
+        "result": "not_in_scope",
+        "basis": "Статья 5 закона дополняет пунктом 10 часть 2 статьи 10 и расширяет часть 2 статьи 11; статьи 3, 6 и 9 не изменяются.",
+        "secondary_sources": [
+          "https://www.consultant.ru/document/cons_doc_LAW_163933/5bdc78bf7e3015a0ea0c0ea5bef708a6c79e2f0a/",
+          "https://www.kontur-extern.ru/info/normativ/document/1/232661-federalnyy-zakon-ot-04-06-2014-n-142-fz"
+        ],
+        "official_text_retrieved": false,
+        "source_class": "secondary_full_act_text_and_reference_copy",
+        "note": "Проверенный текст изменяющего закона адресует иную статью 152-ФЗ; оригинал официальной публикации в этой среде не загружен."
+      },
+      {
+        "act": "216-ФЗ",
+        "date": "2014-07-21",
+        "official_publication_id": null,
+        "official_publication_url": null,
+        "checked_articles": [
+          "3",
+          "6",
+          "9"
+        ],
+        "result": "not_in_scope",
+        "basis": "Изменения пункта 2.3 части 2 статьи 10 152-ФЗ вступают в силу 01.01.2015; это не целевые статьи 3, 6 или 9.",
+        "secondary_sources": [
+          "https://www.kontur-extern.ru/info/normativ/document/1/235422-federalny-zakon-ot-21-07-2014-n-216-fz",
+          "https://ufo.rosnedra.gov.ru/data/Fast/Files/202302/48860536f53bcad45d84590f8a457566.pdf"
+        ],
+        "official_text_retrieved": false,
+        "source_class": "secondary_full_act_text_and_reference_copy",
+        "note": "Проверенный текст изменяющего закона адресует иную статью 152-ФЗ; оригинал официальной публикации в этой среде не загружен."
+      },
+      {
+        "act": "242-ФЗ",
+        "date": "2014-07-21",
+        "official_publication_id": null,
+        "official_publication_url": null,
+        "checked_articles": [
+          "3",
+          "6",
+          "9"
+        ],
+        "result": "not_in_scope",
+        "basis": "Статья 2 закона изменяет статьи 18, 22 и 23 152-ФЗ; статьи 3, 6 и 9 не затронуты. Вступление в силу 01.09.2015.",
+        "secondary_sources": [
+          "https://www.consultant.ru/document/cons_doc_LAW_165838/b004fed0b70d0f223e4a81f8ad6cd92af90a7e3b/",
+          "https://www.kontur-extern.ru/info/normativ/document/1/235427-federalnyy-zakon-ot-21-07-2014-n-242-fz"
+        ],
+        "official_text_retrieved": false,
+        "source_class": "secondary_full_act_text_and_reference_copy",
+        "note": "Проверенный текст изменяющего закона адресует иную статью 152-ФЗ; оригинал официальной публикации в этой среде не загружен."
+      },
+      {
+        "act": "16-ФЗ",
+        "date": "2017-02-22",
+        "official_publication_id": null,
+        "official_publication_url": null,
+        "checked_articles": [
+          "3",
+          "6",
+          "9"
+        ],
+        "result": "not_in_scope",
+        "basis": "Статья 1 изменяет главу 5 152-ФЗ (государственный контроль/надзор), а не статьи 3, 6 или 9.",
+        "secondary_sources": [
+          "https://www.consultant.ru/document/cons_doc_LAW_213151/3d0cac60971a511280cbba229d9b6329c07731f7/",
+          "https://www.alta.ru/tamdoc/17fz0016/"
+        ],
+        "official_text_retrieved": false,
+        "source_class": "secondary_full_act_text_and_reference_copy",
+        "note": "Проверенный текст изменяющего закона адресует иную статью 152-ФЗ; оригинал официальной публикации в этой среде не загружен."
+      },
+      {
+        "act": "498-ФЗ",
+        "date": "2017-12-31",
+        "official_publication_id": null,
+        "official_publication_url": null,
+        "checked_articles": [
+          "3",
+          "6",
+          "9"
+        ],
+        "result": "not_in_scope",
+        "basis": "Статья 4 дополняет часть 2 статьи 11 152-ФЗ правилом о государственной дактилоскопической регистрации; статьи 3, 6 и 9 не затронуты.",
+        "secondary_sources": [
+          "https://normativ.kontur.ru/document/1/305912-federalnyy-zakon-ot-31-12-2017-n-498-fz"
+        ],
+        "official_text_retrieved": false,
+        "source_class": "secondary_full_act_text_and_reference_copy",
+        "note": "Проверенный текст изменяющего закона адресует иную статью 152-ФЗ; оригинал официальной публикации в этой среде не загружен."
+      },
+      {
+        "act": "480-ФЗ",
+        "date": "2019-12-27",
+        "official_publication_id": null,
+        "official_publication_url": null,
+        "checked_articles": [
+          "3",
+          "6",
+          "9"
+        ],
+        "result": "not_in_scope",
+        "basis": "Статья 4 изменяет часть 2 статьи 11 152-ФЗ, а не статьи 3, 6 или 9.",
+        "secondary_sources": [
+          "https://www.kontur-extern.ru/info/normativ/document/1/441153-federalnyy-zakon-ot-27-12-2019-n-480-fz"
+        ],
+        "official_text_retrieved": false,
+        "source_class": "secondary_full_act_text_and_reference_copy",
+        "note": "Проверенный текст изменяющего закона адресует иную статью 152-ФЗ; оригинал официальной публикации в этой среде не загружен."
+      },
+      {
+        "act": "429-ФЗ",
+        "date": "2020-12-08",
+        "official_publication_id": null,
+        "official_publication_url": null,
+        "checked_articles": [
+          "3",
+          "6",
+          "9"
+        ],
+        "result": "not_in_scope",
+        "basis": "Статья 80 дополняет статью 4 152-ФЗ частью 5; целевые статьи 3, 6 и 9 не затронуты.",
+        "secondary_sources": [
+          "https://www.consultant.ru/document/cons_doc_LAW_370097/235d5482c75720470efbc17daf32eec0cf2e3174/"
+        ],
+        "official_text_retrieved": false,
+        "source_class": "secondary_full_act_text_and_reference_copy",
+        "note": "Проверенный текст изменяющего закона адресует иную статью 152-ФЗ; оригинал официальной публикации в этой среде не загружен."
+      },
+      {
+        "act": "515-ФЗ",
+        "date": "2020-12-30",
+        "official_publication_id": null,
+        "official_publication_url": null,
+        "checked_articles": [
+          "3",
+          "6",
+          "9"
+        ],
+        "result": "not_in_scope",
+        "basis": "Статья 3 дополняет пункт 6 части 2 статьи 19 152-ФЗ; целевые статьи 3, 6 и 9 не затронуты.",
+        "secondary_sources": [
+          "https://www.consultant.ru/document/cons_doc_LAW_372684/30b3f8c55f65557c253227a65b908cc075ce114a/"
+        ],
+        "official_text_retrieved": false,
+        "source_class": "secondary_full_act_text_and_reference_copy",
+        "note": "Проверенный текст изменяющего закона адресует иную статью 152-ФЗ; оригинал официальной публикации в этой среде не загружен."
+      },
+      {
+        "act": "170-ФЗ",
+        "date": "2021-06-11",
+        "official_publication_id": null,
+        "official_publication_url": null,
+        "checked_articles": [
+          "3",
+          "6",
+          "9"
+        ],
+        "result": "not_in_scope",
+        "basis": "Статья 74 изменяет главу 5 152-ФЗ и вводит статью 23.1; статьи 3, 6 и 9 не затронуты.",
+        "secondary_sources": [
+          "https://www.mos.ru/upload/content/files/170-FZ.pdf",
+          "https://www.kontur-extern.ru/info/normativ/document/1/454973-federalnyy-zakon-ot-11-06-2021-n-170-fz"
+        ],
+        "official_text_retrieved": false,
+        "source_class": "secondary_full_act_text_and_reference_copy",
+        "note": "Проверенный текст изменяющего закона адресует иную статью 152-ФЗ; оригинал официальной публикации в этой среде не загружен."
+      },
+      {
+        "act": "8-ФЗ",
+        "date": "2023-02-06",
+        "official_publication_id": null,
+        "official_publication_url": null,
+        "checked_articles": [
+          "3",
+          "6",
+          "9"
+        ],
+        "result": "not_in_scope",
+        "basis": "Статья 2 изменяет часть 2 статьи 11 152-ФЗ, добавляя упоминание обязательной государственной геномной регистрации; целевые статьи 3, 6 и 9 не затронуты.",
+        "secondary_sources": [
+          "https://www.consultant.ru/document/cons_doc_LAW_439120/b004fed0b70d0f223e4a81f8ad6cd92af90a7e3b/"
+        ],
+        "official_text_retrieved": false,
+        "source_class": "secondary_full_act_text_and_reference_copy",
+        "note": "Проверенный текст изменяющего закона адресует иную статью 152-ФЗ; оригинал официальной публикации в этой среде не загружен."
+      },
+      {
+        "act": "204-ФЗ",
+        "date": "2010-07-27",
+        "official_publication_id": null,
+        "official_publication_url": null,
+        "checked_articles": [
+          "3",
+          "6",
+          "9"
+        ],
+        "result": "not_in_scope",
+        "basis": "Статья 2 закона 204-ФЗ дополняет пунктом 2.2 часть 2 статьи 10 152-ФЗ; это статья 10, а не целевые статьи 3, 6 или 9.",
+        "secondary_sources": [
+          "https://www.kontur-extern.ru/info/normativ/document/1/160241-federalnyy-zakon-ot-27-07-2010-n-204-fz",
+          "https://mintrud.gov.ru/docs/laws/130"
+        ],
+        "official_text_retrieved": false,
+        "source_class": "secondary_full_act_text_and_official_consolidated_annotation",
+        "note": "Статья 4 закона устанавливает вступление в силу в день официального опубликования; вторичная библиографическая запись указывает 30.07.2010. Оригинальное тело официальной публикации не получено."
+      }
+    ],
+    "source_discrepancies": []
+  },
+  "source_evidence_registry": "fixtures/152fz_source_evidence.json"
 }

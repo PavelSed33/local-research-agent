@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import ipaddress
 import json
 import os
 import re
@@ -67,8 +68,39 @@ def load_dotenv(path: Path = Path(".env")) -> None:
         os.environ.setdefault(key.strip(), value)
 
 
+def validate_service_url(url: str) -> None:
+    """Require encrypted external transport and reject ambiguous endpoint URLs."""
+    try:
+        parsed = urlsplit(url)
+        host = parsed.hostname or ""
+        parsed.port
+    except ValueError:
+        raise AgentError("Некорректный URL внешнего сервиса.") from None
+    local = host.lower() == "localhost"
+    if not local:
+        try:
+            local = ipaddress.ip_address(host).is_loopback
+        except ValueError:
+            pass
+    if (not host or parsed.username or parsed.password or parsed.fragment
+            or parsed.scheme not in {"https", "http"}
+            or (parsed.scheme == "http" and not local)):
+        raise AgentError("Внешний сервис требует HTTPS без логина, пароля и фрагмента в URL; HTTP разрешён только для loopback.")
+
+
+class NoCredentialRedirects(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, request, response, code, message, headers, new_url):
+        response.close()
+        raise AgentError("Перенаправление внешнего сервиса заблокировано: укажите конечный URL, чтобы не передавать ключи и документы другому адресу.")
+
+
+def open_json_request(request: urllib.request.Request, timeout: int):
+    return urllib.request.build_opener(NoCredentialRedirects()).open(request, timeout=timeout)
+
+
 def post_json(url: str, payload: dict[str, Any], headers: dict[str, str], timeout: int = 90) -> dict[str, Any]:
     """POST JSON with one bounded retry for transient upstream failures."""
+    validate_service_url(url)
     retryable_statuses = {429, 500, 502, 503, 504}
     encoded = json.dumps(payload, ensure_ascii=False).encode("utf-8")
     last_error: Exception | None = None
@@ -80,7 +112,7 @@ def post_json(url: str, payload: dict[str, Any], headers: dict[str, str], timeou
             method="POST",
         )
         try:
-            with urllib.request.urlopen(request, timeout=timeout) as response:
+            with open_json_request(request, timeout) as response:
                 raw = response.read(5 * 1024 * 1024 + 1)
                 if len(raw) > 5 * 1024 * 1024:
                     raise AgentError("Сервис вернул слишком большой ответ.")
@@ -89,15 +121,15 @@ def post_json(url: str, payload: dict[str, Any], headers: dict[str, str], timeou
                     raise AgentError("Сервис вернул JSON не в виде объекта.")
                 return value
         except urllib.error.HTTPError as exc:
-            body = exc.read(500).decode("utf-8", errors="replace")
-            last_error = AgentError(f"Сервис вернул HTTP {exc.code}: {body}")
+            exc.close()
+            last_error = AgentError(f"Сервис вернул HTTP {exc.code}.")
             if exc.code not in retryable_statuses or attempt:
                 raise last_error from exc
-        except urllib.error.URLError as exc:
-            last_error = AgentError(f"Не удалось подключиться к сервису: {exc.reason}")
+        except (urllib.error.URLError, TimeoutError, OSError) as exc:
+            last_error = AgentError("Не удалось подключиться к сервису.")
             if attempt:
                 raise last_error from exc
-        except json.JSONDecodeError as exc:
+        except (json.JSONDecodeError, UnicodeDecodeError) as exc:
             raise AgentError("Сервис вернул некорректный JSON.") from exc
         if attempt == 0:
             time.sleep(1)
@@ -315,7 +347,11 @@ def classify_source_authority(url: str) -> str:
         return "unclassified"
     if host == "pravo.gov.ru" or host.endswith(".pravo.gov.ru"):
         return "official_legal_portal"
-    if host == "vsrf.ru" or host.endswith(".vsrf.ru") or host == "kad.arbitr.ru" or host.endswith(".arbitr.ru") or host.endswith(".sudrf.ru"):
+    if host == "mintrud.gov.ru" or (host == "zpp.rospotrebnadzor.ru" and urlsplit(url).path.startswith("/npa/")):
+        return "government_legal_reproduction"
+    if host == "epp.genproc.gov.ru" or host == "rostrud.gov.ru" or host.endswith(".rostrud.gov.ru") or (host == "zpp.rospotrebnadzor.ru" and urlsplit(url).path.startswith("/news/")):
+        return "official_legal_explanation"
+    if host == "arbitr.ru" or host == "vsrf.ru" or host.endswith(".vsrf.ru") or host == "kad.arbitr.ru" or host.endswith(".arbitr.ru") or host.endswith(".sudrf.ru"):
         return "official_court"
     if host == "sudact.ru" or host.endswith(".sudact.ru"):
         return "case_law_aggregator"
@@ -328,6 +364,8 @@ def source_authority_label(url: str) -> str:
     labels = {
         "official_legal_portal": "официальный портал правовой информации",
         "official_court": "официальный судебный сайт",
+        "government_legal_reproduction": "ведомственная копия правового текста; не исходная публикация",
+        "official_legal_explanation": "разъяснение государственного органа; не текст изменяющего акта",
         "case_law_aggregator": "агрегатор судебных актов",
         "secondary_legal_reference": "коммерческая правовая справочная система",
         "unclassified": "источник не классифицирован",
@@ -616,7 +654,7 @@ def build_report(model: LanguageModel, topic: str, sources: list[Source], sessio
         "Не называй редакцию действующей, если источник не подтверждает статус и дату вступления изменений в силу. "
         "Различай официальный первичный источник, судебный сайт, агрегатор судебных актов и коммерческую справочную систему. "
         "Не называй единичное судебное решение устойчивой практикой; указывай суд, дату и номер дела только если они есть в источнике. "
-        "Каждое правовое утверждение сопровождай ссылкой [N]. Отдельно укажи, какие изменения проверены и что подтвердить не удалось. "
+        "Каждое правовое утверждение сопровождай ссылкой [N] в том же предложении. В одном предложении указывай один закон или кодекс; несколько законов разделяй на отдельные предложения с собственными ссылками. Указанный источник должен содержать именно заявленную статью этого акта. Отдельно укажи, какие изменения проверены и что подтвердить не удалось. "
         "Не выдавай ответ за индивидуальную юридическую консультацию. Не добавляй раздел источников. "
         "Используй разделы: Краткий ответ, Правовое основание, Актуальность и изменения, Как применить к ситуации, Ограничения.",
         f"Правовой вопрос: {topic}{context_block}\n\nМатериалы:\n\n{format_materials(sources)}",
@@ -661,30 +699,60 @@ def _act_ids(text: str) -> set[str]:
     return identifiers
 
 
-def find_unconfirmed_articles(report: str, sources: list[Source]) -> list[str]:
-    """Require each cited article to be linked to the same identifiable act in a source."""
-    unconfirmed: set[str] = set()
-    source_records = []
-    for source in sources:
-        source_text = f"{source.title}\n{source.text}"
-        source_records.append((source_text, _act_ids(source_text)))
+def _citation_segments(text: str):
+    """Bound citations to a sentence/clause; preserve decimal numbers and abbreviations."""
+    # Paragraphs, headings and list entries must not lend citations to each other.
+    blocks = re.split(r'\n\s*\n|\n(?=\s*(?:##|[-*]\s|\d+[.)]\s))', text)
+    abbreviations = {'ст', 'ч', 'п', 'подп', 'г', 'ред', 'им', 'т', 'д', 'тд', 'тп'}
+    attached_citations = re.compile(r'[»”"\)]*\s*(?:\[\d+\]\s*)+')
+    for block in blocks:
+        start, index = 0, 0
+        while index < len(block):
+            char = block[index]
+            boundary = char in '!?;'
+            if char == '.':
+                word = re.search(r'([А-Яа-яA-Za-z]+)$', block[max(0, index - 16):index])
+                decimal = index > 0 and index + 1 < len(block) and block[index - 1].isdigit() and block[index + 1].isdigit()
+                boundary = not decimal and not (word and word.group(1).casefold() in abbreviations)
+            if boundary:
+                end = index + 1
+                attached = attached_citations.match(block, end)
+                if attached:
+                    end = attached.end()
+                yield block[start:end]
+                start, index = end, end
+            else:
+                index += 1
+        if start < len(block):
+            yield block[start:]
 
-    for match in ARTICLE_MENTION_PATTERN.finditer(report):
-        article_number = match.group(1)
-        context = report[max(0, match.start() - 100):min(len(report), match.end() + 100)]
-        act_ids = _act_ids(context)
-        if not act_ids:
-            unconfirmed.add(f"{article_number} (не указан конкретный закон или кодекс)")
-            continue
-        matched_source = False
-        for source_text, source_acts in source_records:
-            if not source_acts.intersection(act_ids):
-                continue
-            if article_number in ARTICLE_PATTERN.findall(source_text):
-                matched_source = True
-                break
-        if not matched_source:
-            unconfirmed.add(f"{article_number} ({', '.join(sorted(act_ids))})")
+
+def _source_article_pairs(source: Source) -> set[tuple[str, str]]:
+    title_acts = _act_ids(source.title)
+    supported = set()
+    for segment in _citation_segments(source.text):
+        acts = _act_ids(segment) or title_acts
+        if len(acts) == 1:
+            supported.update((number, next(iter(acts))) for number in ARTICLE_PATTERN.findall(segment))
+    return supported
+
+
+def find_unconfirmed_articles(report: str, sources: list[Source]) -> list[str]:
+    """Check article/act identity only against the citations in that claim's segment."""
+    unconfirmed: set[str] = set()
+    source_indexes = [_source_article_pairs(source) for source in sources]
+    for segment in _citation_segments(report):
+        act_ids = _act_ids(segment)
+        citations = [int(value) for value in re.findall(r'\[(\d+)\]', segment)]
+        cited = [source_indexes[index - 1] for index in citations if 1 <= index <= len(sources)]
+        for match in ARTICLE_MENTION_PATTERN.finditer(segment):
+            number = match.group(1)
+            if not act_ids:
+                unconfirmed.add(f"{number} (не указан конкретный закон или кодекс)")
+            elif len(act_ids) != 1:
+                unconfirmed.add(f"{number} (неоднозначная связь с законом: {', '.join(sorted(act_ids))})")
+            elif not any((number, next(iter(act_ids))) in pairs for pairs in cited):
+                unconfirmed.add(f"{number} ({', '.join(sorted(act_ids))})")
     return sorted(unconfirmed, key=lambda value: _article_sort_key(value.split(" ", 1)[0]))
 
 
@@ -709,7 +777,7 @@ def validate_report(report: str, sources: list[Source]) -> list[str]:
         issues.append(f"Есть ссылки, которых нет в материалах: {unknown_links}.")
     missing_articles = find_unconfirmed_articles(report, sources)
     if missing_articles:
-        issues.append(f"Упомянуты статьи, которых нет в источниках: {missing_articles}.")
+        issues.append(f"Упомянуты статьи без подтверждения в указанных для утверждения источниках: {missing_articles}. Укажите один закон на предложение и ссылку [N] в том же предложении.")
     return issues
 
 
@@ -773,7 +841,7 @@ def reflect_on_report(model: LanguageModel, topic: str, report: str, sources: li
     return repaired, journal
 
 
-def search_queries(search: SearchProvider, queries: list[str], per_query: int) -> tuple[list[Source], list[str]]:
+def search_queries(search: SearchProvider, queries: list[str], per_query: int, *, verbose: bool = True) -> tuple[list[Source], list[str]]:
     found: list[Source] = []
     errors: list[str] = []
     for query in queries:
@@ -781,11 +849,39 @@ def search_queries(search: SearchProvider, queries: list[str], per_query: int) -
             found.extend(search.search(query, per_query))
             for provider_error in getattr(search, "last_errors", []):
                 errors.append(f"{query}: {provider_error}")
-                print(f"      Предупреждение: {provider_error}", file=sys.stderr)
+                if verbose:
+                    print(f"      Предупреждение: {provider_error}", file=sys.stderr)
         except AgentError as exc:
             errors.append(f"{query}: {exc}")
-            print(f"      Предупреждение: {exc}", file=sys.stderr)
+            if verbose:
+                print(f"      Предупреждение: {exc}", file=sys.stderr)
     return found, errors
+
+
+def evidence_summary(update_check: dict[str, Any], court_check: dict[str, Any], demo: bool) -> dict[str, Any]:
+    """Expose research evidence without promoting retrieval to legal verification."""
+    def stage(check: dict[str, Any]) -> dict[str, Any]:
+        if demo:
+            status = "demo"
+        elif check.get("performed") is True:
+            status = "evidence_found_unverified"
+        elif check.get("errors") or check.get("status") in {"unavailable", "search_error", "planning_failed"}:
+            status = "unavailable"
+        elif check.get("attempted") is True:
+            status = "no_evidence"
+        else:
+            status = "not_attempted"
+        return {"status": status, "verified": False, "error_count": len(check.get("errors") or [])}
+
+    return {
+        "status": "demo" if demo else "not_legally_verified",
+        "verified": False,
+        "amendments": stage(update_check),
+        "official_publications": stage(update_check.get("official_portal", {})),
+        "revision_snapshots": stage(update_check.get("integrated_legal_bank", {})),
+        "court_practice": stage(court_check),
+        "limitation": "Найденные материалы и корректные ссылки не подтверждают полноту истории, период действия или применимость нормы.",
+    }
 
 
 def save_results(
@@ -803,6 +899,7 @@ def save_results(
     checked_on: str,
     as_of: str | None = None,
 ) -> tuple[Path, Path]:
+    evidence = evidence_summary(update_check, court_check, demo)
     output_dir.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S-%f")
     report_path = output_dir / f"ответ-{stamp}.md"
@@ -847,6 +944,7 @@ def save_results(
                 "research_rounds": research_log,
                 "report_validated": True,
                 "report_repaired": report_repaired,
+                "evidence": evidence,
                 "legal_update_check": update_check,
                 "court_practice_check": court_check,
                 "self_reflection": reflection,
@@ -875,7 +973,8 @@ def validate_as_of(value: str | None) -> str | None:
     return value
 
 
-def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo: bool = False, session_context: str = "", as_of: str | None = None) -> tuple[Path, Path]:
+def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo: bool = False, session_context: str = "", as_of: str | None = None, verbose: bool = True) -> tuple[Path, Path]:
+    log = print if verbose else lambda *args, **kwargs: None
     checked_on = current_check_date()
     legal_as_of = validate_as_of(as_of) or checked_on
     original_topic = topic
@@ -907,21 +1006,21 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
         ]
         court_search = TavilySearch(domains=court_domains)
 
-    print("[1/8] Планирую правовое исследование…")
+    log("[1/8] Планирую правовое исследование…")
     queries = plan_queries(model, topic, query_count)
     executed_queries = {_normalized_query_key(query) for query in queries}
-    print("      Запросы: " + "; ".join(queries))
+    log("      Запросы: " + "; ".join(queries))
 
-    print("[2/8] Ищу нормы и читаю источники…")
+    log("[2/8] Ищу нормы и читаю источники…")
     per_query = max(2, min(5, source_limit))
-    found, errors = search_queries(search, queries, per_query)
+    found, errors = search_queries(search, queries, per_query, verbose=verbose)
     sources = deduplicate(found, source_limit)
     if not sources:
         details = "\n".join(errors)
         raise AgentError("Не найдено пригодных источников." + (f"\n{details}" if details else ""))
-    print(f"      Выбрано источников: {len(sources)}")
+    log(f"      Выбрано источников: {len(sources)}")
 
-    print("[3/8] Оцениваю полноту правовых материалов…")
+    log("[3/8] Оцениваю полноту правовых материалов…")
     research_log: list[dict[str, Any]] = []
     additional_round = 0
     while True:
@@ -936,29 +1035,29 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
                 "errors": errors,
             }
         )
-        print(f"      {reason or ('Материалов достаточно.' if sufficient else 'Требуются дополнительные источники.')}")
+        log(f"      {reason or ('Материалов достаточно.' if sufficient else 'Требуются дополнительные источники.')}")
         new_queries = [query for query in deduplicate_queries(additional_queries) if _normalized_query_key(query) not in executed_queries]
         if sufficient or additional_round >= 2 or len(sources) >= source_limit or not new_queries:
             if not sufficient and additional_round >= 2:
-                print("      Достигнут лимит дополнительного поиска; продолжаю с доступными материалами.")
+                log("      Достигнут лимит дополнительного поиска; продолжаю с доступными материалами.")
             break
         additional_round += 1
         queries.extend(new_queries)
         executed_queries.update(_normalized_query_key(query) for query in new_queries)
-        print(f"      Дополнительный поиск {additional_round}/2: " + "; ".join(new_queries))
-        found, round_errors = search_queries(search, new_queries, per_query)
+        log(f"      Дополнительный поиск {additional_round}/2: " + "; ".join(new_queries))
+        found, round_errors = search_queries(search, new_queries, per_query, verbose=verbose)
         errors.extend(round_errors)
         sources = deduplicate([*sources, *found], source_limit)
-        print(f"      Выбрано источников: {len(sources)}")
+        log(f"      Выбрано источников: {len(sources)}")
 
-    print("[4/8] Обязательно проверяю последние изменения…")
+    log("[4/8] Обязательно проверяю последние изменения…")
     update_queries, update_notes = plan_legal_update_check(model, topic, sources, legal_as_of)
     new_update_queries = [query for query in deduplicate_queries(update_queries) if _normalized_query_key(query) not in executed_queries]
     if not new_update_queries:
         new_update_queries = [f"{topic} изменения действующая редакция {legal_as_of[:4]}"]
     queries.extend(new_update_queries)
     executed_queries.update(_normalized_query_key(query) for query in new_update_queries)
-    update_found, update_errors = search_queries(search, new_update_queries, per_query)
+    update_found, update_errors = search_queries(search, new_update_queries, per_query, verbose=verbose)
     # The integrated full-text bank is a separate official source from the
     # publication feed. Search it independently before assembling update_sources.
     ips_sources: list[Source] = []
@@ -1032,6 +1131,9 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
             "status": "extraction_failed", "verified": False, "periods": [],
             "errors": [str(exc)],
         }
+
+    from legal_history import select_provision_period
+    provision_history["selection"] = select_provision_period(provision_history, legal_as_of)
 
     amendment_chain_audit = extract_amendment_chain_evidence(
         model, changed_provisions, amendment_sources
@@ -1135,9 +1237,9 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
         "amendment_chain_audit": amendment_chain_audit,
         "errors": update_errors,
     }
-    print(f"      Проверочных запросов: {len(new_update_queries)}; источников всего: {len(sources)}")
+    log(f"      Проверочных запросов: {len(new_update_queries)}; источников всего: {len(sources)}")
 
-    print("[5/8] Ищу судебную практику…")
+    log("[5/8] Ищу судебную практику…")
     try:
         court_queries, court_notes = plan_court_practice_check(model, topic, legal_as_of)
     except AgentError as exc:
@@ -1152,14 +1254,14 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
             "new_sources_found": 0,
             "errors": [str(exc)],
         }
-        print(f"      Этап пропущен: {exc}")
+        log(f"      Этап пропущен: {exc}")
     else:
         new_court_queries = [query for query in deduplicate_queries(court_queries) if _normalized_query_key(query) not in executed_queries]
         if not new_court_queries:
             new_court_queries = [f"{topic} судебная практика {legal_as_of[:4]}"]
         queries.extend(new_court_queries)
         executed_queries.update(_normalized_query_key(query) for query in new_court_queries)
-        court_found, court_errors = search_queries(court_search, new_court_queries, per_query)
+        court_found, court_errors = search_queries(court_search, new_court_queries, per_query, verbose=verbose)
         # Reserve up to three slots for case-law evidence as well.
         court_sources = deduplicate(court_found, 3)
         court_check = {
@@ -1172,7 +1274,7 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
             "new_sources_found": len(court_found),
             "errors": court_errors,
         }
-        print(f"      Запросов по практике: {len(new_court_queries)}; источников всего: {len(sources)}")
+        log(f"      Запросов по практике: {len(new_court_queries)}; источников всего: {len(sources)}")
 
     # The user-configured source_limit applies to the core legal research.
     # Add separately capped evidence for amendments and case law so those
@@ -1183,27 +1285,27 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
         source_limit + 6,
     )
 
-    print("[6/8] Готовлю и проверяю правовой ответ…")
+    log("[6/8] Готовлю и проверяю правовой ответ…")
     report, report_repaired = build_validated_report(model, topic, sources, session_context)
     if report_repaired:
-        print("      Отчёт исправлен после автоматической проверки.")
+        log("      Отчёт исправлен после автоматической проверки.")
     else:
-        print("      Структура и ссылки прошли проверку.")
+        log("      Структура и ссылки прошли проверку.")
 
-    print("[7/8] Самопроверка ответа…")
+    log("[7/8] Самопроверка ответа…")
     try:
         report, reflection = reflect_on_report(model, topic, report, sources)
     except AgentError as exc:
         # Самопроверка — вспомогательный этап: её сбой не отменяет ответ.
         reflection = {"performed": False, "consistent": None, "issues": [], "repaired": False, "errors": [str(exc)]}
-        print(f"      Этап пропущен: {exc}")
+        log(f"      Этап пропущен: {exc}")
     else:
         if reflection["repaired"]:
-            print(f"      Найдено замечаний: {len(reflection['issues'])}; ответ исправлен.")
+            log(f"      Найдено замечаний: {len(reflection['issues'])}; ответ исправлен.")
         else:
-            print("      Противоречий не найдено.")
+            log("      Противоречий не найдено.")
 
-    print("[8/8] Сохраняю результаты…")
+    log("[8/8] Сохраняю результаты…")
     return save_results(
         output_dir, original_topic, queries, sources, report, demo, research_log, report_repaired, update_check, court_check, reflection, checked_on, legal_as_of
     )
