@@ -617,6 +617,7 @@ class Law152FixtureInventoryTests(unittest.TestCase):
         scoped = fixture["article_scoped_inventory"]
         self.assertEqual(len(scoped["articles"]), 3)
         self.assertEqual(scoped["summary"]["articles_covered"], 3)
+        self.assertEqual(scoped["summary"]["candidate_act_article_links"], 17)
         self.assertEqual(scoped["summary"]["official_act_texts_retrieved"], 0)
         self.assertFalse(scoped["summary"]["verified"])
         self.assertTrue(all(
