@@ -42,8 +42,9 @@ from review import handle_review
 
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8080
-MAX_BODY_BYTES = 8 * 1024 * 1024
-MAX_DIFF_BODY_BYTES = 1 * 1024 * 1024
+MAX_BODY_BYTES = 15 * 1024 * 1024
+MAX_DIFF_BODY_BYTES = 28 * 1024 * 1024
+MAX_CONCURRENT_REQUESTS = 16
 MAX_QUESTION_CHARS = 12_000
 SESSION_MAX_ENTRIES = 10
 SESSION_MAX_COUNT = 1_000
@@ -276,6 +277,32 @@ def openapi_spec() -> dict[str, Any]:
     }
 
 
+class BoundedThreadingHTTPServer(ThreadingHTTPServer):
+    """Threaded server with a hard cap on simultaneous request handlers."""
+
+    daemon_threads = True
+
+    def __init__(self, server_address: tuple[str, int], handler_class: type[BaseHTTPRequestHandler]):
+        self._request_slots = threading.BoundedSemaphore(MAX_CONCURRENT_REQUESTS)
+        super().__init__(server_address, handler_class)
+
+    def process_request(self, request: Any, client_address: Any) -> None:
+        if not self._request_slots.acquire(blocking=False):
+            self.shutdown_request(request)
+            return
+        try:
+            super().process_request(request, client_address)
+        except Exception:
+            self._request_slots.release()
+            raise
+
+    def process_request_thread(self, request: Any, client_address: Any) -> None:
+        try:
+            super().process_request_thread(request, client_address)
+        finally:
+            self._request_slots.release()
+
+
 class LegalApiHandler(BaseHTTPRequestHandler):
     server_version = f"{SERVICE_NAME}/{API_VERSION}"
     protocol_version = "HTTP/1.1"
@@ -285,23 +312,39 @@ class LegalApiHandler(BaseHTTPRequestHandler):
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("X-Frame-Options", "DENY")
+        self.send_header("Referrer-Policy", "no-referrer")
+        self.send_header("Cache-Control", "no-store")
         self.end_headers()
         self.wfile.write(body)
 
     def _read_payload(self) -> dict[str, Any]:
+        if self.headers.get("Transfer-Encoding"):
+            self.close_connection = True
+            raise RequestValidationError("Transfer-Encoding не поддерживается; передайте Content-Length.")
         raw_length = self.headers.get("Content-Length")
         try:
             length = int(raw_length or 0)
         except ValueError:
+            self.close_connection = True
             raise RequestValidationError("Некорректный заголовок Content-Length.") from None
         if length <= 0:
+            self.close_connection = True
             raise RequestValidationError("Тело запроса пустое: ожидается JSON.")
         body_limit = MAX_DIFF_BODY_BYTES if self.path == "/diff" else MAX_BODY_BYTES
         if length > body_limit:
+            self.close_connection = True
             raise RequestValidationError(f"Тело запроса больше допустимого лимита {body_limit} байт для этого эндпоинта.")
+        self.connection.settimeout(30)
+        body = self.rfile.read(length)
+        if len(body) != length:
+            self.close_connection = True
+            raise RequestValidationError("Тело запроса передано не полностью.")
         try:
-            payload = json.loads(self.rfile.read(length).decode("utf-8"))
+            payload = json.loads(body.decode("utf-8"))
         except (UnicodeDecodeError, json.JSONDecodeError):
+            self.close_connection = True
             raise RequestValidationError("Тело запроса должно быть корректным JSON.") from None
         if not isinstance(payload, dict):
             raise RequestValidationError("Ожидается JSON-объект.")
@@ -372,7 +415,7 @@ def create_server(
             "API_TOKEN обязателен при прослушивании внешнего интерфейса. "
             "Для локального режима используйте API_HOST=127.0.0.1."
         )
-    server = ThreadingHTTPServer((host, port), LegalApiHandler)
+    server = BoundedThreadingHTTPServer((host, port), LegalApiHandler)
     server.output_dir = Path(output_dir)
     server.api_token = api_token.strip()
     server.sessions = SessionStore()
