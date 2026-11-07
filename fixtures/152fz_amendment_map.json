@@ -141,7 +141,7 @@
     {
       "signed_date": "2013-04-05",
       "act_number": "43-ФЗ",
-      "scope_mapping_status": "not_mapped",
+      "scope_mapping_status": "partial_candidate",
       "official_text_retrieved": false
     },
     {
@@ -153,7 +153,7 @@
     {
       "signed_date": "2013-12-21",
       "act_number": "363-ФЗ",
-      "scope_mapping_status": "not_mapped",
+      "scope_mapping_status": "partial_candidate",
       "official_text_retrieved": false
     },
     {
@@ -177,7 +177,7 @@
     {
       "signed_date": "2016-07-03",
       "act_number": "231-ФЗ",
-      "scope_mapping_status": "not_mapped",
+      "scope_mapping_status": "partial_candidate",
       "official_text_retrieved": false
     },
     {
@@ -189,13 +189,13 @@
     {
       "signed_date": "2017-07-01",
       "act_number": "148-ФЗ",
-      "scope_mapping_status": "not_mapped",
+      "scope_mapping_status": "partial_candidate",
       "official_text_retrieved": false
     },
     {
       "signed_date": "2017-07-29",
       "act_number": "223-ФЗ",
-      "scope_mapping_status": "not_mapped",
+      "scope_mapping_status": "partial_candidate",
       "official_text_retrieved": false
     },
     {
@@ -213,7 +213,7 @@
     {
       "signed_date": "2020-04-24",
       "act_number": "123-ФЗ",
-      "scope_mapping_status": "not_mapped",
+      "scope_mapping_status": "partial_candidate",
       "official_text_retrieved": false
     },
     {
@@ -231,7 +231,7 @@
     {
       "signed_date": "2020-12-30",
       "act_number": "519-ФЗ",
-      "scope_mapping_status": "not_mapped",
+      "scope_mapping_status": "partial_candidate",
       "official_text_retrieved": false
     },
     {
@@ -243,7 +243,7 @@
     {
       "signed_date": "2021-07-02",
       "act_number": "331-ФЗ",
-      "scope_mapping_status": "not_mapped",
+      "scope_mapping_status": "partial_candidate",
       "official_text_retrieved": false
     },
     {
@@ -273,7 +273,7 @@
     {
       "signed_date": "2025-02-28",
       "act_number": "23-ФЗ",
-      "scope_mapping_status": "not_mapped",
+      "scope_mapping_status": "partial_candidate",
       "official_text_retrieved": false
     },
     {
@@ -285,7 +285,7 @@
     {
       "signed_date": "2025-06-24",
       "act_number": "156-ФЗ",
-      "scope_mapping_status": "not_mapped",
+      "scope_mapping_status": "partial_candidate",
       "official_text_retrieved": false
     },
     {
@@ -297,10 +297,10 @@
   ],
   "inventory_summary": {
     "total_citations": 35,
-    "partial_scope_candidates": 4,
-    "not_mapped": 31,
-    "source_quality": "Список реквизитов извлечён из консолидированного справочного текста; он является стартовым инвентарём, а не официально удостоверенным исчерпывающим перечнем.",
-    "caveat": "Повторяющиеся номера актов допустимы: идентификатор — пара дата подписания + номер."
+    "partial_scope_candidates": 15,
+    "not_mapped": 20,
+    "source_quality": "Список реквизитов извлечён из официального консолидированного текста Минтруда; постатейные связи дополнены вторичными полными текстами и редакционными пометами. Все частичные связи остаются кандидатными до проверки оригиналов изменяющих публикаций.",
+    "caveat": "Повторяющиеся номера актов допустимы: идентификатор — пара дата подписания + номер. Статус partial_candidate означает найденную связь по статье/положению, но не первичную юридическую верификацию."
   },
   "article_scoped_inventory": {
     "inventory_basis": "Аннотации к действующей редакции статей в КонсультантПлюс и тексты отдельных актов в справочных системах; это поисковые зацепки, а не официальные первичные публикации.",
@@ -485,6 +485,34 @@
               "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/"
             ],
             "official_text_retrieved": false
+          },
+          {
+            "act_date": "2017-07-01",
+            "act_number": "148-ФЗ",
+            "scope": [
+              "часть 1.1"
+            ],
+            "basis": "статья 11 закона 148-ФЗ прямо дополняет статью 6 152-ФЗ частью 1.1; редакционная помета присутствует в официальном консолидированном тексте Минтруда",
+            "scope_status": "explicit_in_secondary_act_text_and_official_consolidated_annotation",
+            "effective_from": "2017-07-01",
+            "effective_date_status": "статья 12 закона 148-ФЗ предусматривает вступление в силу со дня официального опубликования; вторичная библиографическая запись указывает публикацию 01.07.2017. Первичная публикация не получена",
+            "secondary_sources": [
+              "https://www.consultant.ru/document/cons_doc_LAW_219027/3eeafbd3bdb64673818bd5cba64081209bddc7a4/",
+              "https://base.garant.ru/71708988/"
+            ],
+            "official_text_retrieved": false,
+            "official_publication_identified": false,
+            "official_publication_id": null,
+            "official_document_url": null,
+            "official_retrieval_status": "publication_id_not_resolved",
+            "transition_provision": {
+              "act_effective_date": "2017-07-01",
+              "act_effective_rule": "Article 12: the amending law enters into force on the date of official publication; secondary bibliographic record identifies publication on 2017-07-01",
+              "source_class": "secondary reproduction of Articles 11 and 12 and secondary bibliographic record; original official publication not retrieved"
+            },
+            "source_verification_note": "Article 11(1) of 148-ФЗ adds Article 6 part 1.1 of 152-ФЗ. The official Ministry consolidated 152-ФЗ text independently marks part 1.1 as introduced by 148-ФЗ. This supports scope attribution but does not count as retrieval of the original amending act.",
+            "official_consolidated_law_source_url": "https://mintrud.gov.ru/docs/laws/130",
+            "secondary_source_class": "secondary_legal_database_or_reference_copy"
           },
           {
             "act_date": "2017-07-29",
@@ -806,13 +834,14 @@
       }
     ],
     "summary": {
-      "articles_covered": 3,
-      "candidate_act_article_links": 17,
-      "official_act_texts_retrieved": 0,
-      "verified": false,
-      "coverage_verified": false,
-      "official_publication_records_identified": 5,
-      "note": "Five official publication records have been identified by publication number, but zero original document bodies were successfully retrieved and parsed from the official portal."
+      "candidate_links": 18,
+      "candidate_links_by_article": {
+        "3": 2,
+        "6": 12,
+        "9": 4
+      },
+      "distinct_candidate_acts": 13,
+      "note": "Подсчёт включает связи, найденные по вторичным текстам и редакционным пометам официального консолидированного текста; не означает первичную юридическую верификацию."
     },
     "gaps": [
       "Получить тело официальной публикации 0001202012300044 (519-ФЗ) и точно сопоставить исключение с частью/пунктом 152-ФЗ.",
@@ -820,7 +849,8 @@
       "Получить тело официальной публикации 0001202207140080 (266-ФЗ), разобрать статью 5 и разнести исключения по каждому изменённому положению.",
       "Разрешить официальные номера публикаций и получить тексты 261-ФЗ от 25.07.2011 и 233-ФЗ от 08.08.2024.",
       "Получить тело официальной публикации 0001202506240021 (156-ФЗ), разобрать статью 7 и связать переходные сроки с частью 1 статьи 9.",
-      "Не использовать даты из вторичных справочных систем как первично подтверждённые даты действия."
+      "Не использовать даты из вторичных справочных систем как первично подтверждённые даты действия.",
+      "Для добавленной связи 148-ФЗ → статья 6, часть 1.1 установлены статья изменяющего закона (статья 11) и дата по вторичной копии/библиографической записи; оригинальная официальная публикация и её ID не получены."
     ],
     "official_consolidated_sources": [
       {
@@ -860,6 +890,20 @@
         ],
         "primary_official_text_retrieved": false,
         "note": "Вторичные полные тексты/справочные копии. Реквизит официальной публикации приведён отдельно, но HTML/PDF оригинала портала в текущей сессии получить не удалось. Эти ссылки не являются полученным оригинальным телом официальной публикации; не повышать official_text_retrieved/verified на их основании.",
+        "official_publication_id": null,
+        "official_publication_url": null,
+        "official_portal_page_accessible_in_research_session": false
+      },
+      {
+        "act": "148-ФЗ",
+        "date": "2017-07-01",
+        "source_class": "secondary_legal_database_or_reference_copy",
+        "urls": [
+          "https://www.consultant.ru/document/cons_doc_LAW_219027/3eeafbd3bdb64673818bd5cba64081209bddc7a4/",
+          "https://base.garant.ru/71708988/"
+        ],
+        "primary_official_text_retrieved": false,
+        "note": "Вторичный полный текст статьи 11 изменяющего закона и справочная копия полного акта. Статья 11 дополняет статью 6 152-ФЗ частью 1.1; статья 12 устанавливает вступление в силу со дня официального опубликования. Библиографическая запись указывает публикацию 01.07.2017. Оригинальное тело официальной публикации и отдельный ID портала не получены.",
         "official_publication_id": null,
         "official_publication_url": null,
         "official_portal_page_accessible_in_research_session": false
