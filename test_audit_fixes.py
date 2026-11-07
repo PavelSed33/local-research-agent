@@ -353,10 +353,13 @@ class OfficialIntegratedLegalBankTests(unittest.TestCase):
             bank.get_history("102000001", as_of="01.01.2024")
 
     def test_date_parser_rejects_impossible_edition_date(self):
-        from pravo_ips import _parse_date
+        from pravo_ips import _parse_date, _document_id
 
         self.assertIsNone(_parse_date("Редакция от 31.02.2024"))
         self.assertEqual(_parse_date("Редакция от 01.02.2024"), "2024-02-01")
+        self.assertIsNone(_document_id("//evil.example/proxy/ips/?nd=102000001"))
+        self.assertIsNone(_document_id("http://pravo.gov.ru/proxy/ips/?nd=102000001"))
+        self.assertEqual(_document_id("?docbody=&nd=102000001"), "102000001")
 
 
 
