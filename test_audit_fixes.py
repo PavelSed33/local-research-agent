@@ -648,10 +648,11 @@ class Law152FixtureInventoryTests(unittest.TestCase):
         self.assertEqual(scoped["summary"]["out_of_scope_checks"], 20)
         out_of_scope_pairs = {(item["date"], item["act"]) for item in scoped["out_of_scope_amendment_checks"]}
         self.assertTrue(all((item["signed_date"], item["act_number"]) in out_of_scope_pairs for item in inventory if item["scope_mapping_status"] == "not_mapped"))
-        self.assertTrue(all((item["date"], item["act"]) in {(row["signed_date"], row["act_number"]) for row in inventory} for item in scoped["out_of_scope_amendment_checks"]))
+        self.assertTrue(all(any((row["signed_date"], row["act_number"]) == (item["date"], item["act"]) and row["scope_mapping_status"] == "not_mapped" for row in inventory) for item in scoped["out_of_scope_amendment_checks"]))
         self.assertTrue(any(item["act"] == "216-ФЗ" and "статьи 10" in item["basis"] for item in scoped["out_of_scope_amendment_checks"]))
         self.assertTrue(any(item["act"] == "204-ФЗ" and "статьи 10" in item["basis"] for item in scoped["out_of_scope_amendment_checks"]))
         self.assertTrue(any(item["act"] == "200-ФЗ" and item["date"] == "2025-07-07" for item in scoped["out_of_scope_amendment_checks"]))
+        self.assertTrue(any(item["act_number"] == "200-ФЗ" and item["signed_date"] == "2025-07-07" and item["scope_mapping_status"] == "not_mapped" for item in inventory))
         act_200 = next(item for item in scoped["out_of_scope_amendment_checks"] if item["act"] == "200-ФЗ")
         self.assertIn("https://proinfosoft.ru/assets/files/news/2025/07072025N200.pdf", act_200["secondary_sources"])
         self.assertFalse(act_200["official_text_retrieved"])
