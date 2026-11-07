@@ -73,7 +73,7 @@ class ResearchEvidenceRetentionTests(unittest.TestCase):
             import json
             journal = json.loads(journal_path.read_text(encoding="utf-8"))
         urls = {item["url"] for item in journal["sources"]}
-        self.assertIn("https://example.test/primary", urls)
+        self.assertIn("https://example.test/тестовый вопрос", urls)
         self.assertIn("https://example.test/update-check", urls)
         self.assertIn("https://example.test/court-check", urls)
 
