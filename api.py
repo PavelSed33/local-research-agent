@@ -8,6 +8,7 @@
   POST /review       — текст договора → {summary, risks, missing_clauses, disclaimer};
   POST /extract      — текст договора → {parties, amounts, dates, penalties, term, jurisdiction};
   POST /diff         — две редакции договора → {summary, changes, diff}.
+  POST /sessions/delete — удалить историю сессии из памяти.
 
 Запуск: python api.py
 Настройки через переменные окружения:
@@ -28,6 +29,7 @@ import os
 import re
 import sys
 import threading
+import tempfile
 import time
 import uuid
 from datetime import datetime, timezone
@@ -39,6 +41,10 @@ from agent import LEGAL_DISCLAIMER, AgentError, load_dotenv, run, validate_as_of
 from extract import handle_extract
 from redline import handle_diff
 from review import handle_review
+from legal_review import handle_legal_review, review_options
+from case_law import handle_case_law
+from legal_coverage import coverage_report
+from privacy_review import handle_privacy_check, privacy_options
 
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8080
@@ -49,7 +55,7 @@ MAX_QUESTION_CHARS = 12_000
 SESSION_MAX_ENTRIES = 10
 SESSION_MAX_COUNT = 1_000
 SERVICE_NAME = "legal-research-agent"
-API_VERSION = "1.2"
+API_VERSION = "1.7"
 SESSION_TTL_SECONDS = 3600
 SESSION_ANSWER_CHARS = 500
 SESSION_ID_PATTERN = re.compile(r"^[A-Za-z0-9-]{1,64}$")
@@ -77,12 +83,34 @@ class SessionStore:
         lines = [f"Вопрос: {item['question']}\nКраткий ответ: {item['answer']}" for item in entries]
         return "\n---\n".join(lines)
 
-    def remember(self, session_id: str, question: str, answer: str) -> None:
+    def begin(self, session_id: str) -> tuple[str, object]:
+        """Capture session identity so deletion also invalidates in-flight updates."""
+        now = time.time()
+        with self._lock:
+            self._purge_expired(now)
+            session = self._sessions.get(session_id)
+            if session is None:
+                if len(self._sessions) >= SESSION_MAX_COUNT:
+                    self._sessions.popitem(last=False)
+                session = {"updated": now, "entries": []}
+                self._sessions[session_id] = session
+            entries = list(session["entries"])
+        context = "\n---\n".join(f"Вопрос: {item['question']}\nКраткий ответ: {item['answer']}" for item in entries)
+        return context, session
+
+    def delete(self, session_id: str) -> bool:
+        with self._lock:
+            self._purge_expired(time.time())
+            return self._sessions.pop(session_id, None) is not None
+
+    def remember(self, session_id: str, question: str, answer: str, *, expected_session: object | None = None) -> None:
         """Запоминает пару вопрос/ответ (ответ усечённо) в сессии."""
         now = time.time()
         with self._lock:
             self._purge_expired(now)
             session = self._sessions.get(session_id)
+            if expected_session is not None and session is not expected_session:
+                return
             if session is None:
                 if len(self._sessions) >= SESSION_MAX_COUNT:
                     self._sessions.popitem(last=False)
@@ -108,8 +136,13 @@ def parse_int_field(payload: dict[str, Any], field: str, default: int, minimum: 
     return value
 
 
-def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore | None = None) -> dict[str, Any]:
+def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore | None = None, *, persist_results: bool = True) -> dict[str, Any]:
     """Выполняет полный цикл агента и возвращает структурированный ответ."""
+    if not persist_results:
+        with tempfile.TemporaryDirectory(prefix="legal-research-") as directory:
+            result = handle_ask(payload, Path(directory), sessions, persist_results=True)
+            result.update(report_file=None, journal_file=None, results_persisted=False)
+            return result
     question = payload.get("question", "")
     if not isinstance(question, str) or not question.strip():
         raise RequestValidationError("Поле «question» обязательно и не должно быть пустым.")
@@ -117,14 +150,14 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
         raise RequestValidationError(f"Вопрос не должен превышать {MAX_QUESTION_CHARS} символов.")
     as_of = validate_as_of(payload.get("as_of"))
     session_id = payload.get("session_id")
-    if session_id is not None and (not isinstance(session_id, str) or not SESSION_ID_PATTERN.match(session_id)):
+    if session_id is not None and (not isinstance(session_id, str) or not SESSION_ID_PATTERN.fullmatch(session_id)):
         raise RequestValidationError("Поле «session_id» должно быть строкой из 1–64 символов: латиница, цифры, дефис.")
     query_count = parse_int_field(payload, "queries", 3, 1, 5)
     source_limit = parse_int_field(payload, "sources", 6, 1, 10)
     demo = payload.get("demo", False)
     if not isinstance(demo, bool):
         raise RequestValidationError("Поле «demo» должно быть логическим значением true или false.")
-    context = sessions.context(session_id) if sessions and session_id else ""
+    context, session_identity = sessions.begin(session_id) if sessions and session_id else ("", None)
 
     # Отдельная папка на запрос: имена файлов внутри не пересекаются.
     stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
@@ -137,22 +170,28 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
         demo=demo,
         session_context=context,
         as_of=as_of,
+        verbose=False,
     )
     answer = report_path.read_text(encoding="utf-8")
     journal = json.loads(journal_path.read_text(encoding="utf-8"))
     if sessions and session_id:
-        sessions.remember(session_id, question, answer)
+        sessions.remember(session_id, question, answer, expected_session=session_identity)
     return {
         "answer": answer,
+        "verified": False,
+        "lawyer_reviewed": False,
         "sources": [
             {"title": source["title"], "url": source["url"]}
             for source in journal["sources"]
         ],
         "checked_on": journal["checked_on"],
         "as_of": journal["as_of"],
+        "evidence": journal["evidence"],
+        "provision_period": journal["legal_update_check"]["provision_history"]["selection"],
         "disclaimer": LEGAL_DISCLAIMER,
         "demo": journal["demo"],
         "session_id": session_id,
+        "results_persisted": True,
         "report_file": str(report_path),
         "journal_file": str(journal_path),
     }
@@ -163,21 +202,21 @@ def health_payload() -> dict[str, Any]:
         "status": "ok",
         "service": SERVICE_NAME,
         "version": API_VERSION,
-        "endpoints": ["GET /health", "GET /openapi.json", "POST /ask", "POST /review", "POST /extract", "POST /diff"],
+        "endpoints": ["GET /health", "GET /openapi.json", "POST /ask", "POST /review", "POST /extract", "POST /diff", "POST /sessions/delete", "POST /review/legal", "POST /case-law/check", "POST /legal/coverage", "GET /privacy/options", "POST /privacy/check", "GET /review/options"],
         "llm_configured": bool(os.getenv("LLM_API_KEY") and os.getenv("LLM_MODEL")),
         "tavily_configured": bool(os.getenv("TAVILY_API_KEY")),
         "demo_available": True,
     }
 
 
-def openapi_spec() -> dict[str, Any]:
+def openapi_spec(*, require_auth: bool = True) -> dict[str, Any]:
     """Машинное описание API (OpenAPI 3.0) для интеграции с оркестраторами."""
     document_property = {
         "document": {"type": "string", "description": "Полный текст договора (UTF-8)"},
         "document_base64": {"type": "string", "description": "Договор в формате DOCX, закодированный в base64"},
         "demo": {"type": "boolean", "default": False, "description": "Демонстрационный режим без внешних запросов"},
     }
-    return {
+    spec = {
         "openapi": "3.0.3",
         "info": {
             "title": SERVICE_NAME,
@@ -185,6 +224,68 @@ def openapi_spec() -> dict[str, Any]:
             "description": "Локальный юридический ИИ-помощник по законодательству РФ.",
         },
         "paths": {
+            "/review/options": {"get": {
+                "summary": "Вопросы по профилю, типу договора и специальному режиму; ответы не заменяют квалификацию",
+                "responses": {"200": {"description": "Профили и дополнительные ключи facts"}}}},
+            "/legal/coverage": {"post": {
+                "summary": "Матрица исследования норм и открытых пробелов по ТЗ",
+                "requestBody": {"content": {"application/json": {"schema": {
+                    "type": "object", "properties": {
+                        "module_ids": {"type": "array", "items": {"type": "string"}},
+                        "as_of": {"type": "string", "format": "date"}}}}}},
+                "responses": {"200": {"description": "Исследовательские карточки, verified=false"},
+                              "400": {"description": "Ошибка ввода"}, "401": {"description": "Нужен токен"}}}},
+            "/privacy/options": {"get": {
+                "summary": "Сценарии и вопросы локальной анкеты LAW-01",
+                "responses": {"200": {"description": "Допустимые сценарии и ключи фактов"}}}},
+            "/privacy/check": {"post": {
+                "summary": "Сбор обстоятельств обработки данных без внешних запросов и юридического заключения",
+                "requestBody": {"required": True, "content": {"application/json": {"schema": {
+                    "type": "object", "additionalProperties": False, "required": ["scenario"],
+                    "properties": {
+                        "scenario": {"type": "string", "enum": list(privacy_options()['scenarios'])},
+                        "as_of": {"type": "string", "format": "date"},
+                        "demo": {"type": "boolean"},
+                        "facts": {"type": "object", "additionalProperties": {"type": "boolean", "nullable": True}}
+                    }}}}},
+                "responses": {"200": {"description": "Уточнения и пробелы доказательств, verified=false"},
+                              "400": {"description": "Ошибка ввода"}, "401": {"description": "Нужен токен"}}}},
+            "/review/legal": {"post": {
+                "summary": "Проверка договора с цитатами правовых источников и уточнением фактов",
+                "requestBody": {"required": True, "content": {"application/json": {"schema": {
+                    "type": "object", "properties": {**document_property,
+                        "profile": {"type": "string", "enum": ["business", "consumer", "employment"]},
+                        "contract_type": {"type": "string", "enum": ["general", "supply", "lease", "services", "work"]},
+                        "contract_signed_on": {"type": "string", "format": "date", "nullable": True},
+                        "review_event": {"type": "string", "enum": ["unspecified", "conclusion", "performance", "termination", "dispute"]},
+                        "as_of": {"type": "string", "format": "date"},
+                        "facts": {"type": "object", "additionalProperties": {"type": "boolean", "nullable": True}}
+                    }}}}},
+                "responses": {"200": {"description": "Черновик или запрос уточнений; verified=false"},
+                              "400": {"description": "Ошибка ввода"}, "401": {"description": "Нужен токен"},
+                              "502": {"description": "Ошибка внешнего сервиса"}}}},
+            "/case-law/check": {"post": {
+                "summary": "Судебные материалы: реквизиты, фрагменты исхода и истории с проверкой цитат",
+                "requestBody": {"required": True, "content": {"application/json": {"schema": {
+                    "type": "object", "required": ["question"], "properties": {
+                        "question": {"type": "string", "maxLength": 12000},
+                        "as_of": {"type": "string", "format": "date"}, "demo": {"type": "boolean"}
+                    }}}}},
+                "responses": {"200": {"description": "Выборочные материалы, verified=false. act_type/instance/outcome/case_facts — цитатные фрагменты или not_established; subsequent_history — неполная цепочка. non_case_materials отделены от актов по делам; сопоставимость и вступление в силу не установлены."},
+                              "400": {"description": "Ошибка ввода"}, "401": {"description": "Нужен токен"},
+                              "502": {"description": "Ошибка внешнего сервиса"}}}},
+            "/sessions/delete": {
+                "post": {
+                    "summary": "Удалить историю сессии из памяти; незавершённые запросы не восстановят её",
+                    "requestBody": {"required": True, "content": {"application/json": {"schema": {
+                        "type": "object", "required": ["session_id"],
+                        "properties": {"session_id": {"type": "string", "pattern": "^[A-Za-z0-9-]{1,64}$"}}
+                    }}}},
+                    "responses": {"200": {"description": "deleted=true/false"},
+                                  "400": {"description": "Неверный session_id"},
+                                  "401": {"description": "Требуется Bearer-токен"}}
+                }
+            },
             "/health": {
                 "get": {
                     "summary": "Проверка работоспособности и готовности конфигурации",
@@ -279,6 +380,13 @@ def openapi_spec() -> dict[str, Any]:
             },
         },
     }
+    spec['components'] = {'securitySchemes': {'ApiToken': {
+        'type': 'http', 'scheme': 'bearer',
+        'description': 'Токен API_TOKEN сервера; это не ключ модели или поискового провайдера.'}}}
+    for path in spec['paths'].values():
+        if 'post' in path:
+            path['post']['security'] = [{'ApiToken': []}] if require_auth else []
+    return spec
 
 
 class BoundedThreadingHTTPServer(ThreadingHTTPServer):
@@ -364,19 +472,42 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             return True
         supplied = self.headers.get("Authorization", "")
         expected = f"Bearer {token}"
-        return hmac.compare_digest(supplied, expected)
+        return hmac.compare_digest(supplied.encode("utf-8"), expected.encode("utf-8"))
 
     def do_GET(self) -> None:
-        if self.path == "/health":
+        assets = {"/": ("index.html", "text/html"), "/app.js": ("app.js", "text/javascript"),
+                  "/style.css": ("style.css", "text/css")}
+        if self.path in assets:
+            name, content_type = assets[self.path]
+            try:
+                body = (Path(__file__).parent / "web" / name).read_bytes()
+            except OSError:
+                self._send_json(503, {"error": "Файлы интерфейса не установлены."})
+                return
+            self.send_response(200)
+            self.send_header("Content-Type", content_type + "; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("X-Content-Type-Options", "nosniff")
+            self.send_header("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'none'")
+            self.send_header("Connection", "close")
+            self.close_connection = True
+            self.end_headers()
+            self.wfile.write(body)
+        elif self.path == "/health":
             self._send_json(200, health_payload())
         elif self.path == "/openapi.json":
-            self._send_json(200, openapi_spec())
+            self._send_json(200, openapi_spec(require_auth=bool(self.server.api_token)))
+        elif self.path == "/privacy/options":
+            self._send_json(200, privacy_options())
+        elif self.path == "/review/options":
+            self._send_json(200, review_options())
         else:
-            self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff."})
+            self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /sessions/delete."})
 
     def do_POST(self) -> None:
-        if self.path not in ("/ask", "/review", "/extract", "/diff"):
-            self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff."})
+        if self.path not in ("/ask", "/review", "/review/legal", "/case-law/check", "/extract", "/diff", "/sessions/delete", "/legal/coverage", "/privacy/check"):
+            self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /sessions/delete."})
             return
         if not self._authorized():
             # Соединение закрываем: непрочитанное тело запроса не должно
@@ -386,8 +517,21 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             return
         try:
             payload = self._read_payload()
-            if self.path == "/ask":
-                result = handle_ask(payload, Path(self.server.output_dir), self.server.sessions)
+            if self.path == "/legal/coverage":
+                result = coverage_report(payload.get('module_ids'), payload.get('as_of'))
+            elif self.path == "/privacy/check":
+                result = handle_privacy_check(payload)
+            elif self.path == "/sessions/delete":
+                session_id = payload.get("session_id")
+                if not isinstance(session_id, str) or not SESSION_ID_PATTERN.fullmatch(session_id):
+                    raise RequestValidationError("Требуется корректный session_id: латиница, цифры, дефис, 1–64 символа.")
+                result = {"deleted": self.server.sessions.delete(session_id)}
+            elif self.path == "/ask":
+                result = handle_ask(payload, Path(self.server.output_dir), self.server.sessions, persist_results=self.server.persist_results)
+            elif self.path == "/review/legal":
+                result = handle_legal_review(payload)
+            elif self.path == "/case-law/check":
+                result = handle_case_law(payload)
             elif self.path == "/review":
                 result = handle_review(payload)
             elif self.path == "/extract":
@@ -399,7 +543,7 @@ class LegalApiHandler(BaseHTTPRequestHandler):
         except AgentError as exc:
             self._send_json(502, {"error": str(exc)})
         except Exception as exc:  # noqa: BLE001 — последняя линия защиты сервиса
-            print(f"Внутренняя ошибка API: {exc!r}", file=sys.stderr)
+            print(f"Внутренняя ошибка API: {type(exc).__name__}", file=sys.stderr)
             self._send_json(500, {"error": "Внутренняя ошибка сервиса."})
         else:
             self._send_json(200, result)
@@ -410,6 +554,7 @@ def create_server(
     port: int = DEFAULT_PORT,
     output_dir: Path | str = Path("результаты"),
     api_token: str = "",
+    persist_results: bool = False,
 ) -> ThreadingHTTPServer:
     normalized_host = host.strip().lower()
     is_loopback = normalized_host == "localhost"
@@ -426,6 +571,7 @@ def create_server(
     server = BoundedThreadingHTTPServer((host, port), LegalApiHandler)
     server.output_dir = Path(output_dir)
     server.api_token = api_token.strip()
+    server.persist_results = persist_results
     server.sessions = SessionStore()
     return server
 
@@ -441,14 +587,20 @@ def main() -> int:
     output_dir = Path(os.getenv("API_OUTPUT_DIR", "результаты"))
     api_token = os.getenv("API_TOKEN", "")
     try:
-        server = create_server(host, port, output_dir, api_token)
+        persistence = os.getenv("API_PERSIST_RESEARCH", "false").strip().lower()
+        if persistence not in {"true", "false"}:
+            raise ValueError("API_PERSIST_RESEARCH должен быть true или false.")
+        server = create_server(host, port, output_dir, api_token, persist_results=persistence == "true")
     except ValueError as exc:
         print(f"Ошибка конфигурации: {exc}", file=sys.stderr)
         return 1
     auth_note = "включена (API_TOKEN)" if server.api_token else "локальный доступ без токена"
     print(f"HTTP API юридического помощника: http://{host}:{port}")
-    print(f"Эндпоинты: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff. Авторизация: {auth_note}.")
-    print(f"Результаты сохраняются в: {server.output_dir.resolve()}")
+    print("Эндпоинты: " + ", ".join(health_payload()["endpoints"]) + f". Авторизация: {auth_note}.")
+    if server.persist_results:
+        print(f"Постоянные результаты /ask сохраняются в: {server.output_dir.resolve()}")
+    else:
+        print("Результаты /ask временные и удаляются после обработки; память сессий управляется отдельно.")
     try:
         server.serve_forever()
     except KeyboardInterrupt:
