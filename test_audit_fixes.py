@@ -550,31 +550,36 @@ class RevisionChainCoverageTests(unittest.TestCase):
     def test_audits_article_heading_in_real_152fz_excerpt(self):
         from legal_history import audit_revision_chain
 
-        # Article 1 excerpt from Federal Law 27.07.2006 No. 152-FZ.
-        # The small text mutation is synthetic and tests detection only; these
-        # are not represented as authentic historical editions of the statute.
+        # Excerpt from the current Article 1 text of Federal Law No. 152-FZ,
+        # published by the Russian Ministry of Labour. The mutation below is
+        # synthetic and tests detection only; it is not a historical edition.
         article = (
             "Федеральный закон от 27.07.2006 № 152-ФЗ О персональных данных. "
             "Глава 1. Общие положения. "
             "Статья 1. Сфера действия настоящего Федерального закона "
             "1. Настоящим Федеральным законом регулируются отношения, связанные "
-            "с обработкой персональных данных, осуществляемой юридическими лицами "
-            "с использованием средств автоматизации."
+            "с обработкой персональных данных, осуществляемой федеральными органами "
+            "государственной власти, органами государственной власти субъектов "
+            "Российской Федерации, иными государственными органами (далее - "
+            "государственные органы), органами местного самоуправления, иными "
+            "муниципальными органами (далее - муниципальные органы), юридическими "
+            "лицами и физическими лицами с использованием средств автоматизации, "
+            "в том числе в информационно-телекоммуникационных сетях, или без "
+            "использования таких средств."
         )
         changed = article.replace(
-            "юридическими лицами с использованием средств автоматизации",
-            "юридическими лицами и физическими лицами с использованием средств автоматизации",
+            "юридическими лицами и физическими лицами",
+            "юридическими лицами и физическими лицами и индивидуальными предпринимателями",
         )
         result = audit_revision_chain(
             [
-                {"edition_date": "2020-01-01", "text": article},
-                {"edition_date": "2024-01-01", "text": changed},
+                {"edition_date": "2025-01-01", "text": article},
+                {"edition_date": "2025-02-01", "text": changed},
             ],
             [],
         )
         self.assertEqual(result["change_count"], 1)
-        self.assertEqual(result["changed_provisions"][0]["provision_id"],
-                         "Статья 1")
+        self.assertEqual(result["changed_provisions"][0]["provision_id"], "Статья 1")
         self.assertEqual(result["changed_provisions"][0]["change_kind"], "text_changed")
         self.assertFalse(result["coverage_verified"])
 
