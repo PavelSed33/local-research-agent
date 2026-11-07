@@ -18,16 +18,9 @@ class DocxResourceLimitTests(unittest.TestCase):
     def test_rejects_oversized_document_xml_before_reading(self):
         stream = io.BytesIO()
         with zipfile.ZipFile(stream, "w", compression=zipfile.ZIP_DEFLATED) as archive:
-            info = zipfile.ZipInfo("word/document.xml")
-            info.file_size = MAX_DOCX_XML_BYTES + 1
-            # ZIP metadata can advertise a large member without storing its body.
-            archive.writestr(info, b"<x/>")
-        # Build a valid archive with a patched central-directory size.
-        data = bytearray(stream.getvalue())
-        with zipfile.ZipFile(io.BytesIO(data)) as archive:
-            self.assertEqual(archive.namelist(), ["word/document.xml"])
-        # The compressed member's true size is small; direct input bound is
-        # covered above and normal DOCX parsing remains covered by existing tests.
+            archive.writestr("word/document.xml", b"x" * (MAX_DOCX_XML_BYTES + 1))
+        with self.assertRaisesRegex(ValueError, "Основной XML документа"):
+            extract_docx_text(stream.getvalue())
 
 
 class ResearchEvidenceRetentionTests(unittest.TestCase):
@@ -61,7 +54,7 @@ class ResearchEvidenceRetentionTests(unittest.TestCase):
                 agent, "TavilySearch", return_value=Search()
             ):
                 _, journal_path = agent.run(
-                    "тестовый вопрос", 1, 1, Path(directory), checked_on="2026-11-07"
+                    "тестовый вопрос", 1, 1, Path(directory)
                 )
             import json
             journal = json.loads(journal_path.read_text(encoding="utf-8"))
