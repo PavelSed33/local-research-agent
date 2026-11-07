@@ -76,6 +76,7 @@ LLM_BASE_URL=https://api.openai.com/v1
 TAVILY_API_KEY=ваш_ключ_tavily
 LEGAL_SEARCH_DOMAINS=pravo.gov.ru,www.consultant.ru,www.garant.ru
 PRAVO_PORTAL_API_BASE_URL=https://publication.pravo.gov.ru
+PRAVO_PORTAL_TIMEOUT_SECONDS=8
 COURT_SEARCH_DOMAINS=kad.arbitr.ru,vsrf.ru,sudact.ru
 # Разрешайте передачу договоров облачному LLM только если это осознанно допустимо:
 ALLOW_CLOUD_DOCUMENTS=true
