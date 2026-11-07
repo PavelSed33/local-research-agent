@@ -83,7 +83,9 @@ def _parse_date(text: str) -> str | None:
 
 def _document_id(href: str) -> str | None:
     parsed = urllib.parse.urlsplit(href)
-    if parsed.scheme and (parsed.scheme != "https" or parsed.hostname not in {"pravo.gov.ru", "www.pravo.gov.ru"}):
+    if parsed.scheme and parsed.scheme != "https":
+        return None
+    if parsed.netloc and parsed.hostname not in {"pravo.gov.ru", "www.pravo.gov.ru"}:
         return None
     params = urllib.parse.parse_qs(parsed.query)
     value = (params.get("nd") or [None])[0]
