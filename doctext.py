@@ -15,7 +15,10 @@ from __future__ import annotations
 import base64
 import binascii
 import io
+import ipaddress
+import os
 import zipfile
+from urllib.parse import urlparse
 from typing import Any
 from xml.etree import ElementTree
 
@@ -35,6 +38,25 @@ FORMAT_ERROR = (
     "Неизвестный формат файла: поддерживается DOCX. "
     "Либо передайте текст напрямую в поле «document»."
 )
+
+def ensure_document_transfer_allowed() -> None:
+    """Require explicit opt-in before sending contract text to a remote LLM."""
+    base_url = os.getenv("LLM_BASE_URL", "https://api.openai.com/v1").strip()
+    hostname = urlparse(base_url).hostname or ""
+    is_local = hostname.lower() == "localhost"
+    if not is_local:
+        try:
+            is_local = ipaddress.ip_address(hostname).is_loopback
+        except ValueError:
+            is_local = False
+    consent = os.getenv("ALLOW_CLOUD_DOCUMENTS", "").strip().lower() in {"1", "true", "yes"}
+    if not is_local and not consent:
+        raise ValueError(
+            "Отправка текста договора во внешний LLM заблокирована. "
+            "Для локальной модели задайте LLM_BASE_URL на localhost/loopback; "
+            "для осознанного использования облачной модели установите ALLOW_CLOUD_DOCUMENTS=true."
+        )
+
 
 
 def extract_docx_text(data: bytes) -> str:
