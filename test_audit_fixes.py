@@ -503,5 +503,45 @@ class ProvisionEffectivePeriodTests(unittest.TestCase):
 
 
 
+class RevisionChainCoverageTests(unittest.TestCase):
+    def test_detects_changed_articles_between_dated_snapshots(self):
+        from legal_history import audit_revision_chain
+
+        result = audit_revision_chain(
+            [
+                {"edition_date": "2020-01-01", "text": "Статья 5. Старая редакция\nТекст нормы."},
+                {"edition_date": "2024-01-01", "text": "Статья 5. Новая редакция\nНовый текст нормы."},
+            ],
+            [{"effective_from": "2022-06-01"}],
+        )
+        self.assertEqual(result["change_count"], 1)
+        self.assertEqual(result["changed_provisions"][0]["change_kind"], "text_changed")
+        self.assertFalse(result["verified"])
+        self.assertFalse(result["coverage_verified"])
+
+    def test_reports_missing_or_undated_snapshots(self):
+        from legal_history import audit_revision_chain
+
+        result = audit_revision_chain(
+            [{"edition_date": None, "text": "Статья 1. Текст"}],
+            [],
+        )
+        self.assertTrue(result["gaps"])
+        self.assertFalse(result["verified"])
+
+    def test_flags_events_outside_available_snapshot_range(self):
+        from legal_history import audit_revision_chain
+
+        result = audit_revision_chain(
+            [
+                {"edition_date": "2020-01-01", "text": "Статья 1. А"},
+                {"edition_date": "2022-01-01", "text": "Статья 1. Б"},
+            ],
+            [{"effective_from": "2024-03-01"}],
+        )
+        self.assertTrue(any("вне диапазона" in gap for gap in result["gaps"]))
+        self.assertEqual(result["status"], "revision_chain_gaps_detected")
+
+
 if __name__ == "__main__":
     unittest.main()
