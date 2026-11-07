@@ -14,6 +14,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from html.parser import HTMLParser
+from datetime import date
 from typing import Any
 
 from agent import AgentError, Source
@@ -157,7 +158,24 @@ class PravoPortalSearch:
         except json.JSONDecodeError:
             return decoded
 
-    def search(self, query: str, limit: int) -> list[Source]:
+    def search_act(self, signed_date: str, act_number: str) -> list[Source]:
+        """Retrieve a candidate only when its publication metadata matches both keys."""
+        try:
+            parsed_date = date.fromisoformat(signed_date)
+        except (TypeError, ValueError):
+            raise AgentError("Некорректная дата изменяющего акта.") from None
+        if not re.fullmatch(r"[0-9]+-ФЗ", act_number):
+            raise AgentError("Ожидается номер федерального закона: N-ФЗ.")
+        query = f"Федеральный закон от {parsed_date.strftime('%d.%m.%Y')} № {act_number}"
+        sources = self.search(query, 2, required_identity=(signed_date, act_number))
+        if not sources:
+            raise AgentError(
+                f"Не получен текст официальной публикации с подтверждёнными реквизитами: {query}. "
+                "Возможны отсутствие результата, неполные метаданные или недоступность текста."
+            )
+        return sources
+
+    def search(self, query: str, limit: int, *, required_identity: tuple[str, str] | None = None) -> list[Source]:
         if not isinstance(query, str) or not query.strip():
             return []
         # Keep the public portal's fan-out bounded: one search and at most
@@ -187,6 +205,15 @@ class PravoPortalSearch:
             signed = _as_text(_value(
                 record, "SignDate", "DocumentDate", "Date", "SignedDate"
             ))
+            if required_identity is not None:
+                expected_date, expected_number = required_identity
+                normalized_number = re.sub(r"\s+", "", number).removeprefix("№").upper()
+                # Do not use publication dates or mentions of other acts in the title.
+                signed_iso = signed[:10] if re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}(?:T.*)?", signed) else ""
+                if re.fullmatch(r"[0-9]{2}\.[0-9]{2}\.[0-9]{4}", signed):
+                    signed_iso = f"{signed[6:]}-{signed[3:5]}-{signed[:2]}"
+                if (signed_iso, normalized_number) != (expected_date, expected_number) or not eo_number:
+                    continue
             published = _as_text(_value(
                 record, "PubDate", "PublishDate", "PublicationDate", "PublishedAt"
             ))
@@ -273,3 +300,4 @@ class FederatedLegalSearch:
         if not unique and self.last_errors:
             raise AgentError("; ".join(self.last_errors))
         return list(unique.values())
+

@@ -1010,13 +1010,8 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
     amendment_errors: list[str] = []
     if portal_search is not None:
         for reference in list(amendment_refs.values())[:8]:
-            amendment_query = (
-                f"Федеральный закон от "
-                f"{date.fromisoformat(reference['signed_date']).strftime('%d.%m.%Y')} "
-                f"№ {reference['act_number']}"
-            )
             try:
-                amendment_sources.extend(portal_search.search(amendment_query, 2))
+                amendment_sources.extend(portal_search.search_act(reference["signed_date"], reference["act_number"]))
             except AgentError as exc:
                 amendment_errors.append(str(exc))
     amendment_sources = deduplicate(amendment_sources, 12)
