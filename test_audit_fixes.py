@@ -613,13 +613,15 @@ class Law152FixtureInventoryTests(unittest.TestCase):
         inventory = fixture["consolidated_citation_inventory"]
         self.assertEqual(len(inventory), 35)
         self.assertEqual(fixture["inventory_summary"]["total_citations"], 35)
-        self.assertEqual(fixture["inventory_summary"]["partial_scope_candidates"], 15)
-        self.assertEqual(fixture["inventory_summary"]["not_mapped"], 20)
+        self.assertEqual(fixture["inventory_summary"]["partial_scope_candidates"], 14)
+        self.assertEqual(fixture["inventory_summary"]["not_mapped"], 21)
         scoped = fixture["article_scoped_inventory"]
         self.assertEqual(len(scoped["articles"]), 3)
         self.assertEqual(scoped["summary"]["articles_covered"], 3)
-        self.assertEqual(scoped["summary"]["candidate_act_article_links"], 18)
-        self.assertEqual(scoped["summary"]["candidate_links_by_article"], {"3": 2, "6": 12, "9": 4})
+        self.assertEqual(scoped["summary"]["candidate_act_article_links"], 17)
+        self.assertEqual(scoped["summary"]["candidate_links_by_article"], {"3": 2, "6": 11, "9": 4})
+        self.assertTrue(any(item["act_number"] == "363-ФЗ" and item["date"] == "2013-12-21" for item in scoped["out_of_scope_amendment_checks"]))
+        self.assertTrue(any(item["act"] == "363-ФЗ" and item["date"] == "2013-12-21" for item in scoped["source_discrepancies"]))
         self.assertTrue(any(
             item["act_number"] == "148-ФЗ" and item["scope"] == ["часть 1.1"]
             for article in scoped["articles"] if article["article"] == "6"
