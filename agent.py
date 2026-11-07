@@ -654,7 +654,7 @@ def build_report(model: LanguageModel, topic: str, sources: list[Source], sessio
         "Не называй редакцию действующей, если источник не подтверждает статус и дату вступления изменений в силу. "
         "Различай официальный первичный источник, судебный сайт, агрегатор судебных актов и коммерческую справочную систему. "
         "Не называй единичное судебное решение устойчивой практикой; указывай суд, дату и номер дела только если они есть в источнике. "
-        "Каждое правовое утверждение сопровождай ссылкой [N]. Отдельно укажи, какие изменения проверены и что подтвердить не удалось. "
+        "Каждое правовое утверждение сопровождай ссылкой [N] в том же предложении. В одном предложении указывай один закон или кодекс; несколько законов разделяй на отдельные предложения с собственными ссылками. Указанный источник должен содержать именно заявленную статью этого акта. Отдельно укажи, какие изменения проверены и что подтвердить не удалось. "
         "Не выдавай ответ за индивидуальную юридическую консультацию. Не добавляй раздел источников. "
         "Используй разделы: Краткий ответ, Правовое основание, Актуальность и изменения, Как применить к ситуации, Ограничения.",
         f"Правовой вопрос: {topic}{context_block}\n\nМатериалы:\n\n{format_materials(sources)}",
@@ -699,30 +699,60 @@ def _act_ids(text: str) -> set[str]:
     return identifiers
 
 
-def find_unconfirmed_articles(report: str, sources: list[Source]) -> list[str]:
-    """Require each cited article to be linked to the same identifiable act in a source."""
-    unconfirmed: set[str] = set()
-    source_records = []
-    for source in sources:
-        source_text = f"{source.title}\n{source.text}"
-        source_records.append((source_text, _act_ids(source_text)))
+def _citation_segments(text: str):
+    """Bound citations to a sentence/clause; preserve decimal numbers and abbreviations."""
+    # Paragraphs, headings and list entries must not lend citations to each other.
+    blocks = re.split(r'\n\s*\n|\n(?=\s*(?:##|[-*]\s|\d+[.)]\s))', text)
+    abbreviations = {'ст', 'ч', 'п', 'подп', 'г', 'ред', 'им', 'т', 'д', 'тд', 'тп'}
+    attached_citations = re.compile(r'[»”"\)]*\s*(?:\[\d+\]\s*)+')
+    for block in blocks:
+        start, index = 0, 0
+        while index < len(block):
+            char = block[index]
+            boundary = char in '!?;'
+            if char == '.':
+                word = re.search(r'([А-Яа-яA-Za-z]+)$', block[max(0, index - 16):index])
+                decimal = index > 0 and index + 1 < len(block) and block[index - 1].isdigit() and block[index + 1].isdigit()
+                boundary = not decimal and not (word and word.group(1).casefold() in abbreviations)
+            if boundary:
+                end = index + 1
+                attached = attached_citations.match(block, end)
+                if attached:
+                    end = attached.end()
+                yield block[start:end]
+                start, index = end, end
+            else:
+                index += 1
+        if start < len(block):
+            yield block[start:]
 
-    for match in ARTICLE_MENTION_PATTERN.finditer(report):
-        article_number = match.group(1)
-        context = report[max(0, match.start() - 100):min(len(report), match.end() + 100)]
-        act_ids = _act_ids(context)
-        if not act_ids:
-            unconfirmed.add(f"{article_number} (не указан конкретный закон или кодекс)")
-            continue
-        matched_source = False
-        for source_text, source_acts in source_records:
-            if not source_acts.intersection(act_ids):
-                continue
-            if article_number in ARTICLE_PATTERN.findall(source_text):
-                matched_source = True
-                break
-        if not matched_source:
-            unconfirmed.add(f"{article_number} ({', '.join(sorted(act_ids))})")
+
+def _source_article_pairs(source: Source) -> set[tuple[str, str]]:
+    title_acts = _act_ids(source.title)
+    supported = set()
+    for segment in _citation_segments(source.text):
+        acts = _act_ids(segment) or title_acts
+        if len(acts) == 1:
+            supported.update((number, next(iter(acts))) for number in ARTICLE_PATTERN.findall(segment))
+    return supported
+
+
+def find_unconfirmed_articles(report: str, sources: list[Source]) -> list[str]:
+    """Check article/act identity only against the citations in that claim's segment."""
+    unconfirmed: set[str] = set()
+    source_indexes = [_source_article_pairs(source) for source in sources]
+    for segment in _citation_segments(report):
+        act_ids = _act_ids(segment)
+        citations = [int(value) for value in re.findall(r'\[(\d+)\]', segment)]
+        cited = [source_indexes[index - 1] for index in citations if 1 <= index <= len(sources)]
+        for match in ARTICLE_MENTION_PATTERN.finditer(segment):
+            number = match.group(1)
+            if not act_ids:
+                unconfirmed.add(f"{number} (не указан конкретный закон или кодекс)")
+            elif len(act_ids) != 1:
+                unconfirmed.add(f"{number} (неоднозначная связь с законом: {', '.join(sorted(act_ids))})")
+            elif not any((number, next(iter(act_ids))) in pairs for pairs in cited):
+                unconfirmed.add(f"{number} ({', '.join(sorted(act_ids))})")
     return sorted(unconfirmed, key=lambda value: _article_sort_key(value.split(" ", 1)[0]))
 
 
@@ -747,7 +777,7 @@ def validate_report(report: str, sources: list[Source]) -> list[str]:
         issues.append(f"Есть ссылки, которых нет в материалах: {unknown_links}.")
     missing_articles = find_unconfirmed_articles(report, sources)
     if missing_articles:
-        issues.append(f"Упомянуты статьи, которых нет в источниках: {missing_articles}.")
+        issues.append(f"Упомянуты статьи без подтверждения в указанных для утверждения источниках: {missing_articles}. Укажите один закон на предложение и ссылку [N] в том же предложении.")
     return issues
 
 

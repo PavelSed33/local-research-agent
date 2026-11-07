@@ -222,7 +222,7 @@ class UserChangeRegressionTests(unittest.TestCase):
             self.assertEqual(agent.post_json("https://example.test", {}, {}), {"ok": True})
 
     def test_article_number_match_does_not_accept_decimal_prefix(self):
-        report = "## Правовое основание\nСогласно статье 15 ГК РФ."
+        report = "## Правовое основание\nСогласно статье 15 ГК РФ [1]."
         sources = [Source("Источник", "https://example.test", "См. статью 15.1 закона.", "q")]
         self.assertEqual(find_unconfirmed_articles(report, sources), ["15 (ГК РФ)"])
 
@@ -237,12 +237,12 @@ class UserChangeRegressionTests(unittest.TestCase):
 
 class LegalCitationProvenanceTests(unittest.TestCase):
     def test_article_number_from_different_code_does_not_confirm_citation(self):
-        report = "## Правовое основание\\nПрименяется статья 15 ГК РФ."
+        report = "## Правовое основание\\nПрименяется статья 15 ГК РФ [1]."
         sources = [Source("Трудовой кодекс РФ", "https://pravo.gov.ru/law", "Статья 15. Общие положения.", "q")]
         self.assertEqual(find_unconfirmed_articles(report, sources), ["15 (ГК РФ)"])
 
     def test_article_without_identified_statute_is_unconfirmed(self):
-        report = "## Правовое основание\\nПрименяется статья 15."
+        report = "## Правовое основание\\nПрименяется статья 15 [1]."
         sources = [Source("Сборник норм", "https://example.test", "Статья 15. Текст.", "q")]
         self.assertEqual(
             find_unconfirmed_articles(report, sources),
@@ -250,12 +250,12 @@ class LegalCitationProvenanceTests(unittest.TestCase):
         )
 
     def test_article_and_matching_statute_in_same_source_are_confirmed(self):
-        report = "## Правовое основание\\nПрименяется статья 15 ГК РФ."
+        report = "## Правовое основание\\nПрименяется статья 15 ГК РФ [1]."
         sources = [Source("Гражданский кодекс Российской Федерации", "https://pravo.gov.ru/law", "Статья 15. Защита гражданских прав.", "q")]
         self.assertEqual(find_unconfirmed_articles(report, sources), [])
 
     def test_federal_law_number_must_match_source(self):
-        report = "## Правовое основание\\nПрименяется статья 6 152-ФЗ."
+        report = "## Правовое основание\\nПрименяется статья 6 152-ФЗ [1]."
         sources = [Source("Федеральный закон № 149-ФЗ", "https://pravo.gov.ru/law", "Статья 6. Информация.", "q")]
         self.assertEqual(find_unconfirmed_articles(report, sources), ["6 (152-ФЗ)"])
 

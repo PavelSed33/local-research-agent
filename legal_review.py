@@ -14,7 +14,7 @@ from legal_evidence import cached_contract_sources, evidence_report
 from contract_scope import contract_qualification, scope_options
 from doctext import ensure_document_transfer_allowed, parse_demo_flag, resolve_document
 from review import (DemoReviewModel, MIN_DOCUMENT_CHARS, build_review_prompt,
-                    normalize_text, validate_review)
+                    MAX_DOCUMENT_CHARS, safe_review_risk, normalize_text, validate_review)
 
 PROFILES = {
     'business': {'law': 'ГК РФ части I и II', 'facts': {'both_businesses': 'Обе стороны действуют в рамках предпринимательской деятельности?'}},
@@ -97,10 +97,10 @@ def handle_legal_review(payload: dict[str, Any]) -> dict[str, Any]:
     checklist['qualification_status'] = qualification['status']
     coverage = contract_coverage(profile, as_of)
     document = resolve_document(payload)
-    if not MIN_DOCUMENT_CHARS <= len(document) <= 200_000:
+    if not MIN_DOCUMENT_CHARS <= len(document) <= MAX_DOCUMENT_CHARS:
         raise ValueError('Текст договора должен содержать от 20 до 200000 символов.')
     base = {'profile': profile, 'applicability': scope, 'as_of': as_of,
-            'checked_on': current_check_date(), 'verified': False, 'demo': demo,
+            'checked_on': current_check_date(), 'verified': False, 'lawyer_reviewed': False, 'demo': demo,
             'disclaimer': LEGAL_DISCLAIMER, 'sources': [], 'checklist': checklist, 'temporal_context': timing,
             'legal_coverage': coverage, 'contract_qualification': qualification}
     if scope['status'] != 'candidate_scope':
@@ -161,7 +161,7 @@ def handle_legal_review(payload: dict[str, Any]) -> dict[str, Any]:
             raise AgentError('Проверка цитат договора и правовых источников не пройдена.')
     safe_risks = []
     for candidate in result['risks']:
-        risk = {key: candidate[key] for key in ('category', 'severity', 'quote', 'comment', 'recommendation')}
+        risk = safe_review_risk(candidate)
         risk['legal_basis'] = [{
             'source_id': basis['source_id'], 'provision': basis['provision'], 'quote': basis['quote'],
             'quote_checked': True, 'period_supported': False, 'verified': False, 'lawyer_reviewed': False,
