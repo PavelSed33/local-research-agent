@@ -618,15 +618,20 @@ class Law152FixtureInventoryTests(unittest.TestCase):
         scoped = fixture["article_scoped_inventory"]
         self.assertEqual(len(scoped["articles"]), 3)
         self.assertEqual(scoped["summary"]["articles_covered"], 3)
-        self.assertEqual(scoped["summary"]["candidate_act_article_links"], 19)
-        self.assertEqual(scoped["summary"]["candidate_links_by_article"], {"3": 2, "6": 13, "9": 4})
+        self.assertEqual(scoped["summary"]["candidate_act_article_links"], 20)
+        self.assertEqual(scoped["summary"]["candidate_links_by_article"], {"3": 2, "6": 14, "9": 4})
         self.assertTrue(any(item["act_number"] == "363-ФЗ" and "пункт 5 части 1" in item["scope"] for item in scoped["articles"][1]["candidate_amendments"]))
         self.assertTrue(any(
             item["act_number"] == "266-ФЗ" and item["act_date"] == "2009-11-25"
             and item["scope"] == ["пункт 1.1 части 2"] and item["effective_from"] == "2009-12-08"
             for item in scoped["articles"][1]["candidate_amendments"]
         ))
+
         self.assertTrue(any(
+            item["act_number"] == "123-ФЗ" and item["act_date"] == "2011-06-04"
+            and item["scope"] == ["пункт 5.1 части 2"] and item["effective_from"] == "2011-06-18"
+            for item in scoped["articles"][1]["candidate_amendments"]
+        ))        self.assertTrue(any(
             item["act_number"] == "148-ФЗ" and item["scope"] == ["часть 1.1"]
             for article in scoped["articles"] if article["article"] == "6"
             for item in article["candidate_amendments"]
