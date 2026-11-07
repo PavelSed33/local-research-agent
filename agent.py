@@ -1061,6 +1061,9 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
             "errors": [str(exc)],
         }
 
+    from legal_history import select_provision_period
+    provision_history["selection"] = select_provision_period(provision_history, legal_as_of)
+
     amendment_chain_audit = extract_amendment_chain_evidence(
         model, changed_provisions, amendment_sources
     )

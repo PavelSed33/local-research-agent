@@ -132,6 +132,44 @@ def build_provision_timeline(
     }
 
 
+def select_provision_period(timeline: dict[str, Any], as_of: str) -> dict[str, Any]:
+    """Select an inclusive candidate interval; never infer missing history."""
+    target = _iso_date(as_of)
+    result: dict[str, Any] = {
+        "as_of": as_of, "provision_id": timeline.get("provision_id"),
+        "status": "no_period_evidence", "period": None, "verified": False,
+        "limitation": "Выбор интервала по найденным событиям не подтверждает полноту истории или применимость нормы.",
+    }
+    if target is None:
+        raise ValueError("as_of должна быть датой в формате ГГГГ-ММ-ДД.")
+    periods = timeline.get("periods")
+    if not isinstance(periods, list) or not periods:
+        return result
+    parsed = []
+    for period in periods:
+        if not isinstance(period, dict):
+            result["status"] = "invalid_period_evidence"
+            return result
+        start = _iso_date(period.get("valid_from"))
+        end_value = period.get("valid_to")
+        end = _iso_date(end_value) if end_value is not None else None
+        if start is None or (end_value is not None and end is None) or (end and end < start):
+            result["status"] = "invalid_period_evidence"
+            return result
+        parsed.append((start, end, period))
+    parsed.sort(key=lambda entry: entry[0])
+    for left, right in zip(parsed, parsed[1:]):
+        if left[1] is None or left[1] >= right[0]:
+            result["status"] = "conflicting_period_evidence"
+            return result
+    for start, end, period in parsed:
+        if start <= target and (end is None or target <= end):
+            result.update(status="candidate_period_unverified", period=period)
+            return result
+    result["status"] = "date_outside_known_periods"
+    return result
+
+
 def audit_revision_chain(
     snapshots: list[dict[str, Any]],
     events: list[dict[str, Any]],
@@ -585,3 +623,4 @@ def audit_amendment_retrieval(
             "она не доказывает связь акта с нормой и полноту обнаружения поправок."
         ),
     }
+
