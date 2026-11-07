@@ -278,6 +278,104 @@ def extract_amendment_references(text: str) -> list[dict[str, str]]:
     return list(found.values())
 
 
+
+def extract_target_law_amendment_scope(
+    act_text: str,
+    target_law_number: str = "152-ФЗ",
+) -> dict[str, Any]:
+    """Extract explicit article/part targets from an amendment act's instructions.
+
+    The result is a candidate scope map, not proof of the act's legal effect.
+    It deliberately refuses to infer target provisions from a mere mention of
+    the target law elsewhere in the document.
+    """
+    if not isinstance(act_text, str) or not act_text.strip():
+        return {"status": "empty_act_text", "target_law_found": False, "items": [], "gaps": ["Нет текста акта."]}
+    normalized_number = re.sub(r"\s+", "", str(target_law_number or "")).upper()
+    number_match = re.fullmatch(r"\d+-ФЗ", normalized_number)
+    if not number_match or normalized_number not in re.sub(r"\s+", "", act_text).upper():
+        return {
+            "status": "target_law_not_found", "target_law_found": False,
+            "items": [], "gaps": ["В тексте не найден точный номер изменяемого закона."],
+        }
+
+    # Recognize the amendment instruction, e.g. "Внести в статью 12
+    # Федерального закона ... № 152-ФЗ следующие изменения".
+    instruction = re.search(
+        r"Внести\s+в\s+статью\s+(?P<article>\\d+(?:\\.\\d+)?)"
+        r"(?:(?!\\n\\s*Статья\\s+\\d).){0,1200}?"
+        r"(?:Федерального\\s+закона|Федеральный\\s+закон)"
+        r"(?:(?!\\n\\s*Статья\\s+\\d).){0,500}?"
+        + re.escape(normalized_number)
+        + r"(?:(?!\\n\\s*Статья\\s+\\d).){0,300}?"
+        r"следующие\\s+изменения\\s*:",
+        act_text,
+        re.IGNORECASE | re.DOTALL,
+    )
+    if not instruction:
+        return {
+            "status": "target_law_mentioned_no_scoped_instruction",
+            "target_law_found": True, "items": [],
+            "gaps": ["Номер закона найден, но явная инструкция о внесении изменений в него не распознана."],
+        }
+
+    article = instruction.group("article")
+    tail = act_text[instruction.end():]
+    clause_matches = list(re.finditer(
+        r"(?ms)^\\s*(\\d+)\\)\\s*(.*?)(?=^\\s*\\d+\\)\\s*|\\Z)",
+        tail,
+    ))
+    items: list[dict[str, Any]] = []
+    if not clause_matches:
+        clause_matches = [re.match(r"(?s)(.*)", tail)]
+    for index, match in enumerate(clause_matches, start=1):
+        clause = (match.group(2) if match.lastindex and match.lastindex >= 2 else match.group(1)).strip()
+        if not clause:
+            continue
+        subprovisions = re.findall(
+            r"\\bв\\s+(?:пункте\\s+(\\d+)\\s+)?части\\s+(\\d+(?:\\.\\d+)?)\\b",
+            clause,
+            re.IGNORECASE,
+        )
+        if not subprovisions:
+            subprovisions = re.findall(
+                r"\\bв\\s+пункте\\s+(\\d+(?:\\.\\d+)?)\\b",
+                clause,
+                re.IGNORECASE,
+            )
+            subprovisions = [(point, "") for point, in subprovisions]
+        if not subprovisions:
+            items.append({
+                "act_item": index, "article": article, "subprovision": None,
+                "instruction_excerpt": clause[:1200],
+                "scope_status": "article_only",
+            })
+            continue
+        for point, part in subprovisions:
+            subprovision = (
+                f"пункт {point} части {part}" if point and part
+                else f"часть {part}" if part
+                else f"пункт {point}"
+            )
+            items.append({
+                "act_item": index, "article": article, "subprovision": subprovision,
+                "instruction_excerpt": clause[:1200],
+                "scope_status": "explicit_subprovision",
+            })
+    return {
+        "status": "scope_candidates_extracted" if items else "no_scope_candidates",
+        "target_law_found": True,
+        "target_law_number": normalized_number,
+        "target_article": article,
+        "items": items[:100],
+        "gaps": [] if items else ["Не удалось выделить номера частей или пунктов из инструкции."],
+        "verified": False,
+        "limitation": (
+            "Извлечение показывает буквальную область инструкции в изменяющем акте; "
+            "оно не доказывает полноту цепочки поправок или дату вступления каждой нормы в силу."
+        ),
+    }
+
 def audit_amendment_links(
     changed_provisions: list[dict[str, Any]],
     candidates: list[dict[str, Any]],
