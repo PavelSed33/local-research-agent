@@ -8,7 +8,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import agent
-from agent import Source, current_check_date, deduplicate_queries, extract_json, find_unconfirmed_articles, reflect_on_report
+from agent import Source, current_check_date, deduplicate_queries, extract_json, find_unconfirmed_articles, reflect_on_report, classify_source_authority
 from api import create_server, handle_ask, SessionStore, SESSION_MAX_COUNT, LegalApiHandler
 from redline import diff_documents, MAX_DIFF_DOCUMENT_CHARS
 from registry import build_registry, MAX_REGISTRY_FILE_BYTES
@@ -228,6 +228,39 @@ class UserChangeRegressionTests(unittest.TestCase):
                 return '{"consistent": "false", "issues": []}'
         with self.assertRaisesRegex(agent.AgentError, "consistent неверного типа"):
             reflect_on_report(Model(), "тема", "отчёт", [])
+
+
+
+class LegalCitationProvenanceTests(unittest.TestCase):
+    def test_article_number_from_different_code_does_not_confirm_citation(self):
+        report = "## Правовое основание\\nПрименяется статья 15 ГК РФ."
+        sources = [Source("Трудовой кодекс РФ", "https://pravo.gov.ru/law", "Статья 15. Общие положения.", "q")]
+        self.assertEqual(find_unconfirmed_articles(report, sources), ["15 (ГК РФ)"])
+
+    def test_article_without_identified_statute_is_unconfirmed(self):
+        report = "## Правовое основание\\nПрименяется статья 15."
+        sources = [Source("Сборник норм", "https://example.test", "Статья 15. Текст.", "q")]
+        self.assertEqual(
+            find_unconfirmed_articles(report, sources),
+            ["15 (не указан конкретный закон или кодекс)"],
+        )
+
+    def test_article_and_matching_statute_in_same_source_are_confirmed(self):
+        report = "## Правовое основание\\nПрименяется статья 15 ГК РФ."
+        sources = [Source("Гражданский кодекс Российской Федерации", "https://pravo.gov.ru/law", "Статья 15. Защита гражданских прав.", "q")]
+        self.assertEqual(find_unconfirmed_articles(report, sources), [])
+
+    def test_federal_law_number_must_match_source(self):
+        report = "## Правовое основание\\nПрименяется статья 6 152-ФЗ."
+        sources = [Source("Федеральный закон № 149-ФЗ", "https://pravo.gov.ru/law", "Статья 6. Информация.", "q")]
+        self.assertEqual(find_unconfirmed_articles(report, sources), ["6 (152-ФЗ)"])
+
+    def test_source_authority_is_classified_without_claiming_validity(self):
+        self.assertEqual(classify_source_authority("https://pravo.gov.ru/document"), "official_legal_portal")
+        self.assertEqual(classify_source_authority("https://kad.arbitr.ru/"), "official_court")
+        self.assertEqual(classify_source_authority("https://sudact.ru/"), "case_law_aggregator")
+        self.assertEqual(classify_source_authority("https://www.consultant.ru/"), "secondary_legal_reference")
+        self.assertEqual(classify_source_authority("https://unknown.example/"), "unclassified")
 
 
 if __name__ == "__main__":
