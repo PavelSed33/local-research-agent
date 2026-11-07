@@ -611,12 +611,12 @@ class Law152FixtureInventoryTests(unittest.TestCase):
         fixture_path = Path(__file__).parent / "fixtures" / "152fz_amendment_map.json"
         fixture = json.loads(fixture_path.read_text(encoding="utf-8"))
         inventory = fixture["consolidated_citation_inventory"]
-        self.assertEqual(len(inventory), 35)
-        self.assertEqual(fixture["inventory_summary"]["total_citations"], 35)
+        self.assertEqual(len(inventory), 36)
+        self.assertEqual(fixture["inventory_summary"]["total_citations"], 36)
         self.assertEqual(fixture["inventory_summary"]["partial_scope_candidates"], 17)
-        self.assertEqual(fixture["inventory_summary"]["not_mapped"], 18)
+        self.assertEqual(fixture["inventory_summary"]["not_mapped"], 19)
         self.assertEqual(sum(item["scope_mapping_status"] == "partial_candidate" for item in inventory), 17)
-        self.assertEqual(sum(item["scope_mapping_status"] == "not_mapped" for item in inventory), 18)
+        self.assertEqual(sum(item["scope_mapping_status"] == "not_mapped" for item in inventory), 19)
         scoped = fixture["article_scoped_inventory"]
         self.assertEqual(len(scoped["articles"]), 3)
         self.assertEqual(scoped["summary"]["articles_covered"], 3)
@@ -648,8 +648,10 @@ class Law152FixtureInventoryTests(unittest.TestCase):
         self.assertEqual(scoped["summary"]["out_of_scope_checks"], 20)
         out_of_scope_pairs = {(item["date"], item["act"]) for item in scoped["out_of_scope_amendment_checks"]}
         self.assertTrue(all((item["signed_date"], item["act_number"]) in out_of_scope_pairs for item in inventory if item["scope_mapping_status"] == "not_mapped"))
+        self.assertTrue(all((item["date"], item["act"]) in {(row["signed_date"], row["act_number"]) for row in inventory} for item in scoped["out_of_scope_amendment_checks"]))
         self.assertTrue(any(item["act"] == "216-ФЗ" and "статьи 10" in item["basis"] for item in scoped["out_of_scope_amendment_checks"]))
         self.assertTrue(any(item["act"] == "204-ФЗ" and "статьи 10" in item["basis"] for item in scoped["out_of_scope_amendment_checks"]))
+        self.assertTrue(any(item["act"] == "200-ФЗ" and item["date"] == "2025-07-07" for item in scoped["out_of_scope_amendment_checks"]))
         self.assertFalse(any(item["act_number"] == "204-ФЗ" for item in scoped["articles"][1]["candidate_amendments"]))
         self.assertEqual(scoped["summary"]["official_act_texts_retrieved"], 0)
         portal = scoped["official_portal_retrieval"]
