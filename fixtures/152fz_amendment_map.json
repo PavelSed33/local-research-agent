@@ -434,12 +434,13 @@
             ],
             "basis": "аннотация к пункту 1.1 указывает, что он введён законом 519-ФЗ",
             "scope_status": "explicit_in_secondary_consolidated_annotation",
-            "effective_from": null,
-            "effective_date_status": "нужна сверка официальной переходной нормы",
+            "effective_from": "2021-03-01",
+            "effective_date_status": "Статья 2(1) закона 519-ФЗ устанавливает общую дату вступления в силу 01.03.2021. Исключение — абзац десятый пункта 5 статьи 1 (часть 6 статьи 10.1 о подаче согласия через информационную систему), вступающий в силу 01.07.2021 по статье 2(2); оно не затрагивает изменения статей 3, 6 и 9, внесённые пунктами 1–3 статьи 1. Текст и переходная норма подтверждены вторичными полными копиями; оригинал официальной публикации не получен.",
             "secondary_sources": [
               "https://base.garant.ru/400157172/",
               "https://www.consultant.ru/document/cons_doc_LAW_372682/",
-              "https://www.consultant.ru/document/cons_doc_LAW_372682/3d0cac60971a511280cbba229d9b6329c07731f7/"
+              "https://www.consultant.ru/document/cons_doc_LAW_372682/3d0cac60971a511280cbba229d9b6329c07731f7/",
+              "https://www.kontur-extern.ru/info/normativ/document/1/380023-federalnyy-zakon-ot-30-12-2020-n-519-fz"
             ],
             "official_text_retrieved": false,
             "official_publication_identified": true,
@@ -451,7 +452,7 @@
               "exception": "paragraph 10 of item 5 of Article 1 (Article 10.1, part 6, item 2: consent via the information system) effective 2021-07-01; this exception does not apply to the tracked amendments to Articles 3, 6 or 9",
               "source_class": "secondary reproduction of Articles 1 and 2; original official portal body inaccessible"
             },
-            "source_verification_note": "Article 1 maps the tracked changes exactly: Article 3 point 1.1; Article 6 item 10 part 1 repealed; Article 9 part 9 added. The delayed paragraph 10 of item 5 is Article 10.1 part 6 item 2 and is not one of these three tracked provisions. Secondary text only; official publication body not retrieved.",
+            "source_verification_note": "Статья 1 закона 519-ФЗ прямо: пункт 1 дополняет статью 3 пунктом 1.1; пункт 2 признаёт утратившим силу пункт 10 части 1 статьи 6; пункт 3 дополняет статью 9 частью 9. Статья 2(1) вводит закон в силу 01.03.2021. Статья 2(2) откладывает до 01.07.2021 только абзац десятый пункта 5 статьи 1 — норму о подаче согласия через информационную систему по статье 10.1(6)(2), а не поправки к отслеживаемым статьям 3, 6 и 9. Официальная консолидированная редакция Минтруда также помечает пункт 1.1 статьи 3 как введённый 519-ФЗ. Это подтверждающие вторичные и официально-консолидированные источники, но не извлечённое оригинальное тело официальной публикации; official_text_retrieved остаётся false.",
             "secondary_source_class": "secondary_legal_database_or_reference_copy"
           }
         ],
@@ -685,11 +686,12 @@
             "basis": "аннотация к пункту 10 указывает утрату силы с 01.03.2021 по закону 519-ФЗ",
             "scope_status": "explicit_in_secondary_consolidated_annotation",
             "effective_from": "2021-03-01",
-            "effective_date_status": "дата приведена во вторичной аннотации; официальное переходное положение не получено",
+            "effective_date_status": "Статья 2(1) закона 519-ФЗ устанавливает общую дату вступления в силу 01.03.2021. Исключение — абзац десятый пункта 5 статьи 1 (часть 6 статьи 10.1 о подаче согласия через информационную систему), вступающий в силу 01.07.2021 по статье 2(2); оно не затрагивает изменения статей 3, 6 и 9, внесённые пунктами 1–3 статьи 1. Текст и переходная норма подтверждены вторичными полными копиями; оригинал официальной публикации не получен.",
             "secondary_sources": [
               "https://base.garant.ru/400157172/",
               "https://www.consultant.ru/document/cons_doc_LAW_372682/",
-              "https://www.consultant.ru/document/cons_doc_LAW_372682/3d0cac60971a511280cbba229d9b6329c07731f7/"
+              "https://www.consultant.ru/document/cons_doc_LAW_372682/3d0cac60971a511280cbba229d9b6329c07731f7/",
+              "https://www.kontur-extern.ru/info/normativ/document/1/380023-federalnyy-zakon-ot-30-12-2020-n-519-fz"
             ],
             "official_text_retrieved": false,
             "official_publication_identified": true,
@@ -701,7 +703,7 @@
               "exception": "paragraph 10 of item 5 of Article 1 (Article 10.1, part 6, item 2: consent via the information system) effective 2021-07-01; this exception does not apply to the tracked amendments to Articles 3, 6 or 9",
               "source_class": "secondary reproduction of Articles 1 and 2; original official portal body inaccessible"
             },
-            "source_verification_note": "Article 1 maps the tracked changes exactly: Article 3 point 1.1; Article 6 item 10 part 1 repealed; Article 9 part 9 added. The delayed paragraph 10 of item 5 is Article 10.1 part 6 item 2 and is not one of these three tracked provisions. Secondary text only; official publication body not retrieved.",
+            "source_verification_note": "Статья 1 закона 519-ФЗ прямо: пункт 1 дополняет статью 3 пунктом 1.1; пункт 2 признаёт утратившим силу пункт 10 части 1 статьи 6; пункт 3 дополняет статью 9 частью 9. Статья 2(1) вводит закон в силу 01.03.2021. Статья 2(2) откладывает до 01.07.2021 только абзац десятый пункта 5 статьи 1 — норму о подаче согласия через информационную систему по статье 10.1(6)(2), а не поправки к отслеживаемым статьям 3, 6 и 9. Официальная консолидированная редакция Минтруда также помечает пункт 1.1 статьи 3 как введённый 519-ФЗ. Это подтверждающие вторичные и официально-консолидированные источники, но не извлечённое оригинальное тело официальной публикации; official_text_retrieved остаётся false.",
             "secondary_source_class": "secondary_legal_database_or_reference_copy"
           },
           {
@@ -892,12 +894,13 @@
             ],
             "basis": "часть 9 прямо помечена как введённая законом 519-ФЗ",
             "scope_status": "explicit_in_secondary_consolidated_annotation",
-            "effective_from": null,
-            "effective_date_status": "нужна сверка переходного положения",
+            "effective_from": "2021-03-01",
+            "effective_date_status": "Статья 2(1) закона 519-ФЗ устанавливает общую дату вступления в силу 01.03.2021. Исключение — абзац десятый пункта 5 статьи 1 (часть 6 статьи 10.1 о подаче согласия через информационную систему), вступающий в силу 01.07.2021 по статье 2(2); оно не затрагивает изменения статей 3, 6 и 9, внесённые пунктами 1–3 статьи 1. Текст и переходная норма подтверждены вторичными полными копиями; оригинал официальной публикации не получен.",
             "secondary_sources": [
               "https://base.garant.ru/400157172/",
               "https://www.consultant.ru/document/cons_doc_LAW_372682/",
-              "https://www.consultant.ru/document/cons_doc_LAW_372682/3d0cac60971a511280cbba229d9b6329c07731f7/"
+              "https://www.consultant.ru/document/cons_doc_LAW_372682/3d0cac60971a511280cbba229d9b6329c07731f7/",
+              "https://www.kontur-extern.ru/info/normativ/document/1/380023-federalnyy-zakon-ot-30-12-2020-n-519-fz"
             ],
             "official_text_retrieved": false,
             "official_publication_identified": true,
@@ -909,7 +912,7 @@
               "exception": "paragraph 10 of item 5 of Article 1 (Article 10.1, part 6, item 2: consent via the information system) effective 2021-07-01; this exception does not apply to the tracked amendments to Articles 3, 6 or 9",
               "source_class": "secondary reproduction of Articles 1 and 2; original official portal body inaccessible"
             },
-            "source_verification_note": "Article 1 maps the tracked changes exactly: Article 3 point 1.1; Article 6 item 10 part 1 repealed; Article 9 part 9 added. The delayed paragraph 10 of item 5 is Article 10.1 part 6 item 2 and is not one of these three tracked provisions. Secondary text only; official publication body not retrieved.",
+            "source_verification_note": "Статья 1 закона 519-ФЗ прямо: пункт 1 дополняет статью 3 пунктом 1.1; пункт 2 признаёт утратившим силу пункт 10 части 1 статьи 6; пункт 3 дополняет статью 9 частью 9. Статья 2(1) вводит закон в силу 01.03.2021. Статья 2(2) откладывает до 01.07.2021 только абзац десятый пункта 5 статьи 1 — норму о подаче согласия через информационную систему по статье 10.1(6)(2), а не поправки к отслеживаемым статьям 3, 6 и 9. Официальная консолидированная редакция Минтруда также помечает пункт 1.1 статьи 3 как введённый 519-ФЗ. Это подтверждающие вторичные и официально-консолидированные источники, но не извлечённое оригинальное тело официальной публикации; official_text_retrieved остаётся false.",
             "secondary_source_class": "secondary_legal_database_or_reference_copy"
           },
           {
