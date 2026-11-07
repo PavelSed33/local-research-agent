@@ -613,10 +613,10 @@ class Law152FixtureInventoryTests(unittest.TestCase):
         inventory = fixture["consolidated_citation_inventory"]
         self.assertEqual(len(inventory), 36)
         self.assertEqual(fixture["inventory_summary"]["total_citations"], 36)
-        self.assertEqual(fixture["inventory_summary"]["partial_scope_candidates"], 17)
-        self.assertEqual(fixture["inventory_summary"]["not_mapped"], 19)
-        self.assertEqual(sum(item["scope_mapping_status"] == "partial_candidate" for item in inventory), 17)
-        self.assertEqual(sum(item["scope_mapping_status"] == "not_mapped" for item in inventory), 19)
+        self.assertEqual(fixture["inventory_summary"]["partial_scope_candidates"], 16)
+        self.assertEqual(fixture["inventory_summary"]["not_mapped"], 20)
+        self.assertEqual(sum(item["scope_mapping_status"] == "partial_candidate" for item in inventory), 16)
+        self.assertEqual(sum(item["scope_mapping_status"] == "not_mapped" for item in inventory), 20)
         scoped = fixture["article_scoped_inventory"]
         self.assertEqual(len(scoped["articles"]), 3)
         self.assertEqual(scoped["summary"]["articles_covered"], 3)
@@ -652,6 +652,7 @@ class Law152FixtureInventoryTests(unittest.TestCase):
         self.assertTrue(any(item["act"] == "216-ФЗ" and "статьи 10" in item["basis"] for item in scoped["out_of_scope_amendment_checks"]))
         self.assertTrue(any(item["act"] == "204-ФЗ" and "статьи 10" in item["basis"] for item in scoped["out_of_scope_amendment_checks"]))
         self.assertTrue(any(item["act"] == "200-ФЗ" and item["date"] == "2025-07-07" for item in scoped["out_of_scope_amendment_checks"]))
+        self.assertTrue(any(item["act_number"] == "265-ФЗ" and item["scope_mapping_status"] == "not_mapped" for item in inventory))
         self.assertTrue(any(item["act_number"] == "200-ФЗ" and item["signed_date"] == "2025-07-07" and item["scope_mapping_status"] == "not_mapped" for item in inventory))
         act_200 = next(item for item in scoped["out_of_scope_amendment_checks"] if item["act"] == "200-ФЗ")
         self.assertIn("https://proinfosoft.ru/assets/files/news/2025/07072025N200.pdf", act_200["secondary_sources"])
