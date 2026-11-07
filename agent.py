@@ -323,10 +323,13 @@ def plan_queries(model: LanguageModel, topic: str, count: int) -> list[str]:
         f"Вопрос: {topic}\nКоличество поисковых запросов: {count}",
     )
     raw_queries = extract_json(response).get("queries", [])
-    queries = [str(item).strip() for item in raw_queries if str(item).strip()]
-    if not queries:
+    if not isinstance(raw_queries, list):
+        raise AgentError("Список поисковых запросов имеет неверный формат.")
+    queries = [item for item in raw_queries if isinstance(item, str)]
+    result = deduplicate_queries([topic, *queries])[:count]
+    if not result:
         raise AgentError("Не удалось составить поисковые запросы.")
-    return list(dict.fromkeys([topic, *queries]))[:count]
+    return result
 
 
 def assess_sources(model: LanguageModel, topic: str, sources: list[Source]) -> tuple[bool, list[str], str]:
@@ -351,19 +354,28 @@ def assess_sources(model: LanguageModel, topic: str, sources: list[Source]) -> t
 
 def plan_legal_update_check(model: LanguageModel, question: str, sources: list[Source], checked_on: str) -> tuple[list[str], str]:
     """Всегда готовит отдельный поиск поправок и новых редакций."""
-    response = model.complete(
+    prompt = (
         "Ты проверяешь актуальность правовых норм РФ. Верни только JSON с полями legal_update_queries "
         "(список от 1 до 3 запросов) и notes. Запросы должны искать последние изменения, новые редакции, "
-        "даты вступления в силу и признание норм утратившими силу. Не утверждай, что норма действует, без источника.",
-        f"Вопрос: {question}\nДата проверки: {checked_on}\n\nМатериалы:\n\n{format_materials(sources)}",
+        "даты вступления в силу и признание норм утратившими силу. Не утверждай, что норма действует, без источника."
     )
-    data = extract_json(response)
+    user = f"Вопрос: {question}\nДата проверки: {checked_on}\n\nМатериалы:\n\n{format_materials(sources)}"
+    for attempt in range(2):
+        try:
+            data = extract_json(model.complete(prompt, user))
+            break
+        except AgentError:
+            if attempt:
+                raise
+            time.sleep(1)
     raw_queries = data.get("legal_update_queries", data.get("queries", []))
     if not isinstance(raw_queries, list):
         raise AgentError("Запросы для проверки изменений имеют неверный формат.")
-    queries = [str(item).strip() for item in raw_queries if str(item).strip()]
+    if not isinstance(raw_queries, list):
+        raise AgentError("Запросы для проверки изменений имеют неверный формат.")
+    queries = [item for item in raw_queries if isinstance(item, str)]
     fallback = f"{question} последние изменения действующая редакция {checked_on[:4]}"
-    return list(dict.fromkeys([*queries, fallback]))[:3], str(data.get("notes", "")).strip()
+    return deduplicate_queries([*queries, fallback])[:3], str(data.get("notes", "")).strip()
 
 
 def plan_court_practice_check(model: LanguageModel, question: str, checked_on: str) -> tuple[list[str], str]:
@@ -379,9 +391,9 @@ def plan_court_practice_check(model: LanguageModel, question: str, checked_on: s
     raw_queries = data.get("court_queries", data.get("queries", []))
     if not isinstance(raw_queries, list):
         raise AgentError("Запросы для поиска судебной практики имеют неверный формат.")
-    queries = [str(item).strip() for item in raw_queries if str(item).strip()]
+    queries = [item for item in raw_queries if isinstance(item, str)]
     fallback = f"{question} судебная практика {checked_on[:4]}"
-    return list(dict.fromkeys([*queries, fallback]))[:3], str(data.get("notes", "")).strip()
+    return deduplicate_queries([*queries, fallback])[:3], str(data.get("notes", "")).strip()
 
 
 def build_report(model: LanguageModel, topic: str, sources: list[Source], session_context: str = "") -> str:
@@ -409,20 +421,17 @@ def section_text(report: str, section: str) -> str:
     return match.group(1).strip() if match else ""
 
 
-ARTICLE_PATTERN = re.compile(r"(?:статья|статье|статьи|ст\.)\s*(\d+(?:\.\d+)?)", re.IGNORECASE)
+ARTICLE_PATTERN = re.compile(r"(?<!\\w)(?:статья|статье|статьи|ст\\.)\\s*(\\d+(?:\\.\\d+)?)(?![\\d.])", re.IGNORECASE)
 
 
 def find_unconfirmed_articles(report: str, sources: list[Source]) -> list[str]:
-    """Находит статьи, упомянутые в ответе, но отсутствующие в текстах источников."""
+    """Find exact article-number tokens in source text (not partial numbers)."""
     mentioned = set(ARTICLE_PATTERN.findall(report))
     if not mentioned:
         return []
-    corpus = "\n".join(source.text for source in sources)
-    missing = []
-    for number in sorted(mentioned):
-        if not re.search(rf"ст[^\d]{{0,10}}{re.escape(number)}(?!\d)", corpus, re.IGNORECASE):
-            missing.append(number)
-    return missing
+    corpus = "\\n".join(source.text for source in sources)
+    confirmed = set(ARTICLE_PATTERN.findall(corpus))
+    return sorted(mentioned - confirmed, key=lambda value: tuple(int(part) for part in value.split(".")))
 
 
 def validate_report(report: str, sources: list[Source]) -> list[str]:
@@ -485,8 +494,14 @@ def reflect_on_report(model: LanguageModel, topic: str, report: str, sources: li
             f"Вопрос: {topic}\n\nОтвет:\n{report}\n\nМатериалы:\n\n{format_materials(sources)}",
         )
     )
-    issues = [str(issue).strip() for issue in response.get("issues", []) if str(issue).strip()]
-    consistent = bool(response.get("consistent", not issues)) and not issues
+    raw_issues = response.get("issues", [])
+    if not isinstance(raw_issues, list) or any(not isinstance(issue, str) for issue in raw_issues):
+        raise AgentError("Самопроверка вернула список замечаний неверного формата.")
+    issues = [issue.strip() for issue in raw_issues if issue.strip()]
+    consistent_value = response.get("consistent", not issues)
+    if not isinstance(consistent_value, bool):
+        raise AgentError("Самопроверка вернула поле consistent неверного типа.")
+    consistent = consistent_value and not issues
     journal: dict[str, Any] = {"performed": True, "consistent": consistent, "issues": issues, "repaired": False}
     if consistent:
         return report, journal
