@@ -390,7 +390,7 @@ def plan_legal_update_check(model: LanguageModel, question: str, sources: list[S
         "(список от 1 до 3 запросов) и notes. Запросы должны искать последние изменения, новые редакции, "
         "даты вступления в силу и признание норм утратившими силу. Не утверждай, что норма действует, без источника."
     )
-    user = f"Вопрос: {question}\nДата проверки: {checked_on}\n\nМатериалы:\n\n{format_materials(sources)}"
+    user = f"Вопрос: {question}\nДата применимости норм: {checked_on}\n\nМатериалы:\n\n{format_materials(sources)}"
     for attempt in range(2):
         try:
             data = extract_json(model.complete(prompt, user))
@@ -593,7 +593,7 @@ def plan_court_practice_check(model: LanguageModel, question: str, checked_on: s
         "(список от 1 до 3 запросов) и notes. Запросы должны искать решения арбитражных судов и "
         "судов общей юрисдикции, позиции Верховного Суда РФ и обзоры практики по теме вопроса. "
         "Не выдумывай номера дел и не утверждай, что практика единообразна, без источника.",
-        f"Вопрос: {question}\nДата проверки: {checked_on}",
+        f"Вопрос: {question}\nДата применимости норм: {checked_on}",
     )
     data = extract_json(response)
     raw_queries = data.get("court_queries", data.get("queries", []))
@@ -801,6 +801,7 @@ def save_results(
     court_check: dict[str, Any],
     reflection: dict[str, Any],
     checked_on: str,
+    as_of: str | None = None,
 ) -> tuple[Path, Path]:
     output_dir.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S-%f")
@@ -832,7 +833,7 @@ def save_results(
         "Проверяйте дату вступления изменений в силу и полный текст первичного источника.\n"
     )
     report_path.write_text(
-        f"# {topic}\n\n**Дата проверки изменений:** {checked_on}\n\n> {LEGAL_DISCLAIMER}\n{warning}\n{report.strip()}\n{verification_note}\n## Источники\n\n{source_list}\n",
+        f"# {topic}\n\n**Дата проверки изменений:** {checked_on}\n\n**Дата правовой ситуации:** {as_of or checked_on}\n\n> {LEGAL_DISCLAIMER}\n{warning}\n{report.strip()}\n{verification_note}\n## Источники\n\n{source_list}\n",
         encoding="utf-8",
     )
     run_path.write_text(
@@ -850,6 +851,7 @@ def save_results(
                 "court_practice_check": court_check,
                 "self_reflection": reflection,
                 "checked_on": checked_on,
+                "as_of": as_of or checked_on,
                 "report_file": report_path.name,
             },
             ensure_ascii=False,
@@ -860,8 +862,27 @@ def save_results(
     return report_path, run_path
 
 
-def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo: bool = False, session_context: str = "") -> tuple[Path, Path]:
+def validate_as_of(value: str | None) -> str | None:
+    """Validate an explicit legal situation date without silently normalizing it."""
+    if value is None:
+        return None
+    if not isinstance(value, str) or not re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", value):
+        raise ValueError("as_of должна быть датой в формате ГГГГ-ММ-ДД.")
+    try:
+        date.fromisoformat(value)
+    except ValueError:
+        raise ValueError("as_of содержит несуществующую дату.") from None
+    return value
+
+
+def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo: bool = False, session_context: str = "", as_of: str | None = None) -> tuple[Path, Path]:
     checked_on = current_check_date()
+    legal_as_of = validate_as_of(as_of) or checked_on
+    original_topic = topic
+    if as_of is not None:
+        topic = (f"{topic}\nДата правовой ситуации: {legal_as_of}. "
+                 "Определи применимую норму на эту дату; отличай её от даты проверки. "
+                 "Позднейшие поправки не считай действовавшими тогда без подтверждения обратной силы.")
     if demo:
         model: LanguageModel = DemoModel()
         search: SearchProvider = DemoSearch()
@@ -931,10 +952,10 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
         print(f"      Выбрано источников: {len(sources)}")
 
     print("[4/8] Обязательно проверяю последние изменения…")
-    update_queries, update_notes = plan_legal_update_check(model, topic, sources, checked_on)
+    update_queries, update_notes = plan_legal_update_check(model, topic, sources, legal_as_of)
     new_update_queries = [query for query in deduplicate_queries(update_queries) if _normalized_query_key(query) not in executed_queries]
     if not new_update_queries:
-        new_update_queries = [f"{topic} изменения действующая редакция {checked_on[:4]}"]
+        new_update_queries = [f"{topic} изменения действующая редакция {legal_as_of[:4]}"]
     queries.extend(new_update_queries)
     executed_queries.update(_normalized_query_key(query) for query in new_update_queries)
     update_found, update_errors = search_queries(search, new_update_queries, per_query)
@@ -945,7 +966,7 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
     if ips_bank is not None:
         for ips_query in new_update_queries[:2]:
             try:
-                ips_sources.extend(ips_bank.search(ips_query, 2, as_of=checked_on))
+                ips_sources.extend(ips_bank.search(ips_query, 2, as_of=legal_as_of))
             except AgentError as exc:
                 ips_errors.append(str(exc))
     ips_sources = deduplicate(ips_sources, 2)
@@ -1123,7 +1144,7 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
 
     print("[5/8] Ищу судебную практику…")
     try:
-        court_queries, court_notes = plan_court_practice_check(model, topic, checked_on)
+        court_queries, court_notes = plan_court_practice_check(model, topic, legal_as_of)
     except AgentError as exc:
         # Практика — вспомогательный этап: его сбой не отменяет ответ.
         court_check = {
@@ -1140,7 +1161,7 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
     else:
         new_court_queries = [query for query in deduplicate_queries(court_queries) if _normalized_query_key(query) not in executed_queries]
         if not new_court_queries:
-            new_court_queries = [f"{topic} судебная практика {checked_on[:4]}"]
+            new_court_queries = [f"{topic} судебная практика {legal_as_of[:4]}"]
         queries.extend(new_court_queries)
         executed_queries.update(_normalized_query_key(query) for query in new_court_queries)
         court_found, court_errors = search_queries(court_search, new_court_queries, per_query)
@@ -1189,7 +1210,7 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
 
     print("[8/8] Сохраняю результаты…")
     return save_results(
-        output_dir, topic, queries, sources, report, demo, research_log, report_repaired, update_check, court_check, reflection, checked_on
+        output_dir, original_topic, queries, sources, report, demo, research_log, report_repaired, update_check, court_check, reflection, checked_on, legal_as_of
     )
 
 
@@ -1200,6 +1221,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--sources", type=int, default=6, help="Максимум источников, 1–10")
     parser.add_argument("--output-dir", type=Path, default=Path("результаты"), help="Папка результатов")
     parser.add_argument("--demo", action="store_true", help="Проверка без API-ключей и внешних запросов")
+    parser.add_argument("--as-of", type=validate_as_of, help="Дата правовой ситуации: ГГГГ-ММ-ДД")
     args = parser.parse_args()
     if not args.topic.strip():
         parser.error("Тема не должна быть пустой.")
@@ -1220,6 +1242,7 @@ def main() -> int:
             source_limit=args.sources,
             output_dir=args.output_dir,
             demo=args.demo,
+            as_of=args.as_of,
         )
     except AgentError as exc:
         print(f"\nОшибка: {exc}", file=sys.stderr)
@@ -1233,3 +1256,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
