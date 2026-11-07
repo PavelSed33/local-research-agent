@@ -374,7 +374,7 @@
               "статья 3 целиком"
             ],
             "basis": "текущая редакционная помета; текст статьи 1 закона 261-ФЗ прямо заменяет статью 3",
-            "scope_status": "explicit_in_secondary_act_copy",
+            "scope_status": "supported_by_official_consolidated_text_and_secondary_act_copy",
             "effective_from": "2011-07-27",
             "effective_date_status": "The amending act entered into force on official publication (secondary publication record: Rossiyskaya Gazeta 2011-07-27); Article 3(2) retroactively applies the amended 152-FZ provisions to legal relationships from 2011-07-01. Secondary reproduction; not primary-source verified.",
             "secondary_sources": [
@@ -393,7 +393,9 @@
               "retroactive_rule": "Article 3(2): provisions of 152-FZ as amended apply to legal relationships arising from 2011-07-01",
               "source_class": "secondary reproduction of Article 3 and secondary bibliographic record for Rossiyskaya Gazeta; original primary publication not retrieved"
             },
-            "source_verification_note": "The secondary full text of Article 1 expressly replaces Article 3, Article 6 and Article 9 of 152-FZ. Article 3(1) sets entry into force on official publication; Article 3(2) separately gives retroactive application to legal relationships from 2011-07-01. A secondary bibliographic record identifies Rossiyskaya Gazeta No. 162 dated 2011-07-27. Keep official_text_retrieved=false and do not assign a portal publication ID."
+            "source_verification_note": "The secondary full text of Article 1 expressly replaces Article 3, Article 6 and Article 9 of 152-FZ. Article 3(1) sets entry into force on official publication; Article 3(2) separately gives retroactive application to legal relationships from 2011-07-01. A secondary bibliographic record identifies Rossiyskaya Gazeta No. 162 dated 2011-07-27. Keep official_text_retrieved=false and do not assign a portal publication ID. The Ministry of Labour's official consolidated 152-FZ text also marks this article as amended by 261-ФЗ; this is corroborating official consolidated-law evidence, not the original amending act.",
+            "official_consolidated_law_source_url": "https://mintrud.gov.ru/docs/laws/130",
+            "official_consolidated_law_source_note": "Official Ministry of Labour-hosted consolidated text of 152-FZ contains an editorial note that this article is in the version of 261-FZ. This supports the amendment-scope attribution but is not the original published text of 261-FZ and does not count as retrieved original act text."
           },
           {
             "act_date": "2020-12-30",
@@ -437,7 +439,7 @@
               "статья 6 целиком"
             ],
             "basis": "редакционная помета к статье; полный текст акта содержит перечень поправок к 152-ФЗ",
-            "scope_status": "explicit_in_secondary_act_copy",
+            "scope_status": "supported_by_official_consolidated_text_and_secondary_act_copy",
             "effective_from": "2011-07-27",
             "effective_date_status": "The amending act entered into force on official publication (secondary publication record: Rossiyskaya Gazeta 2011-07-27); Article 3(2) retroactively applies the amended 152-FZ provisions to legal relationships from 2011-07-01. Secondary reproduction; not primary-source verified.",
             "secondary_sources": [
@@ -456,7 +458,9 @@
               "retroactive_rule": "Article 3(2): provisions of 152-FZ as amended apply to legal relationships arising from 2011-07-01",
               "source_class": "secondary reproduction of Article 3 and secondary bibliographic record for Rossiyskaya Gazeta; original primary publication not retrieved"
             },
-            "source_verification_note": "The secondary full text of Article 1 expressly replaces Article 3, Article 6 and Article 9 of 152-FZ. Article 3(1) sets entry into force on official publication; Article 3(2) separately gives retroactive application to legal relationships from 2011-07-01. A secondary bibliographic record identifies Rossiyskaya Gazeta No. 162 dated 2011-07-27. Keep official_text_retrieved=false and do not assign a portal publication ID."
+            "source_verification_note": "The secondary full text of Article 1 expressly replaces Article 3, Article 6 and Article 9 of 152-FZ. Article 3(1) sets entry into force on official publication; Article 3(2) separately gives retroactive application to legal relationships from 2011-07-01. A secondary bibliographic record identifies Rossiyskaya Gazeta No. 162 dated 2011-07-27. Keep official_text_retrieved=false and do not assign a portal publication ID. The Ministry of Labour's official consolidated 152-FZ text also marks this article as amended by 261-ФЗ; this is corroborating official consolidated-law evidence, not the original amending act.",
+            "official_consolidated_law_source_url": "https://mintrud.gov.ru/docs/laws/130",
+            "official_consolidated_law_source_note": "Official Ministry of Labour-hosted consolidated text of 152-FZ contains an editorial note that this article is in the version of 261-FZ. This supports the amendment-scope attribution but is not the original published text of 261-FZ and does not count as retrieved original act text."
           },
           {
             "act_date": "2013-04-05",
@@ -669,7 +673,7 @@
               "статья 9 целиком"
             ],
             "basis": "редакционная помета к статье и текст акта, который содержит её полную новую редакцию",
-            "scope_status": "explicit_in_secondary_act_copy",
+            "scope_status": "supported_by_official_consolidated_text_and_secondary_act_copy",
             "effective_from": "2011-07-27",
             "effective_date_status": "The amending act entered into force on official publication (secondary publication record: Rossiyskaya Gazeta 2011-07-27); Article 3(2) retroactively applies the amended 152-FZ provisions to legal relationships from 2011-07-01. Secondary reproduction; not primary-source verified.",
             "secondary_sources": [
@@ -688,7 +692,9 @@
               "retroactive_rule": "Article 3(2): provisions of 152-FZ as amended apply to legal relationships arising from 2011-07-01",
               "source_class": "secondary reproduction of Article 3 and secondary bibliographic record for Rossiyskaya Gazeta; original primary publication not retrieved"
             },
-            "source_verification_note": "The secondary full text of Article 1 expressly replaces Article 3, Article 6 and Article 9 of 152-FZ. Article 3(1) sets entry into force on official publication; Article 3(2) separately gives retroactive application to legal relationships from 2011-07-01. A secondary bibliographic record identifies Rossiyskaya Gazeta No. 162 dated 2011-07-27. Keep official_text_retrieved=false and do not assign a portal publication ID."
+            "source_verification_note": "The secondary full text of Article 1 expressly replaces Article 3, Article 6 and Article 9 of 152-FZ. Article 3(1) sets entry into force on official publication; Article 3(2) separately gives retroactive application to legal relationships from 2011-07-01. A secondary bibliographic record identifies Rossiyskaya Gazeta No. 162 dated 2011-07-27. Keep official_text_retrieved=false and do not assign a portal publication ID. The Ministry of Labour's official consolidated 152-FZ text also marks this article as amended by 261-ФЗ; this is corroborating official consolidated-law evidence, not the original amending act.",
+            "official_consolidated_law_source_url": "https://mintrud.gov.ru/docs/laws/130",
+            "official_consolidated_law_source_note": "Official Ministry of Labour-hosted consolidated text of 152-FZ contains an editorial note that this article is in the version of 261-FZ. This supports the amendment-scope attribution but is not the original published text of 261-FZ and does not count as retrieved original act text."
           },
           {
             "act_date": "2020-12-30",
@@ -790,6 +796,21 @@
       "Разрешить официальные номера публикаций и получить тексты 261-ФЗ от 25.07.2011 и 233-ФЗ от 08.08.2024.",
       "Получить тело официальной публикации 0001202506240021 (156-ФЗ), разобрать статью 7 и связать переходные сроки с частью 1 статьи 9.",
       "Не использовать даты из вторичных справочных систем как первично подтверждённые даты действия."
+    ],
+    "official_consolidated_sources": [
+      {
+        "name": "Минтруд России — Федеральный закон № 152-ФЗ (консолидированный текст)",
+        "url": "https://mintrud.gov.ru/docs/laws/130",
+        "source_type": "official_government_hosted_consolidated_law",
+        "relevant_amendment_marks": [
+          "статья 3 — в ред. 261-ФЗ",
+          "статья 6 — в ред. 261-ФЗ",
+          "статья 9 — в ред. 261-ФЗ"
+        ],
+        "original_amending_act_body": false,
+        "counts_as_original_act_retrieval": false,
+        "notes": "Официальная копия консолидированного 152-ФЗ с редакционными пометами. Подтверждает атрибуцию редакции, но не заменяет получение оригинального текста 261-ФЗ."
+      }
     ]
   }
 }
