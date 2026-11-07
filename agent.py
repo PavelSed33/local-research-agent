@@ -885,6 +885,20 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
             "status": "extraction_failed", "verified": False, "periods": [],
             "errors": [str(exc)],
         }
+    ips_revision_audits: list[dict[str, Any]] = []
+    audit_marker = "Диагностика цепочки редакций: "
+    for ips_source in ips_sources:
+        marker_position = ips_source.text.find(audit_marker)
+        if marker_position < 0:
+            continue
+        raw_audit = ips_source.text[marker_position + len(audit_marker):]
+        try:
+            audit, _ = json.JSONDecoder().raw_decode(raw_audit)
+        except (TypeError, ValueError):
+            continue
+        if isinstance(audit, dict):
+            ips_revision_audits.append(audit)
+
     ips_check = {
         "attempted": ips_bank is not None,
         "performed": bool(ips_sources),
@@ -895,14 +909,7 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
             else "no_matching_document"
         ) if ips_bank is not None else "demo_not_configured",
         "documents_with_text": len(ips_sources),
-        "revision_chain_audits": [
-            json.loads(match.group(1))
-            for source in ips_sources
-            for match in re.finditer(
-                r"Диагностика цепочки редакций: (\{.*?\})(?=\n|$)",
-                source.text,
-            )
-        ],
+        "revision_chain_audits": ips_revision_audits,
         "errors": ips_errors,
         "limitation": (
             "Банк предоставляет официальные тексты и снимки редакций. Дата редакции не равна "
