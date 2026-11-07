@@ -70,7 +70,8 @@
     "Для статьи 1 найден пример редакционной пометы о 261-ФЗ, но дата вступления именно изменения в силу не установлена.",
     "Для 266-ФЗ по статье 12 дата 01.03.2023 пока опирается на вторичный источник и должна быть подтверждена официальной переходной нормой.",
     "Нужна проверка специальных и отложенных сроков, включая положения, которые вступают в силу после даты подписания изменяющего акта.",
-    "Доступные снимки IPS не доказывают полноту исторического архива."
+    "Доступные снимки IPS не доказывают полноту исторического архива.",
+    "Для статей 3, 6 и 9 составлена расширенная карта кандидатов по редакционным пометам и вторичным текстам; ни один исходный официальный текст изменяющего акта пока не получен в этой среде."
   ],
   "verified": false,
   "coverage_verified": false,
@@ -288,9 +289,321 @@
   ],
   "inventory_summary": {
     "total_citations": 35,
-    "partial_scope_candidates": 3,
+    "partial_scope_candidates": 4,
     "not_mapped": 31,
     "source_quality": "Список реквизитов извлечён из консолидированного справочного текста; он является стартовым инвентарём, а не официально удостоверенным исчерпывающим перечнем.",
     "caveat": "Повторяющиеся номера актов допустимы: идентификатор — пара дата подписания + номер."
+  },
+  "article_scoped_inventory": {
+    "inventory_basis": "Аннотации к действующей редакции статей в КонсультантПлюс и тексты отдельных актов в справочных системах; это поисковые зацепки, а не официальные первичные публикации.",
+    "official_portal_retrieval": {
+      "attempted": true,
+      "status": "not_retrieved_for_articles_3_6_9",
+      "retrieved_official_texts": 0,
+      "note": "Поиск по официальному порталу publication.pravo.gov.ru не вернул доступные для чтения первичные тексты перечисленных актов. Наличие вторичной копии или редакционной пометы не засчитывается как получение официального текста."
+    },
+    "articles": [
+      {
+        "article": "3",
+        "title": "Основные понятия",
+        "candidate_amendments": [
+          {
+            "act_date": "2011-07-25",
+            "act_number": "261-ФЗ",
+            "scope": [
+              "статья 3 целиком"
+            ],
+            "basis": "текущая редакционная помета; текст статьи 1 закона 261-ФЗ прямо заменяет статью 3",
+            "scope_status": "explicit_in_secondary_act_copy",
+            "effective_from": null,
+            "effective_date_status": "не проверена по официальному переходному положению",
+            "secondary_sources": [
+              "https://www.consultant.ru/document/cons_doc_LAW_61801/4f41fe599ce341751e4e34dc50a4b676674c1416/",
+              "https://sudact.ru/law/federalnyi-zakon-ot-25072011-n-261-fz-o/"
+            ],
+            "official_text_retrieved": false
+          },
+          {
+            "act_date": "2020-12-30",
+            "act_number": "519-ФЗ",
+            "scope": [
+              "пункт 1.1 статьи 3"
+            ],
+            "basis": "аннотация к пункту 1.1 указывает, что он введён законом 519-ФЗ",
+            "scope_status": "explicit_in_secondary_consolidated_annotation",
+            "effective_from": null,
+            "effective_date_status": "нужна сверка официальной переходной нормы",
+            "secondary_sources": [
+              "https://www.consultant.ru/document/cons_doc_LAW_61801/4f41fe599ce341751e4e34dc50a4b676674c1416/"
+            ],
+            "official_text_retrieved": false
+          }
+        ],
+        "gaps": [
+          "Проверить полный текст 519-ФЗ и переходные положения.",
+          "Установить точную дату вступления редакции статьи 3 в силу по первичной публикации."
+        ]
+      },
+      {
+        "article": "6",
+        "title": "Условия обработки персональных данных",
+        "candidate_amendments": [
+          {
+            "act_date": "2011-07-25",
+            "act_number": "261-ФЗ",
+            "scope": [
+              "статья 6 целиком"
+            ],
+            "basis": "редакционная помета к статье; полный текст акта содержит перечень поправок к 152-ФЗ",
+            "scope_status": "explicit_in_secondary_act_copy",
+            "effective_from": null,
+            "effective_date_status": "не проверена по официальному переходному положению",
+            "secondary_sources": [
+              "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/",
+              "https://sudact.ru/law/federalnyi-zakon-ot-25072011-n-261-fz-o/"
+            ],
+            "official_text_retrieved": false
+          },
+          {
+            "act_date": "2013-04-05",
+            "act_number": "43-ФЗ",
+            "scope": [
+              "пункт 4 части 1"
+            ],
+            "basis": "редакционная помета непосредственно под пунктом 4",
+            "scope_status": "explicit_in_secondary_consolidated_annotation",
+            "effective_from": null,
+            "effective_date_status": "нужна первичная проверка даты",
+            "secondary_sources": [
+              "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/"
+            ],
+            "official_text_retrieved": false
+          },
+          {
+            "act_date": "2017-07-29",
+            "act_number": "223-ФЗ",
+            "scope": [
+              "пункт 3 части 1",
+              "пункт 3.1 части 1"
+            ],
+            "basis": "аннотации к пункту 3 и новому пункту 3.1",
+            "scope_status": "explicit_in_secondary_consolidated_annotation",
+            "effective_from": null,
+            "effective_date_status": "нужна первичная проверка даты",
+            "secondary_sources": [
+              "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/"
+            ],
+            "official_text_retrieved": false
+          },
+          {
+            "act_date": "2013-12-21",
+            "act_number": "363-ФЗ",
+            "scope": [
+              "пункт 5 части 1"
+            ],
+            "basis": "редакционная помета к пункту 5",
+            "scope_status": "explicit_in_secondary_consolidated_annotation",
+            "effective_from": null,
+            "effective_date_status": "нужна первичная проверка даты",
+            "secondary_sources": [
+              "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/"
+            ],
+            "official_text_retrieved": false
+          },
+          {
+            "act_date": "2016-07-03",
+            "act_number": "231-ФЗ",
+            "scope": [
+              "пункт 5 части 1",
+              "пункт 7 части 1"
+            ],
+            "basis": "редакционные пометы к пунктам 5 и 7",
+            "scope_status": "explicit_in_secondary_consolidated_annotation",
+            "effective_from": null,
+            "effective_date_status": "нужна первичная проверка даты",
+            "secondary_sources": [
+              "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/"
+            ],
+            "official_text_retrieved": false
+          },
+          {
+            "act_date": "2020-04-24",
+            "act_number": "123-ФЗ",
+            "scope": [
+              "пункт 9.1 части 1"
+            ],
+            "basis": "пункт 9.1 прямо отмечен как введённый законом 123-ФЗ",
+            "scope_status": "explicit_in_secondary_consolidated_annotation",
+            "effective_from": null,
+            "effective_date_status": "нужна первичная проверка даты",
+            "secondary_sources": [
+              "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/"
+            ],
+            "official_text_retrieved": false
+          },
+          {
+            "act_date": "2021-07-02",
+            "act_number": "331-ФЗ",
+            "scope": [
+              "пункт 9.1 части 1"
+            ],
+            "basis": "редакционная помета к пункту 9.1",
+            "scope_status": "explicit_in_secondary_consolidated_annotation",
+            "effective_from": null,
+            "effective_date_status": "нужна первичная проверка даты",
+            "secondary_sources": [
+              "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/"
+            ],
+            "official_text_retrieved": false
+          },
+          {
+            "act_date": "2020-12-30",
+            "act_number": "519-ФЗ",
+            "scope": [
+              "пункт 10 части 1 (утратил силу)"
+            ],
+            "basis": "аннотация к пункту 10 указывает утрату силы с 01.03.2021 по закону 519-ФЗ",
+            "scope_status": "explicit_in_secondary_consolidated_annotation",
+            "effective_from": "2021-03-01",
+            "effective_date_status": "дата приведена во вторичной аннотации; официальное переходное положение не получено",
+            "secondary_sources": [
+              "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/"
+            ],
+            "official_text_retrieved": false
+          },
+          {
+            "act_date": "2022-07-14",
+            "act_number": "266-ФЗ",
+            "scope": [
+              "часть 3",
+              "часть 6"
+            ],
+            "basis": "часть 3 помечена как изложенная в редакции 266-ФЗ; часть 6 введена 266-ФЗ",
+            "scope_status": "explicit_in_secondary_consolidated_annotation",
+            "effective_from": null,
+            "effective_date_status": "для каждой поправки требуется проверить переходные положения 266-ФЗ отдельно",
+            "secondary_sources": [
+              "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/"
+            ],
+            "official_text_retrieved": false
+          },
+          {
+            "act_date": "2024-08-08",
+            "act_number": "233-ФЗ",
+            "scope": [
+              "пункт 9.1 части 1"
+            ],
+            "basis": "редакционная помета к пункту 9.1",
+            "scope_status": "explicit_in_secondary_consolidated_annotation",
+            "effective_from": null,
+            "effective_date_status": "нужна проверка специальных сроков по официальному тексту",
+            "secondary_sources": [
+              "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/"
+            ],
+            "official_text_retrieved": false
+          },
+          {
+            "act_date": "2025-02-28",
+            "act_number": "23-ФЗ",
+            "scope": [
+              "часть 1.2"
+            ],
+            "basis": "часть 1.2 прямо помечена как введённая законом 23-ФЗ",
+            "scope_status": "explicit_in_secondary_consolidated_annotation",
+            "effective_from": null,
+            "effective_date_status": "нужна первичная проверка даты",
+            "secondary_sources": [
+              "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/"
+            ],
+            "official_text_retrieved": false
+          }
+        ],
+        "gaps": [
+          "Получить официальные тексты всех перечисленных актов, прежде всего 261-ФЗ, 123-ФЗ, 519-ФЗ, 266-ФЗ и 233-ФЗ.",
+          "Для 519-ФЗ проверить, что именно отмена пункта 10 статьи 6 вступила в силу 01.03.2021.",
+          "Не выводить дату действия поправки из даты принятия акта."
+        ]
+      },
+      {
+        "article": "9",
+        "title": "Согласие субъекта персональных данных",
+        "candidate_amendments": [
+          {
+            "act_date": "2011-07-25",
+            "act_number": "261-ФЗ",
+            "scope": [
+              "статья 9 целиком"
+            ],
+            "basis": "редакционная помета к статье и текст акта, который содержит её полную новую редакцию",
+            "scope_status": "explicit_in_secondary_act_copy",
+            "effective_from": null,
+            "effective_date_status": "не проверена по официальному переходному положению",
+            "secondary_sources": [
+              "https://www.consultant.ru/document/cons_doc_LAW_61801/6c94959bc017ac80140621762d2ac59f6006b08c/",
+              "https://sudact.ru/law/federalnyi-zakon-ot-25072011-n-261-fz-o/"
+            ],
+            "official_text_retrieved": false
+          },
+          {
+            "act_date": "2020-12-30",
+            "act_number": "519-ФЗ",
+            "scope": [
+              "часть 9"
+            ],
+            "basis": "часть 9 прямо помечена как введённая законом 519-ФЗ",
+            "scope_status": "explicit_in_secondary_consolidated_annotation",
+            "effective_from": null,
+            "effective_date_status": "нужна сверка переходного положения",
+            "secondary_sources": [
+              "https://www.consultant.ru/document/cons_doc_LAW_61801/6c94959bc017ac80140621762d2ac59f6006b08c/"
+            ],
+            "official_text_retrieved": false
+          },
+          {
+            "act_date": "2022-07-14",
+            "act_number": "266-ФЗ",
+            "scope": [
+              "часть 1"
+            ],
+            "basis": "редакционная помета к части 1",
+            "scope_status": "explicit_in_secondary_consolidated_annotation",
+            "effective_from": null,
+            "effective_date_status": "нужно определить, какая часть изменений 266-ФЗ действует с 01.09.2022 или с 01.03.2023",
+            "secondary_sources": [
+              "https://www.consultant.ru/document/cons_doc_LAW_61801/6c94959bc017ac80140621762d2ac59f6006b08c/"
+            ],
+            "official_text_retrieved": false
+          },
+          {
+            "act_date": "2025-06-24",
+            "act_number": "156-ФЗ",
+            "scope": [
+              "часть 1"
+            ],
+            "basis": "редакционная помета к части 1 после 266-ФЗ",
+            "scope_status": "explicit_in_secondary_consolidated_annotation",
+            "effective_from": null,
+            "effective_date_status": "в общей карточке закона указана дата 01.09.2025; проверить, относится ли она к изменению части 1 статьи 9 по официальной переходной норме",
+            "secondary_sources": [
+              "https://www.consultant.ru/document/cons_doc_LAW_61801/6c94959bc017ac80140621762d2ac59f6006b08c/",
+              "https://base.garant.ru/12148567/"
+            ],
+            "official_text_retrieved": false
+          }
+        ],
+        "gaps": [
+          "Получить тексты 261-ФЗ, 519-ФЗ, 266-ФЗ и 156-ФЗ с официального портала.",
+          "Проверить переходные положения 266-ФЗ отдельно для изменения части 1 статьи 9.",
+          "Проверить специальную дату 01.09.2025 для 156-ФЗ по первичному тексту."
+        ]
+      }
+    ],
+    "summary": {
+      "articles_covered": 3,
+      "candidate_act_article_links": 16,
+      "official_act_texts_retrieved": 0,
+      "verified": false,
+      "coverage_verified": false
+    }
   }
 }
