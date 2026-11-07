@@ -688,13 +688,16 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
         model: LanguageModel = DemoModel()
         search: SearchProvider = DemoSearch()
         portal_search = None
+        ips_bank = None
         court_search: SearchProvider = DemoSearch()
     else:
         from pravo_portal import FederatedLegalSearch, PravoPortalSearch
+        from pravo_ips import PravoIpsBank
 
         model = OpenAICompatibleModel()
         tavily_search = TavilySearch()
         portal_search = PravoPortalSearch()
+        ips_bank = PravoIpsBank()
         search = FederatedLegalSearch(portal_search, tavily_search)
         court_domains = [
             item.strip()
@@ -760,7 +763,7 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
     # Keep legal-update evidence separate from the general research cap.
     # Otherwise a full initial source list silently discards the very materials
     # retrieved to verify amendments and current editions.
-    update_sources = deduplicate(update_found, 3)
+    update_sources = deduplicate([*update_found, *ips_sources], 5)
     portal_update_sources = [
         source for source in update_sources
         if classify_source_authority(source.url) == "official_legal_portal"
@@ -768,6 +771,35 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
     portal_errors = [
         error for error in update_errors if "PravoPortalSearch" in error
     ]
+    # The integrated full-text bank is a separate official source from the
+    # publication feed. Search it independently and preserve its revision
+    # snapshots as evidence, without treating an edition date as an effective
+    # date for every provision.
+    ips_sources: list[Source] = []
+    ips_errors: list[str] = []
+    if ips_bank is not None:
+        for ips_query in new_update_queries[:2]:
+            try:
+                ips_sources.extend(ips_bank.search(ips_query, 2, as_of=checked_on))
+            except AgentError as exc:
+                ips_errors.append(str(exc))
+    ips_sources = deduplicate(ips_sources, 2)
+    ips_check = {
+        "attempted": ips_bank is not None,
+        "performed": bool(ips_sources),
+        "verified": False,
+        "status": (
+            "revision_snapshots_found" if ips_sources
+            else "unavailable" if ips_errors
+            else "no_matching_document"
+        ) if ips_bank is not None else "demo_not_configured",
+        "documents_with_text": len(ips_sources),
+        "errors": ips_errors,
+        "limitation": (
+            "Банк предоставляет официальные тексты и снимки редакций. Дата редакции не равна "
+            "дате вступления в силу каждой нормы; периоды действия положений автоматически не подтверждены."
+        ),
+    }
     official_portal_check = {
         "attempted": portal_search is not None,
         "performed": bool(portal_update_sources),
@@ -794,6 +826,7 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
         "notes": update_notes,
         "new_sources_found": len(update_found),
         "official_portal": official_portal_check,
+        "integrated_legal_bank": ips_check,
         "errors": update_errors,
     }
     print(f"      Проверочных запросов: {len(new_update_queries)}; источников всего: {len(sources)}")
