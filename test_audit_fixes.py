@@ -363,5 +363,74 @@ class OfficialIntegratedLegalBankTests(unittest.TestCase):
 
 
 
+class ProvisionEffectivePeriodTests(unittest.TestCase):
+    def _event(self, effective_from, number, quote):
+        return {
+            "provision_id": "ФЗ-123:ст.5:ч.2",
+            "effective_from": effective_from,
+            "act_title": "Федеральный закон",
+            "act_number": number,
+            "official_publication_id": "0001202401010001",
+            "official_url": "https://publication.pravo.gov.ru/document/0001202401010001",
+            "effective_date_quote": quote,
+        }
+
+    def test_builds_non_overlapping_periods_from_effective_dates(self):
+        from legal_history import build_provision_timeline
+
+        result = build_provision_timeline(
+            "ФЗ-123:ст.5:ч.2",
+            [
+                self._event("2020-01-01", "123-ФЗ", "Вступает в силу с 01.01.2020"),
+                self._event("2024-03-01", "456-ФЗ", "Вступает в силу с 01.03.2024"),
+            ],
+            timeline_complete=True,
+        )
+        self.assertTrue(result["verified"])
+        self.assertEqual(result["status"], "verified_timeline")
+        self.assertEqual(result["periods"][0]["valid_from"], "2020-01-01")
+        self.assertEqual(result["periods"][0]["valid_to"], "2024-02-29")
+        self.assertEqual(result["periods"][1]["valid_from"], "2024-03-01")
+        self.assertIsNone(result["periods"][1]["valid_to"])
+
+    def test_incomplete_timeline_is_never_verified(self):
+        from legal_history import build_provision_timeline
+
+        result = build_provision_timeline(
+            "ФЗ-123:ст.5:ч.2",
+            [self._event("2024-03-01", "456-ФЗ", "Вступает в силу с 01.03.2024")],
+            timeline_complete=False,
+        )
+        self.assertFalse(result["verified"])
+        self.assertEqual(result["status"], "candidate_timeline_incomplete")
+
+    def test_rejects_wrong_scope_quote_and_nonofficial_source(self):
+        from legal_history import build_provision_timeline
+
+        event = self._event("2024-03-01", "456-ФЗ", "Опубликован 01.03.2024")
+        event["provision_id"] = "другая норма"
+        event["official_url"] = "https://example.com/act"
+        result = build_provision_timeline("ФЗ-123:ст.5:ч.2", [event], timeline_complete=True)
+        self.assertFalse(result["verified"])
+        self.assertEqual(result["periods"], [])
+        self.assertEqual(result["status"], "insufficient_or_invalid_evidence")
+
+    def test_rejects_conflicting_events_on_same_date(self):
+        from legal_history import build_provision_timeline
+
+        result = build_provision_timeline(
+            "ФЗ-123:ст.5:ч.2",
+            [
+                self._event("2024-03-01", "456-ФЗ", "Вступает в силу с 01.03.2024"),
+                self._event("2024-03-01", "789-ФЗ", "Вступает в силу с 01.03.2024"),
+            ],
+            timeline_complete=True,
+        )
+        self.assertEqual(result["status"], "conflicting_same_day_events")
+        self.assertFalse(result["verified"])
+
+
+
+
 if __name__ == "__main__":
     unittest.main()
