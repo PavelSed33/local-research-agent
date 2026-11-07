@@ -29,6 +29,8 @@ jobs:
         run: python -m unittest discover -v
       - name: Synthetic evaluation (not legal acceptance)
         run: python evaluation.py
+      - name: Check local capture hashes and quote spans (not legal acceptance)
+        run: python legal_evidence.py
 
   docker-smoke:
     runs-on: ubuntu-latest
