@@ -507,6 +507,84 @@ def extract_provision_history(
     return result
 
 
+
+def extract_amendment_chain_evidence(
+    model: LanguageModel,
+    changed_provisions: list[dict[str, Any]],
+    sources: list[Source],
+) -> dict[str, Any]:
+    """Use the model only to propose exact quotations; validate them deterministically."""
+    from legal_history import audit_amendment_links
+
+    official_sources = [
+        source for source in sources
+        if (urlsplit(source.url).hostname or "").lower() == "publication.pravo.gov.ru"
+        and source.url.startswith("https://")
+    ]
+    if not changed_provisions:
+        return {
+            "status": "no_changed_provisions", "links": [], "link_count": 0,
+            "verified": False, "coverage_verified": False,
+        }
+    if not official_sources:
+        return {
+            "status": "no_official_amendment_publications", "links": [],
+            "link_count": 0, "verified": False, "coverage_verified": False,
+        }
+
+    prompt = (
+        "Ты сопоставляешь изменения текста статей с официально опубликованными изменяющими "
+        "федеральными законами РФ. Верни только JSON {candidates:[...]}. Для каждой связи "
+        "укажи provision_id строго из списка; act_title, act_number, official_publication_id, "
+        "source_url строго из переданных материалов; amendment_quote — ДОСЛОВНУЮ цитату "
+        "из текста изменяющего закона, где прямо указано внесение изменения именно в эту "
+        "статью исходного закона; transition_quote — ДОСЛОВНУЮ цитату переходного/заключительного "
+        "положения этого же закона, если оно есть. effective_from и effective_date_quote указывай "
+        "только если переходное положение прямо задаёт дату вступления в силу изменения именно "
+        "этой нормы; не используй общую дату закона, дату публикации или дату снимка. Если связь "
+        "неочевидна, не возвращай её. Не выдумывай цитаты и реквизиты."
+    )
+    payload = {
+        "changed_provisions": [
+            {
+                "provision_id": item.get("provision_id"),
+                "from_snapshot_date": item.get("from_snapshot_date"),
+                "to_snapshot_date": item.get("to_snapshot_date"),
+                "before_excerpt": str(item.get("before_excerpt") or "")[:2500],
+                "after_excerpt": str(item.get("after_excerpt") or "")[:2500],
+            }
+            for item in changed_provisions[:40] if isinstance(item, dict)
+        ],
+        "official_publications": [
+            {"title": source.title, "url": source.url, "text": source.text[:9000]}
+            for source in official_sources[:12]
+        ],
+    }
+    try:
+        data = extract_json(model.complete(prompt, json.dumps(payload, ensure_ascii=False)))
+    except AgentError as exc:
+        return {
+            "status": "extraction_failed", "links": [], "link_count": 0,
+            "verified": False, "coverage_verified": False, "errors": [str(exc)],
+        }
+    raw = data.get("candidates", [])
+    if not isinstance(raw, list):
+        raw = []
+    by_url = {source.url: source for source in official_sources}
+    candidates: list[dict[str, Any]] = []
+    for item in raw[:100]:
+        if not isinstance(item, dict):
+            continue
+        source = by_url.get(item.get("source_url"))
+        if source is None:
+            continue
+        candidates.append({
+            **item,
+            "source_text": source.text,
+        })
+    return audit_amendment_links(changed_provisions, candidates)
+
+
 def plan_court_practice_check(model: LanguageModel, question: str, checked_on: str) -> tuple[list[str], str]:
     """Готовит отдельный поиск судебной практики по вопросу."""
     response = model.complete(
@@ -870,34 +948,16 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
             except AgentError as exc:
                 ips_errors.append(str(exc))
     ips_sources = deduplicate(ips_sources, 2)
-    update_sources = deduplicate([*update_found, *ips_sources], 5)
-    portal_update_sources = [
-        source for source in update_sources
-        if (urlsplit(source.url).hostname or "").lower() == "publication.pravo.gov.ru"
-    ]
-    portal_errors = [
-        error for error in update_errors if "PravoPortalSearch" in error
-    ]
-    try:
-        provision_history = extract_provision_history(model, topic, update_sources)
-    except Exception as exc:
-        provision_history = {
-            "status": "extraction_failed", "verified": False, "periods": [],
-            "errors": [str(exc)],
-        }
-    ips_revision_audits: list[dict[str, Any]] = []
-    audit_marker = "Диагностика цепочки редакций: "
-    for ips_source in ips_sources:
-        marker_position = ips_source.text.find(audit_marker)
-        if marker_position < 0:
-            continue
-        raw_audit = ips_source.text[marker_position + len(audit_marker):]
-        try:
-            audit, _ = json.JSONDecoder().raw_decode(raw_audit)
-        except (TypeError, ValueError):
-            continue
-        if isinstance(audit, dict):
-            ips_revision_audits.append(audit)
+
+    # Extract amendment citations printed in the changed article texts, then
+    # retrieve each candidate act from the official publication portal.
+    from legal_history import extract_amendment_references
+    amendment_chain_audit = extract_amendment_chain_evidence(
+        model, changed_provisions, amendment_sources
+    )
+    amendment_chain_audit["candidate_references_found"] = len(amendment_refs)
+    amendment_chain_audit["official_publications_retrieved"] = len(amendment_sources)
+    amendment_chain_audit["retrieval_errors"] = amendment_errors
 
     ips_check = {
         "attempted": ips_bank is not None,
@@ -944,6 +1004,7 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
         "official_portal": official_portal_check,
         "integrated_legal_bank": ips_check,
         "provision_history": provision_history,
+        "amendment_chain_audit": amendment_chain_audit,
         "errors": update_errors,
     }
     print(f"      Проверочных запросов: {len(new_update_queries)}; источников всего: {len(sources)}")
