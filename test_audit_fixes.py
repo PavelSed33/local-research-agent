@@ -641,6 +641,9 @@ class Law152FixtureInventoryTests(unittest.TestCase):
             for item in article["candidate_amendments"]
         ))
         self.assertTrue(any(item["act_number"] == "227-ФЗ" and item["scope"] == ["часть 4", "часть 4.1"] and item["effective_from"] == "2011-01-01" for item in scoped["articles"][2]["candidate_amendments"]))
+        act_227 = next(item for item in scoped["articles"][2]["candidate_amendments"] if item["act_number"] == "227-ФЗ")
+        self.assertEqual(act_227["government_hosted_full_text_copy"]["host"], "nalog.gov.ru")
+        self.assertFalse(act_227["official_text_retrieved"])
         self.assertFalse(any(item["act_number"] == "204-ФЗ" for article in scoped["articles"] for item in article["candidate_amendments"]))
         self.assertEqual(scoped["summary"]["out_of_scope_checks"], 20)
         out_of_scope_pairs = {(item["date"], item["act"]) for item in scoped["out_of_scope_amendment_checks"]}
