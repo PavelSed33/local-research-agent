@@ -12,7 +12,7 @@ import time
 import urllib.error
 import urllib.request
 from dataclasses import asdict, dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Protocol
 from urllib.parse import urlsplit
@@ -949,9 +949,73 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
                 ips_errors.append(str(exc))
     ips_sources = deduplicate(ips_sources, 2)
 
-    # Extract amendment citations printed in the changed article texts, then
-    # retrieve each candidate act from the official publication portal.
+    # Read the bounded revision audit embedded by the IPS connector.
+    ips_revision_audits: list[dict[str, Any]] = []
+    audit_marker = "Диагностика цепочки редакций: "
+    for ips_source in ips_sources:
+        marker_position = ips_source.text.find(audit_marker)
+        if marker_position < 0:
+            continue
+        raw_audit = ips_source.text[marker_position + len(audit_marker):]
+        try:
+            audit, _ = json.JSONDecoder().raw_decode(raw_audit)
+        except (TypeError, ValueError):
+            continue
+        if isinstance(audit, dict):
+            ips_revision_audits.append(audit)
+
+    changed_provisions = [
+        item
+        for audit in ips_revision_audits
+        for item in audit.get("changed_provisions", [])
+        if isinstance(item, dict)
+    ]
+
+    # Amendment citations printed in consolidated text are search leads only.
+    # Retrieve candidate acts separately from the official publication portal.
     from legal_history import extract_amendment_references
+    amendment_refs: dict[tuple[str, str], dict[str, str]] = {}
+    for change in changed_provisions:
+        excerpt = (
+            str(change.get("before_excerpt") or "")
+            + "\\n"
+            + str(change.get("after_excerpt") or "")
+        )
+        for reference in extract_amendment_references(excerpt):
+            amendment_refs[(reference["signed_date"], reference["act_number"])] = reference
+
+    amendment_sources: list[Source] = []
+    amendment_errors: list[str] = []
+    if portal_search is not None:
+        for reference in list(amendment_refs.values())[:8]:
+            amendment_query = (
+                f"Федеральный закон от "
+                f"{date.fromisoformat(reference['signed_date']).strftime('%d.%m.%Y')} "
+                f"№ {reference['act_number']}"
+            )
+            try:
+                amendment_sources.extend(portal_search.search(amendment_query, 2))
+            except AgentError as exc:
+                amendment_errors.append(str(exc))
+    amendment_sources = deduplicate(amendment_sources, 12)
+
+    update_sources = deduplicate([*update_found, *ips_sources, *amendment_sources], 15)
+    portal_update_sources = [
+        source for source in update_sources
+        if (urlsplit(source.url).hostname or "").lower() == "publication.pravo.gov.ru"
+    ]
+    portal_errors = [
+        error for error in update_errors if "PravoPortalSearch" in error
+    ]
+
+    try:
+        provision_history = extract_provision_history(model, topic, update_sources)
+    except Exception as exc:
+        provision_history = {
+            "status": "extraction_failed", "verified": False, "periods": [],
+            "errors": [str(exc)],
+        }
+
     amendment_chain_audit = extract_amendment_chain_evidence(
         model, changed_provisions, amendment_sources
     )
