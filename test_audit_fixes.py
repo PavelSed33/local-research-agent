@@ -635,6 +635,15 @@ class Law152FixtureInventoryTests(unittest.TestCase):
             and item["scope"] == ["пункт 5.1 части 2"] and item["effective_from"] == "2011-06-18"
             for item in scoped["articles"][1]["candidate_amendments"]
         ))
+        amendments_519 = [
+            item for article in scoped["articles"]
+            for item in article["candidate_amendments"]
+            if item["act_number"] == "519-ФЗ"
+        ]
+        self.assertEqual(len(amendments_519), 3)
+        self.assertEqual({item["effective_from"] for item in amendments_519}, {"2021-03-01"})
+        self.assertTrue(all("01.07.2021" in item["effective_date_status"] for item in amendments_519))
+        self.assertTrue(all(not item["official_text_retrieved"] for item in amendments_519))
         self.assertTrue(any(
             item["act_number"] == "148-ФЗ" and item["scope"] == ["часть 1.1"]
             for article in scoped["articles"] if article["article"] == "6"
