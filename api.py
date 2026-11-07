@@ -432,7 +432,7 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             return True
         supplied = self.headers.get("Authorization", "")
         expected = f"Bearer {token}"
-        return hmac.compare_digest(supplied, expected)
+        return hmac.compare_digest(supplied.encode("utf-8"), expected.encode("utf-8"))
 
     def do_GET(self) -> None:
         assets = {"/": ("index.html", "text/html"), "/app.js": ("app.js", "text/javascript"),

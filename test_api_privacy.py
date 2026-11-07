@@ -58,7 +58,7 @@ class ApiPrivacyTests(unittest.TestCase):
 
     def test_upstream_error_body_is_not_exposed(self):
         error = urllib.error.HTTPError('https://example.test', 400, 'bad', {}, io.BytesIO(b'PRIVATE-DOCUMENT'))
-        with patch('urllib.request.urlopen', side_effect=error), self.assertRaises(AgentError) as caught:
+        with patch('agent.open_json_request', side_effect=error), self.assertRaises(AgentError) as caught:
             post_json('https://example.test', {}, {})
         self.assertIn('400', str(caught.exception))
         self.assertNotIn('PRIVATE-DOCUMENT', str(caught.exception))

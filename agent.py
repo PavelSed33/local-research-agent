@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import ipaddress
 import json
 import os
 import re
@@ -67,8 +68,39 @@ def load_dotenv(path: Path = Path(".env")) -> None:
         os.environ.setdefault(key.strip(), value)
 
 
+def validate_service_url(url: str) -> None:
+    """Require encrypted external transport and reject ambiguous endpoint URLs."""
+    try:
+        parsed = urlsplit(url)
+        host = parsed.hostname or ""
+        parsed.port
+    except ValueError:
+        raise AgentError("Некорректный URL внешнего сервиса.") from None
+    local = host.lower() == "localhost"
+    if not local:
+        try:
+            local = ipaddress.ip_address(host).is_loopback
+        except ValueError:
+            pass
+    if (not host or parsed.username or parsed.password or parsed.fragment
+            or parsed.scheme not in {"https", "http"}
+            or (parsed.scheme == "http" and not local)):
+        raise AgentError("Внешний сервис требует HTTPS без логина, пароля и фрагмента в URL; HTTP разрешён только для loopback.")
+
+
+class NoCredentialRedirects(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, request, response, code, message, headers, new_url):
+        response.close()
+        raise AgentError("Перенаправление внешнего сервиса заблокировано: укажите конечный URL, чтобы не передавать ключи и документы другому адресу.")
+
+
+def open_json_request(request: urllib.request.Request, timeout: int):
+    return urllib.request.build_opener(NoCredentialRedirects()).open(request, timeout=timeout)
+
+
 def post_json(url: str, payload: dict[str, Any], headers: dict[str, str], timeout: int = 90) -> dict[str, Any]:
     """POST JSON with one bounded retry for transient upstream failures."""
+    validate_service_url(url)
     retryable_statuses = {429, 500, 502, 503, 504}
     encoded = json.dumps(payload, ensure_ascii=False).encode("utf-8")
     last_error: Exception | None = None
@@ -80,7 +112,7 @@ def post_json(url: str, payload: dict[str, Any], headers: dict[str, str], timeou
             method="POST",
         )
         try:
-            with urllib.request.urlopen(request, timeout=timeout) as response:
+            with open_json_request(request, timeout) as response:
                 raw = response.read(5 * 1024 * 1024 + 1)
                 if len(raw) > 5 * 1024 * 1024:
                     raise AgentError("Сервис вернул слишком большой ответ.")
@@ -93,11 +125,11 @@ def post_json(url: str, payload: dict[str, Any], headers: dict[str, str], timeou
             last_error = AgentError(f"Сервис вернул HTTP {exc.code}.")
             if exc.code not in retryable_statuses or attempt:
                 raise last_error from exc
-        except urllib.error.URLError as exc:
+        except (urllib.error.URLError, TimeoutError, OSError) as exc:
             last_error = AgentError("Не удалось подключиться к сервису.")
             if attempt:
                 raise last_error from exc
-        except json.JSONDecodeError as exc:
+        except (json.JSONDecodeError, UnicodeDecodeError) as exc:
             raise AgentError("Сервис вернул некорректный JSON.") from exc
         if attempt == 0:
             time.sleep(1)

@@ -216,7 +216,7 @@ class UserChangeRegressionTests(unittest.TestCase):
         transient = urllib.error.HTTPError(
             "https://example.test", 503, "unavailable", {}, io.BytesIO(b"temporary")
         )
-        with patch("urllib.request.urlopen", side_effect=[transient, Response(b'{"ok": true}')]), patch(
+        with patch("agent.open_json_request", side_effect=[transient, Response(b'{"ok": true}')]), patch(
             "agent.time.sleep"
         ):
             self.assertEqual(agent.post_json("https://example.test", {}, {}), {"ok": True})
