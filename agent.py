@@ -430,7 +430,8 @@ def extract_provision_history(
     prompt = (
         "Извлеки из переданных ОФИЦИАЛЬНЫХ источников только явно подтверждённые события изменения "
         "одной конкретной нормы РФ. Верни JSON: provision_id (точное обозначение акта, статьи, части, "
-        "пункта), events (массив объектов: effective_from в YYYY-MM-DD, act_title, act_number, "
+        "пункта), provision_source_url и provision_quote (дословная цитата, подтверждающая именно эту "
+        "норму), events (массив объектов: effective_from в YYYY-MM-DD, act_title, act_number, "
         "official_publication_id, source_url, effective_date_quote). Не используй дату принятия, "
         "подписания, опубликования или дату редакции вместо даты вступления в силу. Учитывай специальные "
         "переходные положения. Каждая цитата должна дословно присутствовать в одном из источников и "
@@ -446,6 +447,16 @@ def extract_provision_history(
             "errors": [str(exc)],
         }
     provision_id = str(data.get("provision_id") or "").strip()
+    provision_source = next(
+        (source for source in official_sources if source.url == data.get("provision_source_url")),
+        None,
+    )
+    provision_quote = str(data.get("provision_quote") or "").strip()
+    if provision_source is None or not provision_quote or provision_quote not in provision_source.text:
+        return {
+            "status": "provision_identity_not_source_verified", "verified": False, "periods": [],
+            "limitation": "Не удалось дословно подтвердить идентичность статьи/части/пункта в официальном источнике.",
+        }
     raw_events = data.get("events", [])
     if not isinstance(raw_events, list):
         raw_events = []
