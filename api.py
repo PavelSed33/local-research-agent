@@ -35,7 +35,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
 
-from agent import LEGAL_DISCLAIMER, AgentError, load_dotenv, run
+from agent import LEGAL_DISCLAIMER, AgentError, load_dotenv, run, validate_as_of
 from extract import handle_extract
 from redline import handle_diff
 from review import handle_review
@@ -115,6 +115,7 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
         raise RequestValidationError("Поле «question» обязательно и не должно быть пустым.")
     if len(question) > MAX_QUESTION_CHARS:
         raise RequestValidationError(f"Вопрос не должен превышать {MAX_QUESTION_CHARS} символов.")
+    as_of = validate_as_of(payload.get("as_of"))
     session_id = payload.get("session_id")
     if session_id is not None and (not isinstance(session_id, str) or not SESSION_ID_PATTERN.match(session_id)):
         raise RequestValidationError("Поле «session_id» должно быть строкой из 1–64 символов: латиница, цифры, дефис.")
@@ -135,6 +136,7 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
         output_dir=request_dir,
         demo=demo,
         session_context=context,
+        as_of=as_of,
     )
     answer = report_path.read_text(encoding="utf-8")
     journal = json.loads(journal_path.read_text(encoding="utf-8"))
@@ -147,6 +149,7 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
             for source in journal["sources"]
         ],
         "checked_on": journal["checked_on"],
+        "as_of": journal["as_of"],
         "disclaimer": LEGAL_DISCLAIMER,
         "demo": journal["demo"],
         "session_id": session_id,
@@ -200,6 +203,7 @@ def openapi_spec() -> dict[str, Any]:
                                     "required": ["question"],
                                     "properties": {
                                         "question": {"type": "string"},
+                                        "as_of": {"type": "string", "format": "date", "description": "Дата правовой ситуации; по умолчанию дата проверки"},
                                         "queries": {"type": "integer", "minimum": 1, "maximum": 5, "default": 3},
                                         "sources": {"type": "integer", "minimum": 1, "maximum": 10, "default": 6},
                                         "session_id": {"type": "string", "pattern": "^[A-Za-z0-9-]{1,64}$"},
