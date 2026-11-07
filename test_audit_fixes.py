@@ -652,6 +652,9 @@ class Law152FixtureInventoryTests(unittest.TestCase):
         self.assertTrue(any(item["act"] == "216-ФЗ" and "статьи 10" in item["basis"] for item in scoped["out_of_scope_amendment_checks"]))
         self.assertTrue(any(item["act"] == "204-ФЗ" and "статьи 10" in item["basis"] for item in scoped["out_of_scope_amendment_checks"]))
         self.assertTrue(any(item["act"] == "200-ФЗ" and item["date"] == "2025-07-07" for item in scoped["out_of_scope_amendment_checks"]))
+        act_200 = next(item for item in scoped["out_of_scope_amendment_checks"] if item["act"] == "200-ФЗ")
+        self.assertIn("https://proinfosoft.ru/assets/files/news/2025/07072025N200.pdf", act_200["secondary_sources"])
+        self.assertFalse(act_200["official_text_retrieved"])
         self.assertFalse(any(item["act_number"] == "204-ФЗ" for item in scoped["articles"][1]["candidate_amendments"]))
         self.assertEqual(scoped["summary"]["official_act_texts_retrieved"], 0)
         portal = scoped["official_portal_retrieval"]
