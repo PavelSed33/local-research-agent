@@ -28,6 +28,8 @@ def smoke(base_url: str) -> list[str]:
         ('/extract', {'document': document, 'demo': True}, 'parties'),
         ('/diff', {'document_a': document, 'document_b': document.replace('десяти', 'пяти')}, 'changes'),
         ('/case-law/check', {'question': 'Тест', 'demo': True}, 'decisions'),
+        ('/legal/coverage', {'as_of': '2023-03-01', 'module_ids': ['LAW-01', 'LAW-02']}, 'modules'),
+        ('/privacy/check', {'scenario': 'consent'}, 'research_cards'),
         ('/sessions/delete', {'session_id': 'smoke-' + uuid.uuid4().hex}, 'deleted'),
     ]
     for path, payload, key in cases:
@@ -44,4 +46,4 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--base-url', default='http://127.0.0.1:8080')
     print(json.dumps({'passed': smoke(parser.parse_args().base_url),
-                      'scope': 'demo_only', 'legal_acceptance': False}, ensure_ascii=False, indent=2))
+                      'scope': 'local_demo_and_research_metadata', 'legal_acceptance': False}, ensure_ascii=False, indent=2))

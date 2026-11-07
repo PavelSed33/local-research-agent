@@ -11,7 +11,7 @@ from legal_review import handle_legal_review
 class LegalCatalogTests(unittest.TestCase):
     def test_all_rules_have_source_and_explicit_limits(self):
         catalog = json.loads((Path(__file__).parent / 'fixtures/contract_rule_catalog.json').read_text())
-        self.assertEqual(len(catalog['rules']), 12)
+        self.assertEqual(len(catalog['rules']), 16)
         self.assertFalse(catalog['lawyer_reviewed'])
         sources = {source['id'] for source in catalog['sources']}
         for rule in catalog['rules']:

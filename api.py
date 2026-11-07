@@ -43,6 +43,8 @@ from redline import handle_diff
 from review import handle_review
 from legal_review import handle_legal_review
 from case_law import handle_case_law
+from legal_coverage import coverage_report
+from privacy_review import handle_privacy_check, privacy_options
 
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8080
@@ -53,7 +55,7 @@ MAX_QUESTION_CHARS = 12_000
 SESSION_MAX_ENTRIES = 10
 SESSION_MAX_COUNT = 1_000
 SERVICE_NAME = "legal-research-agent"
-API_VERSION = "1.3"
+API_VERSION = "1.4"
 SESSION_TTL_SECONDS = 3600
 SESSION_ANSWER_CHARS = 500
 SESSION_ID_PATTERN = re.compile(r"^[A-Za-z0-9-]{1,64}$")
@@ -198,7 +200,7 @@ def health_payload() -> dict[str, Any]:
         "status": "ok",
         "service": SERVICE_NAME,
         "version": API_VERSION,
-        "endpoints": ["GET /health", "GET /openapi.json", "POST /ask", "POST /review", "POST /extract", "POST /diff", "POST /sessions/delete", "POST /review/legal", "POST /case-law/check"],
+        "endpoints": ["GET /health", "GET /openapi.json", "POST /ask", "POST /review", "POST /extract", "POST /diff", "POST /sessions/delete", "POST /review/legal", "POST /case-law/check", "POST /legal/coverage", "GET /privacy/options", "POST /privacy/check"],
         "llm_configured": bool(os.getenv("LLM_API_KEY") and os.getenv("LLM_MODEL")),
         "tavily_configured": bool(os.getenv("TAVILY_API_KEY")),
         "demo_available": True,
@@ -220,6 +222,29 @@ def openapi_spec() -> dict[str, Any]:
             "description": "Локальный юридический ИИ-помощник по законодательству РФ.",
         },
         "paths": {
+            "/legal/coverage": {"post": {
+                "summary": "Матрица исследования норм и открытых пробелов по ТЗ",
+                "requestBody": {"content": {"application/json": {"schema": {
+                    "type": "object", "properties": {
+                        "module_ids": {"type": "array", "items": {"type": "string"}},
+                        "as_of": {"type": "string", "format": "date"}}}}}},
+                "responses": {"200": {"description": "Исследовательские карточки, verified=false"},
+                              "400": {"description": "Ошибка ввода"}, "401": {"description": "Нужен токен"}}}},
+            "/privacy/options": {"get": {
+                "summary": "Сценарии и вопросы локальной анкеты LAW-01",
+                "responses": {"200": {"description": "Допустимые сценарии и ключи фактов"}}}},
+            "/privacy/check": {"post": {
+                "summary": "Сбор обстоятельств обработки данных без внешних запросов и юридического заключения",
+                "requestBody": {"required": True, "content": {"application/json": {"schema": {
+                    "type": "object", "additionalProperties": False, "required": ["scenario"],
+                    "properties": {
+                        "scenario": {"type": "string", "enum": list(privacy_options()['scenarios'])},
+                        "as_of": {"type": "string", "format": "date"},
+                        "demo": {"type": "boolean"},
+                        "facts": {"type": "object", "additionalProperties": {"type": "boolean", "nullable": True}}
+                    }}}}},
+                "responses": {"200": {"description": "Уточнения и пробелы доказательств, verified=false"},
+                              "400": {"description": "Ошибка ввода"}, "401": {"description": "Нужен токен"}}}},
             "/review/legal": {"post": {
                 "summary": "Проверка договора с цитатами правовых источников и уточнением фактов",
                 "requestBody": {"required": True, "content": {"application/json": {"schema": {
@@ -461,11 +486,13 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             self._send_json(200, health_payload())
         elif self.path == "/openapi.json":
             self._send_json(200, openapi_spec())
+        elif self.path == "/privacy/options":
+            self._send_json(200, privacy_options())
         else:
             self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /sessions/delete."})
 
     def do_POST(self) -> None:
-        if self.path not in ("/ask", "/review", "/review/legal", "/case-law/check", "/extract", "/diff", "/sessions/delete"):
+        if self.path not in ("/ask", "/review", "/review/legal", "/case-law/check", "/extract", "/diff", "/sessions/delete", "/legal/coverage", "/privacy/check"):
             self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /sessions/delete."})
             return
         if not self._authorized():
@@ -476,7 +503,11 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             return
         try:
             payload = self._read_payload()
-            if self.path == "/sessions/delete":
+            if self.path == "/legal/coverage":
+                result = coverage_report(payload.get('module_ids'), payload.get('as_of'))
+            elif self.path == "/privacy/check":
+                result = handle_privacy_check(payload)
+            elif self.path == "/sessions/delete":
                 session_id = payload.get("session_id")
                 if not isinstance(session_id, str) or not SESSION_ID_PATTERN.fullmatch(session_id):
                     raise RequestValidationError("Требуется корректный session_id: латиница, цифры, дефис, 1–64 символа.")
