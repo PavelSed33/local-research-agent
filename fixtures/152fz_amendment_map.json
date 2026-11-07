@@ -441,6 +441,36 @@
         "title": "Условия обработки персональных данных",
         "candidate_amendments": [
           {
+            "act_date": "2009-11-25",
+            "act_number": "266-ФЗ",
+            "scope": [
+              "пункт 1.1 части 2"
+            ],
+            "basis": "статья 1 пункт 1 закона 266-ФЗ прямо дополняет часть 2 статьи 6 пунктом 1.1; это подтверждается действующим официальным консолидированным текстом 152-ФЗ",
+            "scope_status": "explicit_in_secondary_full_act_text_and_official_consolidated_annotation",
+            "effective_from": "2009-12-08",
+            "effective_date_status": "статья 2: вступление в силу по истечении 10 дней после официального опубликования; вторичные библиографические реквизиты указывают публикацию в Российской газете 27.11.2009. Первичный текст публикации не загружен.",
+            "secondary_sources": [
+              "https://www.consultant.ru/document/cons_doc_LAW_94106/",
+              "https://base.garant.ru/196676/",
+              "https://normativ.kontur.ru/document?documentId=145738&moduleId=1"
+            ],
+            "official_text_retrieved": false,
+            "official_publication_identified": false,
+            "official_publication_id": null,
+            "official_document_url": null,
+            "official_retrieval_status": "publication_date_identified_id_not_resolved_body_unavailable",
+            "transition_provision": {
+              "general_effective_date": "2009-12-08",
+              "rule": "Article 2: the law enters into force after 10 days from official publication; secondary bibliographic record identifies Rossiyskaya Gazeta publication on 2009-11-27",
+              "source_class": "secondary reproduction of amendment Article 1 and Article 2 plus secondary bibliographic publication record"
+            },
+            "source_verification_note": "Article 1 point 1 of 266-ФЗ adds point 1.1 to part 2 of Article 6 of 152-ФЗ. The official Ministry of Labour consolidated text independently annotates Article 6 part 2 point 1.1 as introduced by 266-ФЗ. The original official publication body was not retrieved; do not set official_text_retrieved=true.",
+            "official_consolidated_law_source_url": "https://mintrud.gov.ru/docs/laws/130",
+            "official_consolidated_law_source_note": "The official Ministry consolidated text marks Article 6 part 2 point 1.1 as introduced by 266-ФЗ. This confirms the target provision but is not the original publication of the amending act.",
+            "secondary_source_class": "secondary_legal_database_or_reference_copy"
+          },
+          {
             "act_date": "2011-07-25",
             "act_number": "261-ФЗ",
             "scope": [
@@ -894,16 +924,16 @@
     ],
     "summary": {
       "articles_covered": 3,
-      "candidate_act_article_links": 18,
+      "candidate_act_article_links": 19,
       "official_act_texts_retrieved": 0,
       "verified": false,
       "candidate_links_by_article": {
         "3": 2,
-        "6": 12,
+        "6": 13,
         "9": 4
       },
-      "distinct_candidate_acts": 13,
-      "note": "Подсчёт включает связи, найденные по вторичным текстам и редакционным пометам официального консолидированного текста; не означает первичную юридическую верификацию."
+      "distinct_candidate_acts": 14,
+      "note": "Подсчёт включает связи, найденные по вторичным полным текстам и редакционным пометам официального консолидированного текста; не означает первичную юридическую верификацию. Для 266-ФЗ от 25.11.2009 добавление пункта 1.1 части 2 статьи 6 подтверждено вторичным полным текстом и официальной консолидированной пометой."
     },
     "gaps": [
       "Получить тело официальной публикации 0001202012300044 (519-ФЗ) и точно сопоставить исключение с частью/пунктом 152-ФЗ.",
