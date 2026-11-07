@@ -341,7 +341,7 @@ class OfficialIntegratedLegalBankTests(unittest.TestCase):
         self.assertIn("Редакция-снимок: 2020-01-01", sources[0].text)
         self.assertIn("Текст старой редакции", sources[0].text)
         self.assertIn("не является официальным опубликованием", sources[0].text)
-        self.assertIn("не равна", sources[0].text)
+        self.assertIn("не дата вступления в силу каждой нормы", sources[0].text)
 
     def test_bank_refuses_invalid_document_ids_and_dates(self):
         from pravo_ips import PravoIpsBank
@@ -379,7 +379,8 @@ class OfficialIntegratedLegalBankTests(unittest.TestCase):
         ]):
             result = PravoIpsBank().get_history("102000001")
 
-        self.assertEqual(len(result["snapshots"]), 2)
+        self.assertEqual(len(result["snapshots"]), 3)
+        self.assertEqual(sum(1 for item in result["snapshots"] if item["edition_date"]), 2)
         self.assertIn("Старый текст", result["snapshots"][0]["text"])
         self.assertIn("Новый текст", result["snapshots"][1]["text"])
         audit = result["revision_chain_audit"]
@@ -612,7 +613,26 @@ class Law152FixtureInventoryTests(unittest.TestCase):
         inventory = fixture["consolidated_citation_inventory"]
         self.assertEqual(len(inventory), 35)
         self.assertEqual(fixture["inventory_summary"]["total_citations"], 35)
-        self.assertEqual(fixture["inventory_summary"]["not_mapped"], 32)
+        self.assertEqual(fixture["inventory_summary"]["partial_scope_candidates"], 4)
+        self.assertEqual(fixture["inventory_summary"]["not_mapped"], 31)
+        scoped = fixture["article_scoped_inventory"]
+        self.assertEqual(len(scoped["articles"]), 3)
+        self.assertEqual(scoped["summary"]["articles_covered"], 3)
+        self.assertEqual(scoped["summary"]["candidate_act_article_links"], 17)
+        self.assertEqual(scoped["summary"]["official_act_texts_retrieved"], 0)
+        portal = scoped["official_portal_retrieval"]
+        self.assertEqual(portal["directly_retrieved_document_bodies"], 0)
+        self.assertEqual(portal["identified_official_publication_records"], 5)
+        self.assertEqual(len(portal["identified_records"]), 5)
+        self.assertIn("0001202408080031", {item["publication_id"] for item in portal["identified_records"]})
+        self.assertTrue(all(not item["body_retrieved"] for item in portal["identified_records"]))
+        self.assertFalse(scoped["summary"]["verified"])
+        self.assertFalse(scoped["summary"]["verified"])
+        self.assertTrue(all(
+            item["official_text_retrieved"] is False
+            for article in scoped["articles"]
+            for item in article["candidate_amendments"]
+        ))
         self.assertFalse(fixture["verified"])
         self.assertFalse(fixture["coverage_verified"])
         self.assertTrue(all(item["official_text_retrieved"] is False for item in inventory))
