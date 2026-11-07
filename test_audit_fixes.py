@@ -28,7 +28,7 @@ class DocxResourceLimitTests(unittest.TestCase):
 class ContractPrivacyTests(unittest.TestCase):
     def test_remote_llm_requires_explicit_consent(self):
         with patch.dict(os.environ, {"LLM_BASE_URL": "https://api.openai.com/v1"}, clear=True):
-            with self.assertRaisesRegex(ValueError, "отправка текста договора"):
+            with self.assertRaisesRegex(ValueError, "Отправка текста договора"):
                 ensure_document_transfer_allowed()
 
     def test_loopback_llm_does_not_require_cloud_consent(self):
