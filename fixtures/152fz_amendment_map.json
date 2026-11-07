@@ -502,8 +502,8 @@
             ],
             "basis": "пункт 9.1 прямо отмечен как введённый законом 123-ФЗ",
             "scope_status": "explicit_in_secondary_consolidated_annotation",
-            "effective_from": null,
-            "effective_date_status": "нужна первичная проверка даты",
+            "effective_from": "2020-07-01",
+            "effective_date_status": "Article 8 expressly sets 2020-07-01; Article 7 point 1 adds Article 6 part 1 point 9.1; secondary reproduction",
             "secondary_sources": [
               "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/"
             ],
@@ -514,9 +514,10 @@
             "official_retrieval_status": "official_publication_record_identified_body_unavailable",
             "transition_provision": {
               "general_effective_date": "2020-07-01",
-              "source_class": "secondary document index; original portal body inaccessible"
+              "exception": "no special exception for Article 7 amendment to Article 6 part 1 point 9.1 stated in Article 8",
+              "source_class": "secondary reproduction of Articles 7 and 8"
             },
-            "source_verification_note": "The law title expressly says it amends Articles 6 and 10 of 152-FZ. The 01.07.2020 effective date is stated in the accessible copy, but is not promoted to primary-source verified."
+            "source_verification_note": "Article 7 point 1 adds Article 6 part 1 point 9.1. Article 8 states the law enters into force 2020-07-01. Original official publication body remains unretrieved."
           },
           {
             "act_date": "2021-07-02",
