@@ -788,6 +788,32 @@ def search_queries(search: SearchProvider, queries: list[str], per_query: int) -
     return found, errors
 
 
+def evidence_summary(update_check: dict[str, Any], court_check: dict[str, Any], demo: bool) -> dict[str, Any]:
+    """Expose research evidence without promoting retrieval to legal verification."""
+    def stage(check: dict[str, Any]) -> dict[str, Any]:
+        if demo:
+            status = "demo"
+        elif check.get("performed") is True:
+            status = "evidence_found_unverified"
+        elif check.get("errors") or check.get("status") in {"unavailable", "search_error", "planning_failed"}:
+            status = "unavailable"
+        elif check.get("attempted") is True:
+            status = "no_evidence"
+        else:
+            status = "not_attempted"
+        return {"status": status, "verified": False, "error_count": len(check.get("errors") or [])}
+
+    return {
+        "status": "demo" if demo else "not_legally_verified",
+        "verified": False,
+        "amendments": stage(update_check),
+        "official_publications": stage(update_check.get("official_portal", {})),
+        "revision_snapshots": stage(update_check.get("integrated_legal_bank", {})),
+        "court_practice": stage(court_check),
+        "limitation": "Найденные материалы и корректные ссылки не подтверждают полноту истории, период действия или применимость нормы.",
+    }
+
+
 def save_results(
     output_dir: Path,
     topic: str,
@@ -803,6 +829,7 @@ def save_results(
     checked_on: str,
     as_of: str | None = None,
 ) -> tuple[Path, Path]:
+    evidence = evidence_summary(update_check, court_check, demo)
     output_dir.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S-%f")
     report_path = output_dir / f"ответ-{stamp}.md"
@@ -847,6 +874,7 @@ def save_results(
                 "research_rounds": research_log,
                 "report_validated": True,
                 "report_repaired": report_repaired,
+                "evidence": evidence,
                 "legal_update_check": update_check,
                 "court_practice_check": court_check,
                 "self_reflection": reflection,

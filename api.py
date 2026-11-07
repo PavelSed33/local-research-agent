@@ -150,6 +150,7 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
         ],
         "checked_on": journal["checked_on"],
         "as_of": journal["as_of"],
+        "evidence": journal["evidence"],
         "disclaimer": LEGAL_DISCLAIMER,
         "demo": journal["demo"],
         "session_id": session_id,
