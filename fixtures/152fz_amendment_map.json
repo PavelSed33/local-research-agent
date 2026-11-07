@@ -129,8 +129,9 @@
     {
       "signed_date": "2011-06-04",
       "act_number": "123-ФЗ",
-      "scope_mapping_status": "not_mapped",
-      "official_text_retrieved": false
+      "scope_mapping_status": "partial_candidate",
+      "official_text_retrieved": false,
+      "scope_mapping_note": "Статья 5 закона 04.06.2011 №123-ФЗ прямо дополняет часть 2 статьи 6 152-ФЗ пунктом 5.1. Статья 9 устанавливает вступление закона в силу по истечении 10 дней после опубликования; вторичные источники фиксируют публикацию 07.06.2011, дата 18.06.2011. Оригинал официальной публикации не получен."
     },
     {
       "signed_date": "2011-07-25",
@@ -789,6 +790,34 @@
               "source_class": "secondary reproduction of Articles 7 and 12 plus official-consolidated historical note and secondary bibliographic record"
             },
             "source_verification_note": "ConsultantPlus Article 7 explicitly amends Article 6 part 1 point 5 of 152-ФЗ; the ConsultantPlus change-history page shows this point was rewritten in the 21.12.2013 edition. This corrects the earlier mistaken exclusion, which relied on reading only the act's first articles and overlooked Article 7. Original official portal publication body not retrieved."
+          },
+          {
+            "act_date": "2011-06-04",
+            "act_number": "123-ФЗ",
+            "scope": [
+              "пункт 5.1 части 2"
+            ],
+            "basis": "статья 5 изменяющего закона прямо дополняет часть 2 статьи 6 152-ФЗ пунктом 5.1",
+            "scope_status": "explicit_in_secondary_full_act_text",
+            "effective_from": "2011-06-18",
+            "effective_date_status": "статья 9: по истечении 10 дней после официального опубликования; вторичные библиографические источники указывают Российскую газету №121 от 07.06.2011 и дату вступления 18.06.2011",
+            "secondary_sources": [
+              "https://www.consultant.ru/document/cons_doc_LAW_114675/5bdc78bf7e3015a0ea0c0ea5bef708a6c79e2f0a/",
+              "https://base.garant.ru/12186467/",
+              "https://www.kontur-extern.ru/info/normativ/document/1/179687-federalnyy-zakon-ot-04-06-2011-n-123-fz"
+            ],
+            "official_text_retrieved": false,
+            "official_publication_identified": false,
+            "official_publication_id": null,
+            "official_document_url": null,
+            "official_retrieval_status": "publication_bibliography_identified_original_portal_body_not_retrieved",
+            "transition_provision": {
+              "general_effective_date": "2011-06-18",
+              "rule": "Article 9: effective after 10 days from official publication; secondary bibliographic records identify Rossiyskaya Gazeta No.121, 07.06.2011. The exception for subparagraph z of Article 1(25) does not apply to Article 5 amendment to 152-FZ.",
+              "source_class": "secondary reproduction of amending act Articles 5 and 9 plus secondary publication metadata"
+            },
+            "source_verification_note": "Article 5 expressly adds point 5.1 to part 2 of Article 6 of 152-FZ. The act's Article 9 sets the general commencement rule; secondary sources identify 18.06.2011. Original official publication body not retrieved; official_text_retrieved remains false.",
+            "secondary_source_class": "secondary_legal_database_or_reference_copy"
           }
         ],
         "gaps": [
@@ -924,16 +953,16 @@
     ],
     "summary": {
       "articles_covered": 3,
-      "candidate_act_article_links": 19,
+      "candidate_act_article_links": 20,
       "official_act_texts_retrieved": 0,
       "verified": false,
       "candidate_links_by_article": {
         "3": 2,
-        "6": 13,
+        "6": 14,
         "9": 4
       },
-      "distinct_candidate_acts": 14,
-      "note": "Подсчёт включает связи, найденные по вторичным полным текстам и редакционным пометам официального консолидированного текста; не означает первичную юридическую верификацию. Для 266-ФЗ от 25.11.2009 добавление пункта 1.1 части 2 статьи 6 подтверждено вторичным полным текстом и официальной консолидированной пометой."
+      "distinct_candidate_acts": 15,
+      "note": "Подсчёт включает связи, найденные по вторичным полным текстам и редакционным пометам официального консолидированного текста; не означает первичную юридическую верификацию. Для 266-ФЗ от 25.11.2009 добавление пункта 1.1 части 2 статьи 6 подтверждено вторичным полным текстом и официальной консолидированной пометой. Дополнительно статья 5 закона 123-ФЗ от 04.06.2011 прямо добавляет пункт 5.1 части 2 статьи 6; дата 18.06.2011 подтверждается вторичными реквизитами публикации и статьи 9."
     },
     "gaps": [
       "Получить тело официальной публикации 0001202012300044 (519-ФЗ) и точно сопоставить исключение с частью/пунктом 152-ФЗ.",
@@ -973,6 +1002,21 @@
       }
     ],
     "secondary_act_text_inventory": [
+      {
+        "act": "123-ФЗ",
+        "date": "2011-06-04",
+        "source_class": "secondary_legal_database_or_reference_copy",
+        "urls": [
+          "https://www.consultant.ru/document/cons_doc_LAW_114675/5bdc78bf7e3015a0ea0c0ea5bef708a6c79e2f0a/",
+          "https://base.garant.ru/12186467/",
+          "https://www.kontur-extern.ru/info/normativ/document/1/179687-federalnyy-zakon-ot-04-06-2011-n-123-fz"
+        ],
+        "primary_official_text_retrieved": false,
+        "note": "Статья 5 изменяющего закона дополняет часть 2 статьи 6 152-ФЗ пунктом 5.1. Статья 9: вступление по истечении 10 дней после опубликования; вторичные источники указывают Российскую газету №121 от 07.06.2011 и дату 18.06.2011. Оригинал официальной публикации не получен.",
+        "official_publication_id": null,
+        "official_publication_url": null,
+        "official_portal_page_accessible_in_research_session": false
+      },
       {
         "act": "266-ФЗ",
         "date": "2009-11-25",
