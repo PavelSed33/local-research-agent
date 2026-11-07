@@ -27,7 +27,7 @@ class DockerPackagingTests(unittest.TestCase):
                  'import sys; sys.path.insert(0, sys.argv[1]); '
                  'import api, legal_history, pravo_portal, pravo_ips; '
                  'from legal_evidence import evidence_report; '
-                 'corpus=evidence_report(); assert len(corpus["entries"])==2 and not corpus["errors"]; '
+                 'corpus=evidence_report(); assert len(corpus["entries"])==3 and not corpus["errors"]; '
                  'from pathlib import Path; '
                  'api.handle_ask({"question":"Тест", "demo":True}, Path("results")); '
                  'import legal_review; legal_review.handle_legal_review({"document":"Условный договор для проверки упаковки.","demo":True,"facts":{"both_businesses":True}}); '

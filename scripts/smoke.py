@@ -16,7 +16,8 @@ def smoke(base_url: str) -> list[str]:
     if token:
         headers['Authorization'] = 'Bearer ' + token
     passed = []
-    for path, marker in [('/', b'<!doctype html>'), ('/app.js', b'use strict'), ('/style.css', b':root')]:
+    for path, marker in [('/', b'<!doctype html>'), ('/app.js', b'use strict'), ('/style.css', b':root'),
+                         ('/review/options', b'contract_types')]:
         with urllib.request.urlopen(base_url.rstrip('/') + path, timeout=10) as response:
             assert marker in response.read(), path
         passed.append('GET ' + path)
@@ -25,6 +26,11 @@ def smoke(base_url: str) -> list[str]:
         ('/ask', {'question': 'Техническая демонстрация', 'demo': True, 'as_of': '2023-03-01'}, 'answer'),
         ('/review', {'document': document, 'demo': True}, 'risks'),
         ('/review/legal', {'document': document, 'demo': True, 'facts': {'both_businesses': True}}, 'applicability'),
+        ('/review/legal', {'document': document, 'contract_type': 'work', 'demo': True,
+                           'facts': {'both_businesses': True}}, 'contract_qualification'),
+        ('/review/legal', {'document': document, 'contract_type': 'work', 'demo': True,
+                           'facts': {'both_businesses': True, 'result_handover': True,
+                                     'mixed_contract': False, 'special_regime': False}}, 'contract_qualification'),
         ('/extract', {'document': document, 'demo': True}, 'parties'),
         ('/diff', {'document_a': document, 'document_b': document.replace('десяти', 'пяти')}, 'changes'),
         ('/case-law/check', {'question': 'Тест', 'demo': True}, 'decisions'),
@@ -43,6 +49,9 @@ def smoke(base_url: str) -> list[str]:
             assert not result['evidence_summary']['errors']
         if path == '/privacy/check':
             assert result['status'] == 'needs_facts' and result['verified'] is False
+        if path == '/review/legal' and payload.get('contract_type') == 'work':
+            expected = 'draft' if payload['facts'].get('result_handover') else 'needs_facts'
+            assert result['status'] == expected and result['verified'] is False
         passed.append('POST ' + path)
     return passed
 

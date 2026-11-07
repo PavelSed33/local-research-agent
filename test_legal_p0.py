@@ -33,11 +33,12 @@ class P0CoverageTests(unittest.TestCase):
                 self.assertFalse(card['period_supported'])
                 self.assertTrue(card['gaps'])
 
-    def test_unretrieved_court_body_not_promoted_to_observed_text(self):
+    def test_unretrieved_and_partially_observed_court_texts_remain_distinct(self):
         result = coverage_report(['LAW-02'], '2026-11-07')
         sources = {s['id']: s for s in result['sources']}
         self.assertFalse(sources['vsrf-7']['text_observed'])
-        self.assertFalse(sources['vsrf-49']['text_observed'])
+        self.assertTrue(sources['vsrf-49']['text_observed'])
+        self.assertIn('point 47 only', sources['vsrf-49']['observed_scope'])
         self.assertTrue(sources['vsrf-54']['text_observed'])
         self.assertIsNone(sources['vsrf-54']['sha256'])
 

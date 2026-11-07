@@ -17,7 +17,7 @@ class EvidenceCorpusTests(unittest.TestCase):
     def test_real_captures_have_exact_spans_but_no_original_or_period_claim(self):
         report = evidence_report(as_of='2026-11-07')
         self.assertEqual(report['errors'], [])
-        self.assertEqual(len(report['entries']), 2)
+        self.assertEqual(len(report['entries']), 3)
         for entry in report['entries']:
             self.assertTrue(entry['integrity_checked'])
             self.assertFalse(entry['raw_http_response'])
@@ -31,7 +31,7 @@ class EvidenceCorpusTests(unittest.TestCase):
 
     def test_quotes_do_not_complete_statute_cards(self):
         result = coverage_report(['LAW-01', 'LAW-02'], '2026-11-07')
-        self.assertEqual(result['evidence_summary']['checked_quote_count'], 3)
+        self.assertEqual(result['evidence_summary']['checked_quote_count'], 4)
         for module in result['modules']:
             self.assertEqual(module['accepted_provision_count'], 0)
             for card in module['cards']:
@@ -63,7 +63,7 @@ class EvidenceCorpusTests(unittest.TestCase):
             (root / entry['file']).write_text('Текст изменён')
         result = self.mutate(change)
         self.assertTrue(result['errors'])
-        self.assertEqual(len(result['entries']), 1)
+        self.assertEqual(len(result['entries']), 2)
         self.assertFalse(result['verified'])
 
     def test_forged_span_and_boolean_offset_are_excluded(self):
@@ -73,14 +73,14 @@ class EvidenceCorpusTests(unittest.TestCase):
             with self.subTest(value=value):
                 result = self.mutate(change)
                 self.assertTrue(result['errors'])
-                self.assertEqual(len(result['entries']), 1)
+                self.assertEqual(len(result['entries']), 2)
 
     def test_missing_file_and_path_traversal_fail_closed(self):
         for value in ['../README.md', '/etc/passwd', 'missing.txt']:
             with self.subTest(value=value):
                 result = self.mutate(lambda root, m: m['entries'][0].update(file=value))
                 self.assertTrue(result['errors'])
-                self.assertEqual(len(result['entries']), 1)
+                self.assertEqual(len(result['entries']), 2)
 
     def test_symlink_outside_corpus_rejected(self):
         def change(root, manifest):
@@ -129,7 +129,7 @@ class EvidenceCorpusTests(unittest.TestCase):
             model.return_value.complete.return_value = json.dumps({'summary': 'Черновик', 'risks': [], 'missing_clauses': []})
             result = handle_legal_review({'document': 'Договор для технического теста локальных источников.',
                                          'facts': {'both_businesses': True}, 'as_of': '2026-11-07'})
-        self.assertEqual(len(result['sources']), 1)
+        self.assertEqual(len(result['sources']), 2)
         source = result['sources'][0]
         self.assertEqual(source['retrieval_mode'], 'local_web_extract')
         self.assertFalse(source['capture']['raw_http_response'])
@@ -144,7 +144,7 @@ class EvidenceCorpusTests(unittest.TestCase):
             model.return_value.complete.return_value = json.dumps({'summary': 'Черновик', 'risks': [], 'missing_clauses': []})
             result = handle_legal_review({'document': 'Договор для технического теста локальных источников.',
                                          'facts': {'both_businesses': True}, 'as_of': '2026-11-07'})
-        self.assertEqual(len(result['sources']), 1)
+        self.assertEqual(len(result['sources']), 2)
         self.assertEqual(result['sources'][0]['id'], 1)
         self.assertEqual(result['sources'][0]['retrieval_mode'], 'search_result')
         self.assertIsNone(result['sources'][0]['capture'])
