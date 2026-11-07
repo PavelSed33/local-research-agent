@@ -615,8 +615,8 @@ class Law152FixtureInventoryTests(unittest.TestCase):
         self.assertEqual(fixture["inventory_summary"]["total_citations"], 35)
         self.assertEqual(fixture["inventory_summary"]["partial_scope_candidates"], 18)
         self.assertEqual(fixture["inventory_summary"]["not_mapped"], 17)
-        self.assertEqual(sum(item["scope_mapping_status"] == "partial_candidate" for item in inventory), 17)
-        self.assertEqual(sum(item["scope_mapping_status"] == "not_mapped" for item in inventory), 18)
+        self.assertEqual(sum(item["scope_mapping_status"] == "partial_candidate" for item in inventory), 18)
+        self.assertEqual(sum(item["scope_mapping_status"] == "not_mapped" for item in inventory), 17)
         scoped = fixture["article_scoped_inventory"]
         self.assertEqual(len(scoped["articles"]), 3)
         self.assertEqual(scoped["summary"]["articles_covered"], 3)
