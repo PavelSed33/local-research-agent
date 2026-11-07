@@ -612,7 +612,18 @@ class Law152FixtureInventoryTests(unittest.TestCase):
         inventory = fixture["consolidated_citation_inventory"]
         self.assertEqual(len(inventory), 35)
         self.assertEqual(fixture["inventory_summary"]["total_citations"], 35)
-        self.assertEqual(fixture["inventory_summary"]["not_mapped"], 32)
+        self.assertEqual(fixture["inventory_summary"]["partial_scope_candidates"], 4)
+        self.assertEqual(fixture["inventory_summary"]["not_mapped"], 31)
+        scoped = fixture["article_scoped_inventory"]
+        self.assertEqual(len(scoped["articles"]), 3)
+        self.assertEqual(scoped["summary"]["articles_covered"], 3)
+        self.assertEqual(scoped["summary"]["official_act_texts_retrieved"], 0)
+        self.assertFalse(scoped["summary"]["verified"])
+        self.assertTrue(all(
+            item["official_text_retrieved"] is False
+            for article in scoped["articles"]
+            for item in article["candidate_amendments"]
+        ))
         self.assertFalse(fixture["verified"])
         self.assertFalse(fixture["coverage_verified"])
         self.assertTrue(all(item["official_text_retrieved"] is False for item in inventory))
