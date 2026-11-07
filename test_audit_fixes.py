@@ -613,16 +613,16 @@ class Law152FixtureInventoryTests(unittest.TestCase):
         inventory = fixture["consolidated_citation_inventory"]
         self.assertEqual(len(inventory), 35)
         self.assertEqual(fixture["inventory_summary"]["total_citations"], 35)
-        self.assertEqual(fixture["inventory_summary"]["partial_scope_candidates"], 17)
-        self.assertEqual(fixture["inventory_summary"]["not_mapped"], 18)
+        self.assertEqual(fixture["inventory_summary"]["partial_scope_candidates"], 18)
+        self.assertEqual(fixture["inventory_summary"]["not_mapped"], 17)
         self.assertEqual(sum(item["scope_mapping_status"] == "partial_candidate" for item in inventory), 17)
         self.assertEqual(sum(item["scope_mapping_status"] == "not_mapped" for item in inventory), 18)
         scoped = fixture["article_scoped_inventory"]
         self.assertEqual(len(scoped["articles"]), 3)
         self.assertEqual(scoped["summary"]["articles_covered"], 3)
-        self.assertEqual(scoped["summary"]["candidate_act_article_links"], 21)
-        self.assertEqual(scoped["summary"]["candidate_links_by_article"], {"3": 2, "6": 14, "9": 5})
-        self.assertEqual(len({(item["act_date"], item["act_number"]) for article in scoped["articles"] for item in article["candidate_amendments"]}), 16)
+        self.assertEqual(scoped["summary"]["candidate_act_article_links"], 22)
+        self.assertEqual(scoped["summary"]["candidate_links_by_article"], {"3": 2, "6": 15, "9": 5})
+        self.assertEqual(len({(item["act_date"], item["act_number"]) for article in scoped["articles"] for item in article["candidate_amendments"]}), 17)
         self.assertTrue(any(item["act_number"] == "363-ФЗ" and "пункт 5 части 1" in item["scope"] for item in scoped["articles"][1]["candidate_amendments"]))
         self.assertTrue(any(
             item["act_number"] == "266-ФЗ" and item["act_date"] == "2009-11-25"
@@ -641,6 +641,7 @@ class Law152FixtureInventoryTests(unittest.TestCase):
             for item in article["candidate_amendments"]
         ))
         self.assertTrue(any(item["act_number"] == "227-ФЗ" and item["scope"] == ["часть 4", "часть 4.1"] and item["effective_from"] == "2011-01-01" for item in scoped["articles"][2]["candidate_amendments"]))
+        self.assertTrue(any(item["act_number"] == "204-ФЗ" and item["scope"] == ["пункт 2.2 части 2"] and item["effective_from"] == "2010-07-30" for item in scoped["articles"][1]["candidate_amendments"]))
         self.assertEqual(scoped["summary"]["out_of_scope_checks"], 20)
         out_of_scope_pairs = {(item["date"], item["act"]) for item in scoped["out_of_scope_amendment_checks"]}
         self.assertTrue(all((item["signed_date"], item["act_number"]) in out_of_scope_pairs for item in inventory if item["scope_mapping_status"] == "not_mapped"))
