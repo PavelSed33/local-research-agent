@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "checked_on": "2026-11-07",
+  "verified": false,
+  "coverage_verified": false,
+  "original_amendment_bodies_retrieved": 0,
+  "sources": [
+    {
+      "id": "mintrud-152-consolidated-20261107",
+      "url": "https://mintrud.gov.ru/docs/laws/130",
+      "source_class": "government_hosted_consolidated_copy",
+      "access_method": "web_tool_open_and_find",
+      "content_observed": true,
+      "original_publication_body": false,
+      "visible_amendment_list_last_date": "2025-06-24",
+      "current_as_of_checked_on": false,
+      "observations": [
+        {
+          "provision": "152-ФЗ:ст.6:ч.1:п.10",
+          "amending_act_date": "2020-12-30",
+          "amending_act_number": "519-ФЗ",
+          "fact": "Помета об утрате силы 01.03.2021 по 519-ФЗ.",
+          "short_quote": "10) утратил силу с 1 марта 2021 года."
+        },
+        {
+          "provision": "152-ФЗ:ст.6:ч.3,6",
+          "amending_act_date": "2022-07-14",
+          "amending_act_number": "266-ФЗ",
+          "fact": "Пометы частей 3 и 6 указывают 266-ФЗ."
+        },
+        {
+          "provision": "152-ФЗ:ст.9:ч.1",
+          "amending_act_date": "2025-06-24",
+          "amending_act_number": "156-ФЗ",
+          "fact": "Отдельное согласие; общая помета 266-ФЗ/156-ФЗ.",
+          "short_quote": "должно быть оформлено отдельно"
+        },
+        {
+          "provision": "152-ФЗ:ст.3:п.1.1",
+          "amending_act_date": "2020-12-30",
+          "amending_act_number": "519-ФЗ",
+          "fact": "Введение пункта отнесено к 519-ФЗ."
+        },
+        {
+          "provision": "152-ФЗ:ст.9:ч.9",
+          "amending_act_date": "2020-12-30",
+          "amending_act_number": "519-ФЗ",
+          "fact": "Введение части отнесено к 519-ФЗ."
+        },
+        {
+          "provision": "152-ФЗ:ст.9:ч.1",
+          "amending_act_date": "2022-07-14",
+          "amending_act_number": "266-ФЗ",
+          "fact": "Общая помета 266-ФЗ/156-ФЗ; изменения предложений не разграничены."
+        }
+      ],
+      "limitations": [
+        "Консолидированная копия не заменяет исходные акты поправок и переходные положения.",
+        "Список редакций на странице не включает известного кандидата поправки 2026 года; текущая редакция не удостоверена.",
+        "Сырой HTTP-ответ не архивирован: наблюдался текст через веб-инструмент."
+      ]
+    },
+    {
+      "id": "prosecutor-156-consent-20250630",
+      "url": "https://epp.genproc.gov.ru/ru/proc_39/activity/legal-education/explain/protecting_rights_entrepreneurs/e5874598/",
+      "source_class": "official_authority_explanation",
+      "publisher": "Прокуратура Калининградской области",
+      "published_on": "2025-06-30",
+      "access_method": "web_tool_open",
+      "content_observed": true,
+      "original_publication_body": false,
+      "observations": [
+        {
+          "provision": "152-ФЗ:ст.9:ч.1",
+          "amending_act_date": "2025-06-24",
+          "amending_act_number": "156-ФЗ",
+          "fact": "Разъяснение связывает отдельное оформление согласия с 1 сентября 2025 года.",
+          "effective_date_corroborated": "2025-09-01",
+          "short_quote": "С 1 сентября 2025 года."
+        }
+      ],
+      "limitations": [
+        "Разъяснение ведомства не является текстом статьи 7 изменяющего закона.",
+        "Не удостоверяет полноту редакций и применимость к конкретным обстоятельствам."
+      ]
+    },
+    {
+      "id": "rg-519-original-publication-reference",
+      "url": "https://rg.ru/2021/01/11/personalnie-dannie-dok.html",
+      "source_class": "original_publication_link_unretrieved",
+      "content_observed": false,
+      "original_publication_body": false,
+      "discovery_source": "https://ru.wikisource.org/wiki/Федеральный_закон_от_30.12.2020_№_519-ФЗ",
+      "bibliographic_candidate": "Российская газета, федеральный выпуск № 1(8352), 11.01.2021",
+      "limitations": [
+        "Ссылка обнаружена во вторичной копии; сама страница газеты не получена."
+      ]
+    }
+  ],
+  "remaining_gaps": [
+    "Оригинальные публикации и статьи о вступлении в силу не получены.",
+    "Нельзя приравнивать дату публикации копии на ведомственном сайте к дате вступления нормы в силу."
+  ]
+}
