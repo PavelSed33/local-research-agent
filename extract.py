@@ -30,7 +30,7 @@ from agent import (
     extract_json,
     load_dotenv,
 )
-from doctext import read_document_file, resolve_document
+from doctext import ensure_document_transfer_allowed, read_document_file, resolve_document
 from review import MIN_DOCUMENT_CHARS, MIN_QUOTE_CHARS, normalize_text
 
 ENTITY_LISTS = ("parties", "amounts", "dates", "penalties")
@@ -237,6 +237,8 @@ def handle_extract(payload: dict[str, Any]) -> dict[str, Any]:
     if len(document) < MIN_DOCUMENT_CHARS:
         raise ValueError(f"Текст договора слишком короткий: нужно от {MIN_DOCUMENT_CHARS} символов.")
     demo = bool(payload.get("demo", False))
+    if not demo:
+        ensure_document_transfer_allowed()
     model: LanguageModel = DemoExtractModel() if demo else OpenAICompatibleModel()
     result, repaired = extract_entities(model, document.strip())
     return {

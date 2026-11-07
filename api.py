@@ -20,6 +20,8 @@
 
 from __future__ import annotations
 
+import hmac
+import ipaddress
 import json
 import os
 import re
@@ -293,7 +295,9 @@ class LegalApiHandler(BaseHTTPRequestHandler):
         token = getattr(self.server, "api_token", "")
         if not token:
             return True
-        return self.headers.get("Authorization", "") == f"Bearer {token}"
+        supplied = self.headers.get("Authorization", "")
+        expected = f"Bearer {token}"
+        return hmac.compare_digest(supplied, expected)
 
     def do_GET(self) -> None:
         if self.path == "/health":
@@ -328,7 +332,8 @@ class LegalApiHandler(BaseHTTPRequestHandler):
         except AgentError as exc:
             self._send_json(502, {"error": str(exc)})
         except Exception as exc:  # noqa: BLE001 — последняя линия защиты сервиса
-            self._send_json(500, {"error": f"Внутренняя ошибка сервиса: {exc}"})
+            print(f"Внутренняя ошибка API: {exc!r}", file=sys.stderr)
+            self._send_json(500, {"error": "Внутренняя ошибка сервиса."})
         else:
             self._send_json(200, result)
 
@@ -339,6 +344,18 @@ def create_server(
     output_dir: Path | str = Path("результаты"),
     api_token: str = "",
 ) -> ThreadingHTTPServer:
+    normalized_host = host.strip().lower()
+    is_loopback = normalized_host == "localhost"
+    if not is_loopback:
+        try:
+            is_loopback = ipaddress.ip_address(normalized_host).is_loopback
+        except ValueError:
+            is_loopback = False
+    if not api_token.strip() and not is_loopback:
+        raise ValueError(
+            "API_TOKEN обязателен при прослушивании внешнего интерфейса. "
+            "Для локального режима используйте API_HOST=127.0.0.1."
+        )
     server = ThreadingHTTPServer((host, port), LegalApiHandler)
     server.output_dir = Path(output_dir)
     server.api_token = api_token.strip()
@@ -356,8 +373,12 @@ def main() -> int:
         return 1
     output_dir = Path(os.getenv("API_OUTPUT_DIR", "результаты"))
     api_token = os.getenv("API_TOKEN", "")
-    server = create_server(host, port, output_dir, api_token)
-    auth_note = "включена (API_TOKEN)" if server.api_token else "отключена (задайте API_TOKEN)"
+    try:
+        server = create_server(host, port, output_dir, api_token)
+    except ValueError as exc:
+        print(f"Ошибка конфигурации: {exc}", file=sys.stderr)
+        return 1
+    auth_note = "включена (API_TOKEN)" if server.api_token else "локальный доступ без токена"
     print(f"HTTP API юридического помощника: http://{host}:{port}")
     print(f"Эндпоинты: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff. Авторизация: {auth_note}.")
     print(f"Результаты сохраняются в: {server.output_dir.resolve()}")

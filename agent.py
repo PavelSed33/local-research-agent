@@ -575,7 +575,10 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
     queries.extend(new_update_queries)
     executed_queries.update(new_update_queries)
     update_found, update_errors = search_queries(search, new_update_queries, per_query)
-    sources = deduplicate([*sources, *update_found], source_limit)
+    # Keep legal-update evidence separate from the general research cap.
+    # Otherwise a full initial source list silently discards the very materials
+    # retrieved to verify amendments and current editions.
+    update_sources = deduplicate(update_found, 3)
     update_check = {
         "performed": True,
         "queries": new_update_queries,
@@ -605,7 +608,8 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
         queries.extend(new_court_queries)
         executed_queries.update(new_court_queries)
         court_found, court_errors = search_queries(court_search, new_court_queries, per_query)
-        sources = deduplicate([*sources, *court_found], source_limit)
+        # Reserve up to three slots for case-law evidence as well.
+        court_sources = deduplicate(court_found, 3)
         court_check = {
             "performed": True,
             "queries": new_court_queries,
@@ -614,6 +618,15 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
             "errors": court_errors,
         }
         print(f"      Запросов по практике: {len(new_court_queries)}; источников всего: {len(sources)}")
+
+    # The user-configured source_limit applies to the core legal research.
+    # Add separately capped evidence for amendments and case law so those
+    # mandatory checks remain visible to the report and its citations.
+    sources = deduplicate(
+        [*sources, *update_sources, *court_sources] if court_check.get("performed")
+        else [*sources, *update_sources],
+        source_limit + 6,
+    )
 
     print("[6/8] Готовлю и проверяю правовой ответ…")
     report, report_repaired = build_validated_report(model, topic, sources, session_context)
