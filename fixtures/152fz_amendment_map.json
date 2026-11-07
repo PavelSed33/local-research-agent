@@ -307,6 +307,12 @@
       "official_text_retrieved": false
     },
     {
+      "signed_date": "2025-07-07",
+      "act_number": "200-ФЗ",
+      "scope_mapping_status": "not_mapped",
+      "official_text_retrieved": false
+    },
+    {
       "signed_date": "2026-07-26",
       "act_number": "265-ФЗ",
       "scope_mapping_status": "partial_candidate",
@@ -314,9 +320,9 @@
     }
   ],
   "inventory_summary": {
-    "total_citations": 35,
+    "total_citations": 36,
     "partial_scope_candidates": 17,
-    "not_mapped": 18,
+    "not_mapped": 19,
     "source_quality": "Список реквизитов извлечён из официального консолидированного текста Минтруда; постатейные связи дополнены вторичными полными текстами и редакционными пометами. Все частичные связи остаются кандидатными до проверки оригиналов изменяющих публикаций.",
     "caveat": "Статус partial_candidate означает найденную связь по статье/положению, но не первичную юридическую верификацию. Неоднозначные/противоречивые редакционные пометы не засчитываются без текста изменяющего акта."
   },
