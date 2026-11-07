@@ -673,6 +673,7 @@ class Law152FixtureInventoryTests(unittest.TestCase):
         self.assertEqual(portal["identified_official_publication_records"], 5)
         self.assertEqual(len(portal["identified_records"]), 5)
         self.assertIn("0001202408080031", {item["publication_id"] for item in portal["identified_records"]})
+        self.assertIn("0001202012300044", {item["publication_id"] for item in portal["identified_records"]})
         self.assertTrue(all(not item["body_retrieved"] for item in portal["identified_records"]))
         self.assertFalse(scoped["summary"]["verified"])
         self.assertTrue(all(
