@@ -995,6 +995,26 @@
         "official_text_retrieved": false,
         "source_class": "secondary_full_act_text_and_reference_copy",
         "note": "Номер официальной публикации идентифицирован по вторичным реквизитам; оригинальное тело официальной публикации не загружено."
+      },
+      {
+        "act": "200-ФЗ",
+        "date": "2025-07-07",
+        "official_publication_id": "0001202507070020",
+        "official_publication_url": "https://publication.pravo.gov.ru/document/0001202507070020",
+        "checked_articles": [
+          "3",
+          "6",
+          "9"
+        ],
+        "result": "not_in_scope",
+        "basis": "Статья 2 закона изменяет пункт 7 части 2 статьи 10 152-ФЗ; изменений статей 3, 6 или 9 не установлено. По статье 3(1) основное изменение вступает в силу 01.03.2027; исключение — пункт 2 статьи 1, вступивший в силу в день официального опубликования 07.07.2025.",
+        "secondary_sources": [
+          "https://base.garant.ru/412293502/",
+          "https://www.kontur-extern.ru/info/normativ/document/1/500402-federalnyy-zakon-ot-07-07-2025-n-200-fz"
+        ],
+        "official_text_retrieved": false,
+        "source_class": "secondary_full_act_text_and_reference_copy",
+        "note": "Официальный идентификатор публикации подтверждён вторичными реквизитами; оригинальное тело публикации не загружено. Отложенное вступление основной поправки не меняет её предметную область: статья 10."
       }
     ]
   }
