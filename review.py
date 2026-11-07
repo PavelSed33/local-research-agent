@@ -16,7 +16,6 @@ import argparse
 import json
 import re
 import sys
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -25,6 +24,7 @@ from agent import (
     AgentError,
     LanguageModel,
     OpenAICompatibleModel,
+    current_check_date,
     extract_json,
     load_dotenv,
 )
@@ -65,20 +65,32 @@ def validate_review(result: dict[str, Any], document: str) -> list[str]:
         if not isinstance(risk, dict):
             issues.append(f"Риск №{index} не является объектом.")
             continue
-        if not str(risk.get("category", "")).strip():
-            issues.append(f"Риск №{index}: пустая категория.")
+        category = risk.get("category")
+        if not isinstance(category, str) or not category.strip():
+            issues.append(f"Риск №{index}: category должна быть непустой строкой.")
+        elif category.strip() not in REVIEW_CATEGORIES and category.strip() != "демонстрационный режим":
+            issues.append(f"Риск №{index}: неизвестная категория «{category.strip()}».")
         if risk.get("severity") not in SEVERITIES:
             issues.append(f"Риск №{index}: severity должен быть одним из {SEVERITIES}.")
-        quote = str(risk.get("quote", "")).strip()
+        quote_value = risk.get("quote")
+        if not isinstance(quote_value, str):
+            issues.append(f"Риск №{index}: quote должна быть строкой.")
+            quote = ""
+        else:
+            quote = quote_value.strip()
         if len(quote) < MIN_QUOTE_CHARS:
             issues.append(f"Риск №{index}: цитата короче {MIN_QUOTE_CHARS} символов.")
         elif normalize_text(quote) not in corpus:
             issues.append(f"Риск №{index}: цитата не найдена в тексте договора.")
-        if not str(risk.get("comment", "")).strip():
-            issues.append(f"Риск №{index}: пустой комментарий.")
+        for field in ("comment", "recommendation"):
+            value = risk.get(field)
+            if not isinstance(value, str) or not value.strip():
+                issues.append(f"Риск №{index}: {field} должна быть непустой строкой.")
     missing = result.get("missing_clauses", [])
-    if not isinstance(missing, list) or any(not isinstance(item, str) for item in missing):
-        issues.append("Поле missing_clauses должно быть списком строк.")
+    if not isinstance(missing, list) or any(not isinstance(item, str) or not item.strip() for item in missing):
+        issues.append("Поле missing_clauses должно быть списком непустых строк.")
+    elif len({normalize_text(item).casefold() for item in missing}) != len(missing):
+        issues.append("Поле missing_clauses содержит повторяющиеся пункты.")
     return issues
 
 
@@ -160,7 +172,7 @@ def handle_review(payload: dict[str, Any]) -> dict[str, Any]:
         "summary": result["summary"].strip(),
         "risks": result.get("risks", []),
         "missing_clauses": result.get("missing_clauses", []),
-        "checked_on": datetime.now(timezone.utc).date().isoformat(),
+        "checked_on": current_check_date(),
         "disclaimer": LEGAL_DISCLAIMER,
         "demo": demo,
         "review_repaired": repaired,

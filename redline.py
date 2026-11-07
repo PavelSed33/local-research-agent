@@ -16,11 +16,10 @@ import argparse
 import difflib
 import json
 import sys
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from agent import LEGAL_DISCLAIMER
+from agent import LEGAL_DISCLAIMER, current_check_date
 from doctext import read_document_path, resolve_document
 from review import MIN_DOCUMENT_CHARS
 
@@ -91,7 +90,7 @@ def handle_diff(payload: dict[str, Any]) -> dict[str, Any]:
         "summary": result["summary"],
         "changes": result["changes"],
         "diff": result["diff"],
-        "checked_on": datetime.now(timezone.utc).date().isoformat(),
+        "checked_on": current_check_date(),
         "disclaimer": LEGAL_DISCLAIMER,
     }
 
