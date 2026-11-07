@@ -347,11 +347,11 @@ def classify_source_authority(url: str) -> str:
         return "unclassified"
     if host == "pravo.gov.ru" or host.endswith(".pravo.gov.ru"):
         return "official_legal_portal"
-    if host == "mintrud.gov.ru":
+    if host == "mintrud.gov.ru" or (host == "zpp.rospotrebnadzor.ru" and urlsplit(url).path.startswith("/npa/")):
         return "government_legal_reproduction"
-    if host == "epp.genproc.gov.ru":
+    if host == "epp.genproc.gov.ru" or host == "rostrud.gov.ru" or host.endswith(".rostrud.gov.ru") or (host == "zpp.rospotrebnadzor.ru" and urlsplit(url).path.startswith("/news/")):
         return "official_legal_explanation"
-    if host == "vsrf.ru" or host.endswith(".vsrf.ru") or host == "kad.arbitr.ru" or host.endswith(".arbitr.ru") or host.endswith(".sudrf.ru"):
+    if host == "arbitr.ru" or host == "vsrf.ru" or host.endswith(".vsrf.ru") or host == "kad.arbitr.ru" or host.endswith(".arbitr.ru") or host.endswith(".sudrf.ru"):
         return "official_court"
     if host == "sudact.ru" or host.endswith(".sudact.ru"):
         return "case_law_aggregator"
