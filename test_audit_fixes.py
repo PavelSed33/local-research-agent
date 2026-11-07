@@ -341,7 +341,7 @@ class OfficialIntegratedLegalBankTests(unittest.TestCase):
         self.assertIn("Редакция-снимок: 2020-01-01", sources[0].text)
         self.assertIn("Текст старой редакции", sources[0].text)
         self.assertIn("не является официальным опубликованием", sources[0].text)
-        self.assertIn("не равна", sources[0].text)
+        self.assertIn("не дата вступления в силу каждой нормы", sources[0].text)
 
     def test_bank_refuses_invalid_document_ids_and_dates(self):
         from pravo_ips import PravoIpsBank
@@ -379,7 +379,8 @@ class OfficialIntegratedLegalBankTests(unittest.TestCase):
         ]):
             result = PravoIpsBank().get_history("102000001")
 
-        self.assertEqual(len(result["snapshots"]), 2)
+        self.assertEqual(len(result["snapshots"]), 3)
+        self.assertEqual(sum(1 for item in result["snapshots"] if item["edition_date"]), 2)
         self.assertIn("Старый текст", result["snapshots"][0]["text"])
         self.assertIn("Новый текст", result["snapshots"][1]["text"])
         audit = result["revision_chain_audit"]
