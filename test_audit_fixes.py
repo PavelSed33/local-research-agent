@@ -619,6 +619,12 @@ class Law152FixtureInventoryTests(unittest.TestCase):
         self.assertEqual(scoped["summary"]["articles_covered"], 3)
         self.assertEqual(scoped["summary"]["candidate_act_article_links"], 17)
         self.assertEqual(scoped["summary"]["official_act_texts_retrieved"], 0)
+        portal = scoped["official_portal_retrieval"]
+        self.assertEqual(portal["directly_retrieved_document_bodies"], 0)
+        self.assertEqual(portal["identified_official_publication_records"], 4)
+        self.assertEqual(len(portal["identified_records"]), 4)
+        self.assertTrue(all(not item["body_retrieved"] for item in portal["identified_records"]))
+        self.assertFalse(scoped["summary"]["verified"])
         self.assertFalse(scoped["summary"]["verified"])
         self.assertTrue(all(
             item["official_text_retrieved"] is False
