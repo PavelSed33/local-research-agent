@@ -580,7 +580,10 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
     # retrieved to verify amendments and current editions.
     update_sources = deduplicate(update_found, 3)
     update_check = {
-        "performed": True,
+        "attempted": True,
+        "performed": bool(update_sources),
+        "verified": False,
+        "status": "evidence_found" if update_sources else ("search_error" if update_errors else "no_evidence"),
         "queries": new_update_queries,
         "notes": update_notes,
         "new_sources_found": len(update_found),
@@ -594,7 +597,10 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
     except AgentError as exc:
         # Практика — вспомогательный этап: его сбой не отменяет ответ.
         court_check = {
+            "attempted": True,
             "performed": False,
+            "verified": False,
+            "status": "planning_failed",
             "queries": [],
             "notes": "",
             "new_sources_found": 0,
@@ -611,7 +617,10 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
         # Reserve up to three slots for case-law evidence as well.
         court_sources = deduplicate(court_found, 3)
         court_check = {
-            "performed": True,
+            "attempted": True,
+            "performed": bool(court_sources),
+            "verified": False,
+            "status": "evidence_found" if court_sources else ("search_error" if court_errors else "no_evidence"),
             "queries": new_court_queries,
             "notes": court_notes,
             "new_sources_found": len(court_found),

@@ -21,6 +21,7 @@
 from __future__ import annotations
 
 import hmac
+from collections import OrderedDict
 import ipaddress
 import json
 import os
@@ -42,10 +43,13 @@ from review import handle_review
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8080
 MAX_BODY_BYTES = 8 * 1024 * 1024
+MAX_DIFF_BODY_BYTES = 1 * 1024 * 1024
+MAX_QUESTION_CHARS = 12_000
+SESSION_MAX_ENTRIES = 10
+SESSION_MAX_COUNT = 1_000
 SERVICE_NAME = "legal-research-agent"
 API_VERSION = "1.2"
 SESSION_TTL_SECONDS = 3600
-SESSION_MAX_ENTRIES = 10
 SESSION_ANSWER_CHARS = 500
 SESSION_ID_PATTERN = re.compile(r"^[A-Za-z0-9-]{1,64}$")
 
@@ -55,7 +59,7 @@ class SessionStore:
 
     def __init__(self, ttl_seconds: int = SESSION_TTL_SECONDS) -> None:
         self.ttl_seconds = ttl_seconds
-        self._sessions: dict[str, dict[str, Any]] = {}
+        self._sessions: OrderedDict[str, dict[str, Any]] = OrderedDict()
         self._lock = threading.Lock()
 
     def _purge_expired(self, now: float) -> None:
@@ -77,7 +81,14 @@ class SessionStore:
         now = time.time()
         with self._lock:
             self._purge_expired(now)
-            session = self._sessions.setdefault(session_id, {"updated": now, "entries": []})
+            session = self._sessions.get(session_id)
+            if session is None:
+                if len(self._sessions) >= SESSION_MAX_COUNT:
+                    self._sessions.popitem(last=False)
+                session = {"updated": now, "entries": []}
+                self._sessions[session_id] = session
+            else:
+                self._sessions.move_to_end(session_id)
             session["updated"] = now
             session["entries"].append({"question": question.strip(), "answer": answer[:SESSION_ANSWER_CHARS]})
             del session["entries"][:-SESSION_MAX_ENTRIES]
@@ -101,12 +112,16 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
     question = payload.get("question", "")
     if not isinstance(question, str) or not question.strip():
         raise RequestValidationError("Поле «question» обязательно и не должно быть пустым.")
+    if len(question) > MAX_QUESTION_CHARS:
+        raise RequestValidationError(f"Вопрос не должен превышать {MAX_QUESTION_CHARS} символов.")
     session_id = payload.get("session_id")
     if session_id is not None and (not isinstance(session_id, str) or not SESSION_ID_PATTERN.match(session_id)):
         raise RequestValidationError("Поле «session_id» должно быть строкой из 1–64 символов: латиница, цифры, дефис.")
     query_count = parse_int_field(payload, "queries", 3, 1, 5)
     source_limit = parse_int_field(payload, "sources", 6, 1, 10)
-    demo = bool(payload.get("demo", False))
+    demo = payload.get("demo", False)
+    if not isinstance(demo, bool):
+        raise RequestValidationError("Поле «demo» должно быть логическим значением true или false.")
     context = sessions.context(session_id) if sessions and session_id else ""
 
     # Отдельная папка на запрос: имена файлов внутри не пересекаются.
@@ -281,8 +296,9 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             raise RequestValidationError("Некорректный заголовок Content-Length.") from None
         if length <= 0:
             raise RequestValidationError("Тело запроса пустое: ожидается JSON.")
-        if length > MAX_BODY_BYTES:
-            raise RequestValidationError(f"Тело запроса больше {MAX_BODY_BYTES} байт.")
+        body_limit = MAX_DIFF_BODY_BYTES if self.path == "/diff" else MAX_BODY_BYTES
+        if length > body_limit:
+            raise RequestValidationError(f"Тело запроса больше допустимого лимита {body_limit} байт для этого эндпоинта.")
         try:
             payload = json.loads(self.rfile.read(length).decode("utf-8"))
         except (UnicodeDecodeError, json.JSONDecodeError):

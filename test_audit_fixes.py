@@ -8,7 +8,9 @@ from unittest.mock import patch
 
 import agent
 from agent import Source
-from api import create_server
+from api import create_server, handle_ask, SessionStore, SESSION_MAX_COUNT
+from redline import diff_documents, MAX_DIFF_DOCUMENT_CHARS
+from registry import build_registry, MAX_REGISTRY_FILE_BYTES
 from doctext import MAX_DOCX_BYTES, MAX_DOCX_XML_BYTES, ensure_document_transfer_allowed, extract_docx_text
 
 
@@ -96,6 +98,34 @@ class ResearchEvidenceRetentionTests(unittest.TestCase):
         self.assertIn("https://example.test/update-check", urls)
         self.assertIn("https://example.test/court-check", urls)
 
+
+
+class SecondAuditRegressionTests(unittest.TestCase):
+    def test_session_store_has_a_hard_capacity(self):
+        store = SessionStore()
+        for index in range(SESSION_MAX_COUNT + 5):
+            store.remember(f"session-{index}", "q", "a")
+        self.assertLessEqual(len(store._sessions), SESSION_MAX_COUNT)
+        self.assertNotIn("session-0", store._sessions)
+
+    def test_demo_requires_a_json_boolean(self):
+        with self.assertRaisesRegex(ValueError, "demo.*логическим"):
+            handle_ask({"question": "тест", "demo": "false"}, Path("."))
+
+    def test_diff_rejects_oversized_text_before_matching(self):
+        with self.assertRaisesRegex(ValueError, "не должна превышать"):
+            diff_documents("x" * (MAX_DIFF_DOCUMENT_CHARS + 1), "короткий текст")
+
+    def test_registry_skips_oversized_file_before_reading(self):
+        with tempfile.TemporaryDirectory() as directory:
+            folder = Path(directory)
+            large = folder / "large.txt"
+            with large.open("wb") as handle:
+                handle.truncate(MAX_REGISTRY_FILE_BYTES + 1)
+            rows, extractions, skipped = build_registry(folder, demo=True)
+        self.assertEqual(rows, [])
+        self.assertEqual(extractions, [])
+        self.assertTrue(any("больше допустимых" in note for note in skipped))
 
 if __name__ == "__main__":
     unittest.main()
