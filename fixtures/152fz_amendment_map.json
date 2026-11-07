@@ -383,7 +383,9 @@
             "effective_date_status": "The amending act entered into force on official publication (secondary publication record: Rossiyskaya Gazeta 2011-07-27); Article 3(2) retroactively applies the amended 152-FZ provisions to legal relationships from 2011-07-01. Secondary reproduction; not primary-source verified.",
             "secondary_sources": [
               "https://www.consultant.ru/document/cons_doc_LAW_117437/3d0cac60971a511280cbba229d9b6329c07731f/",
-              "https://www.kontur-extern.ru/info/normativ/document/1/182955-federalnyy-zakon-ot-25-07-2011-n-261-fz"
+              "https://www.kontur-extern.ru/info/normativ/document/1/182955-federalnyy-zakon-ot-25-07-2011-n-261-fz",
+              "https://www.consultant.ru/document/cons_doc_LAW_117437/",
+              "https://base.garant.ru/12188322/"
             ],
             "official_text_retrieved": false,
             "official_publication_identified": false,
@@ -399,7 +401,8 @@
             },
             "source_verification_note": "The secondary full text of Article 1 expressly replaces Article 3, Article 6 and Article 9 of 152-FZ. Article 3(1) sets entry into force on official publication; Article 3(2) separately gives retroactive application to legal relationships from 2011-07-01. A secondary bibliographic record identifies Rossiyskaya Gazeta No. 162 dated 2011-07-27. Keep official_text_retrieved=false and do not assign a portal publication ID. The Ministry of Labour's official consolidated 152-FZ text also marks this article as amended by 261-ФЗ; this is corroborating official consolidated-law evidence, not the original amending act.",
             "official_consolidated_law_source_url": "https://mintrud.gov.ru/docs/laws/130",
-            "official_consolidated_law_source_note": "Official Ministry of Labour-hosted consolidated text of 152-FZ contains an editorial note that this article is in the version of 261-FZ. This supports the amendment-scope attribution but is not the original published text of 261-FZ and does not count as retrieved original act text."
+            "official_consolidated_law_source_note": "Official Ministry of Labour-hosted consolidated text of 152-FZ contains an editorial note that this article is in the version of 261-FZ. This supports the amendment-scope attribution but is not the original published text of 261-FZ and does not count as retrieved original act text.",
+            "secondary_source_class": "secondary_legal_database_or_reference_copy"
           },
           {
             "act_date": "2020-12-30",
@@ -412,7 +415,8 @@
             "effective_from": null,
             "effective_date_status": "нужна сверка официальной переходной нормы",
             "secondary_sources": [
-              "https://www.consultant.ru/document/cons_doc_LAW_61801/4f41fe599ce341751e4e34dc50a4b676674c1416/"
+              "https://www.consultant.ru/document/cons_doc_LAW_61801/4f41fe599ce341751e4e34dc50a4b676674c1416/",
+              "https://base.garant.ru/400157172/"
             ],
             "official_text_retrieved": false,
             "official_publication_identified": true,
@@ -424,7 +428,8 @@
               "exception": "paragraph 10 of item 5 of Article 1 (Article 10.1, part 6, item 2: consent via the information system) effective 2021-07-01; this exception does not apply to the tracked amendments to Articles 3, 6 or 9",
               "source_class": "secondary reproduction of Articles 1 and 2; original official portal body inaccessible"
             },
-            "source_verification_note": "Article 1 maps the tracked changes exactly: Article 3 point 1.1; Article 6 item 10 part 1 repealed; Article 9 part 9 added. The delayed paragraph 10 of item 5 is Article 10.1 part 6 item 2 and is not one of these three tracked provisions. Secondary text only; official publication body not retrieved."
+            "source_verification_note": "Article 1 maps the tracked changes exactly: Article 3 point 1.1; Article 6 item 10 part 1 repealed; Article 9 part 9 added. The delayed paragraph 10 of item 5 is Article 10.1 part 6 item 2 and is not one of these three tracked provisions. Secondary text only; official publication body not retrieved.",
+            "secondary_source_class": "secondary_legal_database_or_reference_copy"
           }
         ],
         "gaps": [
@@ -448,7 +453,9 @@
             "effective_date_status": "The amending act entered into force on official publication (secondary publication record: Rossiyskaya Gazeta 2011-07-27); Article 3(2) retroactively applies the amended 152-FZ provisions to legal relationships from 2011-07-01. Secondary reproduction; not primary-source verified.",
             "secondary_sources": [
               "https://www.consultant.ru/document/cons_doc_LAW_117437/3d0cac60971a511280cbba229d9b6329c07731f/",
-              "https://www.kontur-extern.ru/info/normativ/document/1/182955-federalnyy-zakon-ot-25-07-2011-n-261-fz"
+              "https://www.kontur-extern.ru/info/normativ/document/1/182955-federalnyy-zakon-ot-25-07-2011-n-261-fz",
+              "https://www.consultant.ru/document/cons_doc_LAW_117437/",
+              "https://base.garant.ru/12188322/"
             ],
             "official_text_retrieved": false,
             "official_publication_identified": false,
@@ -464,7 +471,8 @@
             },
             "source_verification_note": "The secondary full text of Article 1 expressly replaces Article 3, Article 6 and Article 9 of 152-FZ. Article 3(1) sets entry into force on official publication; Article 3(2) separately gives retroactive application to legal relationships from 2011-07-01. A secondary bibliographic record identifies Rossiyskaya Gazeta No. 162 dated 2011-07-27. Keep official_text_retrieved=false and do not assign a portal publication ID. The Ministry of Labour's official consolidated 152-FZ text also marks this article as amended by 261-ФЗ; this is corroborating official consolidated-law evidence, not the original amending act.",
             "official_consolidated_law_source_url": "https://mintrud.gov.ru/docs/laws/130",
-            "official_consolidated_law_source_note": "Official Ministry of Labour-hosted consolidated text of 152-FZ contains an editorial note that this article is in the version of 261-FZ. This supports the amendment-scope attribution but is not the original published text of 261-FZ and does not count as retrieved original act text."
+            "official_consolidated_law_source_note": "Official Ministry of Labour-hosted consolidated text of 152-FZ contains an editorial note that this article is in the version of 261-FZ. This supports the amendment-scope attribution but is not the original published text of 261-FZ and does not count as retrieved original act text.",
+            "secondary_source_class": "secondary_legal_database_or_reference_copy"
           },
           {
             "act_date": "2013-04-05",
@@ -539,7 +547,9 @@
             "effective_from": "2020-07-01",
             "effective_date_status": "Article 8 expressly sets 2020-07-01; Article 7 point 1 adds Article 6 part 1 point 9.1; secondary reproduction",
             "secondary_sources": [
-              "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/"
+              "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/",
+              "https://lepton.ru/GOST/Index2/1/4293721/4293721894.htm",
+              "https://files.stroyinf.ru/Index2/1/4293721/4293721894.htm"
             ],
             "official_text_retrieved": false,
             "official_publication_identified": true,
@@ -551,7 +561,8 @@
               "exception": "no special exception for Article 7 amendment to Article 6 part 1 point 9.1 stated in Article 8",
               "source_class": "secondary reproduction of Articles 7 and 8"
             },
-            "source_verification_note": "Article 7 point 1 adds Article 6 part 1 point 9.1. Article 8 states the law enters into force 2020-07-01. Original official publication body remains unretrieved."
+            "source_verification_note": "Article 7 point 1 adds Article 6 part 1 point 9.1. Article 8 states the law enters into force 2020-07-01. Original official publication body remains unretrieved.",
+            "secondary_source_class": "secondary_legal_database_or_reference_copy"
           },
           {
             "act_date": "2021-07-02",
@@ -579,7 +590,9 @@
             "effective_from": "2021-03-01",
             "effective_date_status": "дата приведена во вторичной аннотации; официальное переходное положение не получено",
             "secondary_sources": [
-              "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/"
+              "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/",
+              "https://base.garant.ru/400157172/",
+              "https://www.consultant.ru/document/cons_doc_LAW_61801/4f41fe599ce341751e4e34dc50a4b676674c1416/"
             ],
             "official_text_retrieved": false,
             "official_publication_identified": true,
@@ -591,7 +604,8 @@
               "exception": "paragraph 10 of item 5 of Article 1 (Article 10.1, part 6, item 2: consent via the information system) effective 2021-07-01; this exception does not apply to the tracked amendments to Articles 3, 6 or 9",
               "source_class": "secondary reproduction of Articles 1 and 2; original official portal body inaccessible"
             },
-            "source_verification_note": "Article 1 maps the tracked changes exactly: Article 3 point 1.1; Article 6 item 10 part 1 repealed; Article 9 part 9 added. The delayed paragraph 10 of item 5 is Article 10.1 part 6 item 2 and is not one of these three tracked provisions. Secondary text only; official publication body not retrieved."
+            "source_verification_note": "Article 1 maps the tracked changes exactly: Article 3 point 1.1; Article 6 item 10 part 1 repealed; Article 9 part 9 added. The delayed paragraph 10 of item 5 is Article 10.1 part 6 item 2 and is not one of these three tracked provisions. Secondary text only; official publication body not retrieved.",
+            "secondary_source_class": "secondary_legal_database_or_reference_copy"
           },
           {
             "act_date": "2022-07-14",
@@ -605,7 +619,11 @@
             "effective_from": "2022-09-01",
             "effective_date_status": "secondary copy of Article 6: tracked Article 1 points 3 and 4 are not among the delayed exceptions; primary publication body still not retrieved",
             "secondary_sources": [
-              "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/"
+              "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/",
+              "https://www.consultant.ru/document/cons_doc_LAW_421898/",
+              "https://www.consultant.ru/document/cons_doc_LAW_421898/3d0cac60971a511280cbba229d9b6329c07731f/",
+              "https://base.garant.ru/404993577/",
+              "https://base.garant.ru/404993577/8b7b3c1c76e91f88d33c08b3736aa67a/"
             ],
             "official_text_retrieved": false,
             "official_publication_identified": true,
@@ -617,7 +635,8 @@
               "exception": "Article 6(2) delays Article 1 point 7, paragraph 5 of subparagraph a of point 10, subparagraph g of point 13, subparagraph d of point 14, subparagraph g of point 15, and Articles 3-5 until 2023-03-01; tracked amendments to Article 6 (point 3) and Article 9 (point 4) are not listed and follow the general date",
               "source_class": "secondary reproduction of Articles 1 and 6"
             },
-            "source_verification_note": "Article 1 point 3 changes Article 6 (paragraphs 5(1), 3 and new 6); point 4 changes Article 9 part 1. Article 6(2) delayed list does not include these points, so the secondary text supports 2022-09-01 for both. Official body remains unretrieved."
+            "source_verification_note": "Article 1 point 3 changes Article 6 (paragraphs 5(1), 3 and new 6); point 4 changes Article 9 part 1. Article 6(2) delayed list does not include these points, so the secondary text supports 2022-09-01 for both. Official body remains unretrieved.",
+            "secondary_source_class": "secondary_legal_database_or_reference_copy"
           },
           {
             "act_date": "2024-08-08",
@@ -630,7 +649,9 @@
             "effective_from": "2025-09-01",
             "effective_date_status": "пункт 1 статьи 1 входит в перечень пунктов 1-3, 5 статьи 1, отложенных статьёй 3(2) до 01.09.2025; вторичная копия",
             "secondary_sources": [
-              "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/"
+              "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/",
+              "https://base.garant.ru/409493125/",
+              "https://www.consultant.ru/document/cons_doc_LAW_482468/30b3f8c55f65557c253227a65b908cc075ce114a/"
             ],
             "official_text_retrieved": false,
             "official_publication_identified": true,
@@ -642,7 +663,8 @@
               "exception": "Article 3(2) delays Articles 1 points 1-3 and 5 and Article 2 until 2025-09-01; tracked Article 6 amendment is Article 1 point 1",
               "source_class": "secondary reproduction of Articles 1 and 3"
             },
-            "source_verification_note": "Article 1 point 1 amends Article 6 part 1 point 9.1. Article 3(2) delays points 1-3 and 5 of Article 1 to 2025-09-01, so this amendment follows that date. The original official portal body remains unretrieved."
+            "source_verification_note": "Article 1 point 1 amends Article 6 part 1 point 9.1. Article 3(2) delays points 1-3 and 5 of Article 1 to 2025-09-01, so this amendment follows that date. The original official portal body remains unretrieved.",
+            "secondary_source_class": "secondary_legal_database_or_reference_copy"
           },
           {
             "act_date": "2025-02-28",
@@ -682,7 +704,9 @@
             "effective_date_status": "The amending act entered into force on official publication (secondary publication record: Rossiyskaya Gazeta 2011-07-27); Article 3(2) retroactively applies the amended 152-FZ provisions to legal relationships from 2011-07-01. Secondary reproduction; not primary-source verified.",
             "secondary_sources": [
               "https://www.consultant.ru/document/cons_doc_LAW_117437/3d0cac60971a511280cbba229d9b6329c07731f/",
-              "https://www.kontur-extern.ru/info/normativ/document/1/182955-federalnyy-zakon-ot-25-07-2011-n-261-fz"
+              "https://www.kontur-extern.ru/info/normativ/document/1/182955-federalnyy-zakon-ot-25-07-2011-n-261-fz",
+              "https://www.consultant.ru/document/cons_doc_LAW_117437/",
+              "https://base.garant.ru/12188322/"
             ],
             "official_text_retrieved": false,
             "official_publication_identified": false,
@@ -698,7 +722,8 @@
             },
             "source_verification_note": "The secondary full text of Article 1 expressly replaces Article 3, Article 6 and Article 9 of 152-FZ. Article 3(1) sets entry into force on official publication; Article 3(2) separately gives retroactive application to legal relationships from 2011-07-01. A secondary bibliographic record identifies Rossiyskaya Gazeta No. 162 dated 2011-07-27. Keep official_text_retrieved=false and do not assign a portal publication ID. The Ministry of Labour's official consolidated 152-FZ text also marks this article as amended by 261-ФЗ; this is corroborating official consolidated-law evidence, not the original amending act.",
             "official_consolidated_law_source_url": "https://mintrud.gov.ru/docs/laws/130",
-            "official_consolidated_law_source_note": "Official Ministry of Labour-hosted consolidated text of 152-FZ contains an editorial note that this article is in the version of 261-FZ. This supports the amendment-scope attribution but is not the original published text of 261-FZ and does not count as retrieved original act text."
+            "official_consolidated_law_source_note": "Official Ministry of Labour-hosted consolidated text of 152-FZ contains an editorial note that this article is in the version of 261-FZ. This supports the amendment-scope attribution but is not the original published text of 261-FZ and does not count as retrieved original act text.",
+            "secondary_source_class": "secondary_legal_database_or_reference_copy"
           },
           {
             "act_date": "2020-12-30",
@@ -711,7 +736,9 @@
             "effective_from": null,
             "effective_date_status": "нужна сверка переходного положения",
             "secondary_sources": [
-              "https://www.consultant.ru/document/cons_doc_LAW_61801/6c94959bc017ac80140621762d2ac59f6006b08c/"
+              "https://www.consultant.ru/document/cons_doc_LAW_61801/6c94959bc017ac80140621762d2ac59f6006b08c/",
+              "https://base.garant.ru/400157172/",
+              "https://www.consultant.ru/document/cons_doc_LAW_61801/4f41fe599ce341751e4e34dc50a4b676674c1416/"
             ],
             "official_text_retrieved": false,
             "official_publication_identified": true,
@@ -723,7 +750,8 @@
               "exception": "paragraph 10 of item 5 of Article 1 (Article 10.1, part 6, item 2: consent via the information system) effective 2021-07-01; this exception does not apply to the tracked amendments to Articles 3, 6 or 9",
               "source_class": "secondary reproduction of Articles 1 and 2; original official portal body inaccessible"
             },
-            "source_verification_note": "Article 1 maps the tracked changes exactly: Article 3 point 1.1; Article 6 item 10 part 1 repealed; Article 9 part 9 added. The delayed paragraph 10 of item 5 is Article 10.1 part 6 item 2 and is not one of these three tracked provisions. Secondary text only; official publication body not retrieved."
+            "source_verification_note": "Article 1 maps the tracked changes exactly: Article 3 point 1.1; Article 6 item 10 part 1 repealed; Article 9 part 9 added. The delayed paragraph 10 of item 5 is Article 10.1 part 6 item 2 and is not one of these three tracked provisions. Secondary text only; official publication body not retrieved.",
+            "secondary_source_class": "secondary_legal_database_or_reference_copy"
           },
           {
             "act_date": "2022-07-14",
@@ -736,7 +764,11 @@
             "effective_from": "2022-09-01",
             "effective_date_status": "secondary copy of Article 6: tracked Article 1 points 3 and 4 are not among the delayed exceptions; primary publication body still not retrieved",
             "secondary_sources": [
-              "https://www.consultant.ru/document/cons_doc_LAW_61801/6c94959bc017ac80140621762d2ac59f6006b08c/"
+              "https://www.consultant.ru/document/cons_doc_LAW_61801/6c94959bc017ac80140621762d2ac59f6006b08c/",
+              "https://www.consultant.ru/document/cons_doc_LAW_421898/",
+              "https://www.consultant.ru/document/cons_doc_LAW_421898/3d0cac60971a511280cbba229d9b6329c07731f/",
+              "https://base.garant.ru/404993577/",
+              "https://base.garant.ru/404993577/8b7b3c1c76e91f88d33c08b3736aa67a/"
             ],
             "official_text_retrieved": false,
             "official_publication_identified": true,
@@ -748,7 +780,8 @@
               "exception": "Article 6(2) delays Article 1 point 7, paragraph 5 of subparagraph a of point 10, subparagraph g of point 13, subparagraph d of point 14, subparagraph g of point 15, and Articles 3-5 until 2023-03-01; tracked amendments to Article 6 (point 3) and Article 9 (point 4) are not listed and follow the general date",
               "source_class": "secondary reproduction of Articles 1 and 6"
             },
-            "source_verification_note": "Article 1 point 3 changes Article 6 (paragraphs 5(1), 3 and new 6); point 4 changes Article 9 part 1. Article 6(2) delayed list does not include these points, so the secondary text supports 2022-09-01 for both. Official body remains unretrieved."
+            "source_verification_note": "Article 1 point 3 changes Article 6 (paragraphs 5(1), 3 and new 6); point 4 changes Article 9 part 1. Article 6(2) delayed list does not include these points, so the secondary text supports 2022-09-01 for both. Official body remains unretrieved.",
+            "secondary_source_class": "secondary_legal_database_or_reference_copy"
           },
           {
             "act_date": "2025-06-24",
@@ -762,7 +795,9 @@
             "effective_date_status": "статья 7(2) прямо откладывает статью 5 до 01.09.2025; установлено по доступной вторичной копии",
             "secondary_sources": [
               "https://www.consultant.ru/document/cons_doc_LAW_61801/6c94959bc017ac80140621762d2ac59f6006b08c/",
-              "https://base.garant.ru/12148567/"
+              "https://base.garant.ru/12148567/",
+              "https://www.consultant.ru/document/cons_doc_LAW_508287/",
+              "https://base.garant.ru/412210426/"
             ],
             "official_text_retrieved": false,
             "official_publication_identified": true,
@@ -774,7 +809,8 @@
               "exception": "Article 5 (amendment to Article 9 part 1 of 152-FZ) enters into force 2025-09-01 under Article 7(2)",
               "source_class": "secondary reproduction of Articles 5 and 7"
             },
-            "source_verification_note": "Article 5 adds a requirement to Article 9 part 1 that consent be separate from other information/documents. Article 7(2) specifically delays Article 5 until 2025-09-01. Official publication ID identified; original portal body not retrieved."
+            "source_verification_note": "Article 5 adds a requirement to Article 9 part 1 that consent be separate from other information/documents. Article 7(2) specifically delays Article 5 until 2025-09-01. Official publication ID identified; original portal body not retrieved.",
+            "secondary_source_class": "secondary_legal_database_or_reference_copy"
           }
         ],
         "gaps": [
@@ -814,6 +850,77 @@
         "original_amending_act_body": false,
         "counts_as_original_act_retrieval": false,
         "notes": "Официальная копия консолидированного 152-ФЗ с редакционными пометами. Подтверждает атрибуцию редакции, но не заменяет получение оригинального текста 261-ФЗ."
+      }
+    ],
+    "secondary_act_text_inventory": [
+      {
+        "act": "261-ФЗ",
+        "date": "2011-07-25",
+        "source_class": "secondary_legal_database_or_reference_copy",
+        "urls": [
+          "https://www.consultant.ru/document/cons_doc_LAW_117437/",
+          "https://base.garant.ru/12188322/",
+          "https://www.kontur-extern.ru/info/normativ/document/1/182955-federalnyy-zakon-ot-25-07-2011-n-261-fz"
+        ],
+        "primary_official_text_retrieved": false,
+        "note": "Эти страницы помогают проверить содержание изменяющего акта и переходные положения, но не являются полученным оригинальным телом официальной публикации. Не повышать official_text_retrieved/verified на их основании."
+      },
+      {
+        "act": "519-ФЗ",
+        "date": "2020-12-30",
+        "source_class": "secondary_legal_database_or_reference_copy",
+        "urls": [
+          "https://base.garant.ru/400157172/",
+          "https://www.consultant.ru/document/cons_doc_LAW_61801/4f41fe599ce341751e4e34dc50a4b676674c1416/"
+        ],
+        "primary_official_text_retrieved": false,
+        "note": "Эти страницы помогают проверить содержание изменяющего акта и переходные положения, но не являются полученным оригинальным телом официальной публикации. Не повышать official_text_retrieved/verified на их основании."
+      },
+      {
+        "act": "123-ФЗ",
+        "date": "2020-04-24",
+        "source_class": "secondary_legal_database_or_reference_copy",
+        "urls": [
+          "https://lepton.ru/GOST/Index2/1/4293721/4293721894.htm",
+          "https://files.stroyinf.ru/Index2/1/4293721/4293721894.htm"
+        ],
+        "primary_official_text_retrieved": false,
+        "note": "Эти страницы помогают проверить содержание изменяющего акта и переходные положения, но не являются полученным оригинальным телом официальной публикации. Не повышать official_text_retrieved/verified на их основании."
+      },
+      {
+        "act": "266-ФЗ",
+        "date": "2022-07-14",
+        "source_class": "secondary_legal_database_or_reference_copy",
+        "urls": [
+          "https://www.consultant.ru/document/cons_doc_LAW_421898/",
+          "https://www.consultant.ru/document/cons_doc_LAW_421898/3d0cac60971a511280cbba229d9b6329c07731f/",
+          "https://base.garant.ru/404993577/",
+          "https://base.garant.ru/404993577/8b7b3c1c76e91f88d33c08b3736aa67a/"
+        ],
+        "primary_official_text_retrieved": false,
+        "note": "Эти страницы помогают проверить содержание изменяющего акта и переходные положения, но не являются полученным оригинальным телом официальной публикации. Не повышать official_text_retrieved/verified на их основании."
+      },
+      {
+        "act": "233-ФЗ",
+        "date": "2024-08-08",
+        "source_class": "secondary_legal_database_or_reference_copy",
+        "urls": [
+          "https://base.garant.ru/409493125/",
+          "https://www.consultant.ru/document/cons_doc_LAW_482468/30b3f8c55f65557c253227a65b908cc075ce114a/"
+        ],
+        "primary_official_text_retrieved": false,
+        "note": "Эти страницы помогают проверить содержание изменяющего акта и переходные положения, но не являются полученным оригинальным телом официальной публикации. Не повышать official_text_retrieved/verified на их основании."
+      },
+      {
+        "act": "156-ФЗ",
+        "date": "2025-06-24",
+        "source_class": "secondary_legal_database_or_reference_copy",
+        "urls": [
+          "https://www.consultant.ru/document/cons_doc_LAW_508287/",
+          "https://base.garant.ru/412210426/"
+        ],
+        "primary_official_text_retrieved": false,
+        "note": "Эти страницы помогают проверить содержание изменяющего акта и переходные положения, но не являются полученным оригинальным телом официальной публикации. Не повышать official_text_retrieved/verified на их основании."
       }
     ]
   }
