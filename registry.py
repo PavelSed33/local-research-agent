@@ -28,6 +28,8 @@ from extract import handle_extract
 CSV_NAME = "реестр.csv"
 EXPIRING_NAME = "истекающие-договоры.md"
 SUPPORTED_SUFFIXES = (".txt", ".docx")
+MAX_REGISTRY_FILE_BYTES = 10 * 1024 * 1024
+MAX_REGISTRY_FILES = 500
 
 COLUMNS = (
     "файл",
