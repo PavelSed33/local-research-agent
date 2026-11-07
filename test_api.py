@@ -1,13 +1,39 @@
 import json
+import socket
 import tempfile
 import threading
 import unittest
 import urllib.error
 import urllib.request
 from pathlib import Path
+from unittest.mock import patch
 
 from agent import LEGAL_DISCLAIMER
-from api import SessionStore, create_server
+from api import SessionStore, create_server, LegalApiHandler, MAX_CONCURRENT_REQUESTS
+
+
+class IdleConnectionTests(unittest.TestCase):
+    def test_idle_connections_expire_and_release_all_handler_slots(self):
+        with patch.object(LegalApiHandler, 'timeout', 0.2):
+            server = create_server('127.0.0.1', 0)
+            thread = threading.Thread(target=server.serve_forever, daemon=True)
+            thread.start()
+            connections = []
+            try:
+                for _ in range(MAX_CONCURRENT_REQUESTS):
+                    connections.append(socket.create_connection(server.server_address, timeout=2))
+                for connection in connections:
+                    connection.settimeout(2)
+                    self.assertEqual(connection.recv(1), b'')
+                status, payload = http_request(server.server_address[1], 'GET', '/health')
+                self.assertEqual(status, 200)
+                self.assertEqual(payload['status'], 'ok')
+            finally:
+                for connection in connections:
+                    connection.close()
+                server.shutdown()
+                server.server_close()
+                thread.join(timeout=2)
 
 
 def http_request(port, method, path, payload=None, token=None):
@@ -241,3 +267,4 @@ class TokenAuthTests(ApiTestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

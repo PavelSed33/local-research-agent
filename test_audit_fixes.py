@@ -381,8 +381,10 @@ class OfficialIntegratedLegalBankTests(unittest.TestCase):
 
         self.assertEqual(len(result["snapshots"]), 3)
         self.assertEqual(sum(1 for item in result["snapshots"] if item["edition_date"]), 2)
-        self.assertIn("Старый текст", result["snapshots"][0]["text"])
-        self.assertIn("Новый текст", result["snapshots"][1]["text"])
+        dated = {item["edition_date"]: item for item in result["snapshots"] if item["edition_date"]}
+        self.assertIn("Старый текст", dated["2020-01-01"]["text"])
+        self.assertIn("Новый текст", dated["2024-01-01"]["text"])
+        self.assertTrue(any(item["edition_date"] is None for item in result["snapshots"]))
         audit = result["revision_chain_audit"]
         self.assertFalse(audit["verified"])
         self.assertFalse(audit["coverage_verified"])
@@ -815,3 +817,4 @@ class RevisionChainCoverageTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
