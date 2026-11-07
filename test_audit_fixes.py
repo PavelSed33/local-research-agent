@@ -220,7 +220,7 @@ class UserChangeRegressionTests(unittest.TestCase):
     def test_article_number_match_does_not_accept_decimal_prefix(self):
         report = "## Правовое основание\nСогласно статье 15 ГК РФ."
         sources = [Source("Источник", "https://example.test", "См. статью 15.1 закона.", "q")]
-        self.assertEqual(find_unconfirmed_articles(report, sources), ["15"])
+        self.assertEqual(find_unconfirmed_articles(report, sources), ["15 (ГК РФ)"])
 
     def test_reflection_rejects_string_boolean(self):
         class Model:
