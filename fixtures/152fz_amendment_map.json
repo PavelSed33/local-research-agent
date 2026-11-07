@@ -71,7 +71,11 @@
     "Для 266-ФЗ по статье 12 дата 01.03.2023 пока опирается на вторичный источник и должна быть подтверждена официальной переходной нормой.",
     "Нужна проверка специальных и отложенных сроков, включая положения, которые вступают в силу после даты подписания изменяющего акта.",
     "Доступные снимки IPS не доказывают полноту исторического архива.",
-    "Для статей 3, 6 и 9 составлена расширенная карта кандидатов по редакционным пометам и вторичным текстам; ни один исходный официальный текст изменяющего акта пока не получен в этой среде."
+    "Для статей 3, 6 и 9 составлена расширенная карта кандидатов по редакционным пометам и вторичным текстам; ни один исходный официальный текст изменяющего акта пока не получен в этой среде.",
+    "Для 233-ФЗ сопоставлена поправка к пункту 9.1 части 1 статьи 6 и вторично разобрана отсрочка до 01.09.2025; получить и проверить оригинальное тело официальной публикации.",
+    "Для 156-ФЗ сопоставлена поправка к части 1 статьи 9 и вторично разобрана отсрочка статьи 5 до 01.09.2025; получить и проверить оригинальное тело официальной публикации.",
+    "Для 266-ФЗ по вторичному тексту установлена общая дата 01.09.2022 для изменений статьи 6 (пункт 3 статьи 1) и статьи 9 (пункт 4 статьи 1); требуется проверка по оригинальной публикации.",
+    "Для 519-ФЗ специальная дата 01.07.2021 относится к статье 10.1, части 6, пункту 2, а не к трём отслеживаемым изменениям статей 3, 6 и 9; подтвердить по первичной публикации."
   ],
   "verified": false,
   "coverage_verified": false,
@@ -253,7 +257,7 @@
     {
       "signed_date": "2024-08-08",
       "act_number": "233-ФЗ",
-      "scope_mapping_status": "not_mapped",
+      "scope_mapping_status": "partial_candidate",
       "official_text_retrieved": false
     },
     {
@@ -300,7 +304,7 @@
       "attempted": true,
       "portal": "https://publication.pravo.gov.ru/",
       "directly_retrieved_document_bodies": 0,
-      "identified_official_publication_records": 4,
+      "identified_official_publication_records": 5,
       "identified_records": [
         {
           "act": "519-ФЗ",
@@ -329,13 +333,19 @@
           "publication_id": "0001202506240021",
           "url": "https://publication.pravo.gov.ru/document/0001202506240021",
           "body_retrieved": false
+        },
+        {
+          "act": "233-ФЗ",
+          "date": "2024-08-08",
+          "publication_id": "0001202408080031",
+          "url": "https://publication.pravo.gov.ru/document/0001202408080031",
+          "body_retrieved": false
         }
       ],
       "unresolved_publication_ids": [
-        "261-ФЗ от 25.07.2011",
-        "233-ФЗ от 08.08.2024"
+        "261-ФЗ от 25.07.2011"
       ],
-      "result": "Официальные карточки публикаций идентифицированы для четырёх актов, но загрузить тела документов с портала не удалось (таймаут/ошибка чтения). Идентификация номера публикации не равна получению и разбору первичного текста.",
+      "result": "Идентифицированы пять номеров официальных публикаций, но загрузить оригинальные тела документов с publication.pravo.gov.ru не удалось. Номер публикации и вторичная копия не равны получению первичного текста.",
       "caveat": "Не повышать official_text_retrieved, verified или coverage_verified без фактически прочитанного оригинального документа."
     },
     "articles": [
@@ -385,10 +395,10 @@
             "official_retrieval_status": "official_publication_record_identified_body_unavailable",
             "transition_provision": {
               "general_effective_date": "2021-03-01",
-              "exception": "paragraph 10 of item 5 of Article 1 effective 2021-07-01",
-              "source_class": "secondary reproduction citing official publication; original portal body inaccessible"
+              "exception": "paragraph 10 of item 5 of Article 1 (Article 10.1, part 6, item 2: consent via the information system) effective 2021-07-01; this exception does not apply to the tracked amendments to Articles 3, 6 or 9",
+              "source_class": "secondary reproduction of Articles 1 and 2; original official portal body inaccessible"
             },
-            "source_verification_note": "Publication number is cited by ConsultantPlus/Garant; portal document URL timed out in this retrieval. The delayed clause must be mapped to the exact 152-FZ provision before assigning provision-level dates."
+            "source_verification_note": "Article 1 maps the tracked changes exactly: Article 3 point 1.1; Article 6 item 10 part 1 repealed; Article 9 part 9 added. The delayed paragraph 10 of item 5 is Article 10.1 part 6 item 2 and is not one of these three tracked provisions. Secondary text only; official publication body not retrieved."
           }
         ],
         "gaps": [
@@ -543,10 +553,10 @@
             "official_retrieval_status": "official_publication_record_identified_body_unavailable",
             "transition_provision": {
               "general_effective_date": "2021-03-01",
-              "exception": "paragraph 10 of item 5 of Article 1 effective 2021-07-01",
-              "source_class": "secondary reproduction citing official publication; original portal body inaccessible"
+              "exception": "paragraph 10 of item 5 of Article 1 (Article 10.1, part 6, item 2: consent via the information system) effective 2021-07-01; this exception does not apply to the tracked amendments to Articles 3, 6 or 9",
+              "source_class": "secondary reproduction of Articles 1 and 2; original official portal body inaccessible"
             },
-            "source_verification_note": "Publication number is cited by ConsultantPlus/Garant; portal document URL timed out in this retrieval. The delayed clause must be mapped to the exact 152-FZ provision before assigning provision-level dates."
+            "source_verification_note": "Article 1 maps the tracked changes exactly: Article 3 point 1.1; Article 6 item 10 part 1 repealed; Article 9 part 9 added. The delayed paragraph 10 of item 5 is Article 10.1 part 6 item 2 and is not one of these three tracked provisions. Secondary text only; official publication body not retrieved."
           },
           {
             "act_date": "2022-07-14",
@@ -557,8 +567,8 @@
             ],
             "basis": "часть 3 помечена как изложенная в редакции 266-ФЗ; часть 6 введена 266-ФЗ",
             "scope_status": "explicit_in_secondary_consolidated_annotation",
-            "effective_from": null,
-            "effective_date_status": "для каждой поправки требуется проверить переходные положения 266-ФЗ отдельно",
+            "effective_from": "2022-09-01",
+            "effective_date_status": "secondary copy of Article 6: tracked Article 1 points 3 and 4 are not among the delayed exceptions; primary publication body still not retrieved",
             "secondary_sources": [
               "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/"
             ],
@@ -569,31 +579,35 @@
             "official_retrieval_status": "official_publication_record_identified_body_unavailable",
             "transition_provision": {
               "general_effective_date": "2022-09-01",
-              "exception": "specific provisions may have other effective dates",
-              "source_class": "secondary review referencing the official portal record"
+              "exception": "Article 6(2) delays Article 1 point 7, paragraph 5 of subparagraph a of point 10, subparagraph g of point 13, subparagraph d of point 14, subparagraph g of point 15, and Articles 3-5 until 2023-03-01; tracked amendments to Article 6 (point 3) and Article 9 (point 4) are not listed and follow the general date",
+              "source_class": "secondary reproduction of Articles 1 and 6"
             },
-            "source_verification_note": "Official publication number and date are confirmed by an indexed publication notice; the original portal document body timed out. Need parse Article 5 for each provision-specific exception."
+            "source_verification_note": "Article 1 point 3 changes Article 6 (paragraphs 5(1), 3 and new 6); point 4 changes Article 9 part 1. Article 6(2) delayed list does not include these points, so the secondary text supports 2022-09-01 for both. Official body remains unretrieved."
           },
           {
             "act_date": "2024-08-08",
             "act_number": "233-ФЗ",
             "scope": [
-              "пункт 9.1 части 1"
+              "пункт 9.1 части 1 статьи 6"
             ],
             "basis": "редакционная помета к пункту 9.1",
             "scope_status": "explicit_in_secondary_consolidated_annotation",
-            "effective_from": null,
-            "effective_date_status": "нужна проверка специальных сроков по официальному тексту",
+            "effective_from": "2025-09-01",
+            "effective_date_status": "пункт 1 статьи 1 входит в перечень пунктов 1-3, 5 статьи 1, отложенных статьёй 3(2) до 01.09.2025; вторичная копия",
             "secondary_sources": [
               "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/"
             ],
             "official_text_retrieved": false,
-            "official_publication_identified": false,
-            "official_publication_id": null,
-            "official_document_url": null,
-            "official_retrieval_status": "publication_id_not_resolved",
-            "transition_provision": null,
-            "source_verification_note": "Act title and amendment to 152-FZ Articles 6 and 10 are confirmed in secondary government notice; exact official publication ID and Article 3 transition provision not yet resolved."
+            "official_publication_identified": true,
+            "official_publication_id": "0001202408080031",
+            "official_document_url": "https://publication.pravo.gov.ru/document/0001202408080031",
+            "official_retrieval_status": "official_publication_record_identified_body_unavailable",
+            "transition_provision": {
+              "general_effective_date": "2024-08-08",
+              "exception": "Article 3(2) delays Articles 1 points 1-3 and 5 and Article 2 until 2025-09-01; tracked Article 6 amendment is Article 1 point 1",
+              "source_class": "secondary reproduction of Articles 1 and 3"
+            },
+            "source_verification_note": "Article 1 point 1 amends Article 6 part 1 point 9.1. Article 3(2) delays points 1-3 and 5 of Article 1 to 2025-09-01, so this amendment follows that date. The original official portal body remains unretrieved."
           },
           {
             "act_date": "2025-02-28",
@@ -663,10 +677,10 @@
             "official_retrieval_status": "official_publication_record_identified_body_unavailable",
             "transition_provision": {
               "general_effective_date": "2021-03-01",
-              "exception": "paragraph 10 of item 5 of Article 1 effective 2021-07-01",
-              "source_class": "secondary reproduction citing official publication; original portal body inaccessible"
+              "exception": "paragraph 10 of item 5 of Article 1 (Article 10.1, part 6, item 2: consent via the information system) effective 2021-07-01; this exception does not apply to the tracked amendments to Articles 3, 6 or 9",
+              "source_class": "secondary reproduction of Articles 1 and 2; original official portal body inaccessible"
             },
-            "source_verification_note": "Publication number is cited by ConsultantPlus/Garant; portal document URL timed out in this retrieval. The delayed clause must be mapped to the exact 152-FZ provision before assigning provision-level dates."
+            "source_verification_note": "Article 1 maps the tracked changes exactly: Article 3 point 1.1; Article 6 item 10 part 1 repealed; Article 9 part 9 added. The delayed paragraph 10 of item 5 is Article 10.1 part 6 item 2 and is not one of these three tracked provisions. Secondary text only; official publication body not retrieved."
           },
           {
             "act_date": "2022-07-14",
@@ -676,8 +690,8 @@
             ],
             "basis": "редакционная помета к части 1",
             "scope_status": "explicit_in_secondary_consolidated_annotation",
-            "effective_from": null,
-            "effective_date_status": "нужно определить, какая часть изменений 266-ФЗ действует с 01.09.2022 или с 01.03.2023",
+            "effective_from": "2022-09-01",
+            "effective_date_status": "secondary copy of Article 6: tracked Article 1 points 3 and 4 are not among the delayed exceptions; primary publication body still not retrieved",
             "secondary_sources": [
               "https://www.consultant.ru/document/cons_doc_LAW_61801/6c94959bc017ac80140621762d2ac59f6006b08c/"
             ],
@@ -688,21 +702,21 @@
             "official_retrieval_status": "official_publication_record_identified_body_unavailable",
             "transition_provision": {
               "general_effective_date": "2022-09-01",
-              "exception": "specific provisions may have other effective dates",
-              "source_class": "secondary review referencing the official portal record"
+              "exception": "Article 6(2) delays Article 1 point 7, paragraph 5 of subparagraph a of point 10, subparagraph g of point 13, subparagraph d of point 14, subparagraph g of point 15, and Articles 3-5 until 2023-03-01; tracked amendments to Article 6 (point 3) and Article 9 (point 4) are not listed and follow the general date",
+              "source_class": "secondary reproduction of Articles 1 and 6"
             },
-            "source_verification_note": "Official publication number and date are confirmed by an indexed publication notice; the original portal document body timed out. Need parse Article 5 for each provision-specific exception."
+            "source_verification_note": "Article 1 point 3 changes Article 6 (paragraphs 5(1), 3 and new 6); point 4 changes Article 9 part 1. Article 6(2) delayed list does not include these points, so the secondary text supports 2022-09-01 for both. Official body remains unretrieved."
           },
           {
             "act_date": "2025-06-24",
             "act_number": "156-ФЗ",
             "scope": [
-              "часть 1"
+              "часть 1 статьи 9 (изменение внесено статьёй 5 закона 156-ФЗ)"
             ],
             "basis": "редакционная помета к части 1 после 266-ФЗ",
             "scope_status": "explicit_in_secondary_consolidated_annotation",
-            "effective_from": null,
-            "effective_date_status": "в общей карточке закона указана дата 01.09.2025; проверить, относится ли она к изменению части 1 статьи 9 по официальной переходной норме",
+            "effective_from": "2025-09-01",
+            "effective_date_status": "статья 7(2) прямо откладывает статью 5 до 01.09.2025; установлено по доступной вторичной копии",
             "secondary_sources": [
               "https://www.consultant.ru/document/cons_doc_LAW_61801/6c94959bc017ac80140621762d2ac59f6006b08c/",
               "https://base.garant.ru/12148567/"
@@ -713,11 +727,11 @@
             "official_document_url": "https://publication.pravo.gov.ru/document/0001202506240021",
             "official_retrieval_status": "official_publication_record_identified_body_unavailable",
             "transition_provision": {
-              "general_effective_date": null,
-              "exception": "must inspect Article 7",
-              "source_class": "secondary consolidated citation"
+              "general_effective_date": "2025-06-24",
+              "exception": "Article 5 (amendment to Article 9 part 1 of 152-FZ) enters into force 2025-09-01 under Article 7(2)",
+              "source_class": "secondary reproduction of Articles 5 and 7"
             },
-            "source_verification_note": "Official publication ID is independently cited by a secondary consolidated legal text; portal body request timed out. Do not infer effective date from 24.06.2025."
+            "source_verification_note": "Article 5 adds a requirement to Article 9 part 1 that consent be separate from other information/documents. Article 7(2) specifically delays Article 5 until 2025-09-01. Official publication ID identified; original portal body not retrieved."
           }
         ],
         "gaps": [
@@ -733,8 +747,8 @@
       "official_act_texts_retrieved": 0,
       "verified": false,
       "coverage_verified": false,
-      "official_publication_records_identified": 4,
-      "note": "Four official publication records have been identified by publication number, but zero original document bodies were successfully retrieved and parsed from the official portal."
+      "official_publication_records_identified": 5,
+      "note": "Five official publication records have been identified by publication number, but zero original document bodies were successfully retrieved and parsed from the official portal."
     },
     "gaps": [
       "Получить тело официальной публикации 0001202012300044 (519-ФЗ) и точно сопоставить исключение с частью/пунктом 152-ФЗ.",
