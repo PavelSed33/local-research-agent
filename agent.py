@@ -1020,8 +1020,18 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
     amendment_chain_audit = extract_amendment_chain_evidence(
         model, changed_provisions, amendment_sources
     )
+    from legal_history import audit_amendment_retrieval
+    amendment_retrieval_audit = audit_amendment_retrieval(
+        list(amendment_refs.values()),
+        [
+            {"title": source.title, "url": source.url, "text": source.text}
+            for source in amendment_sources
+        ],
+        query_limit=8,
+    )
     amendment_chain_audit["candidate_references_found"] = len(amendment_refs)
     amendment_chain_audit["official_publications_retrieved"] = len(amendment_sources)
+    amendment_chain_audit["retrieval_coverage"] = amendment_retrieval_audit
     amendment_chain_audit["retrieval_errors"] = amendment_errors
 
     ips_check = {
