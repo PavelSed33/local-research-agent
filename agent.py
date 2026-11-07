@@ -535,7 +535,7 @@ def extract_amendment_chain_evidence(
     prompt = (
         "Ты сопоставляешь изменения текста статей с официально опубликованными изменяющими "
         "федеральными законами РФ. Верни только JSON {candidates:[...]}. Для каждой связи "
-        "укажи provision_id строго из списка; act_title, act_number, official_publication_id, "
+        "укажи provision_id строго из списка; act_title, act_number, act_signed_date (YYYY-MM-DD), official_publication_id, "
         "source_url строго из переданных материалов; amendment_quote — ДОСЛОВНУЮ цитату "
         "из текста изменяющего закона, где прямо указано внесение изменения именно в эту "
         "статью исходного закона; target_act_quote — дословную часть той же цитаты, "
