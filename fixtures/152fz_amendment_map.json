@@ -1,0 +1,296 @@
+{
+  "schema_version": 1,
+  "target_law": {
+    "title": "Федеральный закон от 27.07.2006 № 152-ФЗ «О персональных данных»",
+    "number": "152-ФЗ",
+    "inventory_as_of": "2026-11-07"
+  },
+  "scope": "Контрольная карта известных и подтверждённых поиском случаев; не исчерпывающий реестр всех поправок.",
+  "amendment_candidates": [
+    {
+      "signed_date": "2011-07-25",
+      "act_number": "261-ФЗ",
+      "target_provisions": [
+        "Статья 1, часть 1"
+      ],
+      "evidence_kind": "редакционная помета в консолидированном тексте",
+      "effective_from": null,
+      "effective_date_status": "не установлена",
+      "official_publication_id": null,
+      "source_url": "https://rosguard.gov.ru/document/article/federalnyj-zakon-ot-27-iyulya-2006-g--152fz",
+      "status": "scope_candidate_only",
+      "gap": "Нужен полный текст официальной публикации изменяющего акта и точная переходная норма."
+    },
+    {
+      "signed_date": "2022-07-14",
+      "act_number": "266-ФЗ",
+      "target_provisions": [
+        "Статья 12"
+      ],
+      "effective_from": "2023-03-01",
+      "effective_date_status": "дата изменения статьи указана во вторичном справочном источнике; требуется сверка с официальным текстом акта",
+      "official_publication_id": null,
+      "source_url": "https://base.garant.ru/12148567/b6e02e45ca70d110df0019b9fe339c70/",
+      "status": "secondary_source_candidate",
+      "gap": "Получить официальный текст 266-ФЗ, проверить каждую изменённую часть статьи 12 и цитату переходного положения."
+    },
+    {
+      "signed_date": "2026-07-26",
+      "act_number": "265-ФЗ",
+      "target_provisions": [
+        "Статья 12, часть 2",
+        "Статья 12, пункт 2 части 5",
+        "Статья 12, часть 10",
+        "Статья 12, часть 11"
+      ],
+      "effective_from": "2026-07-26",
+      "effective_date_status": "по статье 7 часть 1 изменяющего акта; статья 2 того же акта выделена в отдельное исключение с датой 2027-09-01",
+      "official_publication_id": "0001202607260024",
+      "source_url": "https://publication.pravo.gov.ru/document/0001202607260024",
+      "amendment_article": "Статья 1",
+      "transition_article": "Статья 7",
+      "status": "official_publication_reference_found_scope_parsed",
+      "gap": "Полный официальный портал не удалось открыть из рабочей среды; текст и метаданные сверены по независимой копии. Нужна автоматическая загрузка исходной публикации."
+    }
+  ],
+  "pending_watchlist": [
+    {
+      "signed_date": "2025-07-07",
+      "act_number": "200-ФЗ",
+      "target_provisions": [],
+      "effective_from": "2027-03-01",
+      "status": "scope_and_official_text_not_yet_audited",
+      "source_url": "https://base.garant.ru/12148567/",
+      "gap": "Проверить, какие положения 152-ФЗ затрагивает будущая редакция, и получить полный текст изменяющего акта."
+    }
+  ],
+  "gaps": [
+    "Нет полного списка всех изменяющих актов 2009–2026 годов, сверенного с официальными публикациями.",
+    "Статьи 3, 6 и 9 пока не сопоставлены с конкретными изменяющими актами и переходными положениями.",
+    "Для статьи 1 найден пример редакционной пометы о 261-ФЗ, но дата вступления именно изменения в силу не установлена.",
+    "Для 266-ФЗ по статье 12 дата 01.03.2023 пока опирается на вторичный источник и должна быть подтверждена официальной переходной нормой.",
+    "Нужна проверка специальных и отложенных сроков, включая положения, которые вступают в силу после даты подписания изменяющего акта.",
+    "Доступные снимки IPS не доказывают полноту исторического архива."
+  ],
+  "verified": false,
+  "coverage_verified": false,
+  "consolidated_citation_inventory": [
+    {
+      "signed_date": "2009-11-25",
+      "act_number": "266-ФЗ",
+      "scope_mapping_status": "partial_candidate",
+      "official_text_retrieved": false
+    },
+    {
+      "signed_date": "2009-12-27",
+      "act_number": "363-ФЗ",
+      "scope_mapping_status": "not_mapped",
+      "official_text_retrieved": false
+    },
+    {
+      "signed_date": "2010-06-28",
+      "act_number": "123-ФЗ",
+      "scope_mapping_status": "not_mapped",
+      "official_text_retrieved": false
+    },
+    {
+      "signed_date": "2010-07-27",
+      "act_number": "204-ФЗ",
+      "scope_mapping_status": "not_mapped",
+      "official_text_retrieved": false
+    },
+    {
+      "signed_date": "2010-07-27",
+      "act_number": "227-ФЗ",
+      "scope_mapping_status": "not_mapped",
+      "official_text_retrieved": false
+    },
+    {
+      "signed_date": "2010-11-29",
+      "act_number": "313-ФЗ",
+      "scope_mapping_status": "not_mapped",
+      "official_text_retrieved": false
+    },
+    {
+      "signed_date": "2010-12-23",
+      "act_number": "359-ФЗ",
+      "scope_mapping_status": "not_mapped",
+      "official_text_retrieved": false
+    },
+    {
+      "signed_date": "2011-06-04",
+      "act_number": "123-ФЗ",
+      "scope_mapping_status": "not_mapped",
+      "official_text_retrieved": false
+    },
+    {
+      "signed_date": "2011-07-25",
+      "act_number": "261-ФЗ",
+      "scope_mapping_status": "partial_candidate",
+      "official_text_retrieved": false
+    },
+    {
+      "signed_date": "2013-04-05",
+      "act_number": "43-ФЗ",
+      "scope_mapping_status": "not_mapped",
+      "official_text_retrieved": false
+    },
+    {
+      "signed_date": "2013-07-23",
+      "act_number": "205-ФЗ",
+      "scope_mapping_status": "not_mapped",
+      "official_text_retrieved": false
+    },
+    {
+      "signed_date": "2013-12-21",
+      "act_number": "363-ФЗ",
+      "scope_mapping_status": "not_mapped",
+      "official_text_retrieved": false
+    },
+    {
+      "signed_date": "2014-06-04",
+      "act_number": "142-ФЗ",
+      "scope_mapping_status": "not_mapped",
+      "official_text_retrieved": false
+    },
+    {
+      "signed_date": "2014-07-21",
+      "act_number": "216-ФЗ",
+      "scope_mapping_status": "not_mapped",
+      "official_text_retrieved": false
+    },
+    {
+      "signed_date": "2014-07-21",
+      "act_number": "242-ФЗ",
+      "scope_mapping_status": "not_mapped",
+      "official_text_retrieved": false
+    },
+    {
+      "signed_date": "2016-07-03",
+      "act_number": "231-ФЗ",
+      "scope_mapping_status": "not_mapped",
+      "official_text_retrieved": false
+    },
+    {
+      "signed_date": "2017-02-22",
+      "act_number": "16-ФЗ",
+      "scope_mapping_status": "not_mapped",
+      "official_text_retrieved": false
+    },
+    {
+      "signed_date": "2017-07-01",
+      "act_number": "148-ФЗ",
+      "scope_mapping_status": "not_mapped",
+      "official_text_retrieved": false
+    },
+    {
+      "signed_date": "2017-07-29",
+      "act_number": "223-ФЗ",
+      "scope_mapping_status": "not_mapped",
+      "official_text_retrieved": false
+    },
+    {
+      "signed_date": "2017-12-31",
+      "act_number": "498-ФЗ",
+      "scope_mapping_status": "not_mapped",
+      "official_text_retrieved": false
+    },
+    {
+      "signed_date": "2019-12-27",
+      "act_number": "480-ФЗ",
+      "scope_mapping_status": "not_mapped",
+      "official_text_retrieved": false
+    },
+    {
+      "signed_date": "2020-04-24",
+      "act_number": "123-ФЗ",
+      "scope_mapping_status": "not_mapped",
+      "official_text_retrieved": false
+    },
+    {
+      "signed_date": "2020-12-08",
+      "act_number": "429-ФЗ",
+      "scope_mapping_status": "not_mapped",
+      "official_text_retrieved": false
+    },
+    {
+      "signed_date": "2020-12-30",
+      "act_number": "515-ФЗ",
+      "scope_mapping_status": "not_mapped",
+      "official_text_retrieved": false
+    },
+    {
+      "signed_date": "2020-12-30",
+      "act_number": "519-ФЗ",
+      "scope_mapping_status": "not_mapped",
+      "official_text_retrieved": false
+    },
+    {
+      "signed_date": "2021-06-11",
+      "act_number": "170-ФЗ",
+      "scope_mapping_status": "not_mapped",
+      "official_text_retrieved": false
+    },
+    {
+      "signed_date": "2021-07-02",
+      "act_number": "331-ФЗ",
+      "scope_mapping_status": "not_mapped",
+      "official_text_retrieved": false
+    },
+    {
+      "signed_date": "2022-07-14",
+      "act_number": "266-ФЗ",
+      "scope_mapping_status": "partial_candidate",
+      "official_text_retrieved": false
+    },
+    {
+      "signed_date": "2023-02-06",
+      "act_number": "8-ФЗ",
+      "scope_mapping_status": "not_mapped",
+      "official_text_retrieved": false
+    },
+    {
+      "signed_date": "2024-08-08",
+      "act_number": "233-ФЗ",
+      "scope_mapping_status": "not_mapped",
+      "official_text_retrieved": false
+    },
+    {
+      "signed_date": "2024-12-28",
+      "act_number": "519-ФЗ",
+      "scope_mapping_status": "not_mapped",
+      "official_text_retrieved": false
+    },
+    {
+      "signed_date": "2025-02-28",
+      "act_number": "23-ФЗ",
+      "scope_mapping_status": "not_mapped",
+      "official_text_retrieved": false
+    },
+    {
+      "signed_date": "2025-05-23",
+      "act_number": "121-ФЗ",
+      "scope_mapping_status": "not_mapped",
+      "official_text_retrieved": false
+    },
+    {
+      "signed_date": "2025-06-24",
+      "act_number": "156-ФЗ",
+      "scope_mapping_status": "not_mapped",
+      "official_text_retrieved": false
+    },
+    {
+      "signed_date": "2026-07-26",
+      "act_number": "265-ФЗ",
+      "scope_mapping_status": "partial_candidate",
+      "official_text_retrieved": false
+    }
+  ],
+  "inventory_summary": {
+    "total_citations": 35,
+    "partial_scope_candidates": 3,
+    "not_mapped": 31,
+    "source_quality": "Список реквизитов извлечён из консолидированного справочного текста; он является стартовым инвентарём, а не официально удостоверенным исчерпывающим перечнем.",
+    "caveat": "Повторяющиеся номера актов допустимы: идентификатор — пара дата подписания + номер."
+  }
+}

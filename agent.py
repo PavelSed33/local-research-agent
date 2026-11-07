@@ -12,7 +12,7 @@ import time
 import urllib.error
 import urllib.request
 from dataclasses import asdict, dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Protocol
 from urllib.parse import urlsplit
@@ -507,6 +507,85 @@ def extract_provision_history(
     return result
 
 
+
+def extract_amendment_chain_evidence(
+    model: LanguageModel,
+    changed_provisions: list[dict[str, Any]],
+    sources: list[Source],
+) -> dict[str, Any]:
+    """Use the model only to propose exact quotations; validate them deterministically."""
+    from legal_history import audit_amendment_links
+
+    official_sources = [
+        source for source in sources
+        if (urlsplit(source.url).hostname or "").lower() == "publication.pravo.gov.ru"
+        and source.url.startswith("https://")
+    ]
+    if not changed_provisions:
+        return {
+            "status": "no_changed_provisions", "links": [], "link_count": 0,
+            "verified": False, "coverage_verified": False,
+        }
+    if not official_sources:
+        return {
+            "status": "no_official_amendment_publications", "links": [],
+            "link_count": 0, "verified": False, "coverage_verified": False,
+        }
+
+    prompt = (
+        "Ты сопоставляешь изменения текста статей с официально опубликованными изменяющими "
+        "федеральными законами РФ. Верни только JSON {candidates:[...]}. Для каждой связи "
+        "укажи provision_id строго из списка; act_title, act_number, act_signed_date (YYYY-MM-DD), official_publication_id, "
+        "source_url строго из переданных материалов; amendment_quote — ДОСЛОВНУЮ цитату "
+        "из текста изменяющего закона, где прямо указано внесение изменения именно в эту "
+        "статью исходного закона; target_act_quote — дословную часть той же цитаты, "
+        "идентифицирующую исходный закон (название/дату/номер); transition_quote — ДОСЛОВНУЮ цитату переходного/заключительного "
+        "положения этого же закона, если оно есть. effective_from и effective_date_quote указывай "
+        "только если переходное положение прямо задаёт дату вступления в силу изменения именно "
+        "этой нормы; не используй общую дату закона, дату публикации или дату снимка. Если связь "
+        "неочевидна, не возвращай её. Не выдумывай цитаты и реквизиты."
+    )
+    payload = {
+        "changed_provisions": [
+            {
+                "provision_id": item.get("provision_id"),
+                "from_snapshot_date": item.get("from_snapshot_date"),
+                "to_snapshot_date": item.get("to_snapshot_date"),
+                "before_excerpt": str(item.get("before_excerpt") or "")[:2500],
+                "after_excerpt": str(item.get("after_excerpt") or "")[:2500],
+            }
+            for item in changed_provisions[:40] if isinstance(item, dict)
+        ],
+        "official_publications": [
+            {"title": source.title, "url": source.url, "text": source.text[:9000]}
+            for source in official_sources[:12]
+        ],
+    }
+    try:
+        data = extract_json(model.complete(prompt, json.dumps(payload, ensure_ascii=False)))
+    except AgentError as exc:
+        return {
+            "status": "extraction_failed", "links": [], "link_count": 0,
+            "verified": False, "coverage_verified": False, "errors": [str(exc)],
+        }
+    raw = data.get("candidates", [])
+    if not isinstance(raw, list):
+        raw = []
+    by_url = {source.url: source for source in official_sources}
+    candidates: list[dict[str, Any]] = []
+    for item in raw[:100]:
+        if not isinstance(item, dict):
+            continue
+        source = by_url.get(item.get("source_url"))
+        if source is None:
+            continue
+        candidates.append({
+            **item,
+            "source_text": source.text,
+        })
+    return audit_amendment_links(changed_provisions, candidates)
+
+
 def plan_court_practice_check(model: LanguageModel, question: str, checked_on: str) -> tuple[list[str], str]:
     """Готовит отдельный поиск судебной практики по вопросу."""
     response = model.complete(
@@ -870,7 +949,58 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
             except AgentError as exc:
                 ips_errors.append(str(exc))
     ips_sources = deduplicate(ips_sources, 2)
-    update_sources = deduplicate([*update_found, *ips_sources], 5)
+
+    # Read the bounded revision audit embedded by the IPS connector.
+    ips_revision_audits: list[dict[str, Any]] = []
+    audit_marker = "Диагностика цепочки редакций: "
+    for ips_source in ips_sources:
+        marker_position = ips_source.text.find(audit_marker)
+        if marker_position < 0:
+            continue
+        raw_audit = ips_source.text[marker_position + len(audit_marker):]
+        try:
+            audit, _ = json.JSONDecoder().raw_decode(raw_audit)
+        except (TypeError, ValueError):
+            continue
+        if isinstance(audit, dict):
+            ips_revision_audits.append(audit)
+
+    changed_provisions = [
+        item
+        for audit in ips_revision_audits
+        for item in audit.get("changed_provisions", [])
+        if isinstance(item, dict)
+    ]
+
+    # Amendment citations printed in consolidated text are search leads only.
+    # Retrieve candidate acts separately from the official publication portal.
+    from legal_history import extract_amendment_references
+    amendment_refs: dict[tuple[str, str], dict[str, str]] = {}
+    for change in changed_provisions:
+        excerpt = (
+            str(change.get("before_excerpt") or "")
+            + "\\n"
+            + str(change.get("after_excerpt") or "")
+        )
+        for reference in extract_amendment_references(excerpt):
+            amendment_refs[(reference["signed_date"], reference["act_number"])] = reference
+
+    amendment_sources: list[Source] = []
+    amendment_errors: list[str] = []
+    if portal_search is not None:
+        for reference in list(amendment_refs.values())[:8]:
+            amendment_query = (
+                f"Федеральный закон от "
+                f"{date.fromisoformat(reference['signed_date']).strftime('%d.%m.%Y')} "
+                f"№ {reference['act_number']}"
+            )
+            try:
+                amendment_sources.extend(portal_search.search(amendment_query, 2))
+            except AgentError as exc:
+                amendment_errors.append(str(exc))
+    amendment_sources = deduplicate(amendment_sources, 12)
+
+    update_sources = deduplicate([*update_found, *ips_sources, *amendment_sources], 15)
     portal_update_sources = [
         source for source in update_sources
         if (urlsplit(source.url).hostname or "").lower() == "publication.pravo.gov.ru"
@@ -878,6 +1008,7 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
     portal_errors = [
         error for error in update_errors if "PravoPortalSearch" in error
     ]
+
     try:
         provision_history = extract_provision_history(model, topic, update_sources)
     except Exception as exc:
@@ -885,6 +1016,61 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
             "status": "extraction_failed", "verified": False, "periods": [],
             "errors": [str(exc)],
         }
+
+    amendment_chain_audit = extract_amendment_chain_evidence(
+        model, changed_provisions, amendment_sources
+    )
+    from legal_history import audit_amendment_retrieval
+    amendment_retrieval_audit = audit_amendment_retrieval(
+        list(amendment_refs.values()),
+        [
+            {"title": source.title, "url": source.url, "text": source.text}
+            for source in amendment_sources
+        ],
+        query_limit=8,
+    )
+    amendment_chain_audit["candidate_references_found"] = len(amendment_refs)
+    amendment_chain_audit["official_publications_retrieved"] = len(amendment_sources)
+    amendment_chain_audit["retrieval_coverage"] = amendment_retrieval_audit
+    amendment_chain_audit["retrieval_errors"] = amendment_errors
+
+    # For the 152-FZ control case, independently parse the literal scope
+    # instructions in every retrieved official amendment publication. This is
+    # a candidate map only: no scope or completeness claim is inferred from
+    # consolidated-text citations or secondary sources.
+    from legal_history import extract_target_law_amendment_scope
+    target_law_scope_audits: list[dict[str, Any]] = []
+    for amendment_source in amendment_sources[:12]:
+        scope_audit = extract_target_law_amendment_scope(
+            amendment_source.text, target_law_number="152-ФЗ"
+        )
+        if scope_audit.get("target_law_found"):
+            target_law_scope_audits.append({
+                "act_title": amendment_source.title,
+                "source_url": amendment_source.url,
+                **scope_audit,
+            })
+    amendment_chain_audit["target_law_scope_audit"] = {
+        "target_law_number": "152-ФЗ",
+        "status": (
+            "scope_candidates_found" if target_law_scope_audits
+            else "no_scoped_official_amendment_texts"
+        ),
+        "official_texts_examined": len(amendment_sources[:12]),
+        "acts_with_target_law_mention": len(target_law_scope_audits),
+        "candidate_items": sum(
+            len(item.get("items", [])) for item in target_law_scope_audits
+        ),
+        "acts": target_law_scope_audits,
+        "verified": False,
+        "coverage_verified": False,
+        "limitation": (
+            "Область поправок извлечена только из буквальных инструкций в полученных "
+            "официальных текстах. Неполученные акты, переходные положения и полнота архива "
+            "не покрыты; отсутствие кандидатов не означает отсутствия поправок."
+        ),
+    }
+
     ips_check = {
         "attempted": ips_bank is not None,
         "performed": bool(ips_sources),
@@ -895,6 +1081,7 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
             else "no_matching_document"
         ) if ips_bank is not None else "demo_not_configured",
         "documents_with_text": len(ips_sources),
+        "revision_chain_audits": ips_revision_audits,
         "errors": ips_errors,
         "limitation": (
             "Банк предоставляет официальные тексты и снимки редакций. Дата редакции не равна "
@@ -929,6 +1116,7 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
         "official_portal": official_portal_check,
         "integrated_legal_bank": ips_check,
         "provision_history": provision_history,
+        "amendment_chain_audit": amendment_chain_audit,
         "errors": update_errors,
     }
     print(f"      Проверочных запросов: {len(new_update_queries)}; источников всего: {len(sources)}")
