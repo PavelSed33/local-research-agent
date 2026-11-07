@@ -86,7 +86,7 @@ class ResearchEvidenceRetentionTests(unittest.TestCase):
                 )
 
         class Search:
-            def search(self, query, limit):
+            def search(self, query, limit, **kwargs):
                 return [Source(query, f"https://example.test/{query}", f"Материал {query}", query)]
 
         with tempfile.TemporaryDirectory() as directory:
