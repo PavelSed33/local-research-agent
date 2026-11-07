@@ -974,6 +974,21 @@
     ],
     "secondary_act_text_inventory": [
       {
+        "act": "266-ФЗ",
+        "date": "2009-11-25",
+        "source_class": "secondary_legal_database_or_reference_copy",
+        "urls": [
+          "https://www.consultant.ru/document/cons_doc_LAW_94106/",
+          "https://base.garant.ru/196676/",
+          "https://normativ.kontur.ru/document?documentId=145738&moduleId=1"
+        ],
+        "primary_official_text_retrieved": false,
+        "note": "Вторичный полный текст статьи 1 подтверждает добавление пункта 1.1 части 2 статьи 6; статья 2 устанавливает вступление через 10 дней после официального опубликования. Вторичные библиографические реквизиты указывают публикацию в Российской газете 27.11.2009 и дату вступления 08.12.2009. Оригинал официальной публикации не получен.",
+        "official_publication_id": null,
+        "official_publication_url": null,
+        "official_portal_page_accessible_in_research_session": false
+      },
+      {
         "act": "261-ФЗ",
         "date": "2011-07-25",
         "source_class": "secondary_legal_database_or_reference_copy",
