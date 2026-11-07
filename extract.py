@@ -18,7 +18,7 @@ import argparse
 import json
 import re
 import sys
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -27,6 +27,7 @@ from agent import (
     AgentError,
     LanguageModel,
     OpenAICompatibleModel,
+    current_check_date,
     extract_json,
     load_dotenv,
 )
@@ -35,11 +36,23 @@ from review import MIN_DOCUMENT_CHARS, MIN_QUOTE_CHARS, normalize_text
 
 ENTITY_LISTS = ("parties", "amounts", "dates", "penalties")
 REQUIRED_FIELDS = {
-    "parties": ("name",),
-    "amounts": ("label", "value"),
+    "parties": ("role", "name"),
+    "amounts": ("label", "value", "currency"),
     "dates": ("label", "date"),
     "penalties": ("label", "rate"),
 }
+CURRENCY_CODE_PATTERN = re.compile(r"^[A-Z]{3}$")
+
+
+def _valid_contract_date(value: str) -> bool:
+    """Accept only real calendar dates in the supported document formats."""
+    for date_format in ("%d.%m.%Y", "%Y-%m-%d"):
+        try:
+            datetime.strptime(value, date_format)
+            return True
+        except ValueError:
+            continue
+    return False
 
 INN_PATTERN = re.compile(r"(?<!\d)\d{10}(?!\d)|(?<!\d)\d{12}(?!\d)")
 OGRN_PATTERN = re.compile(r"(?<!\d)\d{13}(?!\d)|(?<!\d)\d{15}(?!\d)")
@@ -86,8 +99,21 @@ def validate_extraction(result: dict[str, Any], document: str) -> list[str]:
                 issues.append(f"{label} не является объектом.")
                 continue
             for field in REQUIRED_FIELDS[section]:
-                if not str(entry.get(field, "")).strip():
-                    issues.append(f"{label}: пустое поле {field}.")
+                value = entry.get(field)
+                if not isinstance(value, str) or not value.strip():
+                    issues.append(f"{label}: поле {field} должно быть непустой строкой.")
+            if section == "parties":
+                role = entry.get("role")
+                if isinstance(role, str) and len(role.strip()) > 100:
+                    issues.append(f"{label}: роль стороны слишком длинная.")
+            if section == "amounts":
+                currency = entry.get("currency")
+                if not isinstance(currency, str) or not CURRENCY_CODE_PATTERN.fullmatch(currency):
+                    issues.append(f"{label}: currency должна быть трёхбуквенным кодом валюты в верхнем регистре (например, RUB).")
+            if section == "dates":
+                date_value = entry.get("date")
+                if isinstance(date_value, str) and not _valid_contract_date(date_value.strip()):
+                    issues.append(f"{label}: дата должна быть реальной календарной датой в формате ДД.ММ.ГГГГ или ГГГГ-ММ-ДД.")
             quote = str(entry.get("quote", "")).strip()
             if len(quote) < MIN_QUOTE_CHARS:
                 issues.append(f"{label}: цитата короче {MIN_QUOTE_CHARS} символов.")
@@ -250,7 +276,7 @@ def handle_extract(payload: dict[str, Any]) -> dict[str, Any]:
         "term": result.get("term"),
         "jurisdiction": result.get("jurisdiction"),
         "warnings": checksum_warnings(result),
-        "checked_on": datetime.now(timezone.utc).date().isoformat(),
+        "checked_on": current_check_date(),
         "disclaimer": LEGAL_DISCLAIMER,
         "demo": demo,
         "extraction_repaired": repaired,
