@@ -641,7 +641,25 @@ class Law152FixtureInventoryTests(unittest.TestCase):
             if item["act_number"] == "519-ФЗ"
         ]
         self.assertEqual(len(amendments_519), 3)
+        self.assertEqual(
+            {
+                article["article"]: next(
+                    item for item in article["candidate_amendments"]
+                    if item["act_number"] == "519-ФЗ"
+                )["scope"]
+                for article in scoped["articles"]
+                if any(item["act_number"] == "519-ФЗ" for item in article["candidate_amendments"])
+            },
+            {
+                "3": ["пункт 1.1 статьи 3"],
+                "6": ["пункт 10 части 1 (утратил силу)"],
+                "9": ["часть 9"],
+            },
+        )
         self.assertEqual({item["effective_from"] for item in amendments_519}, {"2021-03-01"})
+        self.assertEqual({item["official_publication_id"] for item in amendments_519}, {"0001202012300044"})
+        self.assertTrue(all("01.07.2021" in item["effective_date_status"] for item in amendments_519))
+        self.assertTrue(all(not item["official_text_retrieved"] for item in amendments_519))
         self.assertTrue(all("01.07.2021" in item["effective_date_status"] for item in amendments_519))
         self.assertTrue(all(not item["official_text_retrieved"] for item in amendments_519))
         self.assertTrue(any(
