@@ -29,6 +29,7 @@ MAX_DOCX_BYTES = 10 * 1024 * 1024
 MAX_DOCX_XML_BYTES = 20 * 1024 * 1024
 MAX_DOCX_TOTAL_UNCOMPRESSED_BYTES = 50 * 1024 * 1024
 MAX_DOCX_ENTRIES = 2000
+MAX_INPUT_FILE_BYTES = 10 * 1024 * 1024
 
 PDF_ERROR = (
     "PDF не поддерживается: извлечь текст из PDF без сторонних библиотек нельзя. "
@@ -136,3 +137,22 @@ def read_document_file(path_bytes: bytes, name: str) -> str:
         return path_bytes.decode("utf-8")
     except UnicodeDecodeError:
         raise ValueError(FORMAT_ERROR) from None
+
+
+def parse_demo_flag(payload: dict[str, Any]) -> bool:
+    """Accept only a real JSON boolean for the demo switch."""
+    value = payload.get("demo", False)
+    if not isinstance(value, bool):
+        raise ValueError("Поле «demo» должно быть логическим значением true или false.")
+    return value
+
+
+def read_document_path(path: Any) -> str:
+    """Check file size before allocating memory for CLI document input."""
+    from pathlib import Path
+
+    file_path = Path(path)
+    size = file_path.stat().st_size
+    if size > MAX_INPUT_FILE_BYTES:
+        raise ValueError(f"Файл превышает допустимый размер {MAX_INPUT_FILE_BYTES} байт.")
+    return read_document_file(file_path.read_bytes(), file_path.name)
