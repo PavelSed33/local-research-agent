@@ -26,6 +26,8 @@ def archive_act(signed_date: str, act_number: str, output_dir: Path) -> Path:
     try:
         portal = PravoPortalSearch()
         sources = portal.search_act(signed_date, act_number)
+        if not sources:
+            raise AgentError('Не получено ни одной публикации.')
         for index, source in enumerate(sources):
             publication_id = parse_qs(urlsplit(source.url).query)['eoNumber'][0]
             # Fetch the bounded response again: Source.text is deliberately truncated.
