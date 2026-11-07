@@ -858,8 +858,7 @@
         "source_class": "secondary_legal_database_or_reference_copy",
         "urls": [
           "https://base.garant.ru/400157172/",
-          "https://www.consultant.ru/document/cons_doc_LAW_372682/",
-          "https://www.consultant.ru/document/cons_doc_LAW_372682/3d0cac60971a511280cbba229d9b6329c07731f7/"
+          "https://www.consultant.ru/document/cons_doc_LAW_372682/"
         ],
         "primary_official_text_retrieved": false,
         "note": "Вторичные полные тексты/справочные копии. Реквизит официальной публикации приведён отдельно, но HTML/PDF оригинала портала в текущей сессии получить не удалось. Эти ссылки не являются полученным оригинальным телом официальной публикации; не повышать official_text_retrieved/verified на их основании.",
