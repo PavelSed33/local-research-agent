@@ -649,6 +649,7 @@ def save_results(
         "\n## Статус юридической проверки\n\n"
         f"- Актуальность редакций: {update_status} (статус поиска: {update_check.get('status', 'unknown')}).\n"
         f"- Официальный портал правовой информации: {portal_status}; публикаций с полученным текстом: {portal_count}.\n"
+        f"- Эталонный банк «Законодательство России»: {update_check.get('integrated_legal_bank', {}).get('status', 'not_configured')}; документов с текстом: {update_check.get('integrated_legal_bank', {}).get('documents_with_text', 0)}.\\n"
         f"- Судебная практика: {court_status} (статус поиска: {court_check.get('status', 'unknown')}).\n"
         "- Найденные материалы сами по себе не доказывают, что норма действует на дату проверки или что судебная позиция является устойчивой. "
         "Проверяйте дату вступления изменений в силу и полный текст первичного источника.\n"
