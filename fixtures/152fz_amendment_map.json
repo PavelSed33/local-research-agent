@@ -603,12 +603,24 @@
             ],
             "basis": "редакционная помета к пункту 9.1",
             "scope_status": "explicit_in_secondary_consolidated_annotation",
-            "effective_from": null,
-            "effective_date_status": "нужна первичная проверка даты",
+            "effective_from": "2021-07-02",
+            "effective_date_status": "Статья 12 закона 331-ФЗ устанавливает вступление в силу со дня официального опубликования; вторичные реквизиты подтверждают публикацию 02.07.2021 и номер 0001202107020046. Оригинал публикации не загружен.",
             "secondary_sources": [
-              "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/"
+              "https://www.consultant.ru/document/cons_doc_LAW_389015/5bdc78bf7e3015a0ea0c0ea5bef708a6c79e2f0a/",
+              "https://base.garant.ru/401421446/",
+              "https://spa.msu.ru/wp-content/uploads/54-1.pdf"
             ],
-            "official_text_retrieved": false
+            "official_text_retrieved": false,
+            "official_publication_identified": true,
+            "official_publication_id": "0001202107020046",
+            "official_document_url": "https://publication.pravo.gov.ru/document/0001202107020046",
+            "official_retrieval_status": "official_publication_record_identified_body_unavailable",
+            "transition_provision": {
+              "general_effective_date": "2021-07-02",
+              "rule": "Article 12: enters into force on the date of official publication; secondary record identifies publication 02.07.2021",
+              "source_class": "secondary reproduction of Article 5 and Article 12 plus bibliographic record"
+            },
+            "source_verification_note": "Article 5(1) of 331-ФЗ modifies Article 6 part 1 point 9.1 of 152-ФЗ. Article 12 provides same-day commencement on official publication; official publication ID is identified by secondary records, but original portal body was not retrieved."
           },
           {
             "act_date": "2020-12-30",
@@ -701,12 +713,24 @@
             ],
             "basis": "часть 1.2 прямо помечена как введённая законом 23-ФЗ",
             "scope_status": "explicit_in_secondary_consolidated_annotation",
-            "effective_from": null,
-            "effective_date_status": "нужна первичная проверка даты",
+            "effective_from": "2025-07-01",
+            "effective_date_status": "Статья 10 закона 23-ФЗ прямо устанавливает вступление в силу с 01.07.2025; вторичные реквизиты указывают официальный номер публикации 0001202502280034. Оригинал публикации не загружен.",
             "secondary_sources": [
-              "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/"
+              "https://www.consultant.ru/document/cons_doc_LAW_499984/3d0cac60971a511280cbba229d9b6329c07731f7/",
+              "https://www.consultant.ru/document/cons_doc_LAW_499984/b62da3aeb315547b6915beadea02920bd7dd4c41/",
+              "https://www.kontur-extern.ru/info/normativ/document/1/489745-federalnyy-zakon-ot-28-02-2025-n-23-fz"
             ],
-            "official_text_retrieved": false
+            "official_text_retrieved": false,
+            "official_publication_identified": true,
+            "official_publication_id": "0001202502280034",
+            "official_document_url": "https://publication.pravo.gov.ru/document/0001202502280034",
+            "official_retrieval_status": "official_publication_record_identified_body_unavailable",
+            "transition_provision": {
+              "general_effective_date": "2025-07-01",
+              "rule": "Article 10(1): the law enters into force on 01.07.2025",
+              "source_class": "secondary reproduction of Articles 1 and 10 plus publication bibliographic record"
+            },
+            "source_verification_note": "Article 1(1) of 23-ФЗ adds Article 6 part 1.2. Article 10(1) sets 01.07.2025. Publication ID is identified in secondary records; original official portal body was not retrieved."
           }
         ],
         "gaps": [
@@ -1056,6 +1080,36 @@
         "note": "Вторичная PDF-копия: статья 1 меняет статьи 19 и 25 152-ФЗ; целевые статьи 3, 6, 9 не затронуты.",
         "official_publication_id": null,
         "official_publication_url": null,
+        "official_portal_page_accessible_in_research_session": false
+      },
+      {
+        "act": "331-ФЗ",
+        "date": "2021-07-02",
+        "source_class": "secondary_legal_database_or_reference_copy",
+        "urls": [
+          "https://www.consultant.ru/document/cons_doc_LAW_389015/5bdc78bf7e3015a0ea0c0ea5bef708a6c79e2f0a/",
+          "https://base.garant.ru/401421446/",
+          "https://spa.msu.ru/wp-content/uploads/54-1.pdf"
+        ],
+        "primary_official_text_retrieved": false,
+        "note": "Вторичный текст статьи 5 подтверждает поправку к пункту 9.1 части 1 статьи 6; статья 12 устанавливает вступление в силу в день официального опубликования 02.07.2021.",
+        "official_publication_id": "0001202107020046",
+        "official_publication_url": "https://publication.pravo.gov.ru/document/0001202107020046",
+        "official_portal_page_accessible_in_research_session": false
+      },
+      {
+        "act": "23-ФЗ",
+        "date": "2025-02-28",
+        "source_class": "secondary_legal_database_or_reference_copy",
+        "urls": [
+          "https://www.consultant.ru/document/cons_doc_LAW_499984/3d0cac60971a511280cbba229d9b6329c07731f7/",
+          "https://www.consultant.ru/document/cons_doc_LAW_499984/b62da3aeb315547b6915beadea02920bd7dd4c41/",
+          "https://www.kontur-extern.ru/info/normativ/document/1/489745-federalnyy-zakon-ot-28-02-2025-n-23-fz"
+        ],
+        "primary_official_text_retrieved": false,
+        "note": "Вторичные тексты статей 1 и 10: часть 1.2 статьи 6 введена законом 23-ФЗ, вступление в силу — 01.07.2025.",
+        "official_publication_id": "0001202502280034",
+        "official_publication_url": "https://publication.pravo.gov.ru/document/0001202502280034",
         "official_portal_page_accessible_in_research_session": false
       }
     ],
