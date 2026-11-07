@@ -642,6 +642,8 @@ class Law152FixtureInventoryTests(unittest.TestCase):
         ))
         self.assertTrue(any(item["act_number"] == "227-ФЗ" and item["scope"] == ["часть 4", "часть 4.1"] and item["effective_from"] == "2011-01-01" for item in scoped["articles"][2]["candidate_amendments"]))
         self.assertEqual(scoped["summary"]["out_of_scope_checks"], 20)
+        out_of_scope_pairs = {(item["date"], item["act"]) for item in scoped["out_of_scope_amendment_checks"]}
+        self.assertTrue(all((item["signed_date"], item["act_number"]) in out_of_scope_pairs for item in inventory if item["scope_mapping_status"] == "not_mapped"))
         self.assertTrue(any(item["act"] == "216-ФЗ" and "статьи 10" in item["basis"] for item in scoped["out_of_scope_amendment_checks"]))
         self.assertEqual(scoped["summary"]["official_act_texts_retrieved"], 0)
         portal = scoped["official_portal_retrieval"]
