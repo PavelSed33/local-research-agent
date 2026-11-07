@@ -55,6 +55,21 @@
       "transition_article": "Статья 7",
       "status": "official_publication_reference_found_scope_parsed",
       "gap": "Полный официальный портал не удалось открыть из рабочей среды; текст и метаданные сверены по независимой копии. Нужна автоматическая загрузка исходной публикации."
+    },
+    {
+      "signed_date": "2010-07-27",
+      "act_number": "227-ФЗ",
+      "target_provisions": [
+        "Статья 9, часть 4",
+        "Статья 9, часть 4.1"
+      ],
+      "evidence_kind": "статья 23 полного текста изменяющего закона",
+      "effective_from": "2011-01-01",
+      "effective_date_status": "Статья 29(1) закона 227-ФЗ устанавливает общий срок 01.01.2011; специальные исключения статьи 29 не относятся к статье 23.",
+      "official_publication_id": null,
+      "source_url": "https://www.consultant.ru/document/cons_doc_LAW_103104/dcf6a9cdf6136b9a410d2f953eec0cf0887b7b6a/",
+      "status": "scope_and_transition_candidate_supported_by_secondary_full_act_text",
+      "gap": "Оригинальное тело официальной публикации не получено; проверить первичный текст статьи 23 и переходную норму статьи 29."
     }
   ],
   "pending_watchlist": [
