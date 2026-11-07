@@ -622,6 +622,11 @@ class Law152FixtureInventoryTests(unittest.TestCase):
         self.assertEqual(scoped["summary"]["candidate_links_by_article"], {"3": 2, "6": 13, "9": 4})
         self.assertTrue(any(item["act_number"] == "363-ФЗ" and "пункт 5 части 1" in item["scope"] for item in scoped["articles"][1]["candidate_amendments"]))
         self.assertTrue(any(
+            item["act_number"] == "266-ФЗ" and item["act_date"] == "2009-11-25"
+            and item["scope"] == ["пункт 1.1 части 2"] and item["effective_from"] == "2009-12-08"
+            for item in scoped["articles"][1]["candidate_amendments"]
+        ))
+        self.assertTrue(any(
             item["act_number"] == "148-ФЗ" and item["scope"] == ["часть 1.1"]
             for article in scoped["articles"] if article["article"] == "6"
             for item in article["candidate_amendments"]
