@@ -226,6 +226,8 @@ def openapi_spec() -> dict[str, Any]:
                     "type": "object", "properties": {**document_property,
                         "profile": {"type": "string", "enum": ["business", "consumer", "employment"]},
                         "contract_type": {"type": "string", "enum": ["general", "supply", "lease", "services", "work"]},
+                        "contract_signed_on": {"type": "string", "format": "date", "nullable": True},
+                        "review_event": {"type": "string", "enum": ["unspecified", "conclusion", "performance", "termination", "dispute"]},
                         "as_of": {"type": "string", "format": "date"},
                         "facts": {"type": "object", "additionalProperties": {"type": "boolean", "nullable": True}}
                     }}}}},
