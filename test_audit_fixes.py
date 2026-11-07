@@ -1,4 +1,5 @@
 import io
+import os
 import tempfile
 import unittest
 import zipfile
@@ -8,7 +9,7 @@ from unittest.mock import patch
 import agent
 from agent import Source
 from api import create_server
-from doctext import MAX_DOCX_BYTES, MAX_DOCX_XML_BYTES, extract_docx_text
+from doctext import MAX_DOCX_BYTES, MAX_DOCX_XML_BYTES, ensure_document_transfer_allowed, extract_docx_text
 
 
 class DocxResourceLimitTests(unittest.TestCase):
@@ -22,6 +23,24 @@ class DocxResourceLimitTests(unittest.TestCase):
             archive.writestr("word/document.xml", b"x" * (MAX_DOCX_XML_BYTES + 1))
         with self.assertRaisesRegex(ValueError, "Основной XML документа"):
             extract_docx_text(stream.getvalue())
+
+
+class ContractPrivacyTests(unittest.TestCase):
+    def test_remote_llm_requires_explicit_consent(self):
+        with patch.dict(os.environ, {"LLM_BASE_URL": "https://api.openai.com/v1"}, clear=True):
+            with self.assertRaisesRegex(ValueError, "отправка текста договора"):
+                ensure_document_transfer_allowed()
+
+    def test_loopback_llm_does_not_require_cloud_consent(self):
+        with patch.dict(os.environ, {"LLM_BASE_URL": "http://127.0.0.1:11434/v1"}, clear=True):
+            ensure_document_transfer_allowed()
+
+    def test_remote_llm_is_allowed_after_explicit_consent(self):
+        with patch.dict(os.environ, {
+            "LLM_BASE_URL": "https://llm.example.test/v1",
+            "ALLOW_CLOUD_DOCUMENTS": "true",
+        }, clear=True):
+            ensure_document_transfer_allowed()
 
 
 class ApiExposureSecurityTests(unittest.TestCase):
