@@ -44,7 +44,7 @@ DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8080
 MAX_BODY_BYTES = 15 * 1024 * 1024
 MAX_DIFF_BODY_BYTES = 28 * 1024 * 1024
-MAX_CONCURRENT_REQUESTS = 16
+MAX_CONCURRENT_REQUESTS = 4
 MAX_QUESTION_CHARS = 12_000
 SESSION_MAX_ENTRIES = 10
 SESSION_MAX_COUNT = 1_000
@@ -316,6 +316,8 @@ class LegalApiHandler(BaseHTTPRequestHandler):
         self.send_header("X-Frame-Options", "DENY")
         self.send_header("Referrer-Policy", "no-referrer")
         self.send_header("Cache-Control", "no-store")
+        self.send_header("Connection", "close")
+        self.close_connection = True
         self.end_headers()
         self.wfile.write(body)
 
