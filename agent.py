@@ -602,6 +602,9 @@ def search_queries(search: SearchProvider, queries: list[str], per_query: int) -
     for query in queries:
         try:
             found.extend(search.search(query, per_query))
+            for provider_error in getattr(search, "last_errors", []):
+                errors.append(f"{query}: {provider_error}")
+                print(f"      Предупреждение: {provider_error}", file=sys.stderr)
         except AgentError as exc:
             errors.append(f"{query}: {exc}")
             print(f"      Предупреждение: {exc}", file=sys.stderr)
@@ -639,9 +642,14 @@ def save_results(
     warning = "\n> **Демонстрационный режим:** источники и факты условны.\n" if demo else ""
     update_status = "подтверждена" if update_check.get("verified") is True else "не подтверждена автоматически"
     court_status = "подтверждена" if court_check.get("verified") is True else "не подтверждена автоматически"
+    portal_check = update_check.get("official_portal", {})
+    portal_status = portal_check.get("status", "not_configured")
+    portal_count = portal_check.get("records_with_text", 0)
     verification_note = (
         "\n## Статус юридической проверки\n\n"
         f"- Актуальность редакций: {update_status} (статус поиска: {update_check.get('status', 'unknown')}).\n"
+        f"- Официальный портал правовой информации: {portal_status}; публикаций с полученным текстом: {portal_count}.\n"
+        f"- Эталонный банк «Законодательство России»: {update_check.get('integrated_legal_bank', {}).get('status', 'not_configured')}; документов с текстом: {update_check.get('integrated_legal_bank', {}).get('documents_with_text', 0)}.\n"
         f"- Судебная практика: {court_status} (статус поиска: {court_check.get('status', 'unknown')}).\n"
         "- Найденные материалы сами по себе не доказывают, что норма действует на дату проверки или что судебная позиция является устойчивой. "
         "Проверяйте дату вступления изменений в силу и полный текст первичного источника.\n"
@@ -680,10 +688,18 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
     if demo:
         model: LanguageModel = DemoModel()
         search: SearchProvider = DemoSearch()
+        portal_search = None
+        ips_bank = None
         court_search: SearchProvider = DemoSearch()
     else:
+        from pravo_portal import FederatedLegalSearch, PravoPortalSearch
+        from pravo_ips import PravoIpsBank
+
         model = OpenAICompatibleModel()
-        search = TavilySearch()
+        tavily_search = TavilySearch()
+        portal_search = PravoPortalSearch()
+        ips_bank = PravoIpsBank()
+        search = FederatedLegalSearch(portal_search, tavily_search)
         court_domains = [
             item.strip()
             for item in os.getenv(
@@ -748,7 +764,60 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
     # Keep legal-update evidence separate from the general research cap.
     # Otherwise a full initial source list silently discards the very materials
     # retrieved to verify amendments and current editions.
-    update_sources = deduplicate(update_found, 3)
+    update_sources = deduplicate([*update_found, *ips_sources], 5)
+    portal_update_sources = [
+        source for source in update_sources
+        if (urlsplit(source.url).hostname or "").lower() == "publication.pravo.gov.ru"
+    ]
+    portal_errors = [
+        error for error in update_errors if "PravoPortalSearch" in error
+    ]
+    # The integrated full-text bank is a separate official source from the
+    # publication feed. Search it independently and preserve its revision
+    # snapshots as evidence, without treating an edition date as an effective
+    # date for every provision.
+    ips_sources: list[Source] = []
+    ips_errors: list[str] = []
+    if ips_bank is not None:
+        for ips_query in new_update_queries[:2]:
+            try:
+                ips_sources.extend(ips_bank.search(ips_query, 2, as_of=checked_on))
+            except AgentError as exc:
+                ips_errors.append(str(exc))
+    ips_sources = deduplicate(ips_sources, 2)
+    ips_check = {
+        "attempted": ips_bank is not None,
+        "performed": bool(ips_sources),
+        "verified": False,
+        "status": (
+            "revision_snapshots_found" if ips_sources
+            else "unavailable" if ips_errors
+            else "no_matching_document"
+        ) if ips_bank is not None else "demo_not_configured",
+        "documents_with_text": len(ips_sources),
+        "errors": ips_errors,
+        "limitation": (
+            "Банк предоставляет официальные тексты и снимки редакций. Дата редакции не равна "
+            "дате вступления в силу каждой нормы; периоды действия положений автоматически не подтверждены."
+        ),
+    }
+    official_portal_check = {
+        "attempted": portal_search is not None,
+        "performed": bool(portal_update_sources),
+        "verified": False,
+        "status": (
+            "official_publications_found"
+            if portal_update_sources
+            else "unavailable" if portal_errors
+            else "no_matching_publication"
+        ) if portal_search is not None else "demo_not_configured",
+        "records_with_text": len(portal_update_sources),
+        "note": (
+            "Официально опубликованные акты получены через публичный read-only интерфейс. "
+            "Это подтверждает публикацию и доступность текста, но не консолидированную редакцию закона."
+        ),
+        "errors": portal_errors,
+    }
     update_check = {
         "attempted": True,
         "performed": bool(update_sources),
@@ -757,6 +826,8 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
         "queries": new_update_queries,
         "notes": update_notes,
         "new_sources_found": len(update_found),
+        "official_portal": official_portal_check,
+        "integrated_legal_bank": ips_check,
         "errors": update_errors,
     }
     print(f"      Проверочных запросов: {len(new_update_queries)}; источников всего: {len(sources)}")

@@ -1,4 +1,5 @@
 import io
+import json
 import os
 import tempfile
 import unittest
@@ -8,6 +9,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import agent
+from pravo_portal import PravoPortalSearch, FederatedLegalSearch
 from agent import Source, current_check_date, deduplicate_queries, extract_json, find_unconfirmed_articles, reflect_on_report, classify_source_authority
 from api import create_server, handle_ask, SessionStore, SESSION_MAX_COUNT, LegalApiHandler
 from redline import diff_documents, MAX_DIFF_DOCUMENT_CHARS
@@ -84,12 +86,14 @@ class ResearchEvidenceRetentionTests(unittest.TestCase):
                 )
 
         class Search:
-            def search(self, query, limit):
+            def search(self, query, limit, **kwargs):
                 return [Source(query, f"https://example.test/{query}", f"Материал {query}", query)]
 
         with tempfile.TemporaryDirectory() as directory:
             with patch.object(agent, "OpenAICompatibleModel", return_value=Model()), patch.object(
                 agent, "TavilySearch", return_value=Search()
+            ), patch("pravo_portal.PravoPortalSearch", return_value=Search()), patch(
+                "pravo_ips.PravoIpsBank", return_value=Search()
             ):
                 _, journal_path = agent.run(
                     "тестовый вопрос", 1, 1, Path(directory)
@@ -261,6 +265,102 @@ class LegalCitationProvenanceTests(unittest.TestCase):
         self.assertEqual(classify_source_authority("https://sudact.ru/"), "case_law_aggregator")
         self.assertEqual(classify_source_authority("https://www.consultant.ru/"), "secondary_legal_reference")
         self.assertEqual(classify_source_authority("https://unknown.example/"), "unclassified")
+
+
+
+class OfficialPravoPortalIntegrationTests(unittest.TestCase):
+    def test_search_fetches_official_document_text_and_dates(self):
+        search_response = json.dumps([{
+            "EoNumber": "123456789",
+            "DocumentName": "Федеральный закон",
+            "DocumentNumber": "123-ФЗ",
+            "SignDate": "2025-01-10",
+            "PubDate": "2025-01-11",
+            "EffectiveDate": "2025-02-01",
+        }]).encode("utf-8")
+        text_response = json.dumps({"Text": "<p>Текст официального акта.</p>"}).encode("utf-8")
+        with patch("urllib.request.urlopen", side_effect=[
+            io.BytesIO(search_response), io.BytesIO(text_response)
+        ]) as mocked:
+            client = PravoPortalSearch()
+            sources = client.search("Федеральный закон", 3)
+        self.assertEqual(len(sources), 1)
+        self.assertIn("publication.pravo.gov.ru", sources[0].url)
+        self.assertIn("123-ФЗ", sources[0].text)
+        self.assertIn("2025-02-01", sources[0].text)
+        self.assertIn("Текст официального акта.", sources[0].text)
+        self.assertEqual(mocked.call_count, 2)
+
+    def test_portal_refuses_non_official_or_non_https_base_url(self):
+        with self.assertRaisesRegex(agent.AgentError, "официальный HTTPS-домен"):
+            PravoPortalSearch("http://example.com")
+
+    def test_federated_search_keeps_tavily_results_when_portal_is_down(self):
+        class BrokenPortal:
+            def search(self, query, limit):
+                raise agent.AgentError("портал временно недоступен")
+        class WorkingSearch:
+            def search(self, query, limit):
+                return [Source("Найденный источник", "https://example.test/law", "Текст", query)]
+        combined = FederatedLegalSearch(BrokenPortal(), WorkingSearch())
+        results = combined.search("закон", 2)
+        self.assertEqual(len(results), 1)
+        self.assertTrue(any("портал временно недоступен" in item for item in combined.last_errors))
+
+    def test_portal_response_size_is_bounded(self):
+        class LargeResponse(io.BytesIO):
+            pass
+        with patch("urllib.request.urlopen", return_value=LargeResponse(b"x" * (2 * 1024 * 1024 + 1))):
+            client = PravoPortalSearch()
+            with self.assertRaisesRegex(agent.AgentError, "больше 2 МиБ"):
+                client._get("/api/Documents", {"Name": "тест"})
+
+
+class OfficialIntegratedLegalBankTests(unittest.TestCase):
+    def test_history_selects_snapshot_not_later_than_requested_date(self):
+        from pravo_ips import PravoIpsBank
+
+        search_page = (
+            '<html><a href="?docbody=&nd=102000001&rdk=1">Федеральный закон № 1-ФЗ</a></html>'
+        )
+        history_page = (
+            '<html>Редакция от 01.01.2024'
+            '<a href="?docbody=&nd=102000001&rdk=1">редакция 2020</a>'
+            '<a href="?docbody=&nd=102000001&rdk=2">редакция 2024</a></html>'
+        )
+        old_page = '<html>Редакция от 01.01.2020 Текст старой редакции.</html>'
+        new_page = '<html>Редакция от 01.01.2024 Текст новой редакции.</html>'
+        with patch("urllib.request.urlopen", side_effect=[
+            io.BytesIO(search_page.encode()),
+            io.BytesIO(history_page.encode()),
+            io.BytesIO(old_page.encode()),
+            io.BytesIO(new_page.encode()),
+        ]):
+            sources = PravoIpsBank().search("тестовый закон", 1, as_of="2022-06-01")
+        self.assertEqual(len(sources), 1)
+        self.assertIn("Редакция-снимок: 2020-01-01", sources[0].text)
+        self.assertIn("Текст старой редакции", sources[0].text)
+        self.assertIn("не является официальным опубликованием", sources[0].text)
+        self.assertIn("не равна", sources[0].text)
+
+    def test_bank_refuses_invalid_document_ids_and_dates(self):
+        from pravo_ips import PravoIpsBank
+
+        bank = PravoIpsBank()
+        with self.assertRaisesRegex(agent.AgentError, "идентификатор"):
+            bank.get_history("../102000001")
+        with self.assertRaisesRegex(agent.AgentError, "формате"):
+            bank.get_history("102000001", as_of="01.01.2024")
+
+    def test_date_parser_rejects_impossible_edition_date(self):
+        from pravo_ips import _parse_date, _document_id
+
+        self.assertIsNone(_parse_date("Редакция от 31.02.2024"))
+        self.assertEqual(_parse_date("Редакция от 01.02.2024"), "2024-02-01")
+        self.assertIsNone(_document_id("//evil.example/proxy/ips/?nd=102000001"))
+        self.assertIsNone(_document_id("http://pravo.gov.ru/proxy/ips/?nd=102000001"))
+        self.assertEqual(_document_id("?docbody=&nd=102000001"), "102000001")
+
 
 
 if __name__ == "__main__":
