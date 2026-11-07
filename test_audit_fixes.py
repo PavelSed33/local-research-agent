@@ -613,12 +613,18 @@ class Law152FixtureInventoryTests(unittest.TestCase):
         inventory = fixture["consolidated_citation_inventory"]
         self.assertEqual(len(inventory), 35)
         self.assertEqual(fixture["inventory_summary"]["total_citations"], 35)
-        self.assertEqual(fixture["inventory_summary"]["partial_scope_candidates"], 4)
-        self.assertEqual(fixture["inventory_summary"]["not_mapped"], 31)
+        self.assertEqual(fixture["inventory_summary"]["partial_scope_candidates"], 15)
+        self.assertEqual(fixture["inventory_summary"]["not_mapped"], 20)
         scoped = fixture["article_scoped_inventory"]
         self.assertEqual(len(scoped["articles"]), 3)
         self.assertEqual(scoped["summary"]["articles_covered"], 3)
-        self.assertEqual(scoped["summary"]["candidate_act_article_links"], 17)
+        self.assertEqual(scoped["summary"]["candidate_act_article_links"], 18)
+        self.assertEqual(scoped["summary"]["candidate_links_by_article"], {"3": 2, "6": 12, "9": 4})
+        self.assertTrue(any(
+            item["act_number"] == "148-ФЗ" and item["scope"] == ["часть 1.1"]
+            for article in scoped["articles"] if article["article"] == "6"
+            for item in article["candidate_amendments"]
+        ))
         self.assertEqual(scoped["summary"]["official_act_texts_retrieved"], 0)
         portal = scoped["official_portal_retrieval"]
         self.assertEqual(portal["directly_retrieved_document_bodies"], 0)
