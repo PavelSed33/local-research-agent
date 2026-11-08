@@ -32,6 +32,7 @@ def smoke(base_url: str) -> list[str]:
         passed.append('GET ' + path)
     document = 'Поставка товара производится в течение десяти дней после оплаты.'
     cases = [
+        ('/extract/local', {'document': document+' Сумма: 1 000 руб. Дата: 01.02.2026.'}, 'matches'),
         ('/legal/skills/run', {'skill_id': 'contract-risk', 'user_position': 'Заказчик',
                              'document': document, 'demo': True}, 'findings'),
         ('/ask', {'question': 'Техническая демонстрация', 'demo': True, 'as_of': '2023-03-01'}, 'answer'),
@@ -57,6 +58,9 @@ def smoke(base_url: str) -> list[str]:
         with urllib.request.urlopen(request, timeout=30) as response:
             result = json.load(response)
         assert key in result, path
+        if path == '/extract/local':
+            assert result['mode'] == 'local_patterns' and result['demo'] is False
+            assert result['external_requests_attempted'] is False and result['matches']
         if path == '/legal/coverage':
             assert result['verified'] is False
             assert not result['evidence_summary']['errors']

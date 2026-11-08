@@ -63,6 +63,14 @@ with zipfile.ZipFile(sys.argv[1],'w') as z:
   assert.equal(await page.locator('#result').isVisible(),false);
   await page.unroute('**/extract');
   await page.locator('#run').click();await page.locator('#result').waitFor({state:'visible'});
+  await page.locator('[data-mode="local-extract"]').click();
+  await page.locator('#file').setInputFiles(docx);await page.locator('#run').click();
+  await page.locator('#status').filter({hasText:'Готово.'}).waitFor();
+  const localResult=JSON.parse(await page.locator('#json').textContent());
+  assert.equal(localResult.mode,'local_patterns');assert.equal(localResult.demo,false);
+  assert.equal(localResult.external_requests_attempted,false);assert.ok(localResult.matches.length>0);
+  assert.match(await page.locator('#verification').innerText(),/Локальные совпадения/);
+  await page.locator('#file').setInputFiles([]);await page.locator('#document').fill(text);
   await page.locator('[data-mode="skills"]').click();
   await page.locator('#skill-id option').nth(2).waitFor({state:'attached'});
   await page.locator('#skill-id').selectOption('contract-playbook');

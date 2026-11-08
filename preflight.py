@@ -50,6 +50,7 @@ def workflow_readiness(configuration, *, statutes_ok=True, evidence_ok=True, ski
         ('/extract', 'Извлечение реквизитов', ('llm', 'document_transfer')),
         ('/review/legal', 'Правовая проверка договора', ('llm', 'search', 'document_transfer')),
         ('/diff', 'Сравнение редакций', ()),
+        ('/extract/local', 'Локальные реквизиты', ()),
         ('/privacy/check', 'Анкеты персональных данных', ('evidence',)),
         ('/legal/research', 'Правовые сценарии', ('statutes', 'evidence')),
         ('/legal/corpus', 'Нормативные извлечения', ('statutes',)),

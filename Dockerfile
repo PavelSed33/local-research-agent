@@ -8,6 +8,7 @@ COPY agent.py api.py api_worker.py request_jobs.py review.py extract.py doctext.
 COPY web ./web
 COPY legal_research.py statute_corpus.py ./
 COPY legal_skills.py ./
+COPY local_extract.py ./
 COPY skills ./skills
 COPY third_party/lawve ./third_party/lawve
 COPY fixtures/legal_workflows.json ./fixtures/

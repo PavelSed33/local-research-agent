@@ -26,6 +26,7 @@ class DockerPackagingTests(unittest.TestCase):
                 ['python', '-I', '-c',
                  'import sys; sys.path.insert(0, sys.argv[1]); '
                  'import api, legal_history, pravo_portal, pravo_ips; '
+                 'from local_extract import handle_local_extract; assert handle_local_extract({"document":"Проверка суммы: 1 000 руб. после приёмки."})["matches"]; '
                  'from legal_skills import skill_options; assert len(skill_options()["skills"])==3; '
                  'from legal_evidence import evidence_report; '
                  'corpus=evidence_report(); assert len(corpus["entries"])==5 and not corpus["errors"]; '
