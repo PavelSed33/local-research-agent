@@ -1,0 +1,57 @@
+{
+  "checked_on": "2026-11-08",
+  "unit_tests": {
+    "status": "passed",
+    "count": 375,
+    "seconds": 42.124
+  },
+  "demo_http": {
+    "status": "passed",
+    "checks": 20
+  },
+  "browser": {
+    "scope": "synthetic_demo_browser_acceptance",
+    "browser_acceptance": false,
+    "external_providers_tested": false,
+    "legal_acceptance": false,
+    "status": "blocked",
+    "reason": "chromium_missing"
+  },
+  "live": {
+    "status": "blocked",
+    "configuration": {
+      "missing": [
+        "LLM_API_KEY",
+        "LLM_MODEL",
+        "TAVILY_API_KEY"
+      ],
+      "invalid_endpoints": [],
+      "documents_permitted_by_configuration": false
+    },
+    "external_requests_attempted": false,
+    "live_acceptance_passed": false
+  },
+  "docker": {
+    "status": "blocked",
+    "reason": "docker_binary_missing"
+  },
+  "primary_retrievals": [
+    {
+      "url": "https://publication.pravo.gov.ru/document/0001202506240021",
+      "status": "not_retrieved",
+      "reason": "web_tool_timeout"
+    },
+    {
+      "url": "https://publication.pravo.gov.ru/document/0001202012300044",
+      "status": "not_retrieved",
+      "reason": "web_tool_inaccessible"
+    },
+    {
+      "url": "https://rg.ru/2021/01/11/personalnie-dannie-dok.html",
+      "status": "not_retrieved",
+      "reason": "web_tool_non_retryable_error"
+    }
+  ],
+  "original_publications_added": 0,
+  "legal_acceptance": false
+}
