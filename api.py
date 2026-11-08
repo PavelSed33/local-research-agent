@@ -28,6 +28,8 @@ import json
 import os
 import re
 import sys
+import shutil
+import signal
 import threading
 import tempfile
 import time
@@ -45,6 +47,7 @@ from legal_review import handle_legal_review, review_options
 from case_law import handle_case_law
 from legal_coverage import coverage_report
 from privacy_review import handle_privacy_check, privacy_options
+from request_jobs import RequestJobs, JobError, ID_PATTERN
 
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8080
@@ -55,7 +58,7 @@ MAX_QUESTION_CHARS = 12_000
 SESSION_MAX_ENTRIES = 10
 SESSION_MAX_COUNT = 1_000
 SERVICE_NAME = "legal-research-agent"
-API_VERSION = "1.7"
+API_VERSION = "1.8"
 SESSION_TTL_SECONDS = 3600
 SESSION_ANSWER_CHARS = 500
 SESSION_ID_PATTERN = re.compile(r"^[A-Za-z0-9-]{1,64}$")
@@ -136,11 +139,11 @@ def parse_int_field(payload: dict[str, Any], field: str, default: int, minimum: 
     return value
 
 
-def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore | None = None, *, persist_results: bool = True) -> dict[str, Any]:
+def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore | None = None, *, persist_results: bool = True, session_context_override: str | None = None) -> dict[str, Any]:
     """Выполняет полный цикл агента и возвращает структурированный ответ."""
     if not persist_results:
         with tempfile.TemporaryDirectory(prefix="legal-research-") as directory:
-            result = handle_ask(payload, Path(directory), sessions, persist_results=True)
+            result = handle_ask(payload, Path(directory), sessions, persist_results=True, session_context_override=session_context_override)
             result.update(report_file=None, journal_file=None, results_persisted=False)
             return result
     question = payload.get("question", "")
@@ -158,6 +161,9 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
     if not isinstance(demo, bool):
         raise RequestValidationError("Поле «demo» должно быть логическим значением true или false.")
     context, session_identity = sessions.begin(session_id) if sessions and session_id else ("", None)
+
+    if session_context_override is not None:
+        context = session_context_override
 
     # Отдельная папка на запрос: имена файлов внутри не пересекаются.
     stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
@@ -202,7 +208,7 @@ def health_payload() -> dict[str, Any]:
         "status": "ok",
         "service": SERVICE_NAME,
         "version": API_VERSION,
-        "endpoints": ["GET /health", "GET /openapi.json", "POST /ask", "POST /review", "POST /extract", "POST /diff", "POST /sessions/delete", "POST /review/legal", "POST /case-law/check", "POST /legal/coverage", "GET /privacy/options", "POST /privacy/check", "GET /review/options"],
+        "endpoints": ["GET /health", "GET /openapi.json", "POST /ask", "POST /review", "POST /extract", "POST /diff", "POST /sessions/delete", "POST /requests/cancel", "POST /review/legal", "POST /case-law/check", "POST /legal/coverage", "GET /privacy/options", "POST /privacy/check", "GET /review/options"],
         "llm_configured": bool(os.getenv("LLM_API_KEY") and os.getenv("LLM_MODEL")),
         "tavily_configured": bool(os.getenv("TAVILY_API_KEY")),
         "demo_available": True,
@@ -380,6 +386,21 @@ def openapi_spec(*, require_auth: bool = True) -> dict[str, Any]:
             },
         },
     }
+    spec['paths']['/requests/cancel'] = {'post': {
+        'summary': 'Отменить запрос по X-Request-ID; общий токен, без изоляции пользователей',
+        'requestBody': {'required': True, 'content': {'application/json': {'schema': {
+            'type': 'object', 'required': ['request_id'], 'properties': {
+                'request_id': {'type': 'string', 'pattern': '^[A-Za-z0-9-]{16,64}$'}}}}}},
+        'responses': {'200': {'description': 'Отмена принята либо запрос уже завершён'},
+                      '400': {'description': 'Неверный идентификатор'},
+                      '401': {'description': 'Нужен токен'}}}}
+    for route in ('/ask', '/review', '/review/legal', '/extract', '/diff', '/case-law/check'):
+        operation = spec['paths'][route]['post']
+        operation.setdefault('parameters', []).append({'in': 'header', 'name': 'X-Request-ID',
+            'schema': {'type': 'string', 'pattern': '^[A-Za-z0-9-]{16,64}$'},
+            'description': 'Уникальный идентификатор для отмены; при отсутствии генерируется сервером.'})
+        operation['responses'].update({'409': {'description': 'Отменён или идентификатор уже использован'},
+            '429': {'description': 'Все рабочие процессы заняты'}, '504': {'description': 'Общий дедлайн истёк'}})
     spec['components'] = {'securitySchemes': {'ApiToken': {
         'type': 'http', 'scheme': 'bearer',
         'description': 'Токен API_TOKEN сервера; это не ключ модели или поискового провайдера.'}}}
@@ -398,8 +419,15 @@ class BoundedThreadingHTTPServer(ThreadingHTTPServer):
         self._request_slots = threading.BoundedSemaphore(MAX_CONCURRENT_REQUESTS)
         super().__init__(server_address, handler_class)
 
+    def server_close(self) -> None:
+        if hasattr(self, "jobs"):
+            self.jobs.close()
+        super().server_close()
+
     def process_request(self, request: Any, client_address: Any) -> None:
-        if not self._request_slots.acquire(blocking=False):
+        # A just-sent response can reach the client before its handler exits.
+        # Briefly wait for that slot rather than reset the next control request.
+        if not self._request_slots.acquire(timeout=0.1):
             self.shutdown_request(request)
             return
         try:
@@ -425,6 +453,8 @@ class LegalApiHandler(BaseHTTPRequestHandler):
         body = json.dumps(payload, ensure_ascii=False, indent=2).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
+        if getattr(self, "request_id", None):
+            self.send_header("X-Request-ID", self.request_id)
         self.send_header("Content-Length", str(len(body)))
         self.send_header("X-Content-Type-Options", "nosniff")
         self.send_header("X-Frame-Options", "DENY")
@@ -495,7 +525,9 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(body)
         elif self.path == "/health":
-            self._send_json(200, health_payload())
+            self._send_json(200, {**health_payload(),
+                                  "request_timeout_seconds": self.server.jobs.timeout_seconds,
+                                  "request_cancellation_available": True})
         elif self.path == "/openapi.json":
             self._send_json(200, openapi_spec(require_auth=bool(self.server.api_token)))
         elif self.path == "/privacy/options":
@@ -506,7 +538,7 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /sessions/delete."})
 
     def do_POST(self) -> None:
-        if self.path not in ("/ask", "/review", "/review/legal", "/case-law/check", "/extract", "/diff", "/sessions/delete", "/legal/coverage", "/privacy/check"):
+        if self.path not in ("/ask", "/review", "/review/legal", "/case-law/check", "/extract", "/diff", "/sessions/delete", "/legal/coverage", "/privacy/check", "/requests/cancel"):
             self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /sessions/delete."})
             return
         if not self._authorized():
@@ -526,18 +558,44 @@ class LegalApiHandler(BaseHTTPRequestHandler):
                 if not isinstance(session_id, str) or not SESSION_ID_PATTERN.fullmatch(session_id):
                     raise RequestValidationError("Требуется корректный session_id: латиница, цифры, дефис, 1–64 символа.")
                 result = {"deleted": self.server.sessions.delete(session_id)}
-            elif self.path == "/ask":
-                result = handle_ask(payload, Path(self.server.output_dir), self.server.sessions, persist_results=self.server.persist_results)
-            elif self.path == "/review/legal":
-                result = handle_legal_review(payload)
-            elif self.path == "/case-law/check":
-                result = handle_case_law(payload)
-            elif self.path == "/review":
-                result = handle_review(payload)
-            elif self.path == "/extract":
-                result = handle_extract(payload)
+            elif self.path == '/requests/cancel':
+                result = {'request_id': payload.get('request_id'),
+                          'cancelled': self.server.jobs.cancel(payload.get('request_id'))}
             else:
-                result = handle_diff(payload)
+                request_id = self.headers.get('X-Request-ID') or uuid.uuid4().hex
+                if not ID_PATTERN.fullmatch(request_id):
+                    raise RequestValidationError('Некорректный X-Request-ID.')
+                self.request_id = request_id
+                session_id = payload.get('session_id') if self.path == '/ask' else None
+                context, identity = '', None
+                if session_id is not None:
+                    if not isinstance(session_id, str) or not SESSION_ID_PATTERN.fullmatch(session_id):
+                        raise RequestValidationError('Некорректный session_id.')
+                    context, identity = self.server.sessions.begin(session_id)
+                def commit(result):
+                    if self.path == '/ask':
+                        if self.server.persist_results:
+                            source = Path(result['report_file']).parent
+                            destination = Path(self.server.output_dir) / source.name
+                            destination.parent.mkdir(parents=True, exist_ok=True)
+                            try:
+                                shutil.copytree(source, destination)
+                            except Exception:
+                                shutil.rmtree(destination, ignore_errors=True)
+                                raise
+                            result['report_file'] = str(destination / Path(result['report_file']).name)
+                            result['journal_file'] = str(destination / Path(result['journal_file']).name)
+                        else:
+                            result.update(report_file=None, journal_file=None, results_persisted=False)
+                        if session_id:
+                            self.server.sessions.remember(session_id, payload.get('question', ''),
+                                                          result['answer'], expected_session=identity)
+                    return result
+                result = self.server.jobs.execute(self.request_id,
+                    {'path': self.path, 'payload': payload, 'context': context}, commit)
+        except JobError as exc:
+            self._send_json(exc.status, {'error': str(exc), 'code': exc.code,
+                                        'request_id': self.request_id})
         except ValueError as exc:
             self._send_json(400, {"error": str(exc)})
         except AgentError as exc:
@@ -555,6 +613,7 @@ def create_server(
     output_dir: Path | str = Path("результаты"),
     api_token: str = "",
     persist_results: bool = False,
+    request_timeout_seconds: float = 300,
 ) -> ThreadingHTTPServer:
     normalized_host = host.strip().lower()
     is_loopback = normalized_host == "localhost"
@@ -568,11 +627,13 @@ def create_server(
             "API_TOKEN обязателен при прослушивании внешнего интерфейса. "
             "Для локального режима используйте API_HOST=127.0.0.1."
         )
+    jobs = RequestJobs(request_timeout_seconds)
     server = BoundedThreadingHTTPServer((host, port), LegalApiHandler)
     server.output_dir = Path(output_dir)
     server.api_token = api_token.strip()
     server.persist_results = persist_results
     server.sessions = SessionStore()
+    server.jobs = jobs
     return server
 
 
@@ -590,7 +651,8 @@ def main() -> int:
         persistence = os.getenv("API_PERSIST_RESEARCH", "false").strip().lower()
         if persistence not in {"true", "false"}:
             raise ValueError("API_PERSIST_RESEARCH должен быть true или false.")
-        server = create_server(host, port, output_dir, api_token, persist_results=persistence == "true")
+        server = create_server(host, port, output_dir, api_token, persist_results=persistence == "true",
+                               request_timeout_seconds=float(os.getenv("API_REQUEST_TIMEOUT_SECONDS", "300")))
     except ValueError as exc:
         print(f"Ошибка конфигурации: {exc}", file=sys.stderr)
         return 1
@@ -601,6 +663,9 @@ def main() -> int:
         print(f"Постоянные результаты /ask сохраняются в: {server.output_dir.resolve()}")
     else:
         print("Результаты /ask временные и удаляются после обработки; память сессий управляется отдельно.")
+    def stop_on_signal(signum, frame):
+        raise KeyboardInterrupt
+    signal.signal(signal.SIGTERM, stop_on_signal)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
