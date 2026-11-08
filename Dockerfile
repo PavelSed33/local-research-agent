@@ -2,13 +2,19 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-# Сторонних зависимостей нет: только стандартная библиотека Python.
+# Python использует стандартную библиотеку; PDF/OCR — локальные системные утилиты.
+ARG INSTALL_PDF_OCR=1
+RUN if [ "$INSTALL_PDF_OCR" = "1" ]; then apt-get update && apt-get install -y --no-install-recommends poppler-utils tesseract-ocr tesseract-ocr-rus tesseract-ocr-eng && rm -rf /var/lib/apt/lists/*; fi
 COPY agent.py api.py api_worker.py request_jobs.py review.py extract.py doctext.py registry.py redline.py legal_history.py pravo_portal.py pravo_ips.py legal_review.py case_law.py preflight.py legal_catalog.py legal_coverage.py privacy_review.py legal_evidence.py contract_scope.py ./
 
 COPY web ./web
 COPY legal_research.py statute_corpus.py ./
 COPY legal_skills.py ./
 COPY local_extract.py ./
+COPY document_tools.py workspace_store.py reviewed_evidence.py workspace_api.py matter_research.py ./
+COPY primary_sources.py ./
+COPY scripts/manage_workspace.py ./scripts/
+COPY fixtures/primary_sources ./fixtures/primary_sources
 COPY skills ./skills
 COPY third_party/lawve ./third_party/lawve
 COPY third_party/selected-skills ./third_party/selected-skills

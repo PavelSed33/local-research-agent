@@ -52,6 +52,8 @@ from legal_research import handle_legal_research, research_options
 from legal_skills import load_skills, skill_options, SkillRegistryError
 from request_jobs import RequestJobs, JobError, ID_PATTERN
 from preflight import inspect_configuration, inspect_runtime
+from workspace_store import WorkspaceStore, WorkspaceError
+from workspace_api import FIELDS as WORKSPACE_FIELDS, dispatch as workspace_dispatch, prepare_answer, namespace, validate as validate_workspace
 
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8080
@@ -62,7 +64,7 @@ MAX_QUESTION_CHARS = 12_000
 SESSION_MAX_ENTRIES = 10
 SESSION_MAX_COUNT = 1_000
 SERVICE_NAME = "legal-research-agent"
-API_VERSION = "1.14"
+API_VERSION = "1.15"
 SESSION_TTL_SECONDS = 3600
 SESSION_ANSWER_CHARS = 500
 SESSION_ID_PATTERN = re.compile(r"^[A-Za-z0-9-]{1,64}$")
@@ -227,7 +229,7 @@ def health_payload() -> dict[str, Any]:
         "status": "ok",
         "service": SERVICE_NAME,
         "version": API_VERSION,
-        "endpoints": ["GET /health", "GET /runtime/readiness", "GET /openapi.json", "POST /ask", "POST /review", "POST /extract", "POST /extract/local", "POST /diff", "POST /sessions/delete", "POST /requests/cancel", "POST /review/legal", "POST /case-law/check", "POST /legal/coverage", "GET /privacy/options", "POST /privacy/check", "GET /review/options", "GET /legal/research/options", "POST /legal/research", "POST /legal/corpus", "GET /legal/skills/options", "POST /legal/skills/run"],
+        "endpoints": ["GET /health", "GET /runtime/readiness", "GET /openapi.json", "POST /ask", "POST /review", "POST /extract", "POST /extract/local", "POST /diff", "POST /sessions/delete", "POST /requests/cancel", "POST /review/legal", "POST /case-law/check", "POST /legal/coverage", "GET /privacy/options", "POST /privacy/check", "GET /review/options", "GET /legal/research/options", "POST /legal/research", "POST /legal/corpus", "GET /legal/skills/options", "POST /legal/skills/run", "GET /documents/capabilities", "POST /documents/parse", "POST /documents/export", "POST /documents/redact"] + ['POST ' + path for path in WORKSPACE_FIELDS],
         "llm_configured": configuration['llm'],
         "tavily_configured": configuration['search'],
         "demo_available": True,
@@ -489,6 +491,29 @@ def openapi_spec(*, require_auth: bool = True) -> dict[str, Any]:
     for path in spec['paths'].values():
         if 'post' in path:
             path['post']['security'] = [{'ApiToken': []}] if require_auth else []
+    properties = {
+        'filename': {'type': 'string'}, 'file_base64': {'type': 'string'}, 'ocr': {'type': 'boolean'},
+        'ocr_language': {'type': 'string'}, 'document': {'type': 'string'}, 'terms': {'type': 'array', 'items': {'type': 'string'}},
+        'replacements': {'type': 'array', 'items': {'type': 'object'}}, 'title': {'type': 'string'},
+        'demo': {'type': 'boolean'}, 'allow_cloud': {'type': 'boolean'}, 'limit': {'type': 'integer'},
+        'payload': {'type': 'object'}, 'attestations': {'type': 'object'}, 'pages': {'type': 'array', 'items': {'type': 'object'}},
+        'missed_risks': {'type': 'array', 'items': {'type': 'integer'}},
+        'correctness': {'type': 'integer'}, 'unsupported_claim_count': {'type': 'integer'}}
+    routes = {**WORKSPACE_FIELDS,
+              '/documents/parse': {'filename', 'file_base64', 'ocr', 'ocr_language'},
+              '/documents/redact': {'document', 'terms'}, '/documents/export': {'document', 'title', 'replacements'}}
+    for route, fields in routes.items():
+        spec['paths'][route] = {'post': {'summary': 'Рабочее пространство' if route in WORKSPACE_FIELDS else 'Локальная обработка документа',
+            'security': [{'ApiToken': []}] if require_auth or route in WORKSPACE_FIELDS else [],
+            'requestBody': {'required': True, 'content': {'application/json': {'schema': {
+                'type': 'object', 'additionalProperties': False,
+                'properties': {key: properties.get(key, {'type': 'string'}) for key in fields}}}}},
+            'responses': {str(code): {'description': description} for code, description in
+                [(200, 'Результат'), (400, 'Некорректный запрос'), (401, 'Нужен токен'),
+                 (403, 'Нет доступа'), (409, 'Конфликт состояния'), (429, 'Лимит запросов'),
+                 (500, 'Ошибка обработки'), (502, 'Ошибка модели'), (503, 'Рабочее пространство отключено'), (504, 'Истёк срок вычисления')]}}}
+    spec['paths']['/documents/capabilities'] = {'get': {'summary': 'Наличие локальных PDF/OCR инструментов',
+        'security': [{'ApiToken': []}] if require_auth else [], 'responses': {'200': {'description': 'Локальные возможности'}}}}
     return spec
 
 
@@ -587,6 +612,13 @@ class LegalApiHandler(BaseHTTPRequestHandler):
         return payload
 
     def _authorized(self) -> bool:
+        self.principal = None
+        if getattr(self.server, 'workspace', None) is not None:
+            header = self.headers.get('Authorization', '')
+            if not header.startswith('Bearer '):
+                return False
+            self.principal = self.server.workspace.authenticate(header[7:])
+            return self.principal is not None
         token = getattr(self.server, "api_token", "")
         if not token:
             return True
@@ -594,9 +626,13 @@ class LegalApiHandler(BaseHTTPRequestHandler):
         expected = f"Bearer {token}"
         return hmac.compare_digest(supplied.encode("utf-8"), expected.encode("utf-8"))
 
+    def _scoped_id(self, value):
+        return namespace(self.principal['id'], value) if self.principal else value
+
     def do_GET(self) -> None:
         assets = {"/": ("index.html", "text/html"), "/app.js": ("app.js", "text/javascript"),
-                  "/style.css": ("style.css", "text/css")}
+                  "/style.css": ("style.css", "text/css"),
+                  '/workspace': ('workspace.html', 'text/html'), '/workspace.js': ('workspace.js', 'text/javascript')}
         if self.path in assets:
             name, content_type = assets[self.path]
             try:
@@ -622,9 +658,17 @@ class LegalApiHandler(BaseHTTPRequestHandler):
         elif self.path == "/health":
             self._send_json(200, {**health_payload(),
                                   "request_timeout_seconds": self.server.jobs.timeout_seconds,
+                                  'workspace_enabled': self.server.workspace is not None,
+                                  'authentication_mode': 'individual_tokens' if self.server.workspace else 'shared_or_loopback',
                                   "request_cancellation_available": True})
+        elif self.path == '/documents/capabilities':
+            if not self._authorized():
+                self._send_json(401, {'error': 'Требуется индивидуальный или сервисный токен.'})
+                return
+            from document_tools import capabilities
+            self._send_json(200, capabilities())
         elif self.path == "/openapi.json":
-            self._send_json(200, openapi_spec(require_auth=bool(self.server.api_token)))
+            self._send_json(200, openapi_spec(require_auth=bool(self.server.api_token) or self.server.workspace is not None))
         elif self.path == "/privacy/options":
             self._send_json(200, privacy_options())
         elif self.path == "/legal/skills/options":
@@ -640,7 +684,7 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /sessions/delete."})
 
     def do_POST(self) -> None:
-        if self.path not in ("/ask", "/review", "/review/legal", "/case-law/check", "/extract", "/diff", "/sessions/delete", "/legal/coverage", "/privacy/check", "/legal/research", "/legal/corpus", "/requests/cancel", "/legal/skills/run", "/extract/local"):
+        if self.path not in WORKSPACE_FIELDS and self.path not in ("/documents/parse", "/documents/redact", "/documents/export", "/ask", "/review", "/review/legal", "/case-law/check", "/extract", "/diff", "/sessions/delete", "/legal/coverage", "/privacy/check", "/legal/research", "/legal/corpus", "/requests/cancel", "/legal/skills/run", "/extract/local"):
             self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /sessions/delete."})
             return
         if not self._authorized():
@@ -651,7 +695,47 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             return
         try:
             payload = self._read_payload()
-            if self.path == "/legal/coverage":
+            if self.path in WORKSPACE_FIELDS:
+                if self.server.workspace is None:
+                    raise WorkspaceError(503, 'workspace_disabled', 'Настройте WORKSPACE_DB и индивидуальные учётные записи.')
+                principal = self.principal['id']
+                if self.path in ('/workspace/ask', '/workspace/documents/upload'):
+                    if self.path == '/workspace/ask':
+                        prepared = prepare_answer(self.server.workspace, principal, payload)
+                        worker_path = '/matter/answer'
+                    else:
+                        validate_workspace(self.path, payload)
+                        with self.server.workspace.connect() as db:
+                            self.server.workspace._access(db, principal, payload.get('matter_id'), ('owner', 'editor'))
+                        prepared = {key: payload[key] for key in ('filename', 'file_base64', 'ocr', 'ocr_language') if key in payload}
+                        worker_path = '/documents/parse'
+                    request_id = self.headers.get('X-Request-ID') or uuid.uuid4().hex
+                    if not ID_PATTERN.fullmatch(request_id):
+                        raise ValueError('Некорректный X-Request-ID.')
+                    self.request_id = request_id
+                    def commit_matter(result):
+                        if worker_path == '/documents/parse':
+                            from document_tools import _decode
+                            original_bytes = _decode(payload['file_base64'])
+                            if hashlib.sha256(original_bytes).hexdigest() != result['original_sha256']:
+                                raise WorkspaceError(503, 'original_integrity', 'Разобранный текст не связан с оригиналом.')
+                            # The server parsed these exact bytes; clients cannot substitute text/page maps.
+                            return self.server.workspace.add_document(principal, payload.get('matter_id'),
+                                {'title': payload.get('title', payload.get('filename')), 'document': result['document'],
+                                 'source_url': payload.get('source_url', ''), 'pages': result['pages']},
+                                provenance={'origin': 'user_uploaded_file', 'original_sha256': result['original_sha256'],
+                                            'parse_mode': result['mode'], 'source_authenticity_automatically_verified': False},
+                                original=(payload['filename'], original_bytes))
+                        # A revoked user/member must not receive a late model answer.
+                        with self.server.workspace.connect(True) as db:
+                            self.server.workspace._access(db, principal, prepared['matter_id'])
+                            self.server.workspace._audit(db, principal, 'matter_answered', prepared['matter_id'], prepared['matter_id'])
+                        return result
+                    result = self.server.jobs.execute(self._scoped_id(request_id),
+                        {'path': worker_path, 'payload': prepared}, commit_matter)
+                else:
+                    result = workspace_dispatch(self.server.workspace, principal, self.path, payload)
+            elif self.path == "/legal/coverage":
                 result = coverage_report(payload.get('module_ids'), payload.get('as_of'), card_ids=payload.get('card_ids'))
             elif self.path == "/legal/research":
                 result = handle_legal_research(payload)
@@ -664,10 +748,13 @@ class LegalApiHandler(BaseHTTPRequestHandler):
                 session_id = payload.get("session_id")
                 if not isinstance(session_id, str) or not SESSION_ID_PATTERN.fullmatch(session_id):
                     raise RequestValidationError("Требуется корректный session_id: латиница, цифры, дефис, 1–64 символа.")
-                result = {"deleted": self.server.sessions.delete(session_id)}
+                result = {"deleted": self.server.sessions.delete(self._scoped_id(session_id))}
             elif self.path == '/requests/cancel':
+                cancel_id = payload.get('request_id')
+                if not isinstance(cancel_id, str) or not ID_PATTERN.fullmatch(cancel_id):
+                    raise ValueError('Некорректный request_id.')
                 result = {'request_id': payload.get('request_id'),
-                          'cancelled': self.server.jobs.cancel(payload.get('request_id'))}
+                          'cancelled': self.server.jobs.cancel(self._scoped_id(cancel_id))}
             else:
                 request_id = self.headers.get('X-Request-ID') or uuid.uuid4().hex
                 if not ID_PATTERN.fullmatch(request_id):
@@ -678,8 +765,12 @@ class LegalApiHandler(BaseHTTPRequestHandler):
                 if session_id is not None:
                     if not isinstance(session_id, str) or not SESSION_ID_PATTERN.fullmatch(session_id):
                         raise RequestValidationError('Некорректный session_id.')
+                    session_id = self._scoped_id(session_id)
                     context, identity = self.server.sessions.begin(session_id)
                 def commit(result):
+                    if self.principal:
+                        with self.server.workspace.connect() as db:
+                            self.server.workspace._user(db, self.principal['id'])
                     if self.path == '/ask':
                         if self.server.persist_results:
                             source = Path(result['report_file']).parent
@@ -698,8 +789,10 @@ class LegalApiHandler(BaseHTTPRequestHandler):
                             self.server.sessions.remember(session_id, payload.get('question', ''),
                                                           result['answer'], expected_session=identity)
                     return result
-                result = self.server.jobs.execute(self.request_id,
+                result = self.server.jobs.execute(self._scoped_id(self.request_id),
                     {'path': self.path, 'payload': payload, 'context': context}, commit)
+        except WorkspaceError as exc:
+            self._send_json(exc.status, {'error': str(exc), 'code': exc.code})
         except JobError as exc:
             self._send_json(exc.status, {'error': str(exc), 'code': exc.code,
                                         'request_id': self.request_id})
@@ -721,6 +814,7 @@ def create_server(
     api_token: str = "",
     persist_results: bool = False,
     request_timeout_seconds: float = 300,
+    workspace_db: Path | str | None = None,
 ) -> ThreadingHTTPServer:
     normalized_host = host.strip().lower()
     is_loopback = normalized_host == "localhost"
@@ -729,18 +823,20 @@ def create_server(
             is_loopback = ipaddress.ip_address(normalized_host).is_loopback
         except ValueError:
             is_loopback = False
-    if not api_token.strip() and not is_loopback:
+    if not api_token.strip() and not is_loopback and workspace_db is None:
         raise ValueError(
             "API_TOKEN обязателен при прослушивании внешнего интерфейса. "
             "Для локального режима используйте API_HOST=127.0.0.1."
         )
     jobs = RequestJobs(request_timeout_seconds)
+    workspace = WorkspaceStore(workspace_db) if workspace_db is not None else None
     server = BoundedThreadingHTTPServer((host, port), LegalApiHandler)
     server.output_dir = Path(output_dir)
     server.api_token = api_token.strip()
     server.persist_results = persist_results
     server.sessions = SessionStore()
     server.jobs = jobs
+    server.workspace = workspace
     return server
 
 
@@ -759,11 +855,12 @@ def main() -> int:
         if persistence not in {"true", "false"}:
             raise ValueError("API_PERSIST_RESEARCH должен быть true или false.")
         server = create_server(host, port, output_dir, api_token, persist_results=persistence == "true",
-                               request_timeout_seconds=float(os.getenv("API_REQUEST_TIMEOUT_SECONDS", "300")))
+                               request_timeout_seconds=float(os.getenv("API_REQUEST_TIMEOUT_SECONDS", "300")),
+                               workspace_db=os.getenv('WORKSPACE_DB') or None)
     except ValueError as exc:
         print(f"Ошибка конфигурации: {exc}", file=sys.stderr)
         return 1
-    auth_note = "включена (API_TOKEN)" if server.api_token else "локальный доступ без токена"
+    auth_note = 'индивидуальные токены' if server.workspace else "включена (API_TOKEN)" if server.api_token else "локальный доступ без токена"
     print(f"HTTP API юридического помощника: http://{host}:{port}")
     print("Эндпоинты: " + ", ".join(health_payload()["endpoints"]) + f". Авторизация: {auth_note}.")
     if server.persist_results:

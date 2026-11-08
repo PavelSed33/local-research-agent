@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import re
+import signal
 import subprocess
 import sys
 import tempfile
@@ -92,7 +93,8 @@ class RequestJobs:
                 envelope = {**envelope, 'output_dir': directory}
                 process = subprocess.Popen([sys.executable, str(Path(__file__).with_name('api_worker.py'))],
                                            stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                                           stderr=subprocess.DEVNULL, env=env)
+                                           stderr=subprocess.DEVNULL, env=env,
+                                           start_new_session=os.name == 'posix')
                 try:
                     data = json.dumps(envelope, ensure_ascii=False).encode('utf-8')
                     while True:
@@ -135,7 +137,12 @@ class RequestJobs:
                         self.finished[request_id] = ('finished', time.monotonic())
                         return result
                 finally:
-                    if process.poll() is None:
+                    if os.name == 'posix':
+                        try:
+                            os.killpg(process.pid, signal.SIGKILL)
+                        except ProcessLookupError:
+                            pass
+                    elif process.poll() is None:
                         process.kill()
                     process.communicate()
         finally:
