@@ -33,6 +33,9 @@ with zipfile.ZipFile(sys.argv[1],'w') as z:
   const page=await context.newPage();const errors=[];page.on('pageerror',error=>errors.push(error.message));
   await page.goto(base.href);await page.locator('#health').filter({hasText:'API доступен'}).waitFor();
   if(token)await page.locator('#token').fill(token);
+  await page.locator('#readiness').click();
+  await page.locator('#readiness-status').filter({hasText:'Проверка настроек завершена'}).waitFor();
+  assert.ok(await page.locator('#readiness-items li').count()>0);
   await page.locator('#run').click();await page.locator('#status').filter({hasText:'Введите вопрос'}).waitFor();
   await page.locator('#question').fill('Технический вопрос без персональных данных');
   await page.locator('#run').click();await page.locator('#result').waitFor({state:'visible'});
@@ -67,9 +70,12 @@ with zipfile.ZipFile(sys.argv[1],'w') as z:
   assert.equal(JSON.parse(await page.locator('#json').textContent()).status,'needs_facts');
   await page.locator('#skill-position').fill('Заказчик');
   await page.locator('#skill-playbook').fill('Оплата производится после подписания акта.');
-  await page.locator('#skill-query').fill('ГК РФ статья 310');
   for(const skill of ['contract-playbook','contract-risk','claim-audit']){
-   await page.locator('#skill-id').selectOption(skill);await page.locator('#run').click();
+   await page.locator('#skill-id').selectOption(skill);
+   if(skill==='claim-audit')await page.locator('#skill-query').fill('ГК РФ статья 310');
+   assert.equal(await page.locator('#skill-playbook').isVisible(),skill==='contract-playbook');
+   assert.equal(await page.locator('#skill-query').isVisible(),skill==='claim-audit');
+   await page.locator('#run').click();
    await page.locator('#status').filter({hasText:'Готово.'}).waitFor();
    const result=JSON.parse(await page.locator('#json').textContent());
    assert.equal(result.skill_id,skill);assert.equal(result.demo,true);assert.equal(result.verified,false);

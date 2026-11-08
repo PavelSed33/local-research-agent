@@ -100,6 +100,23 @@ class LegalSkillsTests(unittest.TestCase):
                 handle_skill(self.payload('claim-audit', research_query='ГК РФ'))
             search.assert_not_called()
 
+    def test_stale_playbook_and_query_are_not_forwarded_to_contract_risk(self):
+        with patch('legal_skills.ensure_document_transfer_allowed'), patch('legal_skills.OpenAICompatibleModel') as model, patch('legal_skills.TavilySearch') as search:
+            model.return_value.complete.return_value = json.dumps(self.model_result())
+            handle_skill(self.payload(playbook='PRIVATE-UNUSED-RULES', research_query='PRIVATE-UNUSED-QUERY'))
+            sent = model.return_value.complete.call_args.args[1]
+            self.assertNotIn('PRIVATE-UNUSED', sent)
+            search.assert_not_called()
+
+    def test_stale_company_context_is_not_forwarded_to_claim_audit(self):
+        with patch('legal_skills.ensure_document_transfer_allowed'), patch('legal_skills.OpenAICompatibleModel') as model, patch('legal_skills.TavilySearch') as search:
+            model.return_value.complete.return_value = json.dumps(self.model_result())
+            search.return_value.search.return_value = [Source('Synthetic', 'https://example.org', DOCUMENT, '')]
+            handle_skill(self.payload('claim-audit', research_query='ГК РФ',
+                                      user_position='PRIVATE-UNUSED-POSITION', playbook='PRIVATE-UNUSED-RULES'))
+            self.assertNotIn('PRIVATE-UNUSED', model.return_value.complete.call_args.args[1])
+            search.return_value.search.assert_called_once_with('ГК РФ', 5)
+
     def test_unknown_skills_paths_foreign_law_and_types_rejected(self):
         for extra in [{'skill_id': '../secret'}, {'skill_id': []}, {'jurisdiction': 'US'},
                       {'demo': 'false'}, {'playbook': []}, {'url': 'https://example.org'},

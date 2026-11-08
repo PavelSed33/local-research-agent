@@ -71,6 +71,10 @@ def handle_skill(payload):
         raise ValueError('Текст должен содержать от 20 до 200000 символов.')
     context = {key: _text(payload, key, 500 if key != 'playbook' else 12000)
                for key in ('user_position', 'playbook', 'research_query')}
+    # Switching workflows must not forward stale company rules or unrelated
+    # search topics left in the form by a previous skill.
+    context = {key: value if key in entry['required_fields'] else ''
+               for key, value in context.items()}
     base = {'skill_id': skill_id, 'skill_title': entry['title'], 'demo': demo,
             'as_of': as_of, 'checked_on': current_check_date(), 'jurisdiction': 'RU',
             'verified': False, 'lawyer_reviewed': False, 'sources': [],

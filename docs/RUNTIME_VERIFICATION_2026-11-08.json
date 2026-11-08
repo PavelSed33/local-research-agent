@@ -2,12 +2,12 @@
   "checked_on": "2026-11-08",
   "unit_tests": {
     "status": "passed",
-    "count": 375,
-    "seconds": 42.124
+    "count": 388,
+    "seconds": 40.28
   },
   "demo_http": {
     "status": "passed",
-    "checks": 20
+    "checks": 21
   },
   "browser": {
     "scope": "synthetic_demo_browser_acceptance",
@@ -53,5 +53,220 @@
     }
   ],
   "original_publications_added": 0,
-  "legal_acceptance": false
+  "legal_acceptance": false,
+  "api_version": "1.10",
+  "workflow_readiness": [
+    {
+      "id": "/ask",
+      "title": "Правовой вопрос",
+      "requirements": [
+        "llm",
+        "search"
+      ],
+      "blockers": [
+        "llm",
+        "search"
+      ],
+      "can_attempt": false,
+      "local_fallback_can_attempt": false,
+      "status": "blocked",
+      "external_services_tested": false,
+      "legal_acceptance": false
+    },
+    {
+      "id": "/case-law/check",
+      "title": "Судебные акты",
+      "requirements": [
+        "llm",
+        "search"
+      ],
+      "blockers": [
+        "llm",
+        "search"
+      ],
+      "can_attempt": false,
+      "local_fallback_can_attempt": false,
+      "status": "blocked",
+      "external_services_tested": false,
+      "legal_acceptance": false
+    },
+    {
+      "id": "/review",
+      "title": "Анализ договора",
+      "requirements": [
+        "llm",
+        "document_transfer"
+      ],
+      "blockers": [
+        "llm",
+        "document_transfer"
+      ],
+      "can_attempt": false,
+      "local_fallback_can_attempt": false,
+      "status": "blocked",
+      "external_services_tested": false,
+      "legal_acceptance": false
+    },
+    {
+      "id": "/extract",
+      "title": "Извлечение реквизитов",
+      "requirements": [
+        "llm",
+        "document_transfer"
+      ],
+      "blockers": [
+        "llm",
+        "document_transfer"
+      ],
+      "can_attempt": false,
+      "local_fallback_can_attempt": false,
+      "status": "blocked",
+      "external_services_tested": false,
+      "legal_acceptance": false
+    },
+    {
+      "id": "/review/legal",
+      "title": "Правовая проверка договора",
+      "requirements": [
+        "llm",
+        "search",
+        "document_transfer"
+      ],
+      "blockers": [
+        "llm",
+        "search",
+        "document_transfer"
+      ],
+      "can_attempt": false,
+      "local_fallback_can_attempt": false,
+      "status": "blocked",
+      "external_services_tested": false,
+      "legal_acceptance": false
+    },
+    {
+      "id": "/diff",
+      "title": "Сравнение редакций",
+      "requirements": [],
+      "blockers": [],
+      "can_attempt": true,
+      "local_fallback_can_attempt": false,
+      "status": "ready_locally",
+      "external_services_tested": false,
+      "legal_acceptance": false
+    },
+    {
+      "id": "/privacy/check",
+      "title": "Анкеты персональных данных",
+      "requirements": [
+        "evidence"
+      ],
+      "blockers": [],
+      "can_attempt": true,
+      "local_fallback_can_attempt": false,
+      "status": "ready_locally",
+      "external_services_tested": false,
+      "legal_acceptance": false
+    },
+    {
+      "id": "/legal/research",
+      "title": "Правовые сценарии",
+      "requirements": [
+        "statutes",
+        "evidence"
+      ],
+      "blockers": [],
+      "can_attempt": true,
+      "local_fallback_can_attempt": false,
+      "status": "ready_locally",
+      "external_services_tested": false,
+      "legal_acceptance": false
+    },
+    {
+      "id": "/legal/corpus",
+      "title": "Нормативные извлечения",
+      "requirements": [
+        "statutes"
+      ],
+      "blockers": [],
+      "can_attempt": true,
+      "local_fallback_can_attempt": false,
+      "status": "ready_locally",
+      "external_services_tested": false,
+      "legal_acceptance": false
+    },
+    {
+      "id": "/legal/coverage",
+      "title": "Матрица покрытия",
+      "requirements": [
+        "statutes",
+        "evidence"
+      ],
+      "blockers": [],
+      "can_attempt": true,
+      "local_fallback_can_attempt": false,
+      "status": "ready_locally",
+      "external_services_tested": false,
+      "legal_acceptance": false
+    },
+    {
+      "id": "contract-playbook",
+      "title": "Договор по правилам компании",
+      "requirements": [
+        "llm",
+        "document_transfer",
+        "skills"
+      ],
+      "blockers": [
+        "llm",
+        "document_transfer"
+      ],
+      "can_attempt": false,
+      "local_fallback_can_attempt": false,
+      "status": "blocked",
+      "external_services_tested": false,
+      "legal_acceptance": false
+    },
+    {
+      "id": "contract-risk",
+      "title": "Пять групп рисков",
+      "requirements": [
+        "llm",
+        "document_transfer",
+        "skills"
+      ],
+      "blockers": [
+        "llm",
+        "document_transfer"
+      ],
+      "can_attempt": false,
+      "local_fallback_can_attempt": false,
+      "status": "blocked",
+      "external_services_tested": false,
+      "legal_acceptance": false
+    },
+    {
+      "id": "claim-audit",
+      "title": "Аудит утверждений",
+      "requirements": [
+        "llm",
+        "search",
+        "document_transfer",
+        "skills"
+      ],
+      "blockers": [
+        "llm",
+        "search",
+        "document_transfer"
+      ],
+      "can_attempt": false,
+      "local_fallback_can_attempt": false,
+      "status": "blocked",
+      "external_services_tested": false,
+      "legal_acceptance": false
+    }
+  ],
+  "provider_configuration": {
+    "llm": false,
+    "search": false
+  }
 }
