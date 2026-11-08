@@ -205,6 +205,51 @@ class RequestControlTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 RequestJobs(value)
 
+    def test_capacity_configuration_and_request_id_types_are_bounded(self):
+        for value in (0, -1, 33, True, 1.5, float('nan'), '3'):
+            with self.assertRaises(ValueError):
+                RequestJobs(max_active=value)
+        with self.assertRaises(ValueError):
+            self.server.jobs.execute([], {})
+
+    def test_twelve_parallel_local_jobs_have_isolated_results_and_cleaned_files(self):
+        from concurrent.futures import ThreadPoolExecutor
+        def request(index):
+            document = f'Условный договор номер {index}. Цена: {index + 100} USD.'
+            return index, self.post('/extract/local', {'document': document}, uuid.uuid4().hex)
+        with ThreadPoolExecutor(max_workers=3) as pool:
+            results = list(pool.map(request, range(12)))
+        for index, (status, data, headers) in results:
+            self.assertEqual(status, 200)
+            self.assertEqual(data['matches'][0]['value'], f'{index + 100} USD')
+        self.assertFalse(self.server.jobs.active)
+        for process, directory in self.children:
+            self.assertIsNotNone(process.poll())
+            self.assertFalse(directory.exists())
+        self.assertEqual(list(Path(self.directory.name).iterdir()), [])
+
+    def test_bad_worker_protocol_is_500_and_cleans_temporary_files(self):
+        import sys
+        # self.spawn_patch wraps the original implementation; bypass it only for this fault injection.
+        self.spawn_patch.stop()
+        spawn = subprocess.Popen
+        captured = []
+        def invalid_worker(*args, **kwargs):
+            captured.append(Path(kwargs['env']['TMPDIR']))
+            return spawn([sys.executable, '-c', 'import os,pathlib,sys; '
+                          'pathlib.Path(os.environ["TMPDIR"],"private.txt").write_text("PRIVATE-DATA"); '
+                          'print(sys.argv[1])', reply], **kwargs)
+        for reply in ('PRIVATE-BROKEN-PROTOCOL', '[' * 1100 + '0' + ']' * 1100,
+                      json.dumps({'status': True}), json.dumps({'status': 200, 'result': []})):
+            with patch('request_jobs.subprocess.Popen', side_effect=invalid_worker):
+                status, data, _ = self.post('/extract/local', {'document': 'Условный технический документ.'})
+            self.assertEqual(status, 500)
+            self.assertEqual(data['code'], 'worker_protocol')
+            self.assertNotIn('PRIVATE-', json.dumps(data))
+        self.assertFalse(any(path.exists() for path in captured))
+        self.assertFalse(self.server.jobs.active)
+        self.assertEqual(self.post('/extract/local', {'document': 'Условный документ. Цена: 100 USD.'})[0], 200)
+
 
 @unittest.skipUnless(os.name == 'posix', 'POSIX process-group cleanup test')
 class AcceptanceProcessTreeTests(unittest.TestCase):

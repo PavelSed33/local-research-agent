@@ -24,6 +24,8 @@ class RequestJobs:
         if isinstance(timeout_seconds, bool) or not isinstance(timeout_seconds, (int, float)) or not 0 < timeout_seconds <= 3600:
             raise ValueError('API_REQUEST_TIMEOUT_SECONDS должен быть больше 0 и не больше 3600.')
         self.timeout_seconds = timeout_seconds
+        if type(max_active) is not int or not 1 <= max_active <= 32:
+            raise ValueError('max_active должен быть целым числом от 1 до 32.')
         self.max_active = max_active
         self.active = {}
         self.finished = OrderedDict()
@@ -68,7 +70,7 @@ class RequestJobs:
             return True
 
     def execute(self, request_id, envelope, commit=lambda result: result):
-        if not ID_PATTERN.fullmatch(request_id):
+        if not isinstance(request_id, str) or not ID_PATTERN.fullmatch(request_id):
             raise ValueError('Некорректный X-Request-ID: 16–64 латинских букв, цифр или дефисов.')
         started = time.monotonic()
         with self.lock:
@@ -107,7 +109,18 @@ class RequestJobs:
                             data = None
                     if process.returncode != 0:
                         raise JobError(500, 'worker_failed', 'Рабочий процесс завершился с ошибкой.')
-                    reply = json.loads(stdout)
+                    try:
+                        if len(stdout) > 16 * 1024 * 1024:
+                            raise ValueError('reply too large')
+                        reply = json.loads(stdout)
+                        if (not isinstance(reply, dict) or type(reply.get('status')) is not int
+                                or reply['status'] not in {200, 400, 500, 502, 503}
+                                or (reply['status'] == 200 and not isinstance(reply.get('result'), dict))
+                                or (reply['status'] != 200 and (not isinstance(reply.get('code'), str)
+                                    or not isinstance(reply.get('error'), str)))):
+                            raise ValueError('invalid reply')
+                    except (ValueError, TypeError, RecursionError):
+                        raise JobError(500, 'worker_protocol', 'Некорректный ответ рабочего процесса.') from None
                     # Completion and cancellation are serialized. No late session update.
                     with self.lock:
                         if event.is_set():

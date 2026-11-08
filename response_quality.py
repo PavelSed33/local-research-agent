@@ -69,6 +69,40 @@ def _sources(case, response):
     return result, 'passed', 'source_material_integrity'
 
 
+def _literal_checks(case, response):
+    """Explicit synthetic expectations; not semantic contradiction detection."""
+    rules = case.get('literal_expectations')
+    if rules is None:
+        return []
+    if not isinstance(rules, dict) or set(rules) - {'required', 'forbidden', 'exclusive_groups'}:
+        raise ValueError('invalid_literal_expectations')
+    def phrases(value):
+        if (not isinstance(value, list) or len(value) > 30
+                or any(not isinstance(item, str) or not 1 <= len(item.strip()) <= 500 for item in value)):
+            raise ValueError('invalid_literal_phrases')
+        return [' '.join(item.casefold().split()) for item in value]
+    required, forbidden = phrases(rules.get('required', [])), phrases(rules.get('forbidden', []))
+    groups = rules.get('exclusive_groups', [])
+    if not isinstance(groups, list) or len(groups) > 10:
+        raise ValueError('invalid_exclusive_groups')
+    groups = [phrases(group) for group in groups]
+    if any(len(group) < 2 or len(set(group)) != len(group) for group in groups):
+        raise ValueError('invalid_exclusive_groups')
+    # Check generated conclusions only, never match instructions in copied sources/documents.
+    values = [response.get('answer', ''), response.get('summary', '')]
+    for row in response.get('risks', []) if isinstance(response.get('risks', []), list) else []:
+        if isinstance(row, dict):
+            values.extend(row.get(key, '') for key in ('comment', 'recommendation'))
+    text = ' '.join(' '.join(value.casefold().split()) for value in values if isinstance(value, str))
+    missing = sum(item not in text for item in required)
+    unsupported = sum(item in text for item in forbidden)
+    contradictions = sum(sum(item in text for item in group) > 1 for group in groups)
+    return [{'code': code, 'status': 'failed' if count else 'passed', 'issue_count': count}
+            for code, count in [('required_literal_conclusions', missing),
+                                ('forbidden_literal_conclusions', unsupported),
+                                ('mutually_exclusive_literal_conclusions', contradictions)]]
+
+
 def evaluate_responses(dataset, benchmarks_path=ROOT / 'fixtures/legal_benchmarks.json'):
     if not isinstance(dataset, dict) or type(dataset.get('schema_version')) is not int or dataset['schema_version'] != 1:
         raise ValueError('unsupported_dataset_schema')
@@ -82,7 +116,7 @@ def evaluate_responses(dataset, benchmarks_path=ROOT / 'fixtures/legal_benchmark
             raise ValueError('invalid_or_duplicate_case_id')
         seen.add(case['id'])
         kind = case.get('kind')
-        if kind not in {'ask', 'review', 'legal_review'}:
+        if not isinstance(kind, str) or kind not in {'ask', 'review', 'legal_review'}:
             raise ValueError('unsupported_response_kind')
         benchmark_id = case.get('benchmark_id')
         if benchmark_id is not None and (not isinstance(benchmark_id, str) or benchmark_id not in benchmarks):
@@ -100,6 +134,7 @@ def evaluate_responses(dataset, benchmarks_path=ROOT / 'fixtures/legal_benchmark
                 check('no_trust_promotion', 'failed' if promotions else 'passed', promotions)
                 check('verification_state', 'passed' if response.get('verified') is False and response.get('lawyer_reviewed') is False else 'blocked')
                 check('non_demo_response', 'passed' if response.get('demo') is False else 'blocked')
+                checks.extend(_literal_checks(case, response))
                 if kind != 'ask':
                     check('completed_response', 'passed' if response.get('status') == 'draft' else 'blocked')
                 expected_date = case.get('as_of', benchmark['as_of'] if benchmark else None)
@@ -151,3 +186,23 @@ def evaluate_responses(dataset, benchmarks_path=ROOT / 'fixtures/legal_benchmark
             'legal_acceptance': False, 'lawyer_reviewed': False,
             'legal_evaluation_status': 'requires_independent_human_review',
             'results': results}
+
+
+def evaluate_control_suite(dataset):
+    """Pass only if every synthetic response receives its declared verdict."""
+    if not isinstance(dataset, dict) or dataset.get('synthetic') is not True:
+        raise ValueError('control_suite_must_be_synthetic')
+    report = evaluate_responses(dataset)
+    comparisons = []
+    for case, result in zip(dataset['cases'], report['results']):
+        expected = case.get('expected_technical_status')
+        if not isinstance(expected, str) or expected not in {'passed', 'failed', 'blocked'}:
+            raise ValueError('control_suite_requires_expected_status')
+        comparisons.append({'id': case['id'], 'expected': expected,
+                            'actual': result['technical_status'], 'matched': expected == result['technical_status']})
+    return {'scope': 'synthetic_offline_control_suite',
+            'technical_status': 'passed' if all(row['matched'] for row in comparisons) else 'failed',
+            'total': len(comparisons), 'matched': sum(row['matched'] for row in comparisons),
+            'verdict_counts': report['technical_counts'], 'results': comparisons,
+            'model_execution_verified': False, 'source_authenticity_verified': False,
+            'legal_acceptance': False, 'lawyer_reviewed': False}

@@ -1,0 +1,50 @@
+{
+  "api_version": "1.14",
+  "checked_on": "2026-11-08",
+  "scope": "six offline hardening workstreams; synthetic HTTP and local worker fault injection",
+  "unit_tests": {"run": 451, "failed": 0, "status": "passed"},
+  "additional_worker_protocol_regression": {"status": "passed", "faults": ["non-JSON output", "excessive JSON nesting", "boolean status", "non-object success result"]},
+  "http_demo_acceptance": {"checks": 26, "status": "passed"},
+  "example_requests": {"checks": 4, "status": "passed", "persistent_files_left": 0},
+  "response_controls": {"cases": 15, "expected_verdicts_matched": 15, "response_verdicts": {"passed": 3, "failed": 8, "blocked": 4}, "model_executed": false, "status": "passed"},
+  "document_input_node_vm": {"checks": 7, "status": "passed", "browser_executed": false},
+  "parallel_local_jobs": {"requests": 12, "maximum_concurrent_requests": 3, "status": "passed", "included_in_unit_tests": true},
+  "temporary_file_cleanup": {"success": "passed", "failure": "passed", "cancellation": "passed", "deadline": "passed", "included_in_unit_tests": true},
+  "data_audit": {
+    "status": "passed_with_gaps",
+    "errors": 0,
+    "duplicate_warnings": 0,
+    "evidence_gaps": 938,
+    "gap_counts": {"original_publication_missing": 15, "amendment_history_incomplete": 15, "independent_legal_review_missing": 454, "period_applicability_unconfirmed": 454},
+    "cards": 454,
+    "acts": 15,
+    "modules": 9,
+    "sources": 21
+  },
+  "python_compilation": "passed",
+  "javascript_syntax": "passed",
+  "git_diff_whitespace": "passed",
+  "completed": [
+    "Expanded offline answer controls with explicit expected verdicts and literal contradiction/unsupported-claim checks",
+    "Removed client-controlled HTTP log lines and model data from selected validation errors; added untrusted-document prompt boundaries",
+    "Hardened DOCX XML/ZIP parsing, preserved tabs and line breaks, rejected ambiguous document input and invalid UTF-8; added document fingerprints and quote spans",
+    "Validated worker protocol and concurrency settings; tested twelve isolated local requests and recovery after worker faults",
+    "Audited local legal data relationships, duplicates, date intervals and evidence gaps without promoting legal trust",
+    "Added synthetic document, runnable HTTP examples, offline operation guide and error recovery instructions"
+  ],
+  "external_services_exercised": false,
+  "browser_acceptance": false,
+  "docker_execution_tested": false,
+  "real_model_prompt_injection_resistance_verified": false,
+  "semantic_contradiction_detection": false,
+  "legal_acceptance": false,
+  "lawyer_reviewed": false,
+  "limitations": [
+    "Synthetic and mocked responses do not establish real provider accuracy",
+    "Literal control phrases cannot replace semantic or legal review",
+    "DOCX plain text does not preserve full layout, revisions, headers or page references",
+    "Evidence gaps remain open; no unsupported legislation or legal approval was added",
+    "No real provider, browser or Docker acceptance was attempted in this offline scope",
+    "This is a targeted automated audit, not an exhaustive security certification"
+  ]
+}
