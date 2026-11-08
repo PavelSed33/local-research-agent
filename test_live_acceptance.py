@@ -28,7 +28,7 @@ class LocalAcceptanceTests(unittest.TestCase):
         with patch.dict(os.environ, {}, clear=True):
             report = run_acceptance(timeout_seconds=30)
         self.assertEqual(report['status'], 'passed')
-        self.assertEqual(report['checks'][0]['passed_http_checks'], 20)
+        self.assertEqual(report['checks'][0]['passed_http_checks'], 21)
         self.assertFalse(report['external_requests_attempted'])
         self.assertFalse(report['live_acceptance_passed'])
         self.assertFalse(report['legal_acceptance'])

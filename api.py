@@ -50,6 +50,7 @@ from privacy_review import handle_privacy_check, privacy_options
 from legal_research import handle_legal_research, research_options
 from legal_skills import load_skills, skill_options
 from request_jobs import RequestJobs, JobError, ID_PATTERN
+from preflight import inspect_configuration, inspect_runtime
 
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8080
@@ -60,7 +61,7 @@ MAX_QUESTION_CHARS = 12_000
 SESSION_MAX_ENTRIES = 10
 SESSION_MAX_COUNT = 1_000
 SERVICE_NAME = "legal-research-agent"
-API_VERSION = "1.9"
+API_VERSION = "1.10"
 SESSION_TTL_SECONDS = 3600
 SESSION_ANSWER_CHARS = 500
 SESSION_ID_PATTERN = re.compile(r"^[A-Za-z0-9-]{1,64}$")
@@ -209,13 +210,14 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
 
 
 def health_payload() -> dict[str, Any]:
+    configuration = inspect_configuration()['provider_configuration']
     return {
         "status": "ok",
         "service": SERVICE_NAME,
         "version": API_VERSION,
-        "endpoints": ["GET /health", "GET /openapi.json", "POST /ask", "POST /review", "POST /extract", "POST /diff", "POST /sessions/delete", "POST /requests/cancel", "POST /review/legal", "POST /case-law/check", "POST /legal/coverage", "GET /privacy/options", "POST /privacy/check", "GET /review/options", "GET /legal/research/options", "POST /legal/research", "POST /legal/corpus", "GET /legal/skills/options", "POST /legal/skills/run"],
-        "llm_configured": bool(os.getenv("LLM_API_KEY") and os.getenv("LLM_MODEL")),
-        "tavily_configured": bool(os.getenv("TAVILY_API_KEY")),
+        "endpoints": ["GET /health", "GET /runtime/readiness", "GET /openapi.json", "POST /ask", "POST /review", "POST /extract", "POST /diff", "POST /sessions/delete", "POST /requests/cancel", "POST /review/legal", "POST /case-law/check", "POST /legal/coverage", "GET /privacy/options", "POST /privacy/check", "GET /review/options", "GET /legal/research/options", "POST /legal/research", "POST /legal/corpus", "GET /legal/skills/options", "POST /legal/skills/run"],
+        "llm_configured": configuration['llm'],
+        "tavily_configured": configuration['search'],
         "demo_available": True,
     }
 
@@ -425,6 +427,11 @@ def openapi_spec(*, require_auth: bool = True) -> dict[str, Any]:
     spec['paths']['/legal/skills/options'] = {'get': {
         'summary': 'Доступные закреплённые методики и их происхождение',
         'responses': {'200': {'description': 'Каталог навыков'}}}}
+    spec['paths']['/runtime/readiness'] = {'get': {
+        'summary': 'Локальная проверка конфигурации и готовности отдельных функций без сети',
+        'security': [{'ApiToken': []}] if require_auth else [],
+        'responses': {'200': {'description': 'Наличие конфигурации не означает успешный вызов провайдера'},
+                      '401': {'description': 'Нужен токен API'}}}}
     spec['paths']['/legal/skills/run'] = {'post': {
         'summary': 'Выполнить методику; цитаты проверяются, правовые выводы требуют приёмки',
         'requestBody': {'required': True, 'content': {'application/json': {'schema': {
@@ -570,6 +577,11 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             self.close_connection = True
             self.end_headers()
             self.wfile.write(body)
+        elif self.path == "/runtime/readiness":
+            if not self._authorized():
+                self._send_json(401, {"error": "Для проверки настройки введите токен API."})
+                return
+            self._send_json(200, inspect_runtime())
         elif self.path == "/health":
             self._send_json(200, {**health_payload(),
                                   "request_timeout_seconds": self.server.jobs.timeout_seconds,

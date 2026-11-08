@@ -16,6 +16,13 @@ def smoke(base_url: str) -> list[str]:
     if token:
         headers['Authorization'] = 'Bearer ' + token
     passed = []
+    req = urllib.request.Request(base_url.rstrip('/') + '/runtime/readiness', headers=headers)
+    with urllib.request.urlopen(req, timeout=10) as response:
+        ready = json.load(response)
+    assert ready['external_services_tested'] is False
+    assert ready['legal_acceptance'] is False
+    assert any(item['id'] == '/diff' and item['status'] == 'ready_locally' for item in ready['workflows'])
+    passed.append('GET /runtime/readiness')
     for path, marker in [('/', b'<!doctype html>'), ('/app.js', b'use strict'), ('/style.css', b':root'),
                          ('/review/options', b'contract_types'),
                          ('/legal/research/options', b'civil-limitation'),
