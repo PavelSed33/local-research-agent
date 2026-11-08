@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 import secrets
+import signal
 import subprocess
 import sys
 import tempfile
@@ -192,6 +193,31 @@ def _worker(path: Path, live: bool):
     _save(path, _finish(report))
 
 
+def _run_isolated(command, environment, timeout_seconds):
+    """Reap the acceptance worker and its API workers, including on timeout."""
+    process = subprocess.Popen(command, cwd=ROOT, env=environment,
+                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                               start_new_session=os.name == 'posix')
+    try:
+        return subprocess.CompletedProcess(command, process.wait(timeout=timeout_seconds))
+    finally:
+        if os.name == 'posix':
+            try:
+                os.killpg(process.pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+        elif process.poll() is None:
+            # Windows has no killpg; taskkill is supplied by the operating system.
+            try:
+                subprocess.run(['taskkill', '/PID', str(process.pid), '/T', '/F'],
+                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=5)
+            except (OSError, subprocess.SubprocessError):
+                pass
+        if process.poll() is None:
+            process.kill()
+        process.wait()
+
+
 def run_acceptance(*, live=False, timeout_seconds=600):
     if type(timeout_seconds) is not int or not 10 <= timeout_seconds <= 1800:
         raise ValueError('timeout_seconds: целое число от 10 до 1800.')
@@ -202,8 +228,7 @@ def run_acceptance(*, live=False, timeout_seconds=600):
             command.append('--live')
         try:
             environment = {**os.environ, 'TMPDIR': directory, 'TMP': directory, 'TEMP': directory}
-            completed = subprocess.run(command, cwd=ROOT, env=environment,
-                                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=timeout_seconds)
+            completed = _run_isolated(command, environment, timeout_seconds)
             failed = completed.returncode != 0
             timeout = False
         except subprocess.TimeoutExpired:

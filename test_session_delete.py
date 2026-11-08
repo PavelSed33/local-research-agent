@@ -65,7 +65,8 @@ class DeleteEndpointTests(test_api.ApiTestCase):
     def test_next_research_receives_no_deleted_context(self):
         self.server.sessions.remember('a', 'private previous question', 'answer')
         self.request('POST', '/sessions/delete', {'session_id': 'a'}, token=self.api_token)
-        with patch('api.run', wraps=api.run) as run:
+        with patch.object(self.server.jobs, 'execute', wraps=self.server.jobs.execute) as execute:
             status, _ = self.request('POST', '/ask', {'question': 'Новый вопрос', 'session_id': 'a', 'demo': True}, token=self.api_token)
         self.assertEqual(status, 200)
-        self.assertEqual(run.call_args.kwargs['session_context'], '')
+        self.assertEqual(execute.call_args.args[1]['context'], '')
+        self.assertIn('Новый вопрос', self.server.sessions.context('a'))

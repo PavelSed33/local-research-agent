@@ -46,11 +46,11 @@ class LocalAcceptanceTests(unittest.TestCase):
             self.assertEqual(_finish({'mode': 'live', 'checks': checks})['status'], 'failed')
 
     def test_timeout_or_missing_child_report_fails_closed(self):
-        with patch('scripts.acceptance.subprocess.run', side_effect=subprocess.TimeoutExpired('synthetic', 10)):
+        with patch('scripts.acceptance._run_isolated', side_effect=subprocess.TimeoutExpired('synthetic', 10)):
             report = run_acceptance(live=True, timeout_seconds=10)
         self.assertEqual(report['status'], 'failed')
         self.assertEqual(report['checks'][-1]['reason'], 'deadline_exceeded')
-        with patch('scripts.acceptance.subprocess.run') as run:
+        with patch('scripts.acceptance._run_isolated') as run:
             run.return_value.returncode = 0
             self.assertEqual(run_acceptance()['status'], 'failed')
 
