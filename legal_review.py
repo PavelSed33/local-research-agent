@@ -10,7 +10,7 @@ from agent import (AgentError, LEGAL_DISCLAIMER, OpenAICompatibleModel, TavilySe
                    format_materials, validate_as_of)
 from legal_catalog import review_checklist, review_timing
 from legal_coverage import contract_coverage
-from legal_evidence import cached_contract_sources, evidence_report
+from legal_evidence import cached_contract_sources, evidence_report, contract_evidence_cards
 from contract_scope import contract_qualification, scope_options
 from doctext import ensure_document_transfer_allowed, parse_demo_flag, resolve_document
 from review import (DemoReviewModel, MIN_DOCUMENT_CHARS, build_review_prompt,
@@ -117,8 +117,8 @@ def handle_legal_review(payload: dict[str, Any]) -> dict[str, Any]:
     if not demo:
         ensure_document_transfer_allowed()
         if profile != 'employment':
-            cached = cached_contract_sources(as_of)
-            capture_report = evidence_report(['LAW-02:310', 'LAW-02:421'], as_of)
+            cached = cached_contract_sources(as_of, profile)
+            capture_report = evidence_report(contract_evidence_cards(profile), as_of)
             captures = {entry['url']: entry for entry in capture_report['entries']}
             base['local_evidence'] = capture_report
         # Only the generic profile goes to web search, never the contract text.
@@ -143,6 +143,8 @@ def handle_legal_review(payload: dict[str, Any]) -> dict[str, Any]:
         ' Локальные веб-извлечения прерывисты и не являются исходными HTTP-ответами. '
         'Дата получения не доказывает действие нормы; при неполной истории укажи пробел. '
         'Разъяснение суда не выдавай за первичный текст статьи закона.'
+        ' Ведомственная копия переходных положений не заменяет текст изменённой статьи. '
+        'Переходную норму о перечне недопустимых условий не распространяй на всю статью или иные поправки.'
         ' Выбранный тип договора и ответы пользователя — неподтверждённые исходные данные, а не итоговая квалификация. '
         'Не определяй вид договора только по названию; при обнаружении смешанного или специального режима '
         'поставь вопрос о квалификации и не переноси автоматически правила одного вида на другой.'
