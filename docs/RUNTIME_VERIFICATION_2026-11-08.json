@@ -2,12 +2,12 @@
   "checked_on": "2026-11-08",
   "unit_tests": {
     "status": "passed",
-    "count": 400,
-    "seconds": 40.91
+    "count": 418,
+    "seconds": 41.522
   },
   "demo_http": {
     "status": "passed",
-    "checks": 22
+    "checks": 23
   },
   "browser": {
     "scope": "synthetic_demo_browser_acceptance",
@@ -54,7 +54,7 @@
   ],
   "original_publications_added": 0,
   "legal_acceptance": false,
-  "api_version": "1.11",
+  "api_version": "1.12",
   "workflow_readiness": [
     {
       "id": "/ask",
@@ -284,6 +284,17 @@
     "status": "passed",
     "mode": "local_patterns",
     "network_attempted": false,
+    "legal_acceptance": false
+  },
+  "response_quality": {
+    "synthetic_examples": {
+      "total": 2,
+      "technical_status": "passed"
+    },
+    "api_demo_export": {
+      "technical_status": "blocked"
+    },
+    "real_provider_answers_evaluated": 0,
     "legal_acceptance": false
   }
 }

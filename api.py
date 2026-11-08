@@ -22,6 +22,7 @@
 from __future__ import annotations
 
 import hmac
+import hashlib
 from collections import OrderedDict
 import ipaddress
 import json
@@ -39,7 +40,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
 
-from agent import LEGAL_DISCLAIMER, AgentError, load_dotenv, run, validate_as_of
+from agent import LEGAL_DISCLAIMER, AgentError, load_dotenv, run, validate_as_of, current_check_date
 from extract import handle_extract
 from redline import handle_diff
 from review import handle_review
@@ -61,7 +62,7 @@ MAX_QUESTION_CHARS = 12_000
 SESSION_MAX_ENTRIES = 10
 SESSION_MAX_COUNT = 1_000
 SERVICE_NAME = "legal-research-agent"
-API_VERSION = "1.11"
+API_VERSION = "1.12"
 SESSION_TTL_SECONDS = 3600
 SESSION_ANSWER_CHARS = 500
 SESSION_ID_PATTERN = re.compile(r"^[A-Za-z0-9-]{1,64}$")
@@ -163,6 +164,9 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
     demo = payload.get("demo", False)
     if not isinstance(demo, bool):
         raise RequestValidationError("Поле «demo» должно быть логическим значением true или false.")
+    include_materials = payload.get('include_source_materials', False)
+    if not isinstance(include_materials, bool):
+        raise RequestValidationError('include_source_materials должен быть логическим значением.')
     context, session_identity = sessions.begin(session_id) if sessions and session_id else ("", None)
 
     if session_context_override is not None:
@@ -185,7 +189,7 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
     journal = json.loads(journal_path.read_text(encoding="utf-8"))
     if sessions and session_id:
         sessions.remember(session_id, question, answer, expected_session=session_identity)
-    return {
+    result = {
         "answer": answer,
         "verified": False,
         "lawyer_reviewed": False,
@@ -207,6 +211,14 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
         "report_file": str(report_path),
         "journal_file": str(journal_path),
     }
+    if include_materials:
+        result['source_materials'] = [
+            {'id': index, 'title': source['title'], 'url': source['url'], 'text': source['text'],
+             'sha256': hashlib.sha256(source['text'].encode('utf-8')).hexdigest(),
+             'snapshot_exported_on': current_check_date(), 'period_supported': False,
+             'verified': False, 'capture_kind': 'research_material_snapshot'}
+            for index, source in enumerate(journal['sources'], 1)]
+    return result
 
 
 def health_payload() -> dict[str, Any]:
@@ -343,6 +355,8 @@ def openapi_spec(*, require_auth: bool = True) -> dict[str, Any]:
                                         "as_of": {"type": "string", "format": "date", "description": "Дата правовой ситуации; по умолчанию дата проверки"},
                                         "queries": {"type": "integer", "minimum": 1, "maximum": 5, "default": 3},
                                         "sources": {"type": "integer", "minimum": 1, "maximum": 10, "default": 6},
+                                        "include_source_materials": {"type": "boolean", "default": False,
+                                            "description": "Включить тексты фактически использованных материалов и SHA-256 для локальной оценки; это не архив оригиналов"},
                                         "session_id": {"type": "string", "pattern": "^[A-Za-z0-9-]{1,64}$"},
                                         "demo": {"type": "boolean", "default": False},
                                     },

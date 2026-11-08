@@ -18,7 +18,7 @@ class WorkbenchAcceptanceTests(unittest.TestCase):
             try:
                 base = f'http://127.0.0.1:{server.server_address[1]}'
                 with patch.dict('os.environ', {'API_TOKEN': 'acceptance-token'}):
-                    self.assertEqual(len(smoke(base)), 22)
+                    self.assertEqual(len(smoke(base)), 23)
                 for route in ('/review/legal', '/case-law/check', '/legal/coverage', '/privacy/check', '/legal/skills/run', '/extract/local'):
                     request = urllib.request.Request(base + route, data=b'{}', headers={'Content-Type': 'application/json'})
                     with self.assertRaises(urllib.error.HTTPError) as denied:
