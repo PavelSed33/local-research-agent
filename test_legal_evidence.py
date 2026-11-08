@@ -17,7 +17,7 @@ class EvidenceCorpusTests(unittest.TestCase):
     def test_real_captures_have_exact_spans_but_no_original_or_period_claim(self):
         report = evidence_report(as_of='2026-11-07')
         self.assertEqual(report['errors'], [])
-        self.assertEqual(len(report['entries']), 3)
+        self.assertEqual(len(report['entries']), 4)
         for entry in report['entries']:
             self.assertTrue(entry['integrity_checked'])
             self.assertFalse(entry['raw_http_response'])
@@ -63,7 +63,7 @@ class EvidenceCorpusTests(unittest.TestCase):
             (root / entry['file']).write_text('Текст изменён')
         result = self.mutate(change)
         self.assertTrue(result['errors'])
-        self.assertEqual(len(result['entries']), 2)
+        self.assertEqual(len(result['entries']), 3)
         self.assertFalse(result['verified'])
 
     def test_forged_span_and_boolean_offset_are_excluded(self):
@@ -73,14 +73,14 @@ class EvidenceCorpusTests(unittest.TestCase):
             with self.subTest(value=value):
                 result = self.mutate(change)
                 self.assertTrue(result['errors'])
-                self.assertEqual(len(result['entries']), 2)
+                self.assertEqual(len(result['entries']), 3)
 
     def test_missing_file_and_path_traversal_fail_closed(self):
         for value in ['../README.md', '/etc/passwd', 'missing.txt']:
             with self.subTest(value=value):
                 result = self.mutate(lambda root, m: m['entries'][0].update(file=value))
                 self.assertTrue(result['errors'])
-                self.assertEqual(len(result['entries']), 2)
+                self.assertEqual(len(result['entries']), 3)
 
     def test_symlink_outside_corpus_rejected(self):
         def change(root, manifest):

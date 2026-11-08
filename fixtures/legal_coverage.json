@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "spec_version": "1.0",
-  "checked_on": "2026-11-07",
+  "checked_on": "2026-11-08",
   "verified": false,
   "modules": [
     {
@@ -270,6 +270,17 @@
       "sha256": null,
       "limitation": "Наблюдалось извлечение пункта 47 из PDF по /files/27530/; исходный PDF и история редакций не получены.",
       "observed_scope": "PDF web extraction: point 47 only; bytes not retrieved"
+    },
+    {
+      "id": "rpn-135-2022-transition",
+      "kind": "government_amending_act_copy",
+      "url": "https://zpp.rospotrebnadzor.ru/npa/federal/389825",
+      "checked_on": "2026-11-08",
+      "text_observed": true,
+      "observed_scope": "Только статья 2, части 1 и 2; selected web lines",
+      "raw_file": null,
+      "sha256": null,
+      "limitation": "Ведомственная копия и неполное извлечение; оригинал и последующие редакции не подтверждены."
     }
   ],
   "cards": [
@@ -1383,6 +1394,54 @@
       "gaps": [
         "Точный первичный текст статьи и период действия не подтверждены.",
         "Юридическая приёмка отсутствует."
+      ]
+    },
+    {
+      "id": "LAW-04:16",
+      "module_id": "LAW-04",
+      "act": "Закон РФ № 2300-1",
+      "provision": "16",
+      "scope": "Статья 16: очередь сверки; сохранены только переходные положения изменяющего 135-ФЗ.",
+      "source_ids": [
+        "rpn-135-2022-transition"
+      ],
+      "quote": null,
+      "quote_start": null,
+      "quote_end": null,
+      "edition_on": null,
+      "effective_from": null,
+      "effective_to": null,
+      "publication": {
+        "number": null,
+        "published_on": null
+      },
+      "transition_rules": [
+        {
+          "id": "135-2022-art2-candidate",
+          "status": "government_copy_quote_unverified",
+          "candidate_effective_from": "2022-09-01",
+          "scope": "Перечень недопустимых условий договора; отношения из ранее заключённых договоров.",
+          "evidence_quote_ids": [
+            "rpn-135-art2-1",
+            "rpn-135-art2-2"
+          ],
+          "verified": false
+        }
+      ],
+      "exceptions": [],
+      "amendment_ids": [
+        "2022-05-01:135-ФЗ"
+      ],
+      "case_ids": [],
+      "legal_review": {
+        "reviewer": null,
+        "reviewed_on": null,
+        "approved": false
+      },
+      "gaps": [
+        "Не сохранён первичный текст самой статьи 16 и её полная история редакций.",
+        "Переходная норма не распространяется автоматически на остальные положения статьи и иные поправки.",
+        "Исключения, последующие поправки и юридическая применимость требуют проверки."
       ]
     }
   ]
