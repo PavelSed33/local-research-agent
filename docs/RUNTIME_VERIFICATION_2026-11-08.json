@@ -2,12 +2,12 @@
   "checked_on": "2026-11-08",
   "unit_tests": {
     "status": "passed",
-    "count": 388,
-    "seconds": 40.28
+    "count": 400,
+    "seconds": 40.91
   },
   "demo_http": {
     "status": "passed",
-    "checks": 21
+    "checks": 22
   },
   "browser": {
     "scope": "synthetic_demo_browser_acceptance",
@@ -54,7 +54,7 @@
   ],
   "original_publications_added": 0,
   "legal_acceptance": false,
-  "api_version": "1.10",
+  "api_version": "1.11",
   "workflow_readiness": [
     {
       "id": "/ask",
@@ -146,6 +146,17 @@
     {
       "id": "/diff",
       "title": "Сравнение редакций",
+      "requirements": [],
+      "blockers": [],
+      "can_attempt": true,
+      "local_fallback_can_attempt": false,
+      "status": "ready_locally",
+      "external_services_tested": false,
+      "legal_acceptance": false
+    },
+    {
+      "id": "/extract/local",
+      "title": "Локальные реквизиты",
       "requirements": [],
       "blockers": [],
       "can_attempt": true,
@@ -268,5 +279,11 @@
   "provider_configuration": {
     "llm": false,
     "search": false
+  },
+  "local_extraction": {
+    "status": "passed",
+    "mode": "local_patterns",
+    "network_attempted": false,
+    "legal_acceptance": false
   }
 }

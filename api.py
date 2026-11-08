@@ -61,7 +61,7 @@ MAX_QUESTION_CHARS = 12_000
 SESSION_MAX_ENTRIES = 10
 SESSION_MAX_COUNT = 1_000
 SERVICE_NAME = "legal-research-agent"
-API_VERSION = "1.10"
+API_VERSION = "1.11"
 SESSION_TTL_SECONDS = 3600
 SESSION_ANSWER_CHARS = 500
 SESSION_ID_PATTERN = re.compile(r"^[A-Za-z0-9-]{1,64}$")
@@ -215,7 +215,7 @@ def health_payload() -> dict[str, Any]:
         "status": "ok",
         "service": SERVICE_NAME,
         "version": API_VERSION,
-        "endpoints": ["GET /health", "GET /runtime/readiness", "GET /openapi.json", "POST /ask", "POST /review", "POST /extract", "POST /diff", "POST /sessions/delete", "POST /requests/cancel", "POST /review/legal", "POST /case-law/check", "POST /legal/coverage", "GET /privacy/options", "POST /privacy/check", "GET /review/options", "GET /legal/research/options", "POST /legal/research", "POST /legal/corpus", "GET /legal/skills/options", "POST /legal/skills/run"],
+        "endpoints": ["GET /health", "GET /runtime/readiness", "GET /openapi.json", "POST /ask", "POST /review", "POST /extract", "POST /extract/local", "POST /diff", "POST /sessions/delete", "POST /requests/cancel", "POST /review/legal", "POST /case-law/check", "POST /legal/coverage", "GET /privacy/options", "POST /privacy/check", "GET /review/options", "GET /legal/research/options", "POST /legal/research", "POST /legal/corpus", "GET /legal/skills/options", "POST /legal/skills/run"],
         "llm_configured": configuration['llm'],
         "tavily_configured": configuration['search'],
         "demo_available": True,
@@ -447,7 +447,17 @@ def openapi_spec(*, require_auth: bool = True) -> dict[str, Any]:
         'responses': {'200': {'description': 'Черновик, запрос фактов или отсутствие проверяемых источников'},
                       '400': {'description': 'Ошибка входных данных'}, '401': {'description': 'Нужен токен'},
                       '502': {'description': 'Ошибка провайдера или проверки цитат'}}}}
-    for route in ('/ask', '/review', '/review/legal', '/extract', '/diff', '/case-law/check', '/legal/skills/run'):
+    spec['paths']['/extract/local'] = {'post': {
+        'summary': 'Локальные реквизиты: точные фрагменты и позиции, без модели и внешних вызовов',
+        'requestBody': {'required': True, 'content': {'application/json': {'schema': {
+            'type': 'object', 'additionalProperties': False,
+            'properties': {'document': {'type': 'string', 'minLength': 20, 'maxLength': 200000},
+                           'document_base64': {'type': 'string'},
+                           'max_matches': {'type': 'integer', 'minimum': 1, 'maximum': 500, 'default': 200}},
+            'oneOf': [{'required': ['document']}, {'required': ['document_base64']}]}}}},
+        'responses': {'200': {'description': 'Совпадения; принадлежность, полнота и юридическая применимость не проверены'},
+                      '400': {'description': 'Ошибка ввода'}, '401': {'description': 'Нужен токен'}}}}
+    for route in ('/ask', '/review', '/review/legal', '/extract', '/diff', '/case-law/check', '/legal/skills/run', '/extract/local'):
         operation = spec['paths'][route]['post']
         operation.setdefault('parameters', []).append({'in': 'header', 'name': 'X-Request-ID',
             'schema': {'type': 'string', 'pattern': '^[A-Za-z0-9-]{16,64}$'},
@@ -600,7 +610,7 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /sessions/delete."})
 
     def do_POST(self) -> None:
-        if self.path not in ("/ask", "/review", "/review/legal", "/case-law/check", "/extract", "/diff", "/sessions/delete", "/legal/coverage", "/privacy/check", "/legal/research", "/legal/corpus", "/requests/cancel", "/legal/skills/run"):
+        if self.path not in ("/ask", "/review", "/review/legal", "/case-law/check", "/extract", "/diff", "/sessions/delete", "/legal/coverage", "/privacy/check", "/legal/research", "/legal/corpus", "/requests/cancel", "/legal/skills/run", "/extract/local"):
             self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /sessions/delete."})
             return
         if not self._authorized():
