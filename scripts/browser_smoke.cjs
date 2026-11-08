@@ -27,7 +27,8 @@ with zipfile.ZipFile(sys.argv[1],'w') as z:
  z.writestr('word/document.xml','<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:r><w:t>'+escape(sys.argv[2])+'</w:t></w:r></w:p></w:body></w:document>')
 `,docx,text]);
   const bad=path.join(directory,'broken.docx');await writeFile(bad,'not a ZIP');
-  browser=await chromium.launch({headless:true});
+  const executablePath=process.env.BROWSER_SMOKE_EXECUTABLE_PATH;
+  browser=await chromium.launch({headless:true,...(executablePath?{executablePath}:{})});
   const context=await browser.newContext({acceptDownloads:true,viewport:{width:1280,height:900}});
   const page=await context.newPage();const errors=[];page.on('pageerror',error=>errors.push(error.message));
   await page.goto(base.href);await page.locator('#health').filter({hasText:'API доступен'}).waitFor();
@@ -59,6 +60,30 @@ with zipfile.ZipFile(sys.argv[1],'w') as z:
   assert.equal(await page.locator('#result').isVisible(),false);
   await page.unroute('**/extract');
   await page.locator('#run').click();await page.locator('#result').waitFor({state:'visible'});
+  await page.locator('[data-mode="skills"]').click();
+  await page.locator('#skill-id option').nth(2).waitFor({state:'attached'});
+  await page.locator('#skill-id').selectOption('contract-playbook');
+  await page.locator('#run').click();await page.locator('#result').waitFor({state:'visible'});
+  assert.equal(JSON.parse(await page.locator('#json').textContent()).status,'needs_facts');
+  await page.locator('#skill-position').fill('Заказчик');
+  await page.locator('#skill-playbook').fill('Оплата производится после подписания акта.');
+  await page.locator('#skill-query').fill('ГК РФ статья 310');
+  for(const skill of ['contract-playbook','contract-risk','claim-audit']){
+   await page.locator('#skill-id').selectOption(skill);await page.locator('#run').click();
+   await page.locator('#status').filter({hasText:'Готово.'}).waitFor();
+   const result=JSON.parse(await page.locator('#json').textContent());
+   assert.equal(result.skill_id,skill);assert.equal(result.demo,true);assert.equal(result.verified,false);
+   assert.equal(result.status,'draft');assert.ok(result.findings.length>0);
+  }
+  await page.locator('[data-mode="research"]').click();
+  await page.locator('#research-scenario option').nth(34).waitFor({state:'attached'});
+  await page.locator('#research-scenario').selectOption('civil-limitation');
+  assert.ok(await page.locator('[data-research-fact]').count()>0,'Scenario facts did not render');
+  await page.locator('#run').click();await page.locator('#status').filter({hasText:'Готово.'}).waitFor();
+  assert.equal(JSON.parse(await page.locator('#json').textContent()).status,'needs_facts');
+  await page.locator('[data-research-fact]').first().selectOption('true');
+  await page.locator('#research-scenario').selectOption('procedure-costs');
+  assert.ok((await page.locator('[data-research-fact]').evaluateAll(fields=>fields.map(f=>f.value))).every(value=>value===''));
   await page.setViewportSize({width:390,height:844});
   const dimensions=await page.evaluate(()=>({width:document.documentElement.clientWidth,scroll:document.documentElement.scrollWidth}));
   assert.ok(dimensions.scroll<=dimensions.width,'Mobile page overflows horizontally');
@@ -67,7 +92,8 @@ with zipfile.ZipFile(sys.argv[1],'w') as z:
   assert.equal(errors.length,0,JSON.stringify(errors));
   console.log(JSON.stringify({status:'passed',real_browser:true,synthetic_demo_only:true,
    checks:['blank input','question result','JSON download content','DOCX upload','broken DOCX error',
-    'stale result hidden','early cancellation','recovery after cancellation','390px layout','profile controls','no page errors']}));
+    'stale result hidden','early cancellation','recovery after cancellation','three skills','missing skill facts',
+    '35 research scenarios','scenario facts reset','390px layout','profile controls','no page errors']}));
  } finally {if(browser)await browser.close();await rm(directory,{recursive:true,force:true});}
 }
 main().catch(error=>{console.error(error.message);process.exitCode=1;});
