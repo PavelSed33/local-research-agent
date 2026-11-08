@@ -3,3 +3,7 @@ __pycache__/
 *.pyc
 результаты/
 мои_исследования/
+*.db
+*.db-wal
+*.db-shm
+runtime/
