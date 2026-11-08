@@ -62,7 +62,7 @@ MAX_QUESTION_CHARS = 12_000
 SESSION_MAX_ENTRIES = 10
 SESSION_MAX_COUNT = 1_000
 SERVICE_NAME = "legal-research-agent"
-API_VERSION = "1.13"
+API_VERSION = "1.14"
 SESSION_TTL_SECONDS = 3600
 SESSION_ANSWER_CHARS = 500
 SESSION_ID_PATTERN = re.compile(r"^[A-Za-z0-9-]{1,64}$")
@@ -530,6 +530,14 @@ class LegalApiHandler(BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.1"
     # Applied by StreamRequestHandler.setup before headers are read.
     timeout = 30
+
+    def log_message(self, format, *args):
+        # BaseHTTPRequestHandler includes raw URLs and malformed request lines.
+        # Never log client-controlled lines, headers, query strings or documents.
+        pass
+
+    def log_request(self, code='-', size='-'):
+        print(f'HTTP status={code}', file=sys.stderr)
 
     def _send_json(self, status: int, payload: dict[str, Any]) -> None:
         body = json.dumps(payload, ensure_ascii=False, indent=2).encode("utf-8")

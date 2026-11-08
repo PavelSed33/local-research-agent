@@ -1,0 +1,25 @@
+{
+  "synthetic": true,
+  "requests": [
+    {
+      "path": "/extract/local",
+      "payload": {"document": "Условный договор. Цена: 12 500 руб. Передача отчёта до 15.12.2026."},
+      "expected": {"mode": "local_patterns", "demo": false, "verified": false}
+    },
+    {
+      "path": "/review",
+      "payload": {"document": "Условный договор. Оплата производится после подписания акта.", "demo": true},
+      "expected": {"status": "draft", "demo": true, "verified": false}
+    },
+    {
+      "path": "/legal/skills/run",
+      "payload": {"skill_id": "nda-screen", "document": "Условное NDA. Стороны обязуются сохранять конфиденциальность отчёта.", "demo": true},
+      "expected": {"status": "needs_facts", "demo": true, "verified": false}
+    },
+    {
+      "path": "/legal/skills/run",
+      "payload": {"skill_id": "nda-screen", "user_position": "Получающая сторона", "document": "Условное NDA. Стороны обязуются сохранять конфиденциальность отчёта.", "demo": true},
+      "expected": {"status": "draft", "demo": true, "verified": false}
+    }
+  ]
+}

@@ -6,7 +6,7 @@ import re
 
 from agent import (AgentError, LEGAL_DISCLAIMER, OpenAICompatibleModel, TavilySearch,
                    current_check_date, extract_json, format_materials, validate_as_of)
-from doctext import ensure_document_transfer_allowed, parse_demo_flag, resolve_document
+from doctext import ensure_document_transfer_allowed, parse_demo_flag, resolve_document, document_fingerprint, quote_span
 from review import MAX_DOCUMENT_CHARS, normalize_text
 
 ROOT = Path(__file__).resolve().parent
@@ -145,6 +145,7 @@ def handle_skill(payload):
     context = {key: value if key in entry['required_fields'] else ''
                for key, value in context.items()}
     base = {'skill_id': skill_id, 'skill_title': entry['title'], 'demo': demo,
+            'document_sha256': document_fingerprint(document),
             'as_of': as_of, 'checked_on': current_check_date(), 'jurisdiction': 'RU',
             'verified': False, 'lawyer_reviewed': False, 'sources': [],
             'disclaimer': LEGAL_DISCLAIMER, 'external_search_attempted': False,
@@ -222,6 +223,7 @@ def handle_skill(payload):
                             'period_supported': False, 'verified': False})
         findings.append({key: row[key] for key in ('document_quote', 'assessment', 'priority', 'recommendation')})
         findings[-1].update(playbook_quote=playbook_quote, source_quotes=checked,
+                            document_span=quote_span(document, quote),
                             quote_checked=True, verified=False, lawyer_reviewed=False,
                             evidence_status='quote_found_applicability_unverified' if checked else 'unverified')
     return {**base, 'status': 'draft', 'summary': result['summary'], 'findings': findings,

@@ -796,7 +796,7 @@ def build_validated_report(model: LanguageModel, topic: str, sources: list[Sourc
     )
     remaining = validate_report(repaired, sources)
     if remaining:
-        raise AgentError("Отчёт не прошёл проверку после исправления: " + " ".join(remaining))
+        raise AgentError(f"Отчёт не прошёл проверку после исправления. Нарушений: {len(remaining)}.")
     return repaired, True
 
 
@@ -836,7 +836,7 @@ def reflect_on_report(model: LanguageModel, topic: str, report: str, sources: li
     )
     validation = validate_report(repaired, sources)
     if validation:
-        raise AgentError("Ответ после самопроверки не прошёл структурную проверку: " + " ".join(validation))
+        raise AgentError(f"Ответ после самопроверки не прошёл структурную проверку. Нарушений: {len(validation)}.")
     journal["repaired"] = True
     return repaired, journal
 

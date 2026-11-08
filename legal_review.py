@@ -13,7 +13,7 @@ from legal_coverage import contract_coverage
 from legal_evidence import cached_contract_sources, evidence_report, contract_evidence_cards
 from statute_corpus import statutory_review_sources
 from contract_scope import contract_qualification, scope_options
-from doctext import ensure_document_transfer_allowed, parse_demo_flag, resolve_document
+from doctext import ensure_document_transfer_allowed, parse_demo_flag, resolve_document, document_fingerprint, quote_span
 from review import (DemoReviewModel, MIN_DOCUMENT_CHARS, build_review_prompt,
                     MAX_DOCUMENT_CHARS, safe_review_risk, normalize_text, validate_review)
 
@@ -101,6 +101,7 @@ def handle_legal_review(payload: dict[str, Any]) -> dict[str, Any]:
     if not MIN_DOCUMENT_CHARS <= len(document) <= MAX_DOCUMENT_CHARS:
         raise ValueError('Текст договора должен содержать от 20 до 200000 символов.')
     base = {'profile': profile, 'applicability': scope, 'as_of': as_of,
+            'document_sha256': document_fingerprint(document),
             'checked_on': current_check_date(), 'verified': False, 'lawyer_reviewed': False, 'demo': demo,
             'disclaimer': LEGAL_DISCLAIMER, 'sources': [], 'checklist': checklist, 'temporal_context': timing,
             'legal_coverage': coverage, 'contract_qualification': qualification}
@@ -184,6 +185,7 @@ def handle_legal_review(payload: dict[str, Any]) -> dict[str, Any]:
     safe_risks = []
     for candidate in result['risks']:
         risk = safe_review_risk(candidate)
+        risk['document_span'] = quote_span(document, risk['quote'])
         risk['legal_basis'] = [{
             'source_id': basis['source_id'], 'provision': basis['provision'], 'quote': basis['quote'],
             'quote_checked': True, 'period_supported': False, 'verified': False, 'lawyer_reviewed': False,

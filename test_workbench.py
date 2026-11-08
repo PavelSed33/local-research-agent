@@ -1,4 +1,7 @@
 import tempfile
+from pathlib import Path
+import shutil
+import subprocess
 import threading
 import unittest
 import urllib.request
@@ -10,6 +13,13 @@ from scripts.smoke import smoke
 
 
 class WorkbenchAcceptanceTests(unittest.TestCase):
+    @unittest.skipUnless(shutil.which('node'), 'Node not installed; browser acceptance is separate')
+    def test_document_input_encoding_and_binary_transport_without_browser(self):
+        root = Path(__file__).resolve().parent
+        result = subprocess.run(['node', str(root / 'scripts/test_document_input.cjs')],
+                                capture_output=True, text=True, timeout=10)
+        self.assertEqual(result.returncode, 0, result.stderr)
+
     def test_local_demo_workflows_and_assets(self):
         with tempfile.TemporaryDirectory() as directory:
             server = create_server('127.0.0.1', 0, directory, 'acceptance-token')

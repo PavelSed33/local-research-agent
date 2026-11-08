@@ -6,15 +6,17 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from response_quality import evaluate_responses, read_dataset
+from response_quality import evaluate_responses, evaluate_control_suite, read_dataset
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('dataset', type=Path)
+    parser.add_argument('--control-suite', action='store_true', help='Проверить ожидаемые вердикты синтетических контрольных примеров.')
     args = parser.parse_args()
     try:
-        report = evaluate_responses(read_dataset(args.dataset))
+        evaluate = evaluate_control_suite if args.control_suite else evaluate_responses
+        report = evaluate(read_dataset(args.dataset))
     except (OSError, ValueError, TypeError, KeyError, RecursionError):
         print(json.dumps({'technical_status': 'invalid_input', 'legal_acceptance': False,
                           'reason': 'dataset_unreadable_or_invalid'}))

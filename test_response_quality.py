@@ -11,10 +11,47 @@ import unittest
 from unittest.mock import patch
 
 from api import handle_ask
-from response_quality import ROOT, evaluate_responses, read_dataset
+from response_quality import ROOT, evaluate_responses, evaluate_control_suite, read_dataset
 
 
 class ResponseQualityTests(unittest.TestCase):
+    def test_control_suite_recognizes_all_fifteen_expected_verdicts_without_network(self):
+        with patch.object(socket, 'create_connection', side_effect=AssertionError('network')):
+            report = evaluate_control_suite(read_dataset(ROOT / 'fixtures/response_quality_controls.json'))
+        self.assertEqual(report['technical_status'], 'passed')
+        self.assertEqual(report['matched'], 15)
+        self.assertEqual(report['verdict_counts'], {'passed': 3, 'failed': 8, 'blocked': 4})
+        self.assertFalse(report['model_execution_verified'])
+        self.assertFalse(report['legal_acceptance'])
+
+    def test_literal_rules_use_generated_conclusions_and_hide_phrases(self):
+        case = self.data()['cases'][1]
+        case['literal_expectations'] = {'forbidden': ['PRIVATE-CLAIM']}
+        case['document'] += ' PRIVATE-CLAIM'
+        self.assertEqual(self.evaluate_case(case)['technical_status'], 'passed')
+        case['response']['summary'] = 'PRIVATE-CLAIM'
+        report = self.evaluate_case(case)
+        self.assertEqual(report['technical_status'], 'failed')
+        self.assertNotIn('PRIVATE-CLAIM', json.dumps(report))
+
+    def test_control_suite_reports_wrong_verdict_and_requires_explicit_synthetic_inputs(self):
+        data = read_dataset(ROOT / 'fixtures/response_quality_controls.json')
+        data['cases'][0]['expected_technical_status'] = 'failed'
+        self.assertEqual(evaluate_control_suite(data)['technical_status'], 'failed')
+        data['synthetic'] = False
+        with self.assertRaises(ValueError):
+            evaluate_control_suite(data)
+
+    def test_malformed_kind_and_literal_rules_fail_safely(self):
+        case = self.data()['cases'][0]
+        case['kind'] = []
+        with self.assertRaises(ValueError):
+            self.evaluate_case(case)
+        for rules in ([], {'required': [True]}, {'exclusive_groups': [['a']]}, {'unexpected': []}):
+            case = self.data()['cases'][0]
+            case['literal_expectations'] = rules
+            self.assertEqual(self.evaluate_case(case)['technical_status'], 'failed')
+
     def data(self):
         return read_dataset(ROOT / 'fixtures/response_quality_examples.json')
 
