@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "cases": [
+    {
+      "id": "example-ask",
+      "kind": "ask",
+      "benchmark_id": "LAW-02-B01",
+      "response": {
+        "answer": "## Краткий ответ\n\nУсловный технический пример [1].\n\n## Правовое основание\n\nУсловный технический пример [1].\n\n## Актуальность и изменения\n\nУсловный технический пример [1].\n\n## Как применить к ситуации\n\nУсловный технический пример [1].\n\n## Ограничения\n\nУсловный технический пример [1].",
+        "sources": [
+          {
+            "title": "Synthetic material",
+            "url": "https://example.org/material"
+          }
+        ],
+        "source_materials": [
+          {
+            "title": "Synthetic material",
+            "url": "https://example.org/material",
+            "id": 1,
+            "text": "Условный источник для технической проверки ссылок, не законодательство.",
+            "sha256": "4ecfb71359ae5b58d75732b35fa49c252dd80f9a6567ea6e6857ef2ed5e0757d"
+          }
+        ],
+        "as_of": "2026-11-08",
+        "demo": false,
+        "verified": false,
+        "lawyer_reviewed": false
+      }
+    },
+    {
+      "id": "example-review",
+      "kind": "review",
+      "document": "Заказчик оплачивает услуги после подписания акта сдачи-приёмки.",
+      "response": {
+        "status": "draft",
+        "demo": false,
+        "verified": false,
+        "lawyer_reviewed": false,
+        "summary": "Условный пример для проверки структуры.",
+        "risks": [
+          {
+            "category": "цена и порядок расчётов",
+            "severity": "medium",
+            "quote": "Заказчик оплачивает услуги после подписания акта сдачи-приёмки.",
+            "comment": "Условное замечание.",
+            "recommendation": "Уточнить условие."
+          }
+        ],
+        "missing_clauses": []
+      }
+    }
+  ]
+}

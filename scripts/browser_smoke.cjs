@@ -38,11 +38,14 @@ with zipfile.ZipFile(sys.argv[1],'w') as z:
   assert.ok(await page.locator('#readiness-items li').count()>0);
   await page.locator('#run').click();await page.locator('#status').filter({hasText:'Введите вопрос'}).waitFor();
   await page.locator('#question').fill('Технический вопрос без персональных данных');
+  await page.locator('#include-sources').check();
   await page.locator('#run').click();await page.locator('#result').waitFor({state:'visible'});
   assert.match(await page.locator('#verification').innerText(),/Демонстрация/);
   const downloadEvent=page.waitForEvent('download');await page.locator('#download').click();
   const downloaded=await downloadEvent;const exported=JSON.parse(await readFile(await downloaded.path(),'utf8'));
   assert.equal(exported.demo,true);assert.equal(exported.verified,false);
+  assert.ok(exported.source_materials.length>0);
+  assert.equal(exported.source_materials.length,exported.sources.length);
   await page.locator('[data-mode="extract"]').click();
   await page.locator('#file').setInputFiles(docx);await page.locator('#run').click();
   await page.locator('#result').waitFor({state:'visible'});

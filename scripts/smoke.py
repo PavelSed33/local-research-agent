@@ -1,5 +1,6 @@
 """Run demo-only acceptance requests against a running local API."""
 import argparse
+import hashlib
 import json
 import os
 from urllib.parse import urlsplit
@@ -32,6 +33,8 @@ def smoke(base_url: str) -> list[str]:
         passed.append('GET ' + path)
     document = 'Поставка товара производится в течение десяти дней после оплаты.'
     cases = [
+        ('/ask', {'question': 'Техническая проверка экспорта материалов', 'demo': True,
+                  'include_source_materials': True}, 'source_materials'),
         ('/extract/local', {'document': document+' Сумма: 1 000 руб. Дата: 01.02.2026.'}, 'matches'),
         ('/legal/skills/run', {'skill_id': 'contract-risk', 'user_position': 'Заказчик',
                              'document': document, 'demo': True}, 'findings'),
@@ -58,6 +61,12 @@ def smoke(base_url: str) -> list[str]:
         with urllib.request.urlopen(request, timeout=30) as response:
             result = json.load(response)
         assert key in result, path
+        if key == 'source_materials':
+            assert result['source_materials'] and len(result['source_materials']) == len(result['sources'])
+            for index, source in enumerate(result['source_materials'], 1):
+                assert source['id'] == index and source['url'] == result['sources'][index - 1]['url']
+                assert hashlib.sha256(source['text'].encode()).hexdigest() == source['sha256']
+                assert source['verified'] is False and source['period_supported'] is False
         if path == '/extract/local':
             assert result['mode'] == 'local_patterns' and result['demo'] is False
             assert result['external_requests_attempted'] is False and result['matches']
