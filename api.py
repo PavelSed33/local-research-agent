@@ -47,6 +47,8 @@ from legal_review import handle_legal_review, review_options
 from case_law import handle_case_law
 from legal_coverage import coverage_report
 from privacy_review import handle_privacy_check, privacy_options
+from legal_research import handle_legal_research, research_options
+from legal_skills import load_skills, skill_options
 from request_jobs import RequestJobs, JobError, ID_PATTERN
 
 DEFAULT_HOST = "127.0.0.1"
@@ -58,7 +60,7 @@ MAX_QUESTION_CHARS = 12_000
 SESSION_MAX_ENTRIES = 10
 SESSION_MAX_COUNT = 1_000
 SERVICE_NAME = "legal-research-agent"
-API_VERSION = "1.8"
+API_VERSION = "1.9"
 SESSION_TTL_SECONDS = 3600
 SESSION_ANSWER_CHARS = 500
 SESSION_ID_PATTERN = re.compile(r"^[A-Za-z0-9-]{1,64}$")
@@ -187,7 +189,10 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
         "verified": False,
         "lawyer_reviewed": False,
         "sources": [
-            {"title": source["title"], "url": source["url"]}
+            {"title": source["title"], "url": source["url"],
+             **({"retrieval_mode": source['retrieval_mode'], 'period_supported': False,
+                 'original_publication': False, 'verified': False}
+                if source.get('retrieval_mode') == 'local_statutory_extract' else {})}
             for source in journal["sources"]
         ],
         "checked_on": journal["checked_on"],
@@ -208,7 +213,7 @@ def health_payload() -> dict[str, Any]:
         "status": "ok",
         "service": SERVICE_NAME,
         "version": API_VERSION,
-        "endpoints": ["GET /health", "GET /openapi.json", "POST /ask", "POST /review", "POST /extract", "POST /diff", "POST /sessions/delete", "POST /requests/cancel", "POST /review/legal", "POST /case-law/check", "POST /legal/coverage", "GET /privacy/options", "POST /privacy/check", "GET /review/options"],
+        "endpoints": ["GET /health", "GET /openapi.json", "POST /ask", "POST /review", "POST /extract", "POST /diff", "POST /sessions/delete", "POST /requests/cancel", "POST /review/legal", "POST /case-law/check", "POST /legal/coverage", "GET /privacy/options", "POST /privacy/check", "GET /review/options", "GET /legal/research/options", "POST /legal/research", "POST /legal/corpus", "GET /legal/skills/options", "POST /legal/skills/run"],
         "llm_configured": bool(os.getenv("LLM_API_KEY") and os.getenv("LLM_MODEL")),
         "tavily_configured": bool(os.getenv("TAVILY_API_KEY")),
         "demo_available": True,
@@ -230,6 +235,28 @@ def openapi_spec(*, require_auth: bool = True) -> dict[str, Any]:
             "description": "Локальный юридический ИИ-помощник по законодательству РФ.",
         },
         "paths": {
+            "/legal/research/options": {"get": {
+                "summary": "Сценарии договоров, процесса, подписи, ответственности и данных сервиса",
+                "responses": {"200": {"description": "Вопросы и границы сценариев"}}}},
+            "/legal/research": {"post": {
+                "summary": "Локальный план правового исследования с нормами и источниками",
+                "requestBody": {"required": True, "content": {"application/json": {"schema": {
+                    "type": "object", "additionalProperties": False, "required": ["scenario"], "properties": {
+                        "scenario": {"type": "string", "enum": list(research_options()['scenarios'])},
+                        "facts": {"type": "object", "additionalProperties": {"type": "boolean", "nullable": True}},
+                        "as_of": {"type": "string", "format": "date"}, "demo": {"type": "boolean"}}}}}},
+                "responses": {"200": {"description": "Вопросы, источники и открытые пробелы; verified=false"},
+                              "400": {"description": "Ошибка ввода"}, "401": {"description": "Нужен токен"}}}},
+            "/legal/corpus": {"post": {
+                "summary": "Полученные нормативные тексты с контрольными суммами и ограничениями",
+                "requestBody": {"content": {"application/json": {"schema": {
+                    "type": "object", "additionalProperties": False, "properties": {
+                        "card_ids": {"type": "array", "maxItems": 1000, "items": {"type": "string"}},
+                        "include_text": {"type": "boolean", "default": False,
+                                         "description": "Для полного извлечения задайте от 1 до 50 card_ids"},
+                        "as_of": {"type": "string", "format": "date"}}}}}},
+                "responses": {"200": {"description": "Извлечения; история и применимость не подтверждены"},
+                              "400": {"description": "Ошибка ввода"}, "401": {"description": "Нужен токен"}}}},
             "/review/options": {"get": {
                 "summary": "Вопросы по профилю, типу договора и специальному режиму; ответы не заменяют квалификацию",
                 "responses": {"200": {"description": "Профили и дополнительные ключи facts"}}}},
@@ -238,6 +265,7 @@ def openapi_spec(*, require_auth: bool = True) -> dict[str, Any]:
                 "requestBody": {"content": {"application/json": {"schema": {
                     "type": "object", "properties": {
                         "module_ids": {"type": "array", "items": {"type": "string"}},
+                        "card_ids": {"type": "array", "items": {"type": "string"}},
                         "as_of": {"type": "string", "format": "date"}}}}}},
                 "responses": {"200": {"description": "Исследовательские карточки, verified=false"},
                               "400": {"description": "Ошибка ввода"}, "401": {"description": "Нужен токен"}}}},
@@ -394,7 +422,25 @@ def openapi_spec(*, require_auth: bool = True) -> dict[str, Any]:
         'responses': {'200': {'description': 'Отмена принята либо запрос уже завершён'},
                       '400': {'description': 'Неверный идентификатор'},
                       '401': {'description': 'Нужен токен'}}}}
-    for route in ('/ask', '/review', '/review/legal', '/extract', '/diff', '/case-law/check'):
+    spec['paths']['/legal/skills/options'] = {'get': {
+        'summary': 'Доступные закреплённые методики и их происхождение',
+        'responses': {'200': {'description': 'Каталог навыков'}}}}
+    spec['paths']['/legal/skills/run'] = {'post': {
+        'summary': 'Выполнить методику; цитаты проверяются, правовые выводы требуют приёмки',
+        'requestBody': {'required': True, 'content': {'application/json': {'schema': {
+            'type': 'object', 'additionalProperties': False, 'required': ['skill_id'],
+            'properties': {'skill_id': {'type': 'string', 'enum': list(load_skills())},
+                'document': {'type': 'string', 'minLength': 20, 'maxLength': 200000},
+                'document_base64': {'type': 'string'}, 'demo': {'type': 'boolean'},
+                'as_of': {'type': 'string', 'format': 'date'}, 'jurisdiction': {'enum': ['RU']},
+                'user_position': {'type': 'string', 'maxLength': 500},
+                'playbook': {'type': 'string', 'maxLength': 12000},
+                'research_query': {'type': 'string', 'maxLength': 500}},
+            'oneOf': [{'required': ['document']}, {'required': ['document_base64']}]}}}},
+        'responses': {'200': {'description': 'Черновик, запрос фактов или отсутствие проверяемых источников'},
+                      '400': {'description': 'Ошибка входных данных'}, '401': {'description': 'Нужен токен'},
+                      '502': {'description': 'Ошибка провайдера или проверки цитат'}}}}
+    for route in ('/ask', '/review', '/review/legal', '/extract', '/diff', '/case-law/check', '/legal/skills/run'):
         operation = spec['paths'][route]['post']
         operation.setdefault('parameters', []).append({'in': 'header', 'name': 'X-Request-ID',
             'schema': {'type': 'string', 'pattern': '^[A-Za-z0-9-]{16,64}$'},
@@ -532,13 +578,17 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             self._send_json(200, openapi_spec(require_auth=bool(self.server.api_token)))
         elif self.path == "/privacy/options":
             self._send_json(200, privacy_options())
+        elif self.path == "/legal/skills/options":
+            self._send_json(200, skill_options())
+        elif self.path == "/legal/research/options":
+            self._send_json(200, research_options())
         elif self.path == "/review/options":
             self._send_json(200, review_options())
         else:
             self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /sessions/delete."})
 
     def do_POST(self) -> None:
-        if self.path not in ("/ask", "/review", "/review/legal", "/case-law/check", "/extract", "/diff", "/sessions/delete", "/legal/coverage", "/privacy/check", "/requests/cancel"):
+        if self.path not in ("/ask", "/review", "/review/legal", "/case-law/check", "/extract", "/diff", "/sessions/delete", "/legal/coverage", "/privacy/check", "/legal/research", "/legal/corpus", "/requests/cancel", "/legal/skills/run"):
             self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /sessions/delete."})
             return
         if not self._authorized():
@@ -550,7 +600,12 @@ class LegalApiHandler(BaseHTTPRequestHandler):
         try:
             payload = self._read_payload()
             if self.path == "/legal/coverage":
-                result = coverage_report(payload.get('module_ids'), payload.get('as_of'))
+                result = coverage_report(payload.get('module_ids'), payload.get('as_of'), card_ids=payload.get('card_ids'))
+            elif self.path == "/legal/research":
+                result = handle_legal_research(payload)
+            elif self.path == "/legal/corpus":
+                from statute_corpus import handle_corpus
+                result = handle_corpus(payload)
             elif self.path == "/privacy/check":
                 result = handle_privacy_check(payload)
             elif self.path == "/sessions/delete":
@@ -677,4 +732,5 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
 

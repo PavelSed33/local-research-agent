@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "skills": [
+    {
+      "id": "contract-playbook",
+      "title": "Проверка по правилам компании",
+      "author": "Anthropic",
+      "license": "Apache-2.0",
+      "required_fields": [
+        "user_position",
+        "playbook"
+      ],
+      "upstream_commit": "f9f28cdccbeb98bbdde010042ea9f525ca427c72",
+      "upstream_url": "https://github.com/lawve-ai/awesome-legal-skills/blob/f9f28cdccbeb98bbdde010042ea9f525ca427c72/skills/playbook-reviewer-anthropic/SKILL.md",
+      "adapter_file": "skills/contract-playbook/SKILL.md",
+      "adapter_sha256": "6358817af7928cd349ac42e20092f7284736bdcf7e0e8bf1a25d0cae902ada49",
+      "original_file": "third_party/lawve/playbook-reviewer-anthropic/SKILL.md",
+      "original_sha256": "5bfa080462dfc0d471b4c0afcfc042006e5707359a9f88f77d2a210da5cc5e91",
+      "license_files": [
+        {
+          "file": "third_party/lawve/playbook-reviewer-anthropic/LICENSE.txt",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        }
+      ]
+    },
+    {
+      "id": "contract-risk",
+      "title": "Пять групп договорных рисков",
+      "author": "Sneha Ganapavarapu",
+      "license": "CC-BY-4.0",
+      "required_fields": [
+        "user_position"
+      ],
+      "upstream_commit": "f9f28cdccbeb98bbdde010042ea9f525ca427c72",
+      "upstream_url": "https://github.com/lawve-ai/awesome-legal-skills/blob/f9f28cdccbeb98bbdde010042ea9f525ca427c72/skills/contract-risk-analyzer-sneha-ganapavarapu/SKILL.md",
+      "adapter_file": "skills/contract-risk/SKILL.md",
+      "adapter_sha256": "05765400d61149a42979a33160ca0001ae5124574c567332a8db8a16fa984af0",
+      "original_file": "third_party/lawve/contract-risk-analyzer-sneha-ganapavarapu/SKILL.md",
+      "original_sha256": "24b3be93686dfdb9ad3628271e9e075234a52344a0b0d11bb387f3f7b43f2b70",
+      "license_files": []
+    },
+    {
+      "id": "claim-audit",
+      "title": "Аудит утверждений и источников",
+      "author": "Anthony Searle",
+      "license": "Apache-2.0",
+      "required_fields": [
+        "research_query"
+      ],
+      "upstream_commit": "f9f28cdccbeb98bbdde010042ea9f525ca427c72",
+      "upstream_url": "https://github.com/lawve-ai/awesome-legal-skills/blob/f9f28cdccbeb98bbdde010042ea9f525ca427c72/skills/proposition-audit-anthony-searle/SKILL.md",
+      "adapter_file": "skills/claim-audit/SKILL.md",
+      "adapter_sha256": "580712413a6c6a9b37486efa6f6a130ebe44f9db997eb41ecc6c69decc32e1e7",
+      "original_file": "third_party/lawve/proposition-audit-anthony-searle/SKILL.md",
+      "original_sha256": "b9f7f8678259194b25aebab1e27328eb71310e84aac58dd5df29cfcb8f3933a9",
+      "license_files": [
+        {
+          "file": "third_party/lawve/proposition-audit-anthony-searle/LICENSE.txt",
+          "sha256": "1a415a1c6b9b2fd794944368499d32ce07f760511f859fd9a56203af5b378d11"
+        },
+        {
+          "file": "third_party/lawve/proposition-audit-anthony-searle/NOTICE",
+          "sha256": "545b28c6f61c9e200fc05eb153a6c8e862c64b69d44053e9f23763e933c2dbcf"
+        }
+      ]
+    }
+  ]
+}

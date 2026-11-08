@@ -118,6 +118,20 @@ class RequestControlTests(unittest.TestCase):
         self.assertEqual(self.server.sessions.context('a'), '')
         self.assertEqual(list(Path(self.directory.name).iterdir()), [])
 
+    def test_skill_work_is_cancellable_and_does_not_persist_document(self):
+        key, results = uuid.uuid4().hex, []
+        thread = threading.Thread(target=lambda: results.append(self.post('/legal/skills/run', {
+            'skill_id': 'contract-risk', 'document': 'Условный договор для проверки отмены навыка.',
+            'user_position': 'Заказчик'}, key)))
+        thread.start()
+        self.assertTrue(self.started.wait(3))
+        self.assertEqual(self.post('/requests/cancel', {'request_id': key})[0], 200)
+        thread.join(2)
+        self.assertFalse(thread.is_alive())
+        self.assertEqual(results[0][0], 409)
+        self.assertFalse(self.server.jobs.active)
+        self.assertEqual(list(Path(self.directory.name).iterdir()), [])
+
     def test_cancelled_research_cannot_repopulate_deleted_session_or_keep_reports(self):
         self.server.persist_results = True
         key = uuid.uuid4().hex

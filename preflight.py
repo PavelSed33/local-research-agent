@@ -8,6 +8,7 @@ import sys
 from agent import AgentError, load_dotenv, validate_service_url
 from doctext import ensure_document_transfer_allowed
 from legal_evidence import evidence_report
+from statute_corpus import corpus_report
 
 
 def inspect_runtime() -> dict:
@@ -30,11 +31,14 @@ def inspect_runtime() -> dict:
         document_transfer = False
     ui = all((Path(__file__).parent / 'web' / name).is_file() for name in ('index.html', 'app.js', 'style.css'))
     corpus = evidence_report()
+    statutes = corpus_report()
     return {
         'python_supported': sys.version_info >= (3, 10),
         'ui_files_present': ui,
         'local_captures': {'checked_count': len(corpus['entries']), 'errors': corpus['errors'],
                            'original_publication_count': 0, 'legal_acceptance': False},
+        'statutory_corpus': {'checked_count': len(statutes['entries']), 'errors': statutes['errors'],
+                             'period_supported': False, 'legal_acceptance': False},
         'missing_configuration': missing,
         'invalid_endpoint_configuration': invalid,
         'research_configuration_present': not missing and not invalid,
@@ -53,3 +57,4 @@ def inspect_runtime() -> dict:
 if __name__ == '__main__':
     load_dotenv()
     print(json.dumps(inspect_runtime(), ensure_ascii=False, indent=2))
+

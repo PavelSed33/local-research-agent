@@ -6,7 +6,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from agent import AgentError
+from agent import AgentError, Source
 from legal_evidence import DEFAULT_CORPUS, cached_contract_sources, evidence_report
 from legal_coverage import coverage_report
 from legal_review import handle_legal_review
@@ -35,7 +35,7 @@ class ConsumerTransitionEvidenceTests(unittest.TestCase):
         result = coverage_report(['LAW-04'], '2026-11-08')
         module = result['modules'][0]
         self.assertEqual(module['accepted_provision_count'], 0)
-        card = module['cards'][0]
+        card = next(c for c in module['cards'] if c['id'] == 'LAW-04:16')
         self.assertEqual(card['id'], 'LAW-04:16')
         self.assertEqual(len(card['supporting_evidence']), 2)
         self.assertIsNone(card['effective_from'])
@@ -65,6 +65,21 @@ class ConsumerTransitionEvidenceTests(unittest.TestCase):
         self.assertFalse(source['period_supported'])
         self.assertFalse(result['verified'])
         self.assertIn('переходных положений не заменяет', model.return_value.complete.call_args.args[0])
+
+    def test_source_budget_keeps_transition_and_statute_with_fresh_search(self):
+        fresh = [Source('Synthetic source', f'https://example.org/{i}', 'Synthetic text', '')
+                 for i in range(5)]
+        with patch('legal_review.ensure_document_transfer_allowed'), patch('legal_review.TavilySearch') as search, patch('legal_review.OpenAICompatibleModel') as model:
+            search.return_value.search.return_value = fresh
+            model.return_value.complete.return_value = json.dumps({'summary': 'Черновик', 'risks': [], 'missing_clauses': []})
+            result = handle_legal_review({'document': 'Условный потребительский договор для проверки лимита.',
+                'profile': 'consumer', 'as_of': '2026-11-08',
+                'facts': {'customer_is_individual': True, 'personal_use': True, 'seller_is_business': True}})
+        self.assertLessEqual(len(result['sources']), 5)
+        self.assertEqual([s['url'] for s in result['sources'][:2]], [s.url for s in fresh[:2]])
+        self.assertIn(URL, {s['url'] for s in result['sources']})
+        self.assertTrue(any(s['retrieval_mode'] == 'local_statutory_extract' for s in result['sources']))
+        self.assertFalse(result['verified'])
 
     def test_news_and_lookalike_host_cannot_pose_as_saved_amending_act(self):
         for url in ['https://zpp.rospotrebnadzor.ru/news/389825',
