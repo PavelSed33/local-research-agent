@@ -11,6 +11,7 @@ COPY legal_skills.py ./
 COPY local_extract.py ./
 COPY skills ./skills
 COPY third_party/lawve ./third_party/lawve
+COPY third_party/selected-skills ./third_party/selected-skills
 COPY fixtures/legal_workflows.json ./fixtures/
 COPY fixtures/statute_corpus ./fixtures/statute_corpus
 COPY fixtures/contract_rule_catalog.json ./fixtures/

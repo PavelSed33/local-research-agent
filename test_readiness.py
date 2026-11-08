@@ -32,7 +32,7 @@ class WorkflowReadinessTests(unittest.TestCase):
     def test_model_only_enables_contract_skills_but_not_web_audit(self):
         with patch.dict('os.environ', MODEL, clear=True):
             rows = workflows(inspect_runtime())
-        for identity in ['contract-risk', 'contract-playbook', '/extract', '/review']:
+        for identity in ['contract-risk', 'contract-playbook', 'nda-screen', 'fact-timeline', 'legal-search-plan', '/extract', '/review']:
             self.assertEqual(rows[identity]['status'], 'configured_unchecked')
             self.assertTrue(rows[identity]['can_attempt'])
         self.assertEqual(rows['claim-audit']['blockers'], ['search'])

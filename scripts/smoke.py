@@ -55,6 +55,9 @@ def smoke(base_url: str) -> list[str]:
         ('/legal/corpus', {'card_ids': ['LAW-02:165.1'], 'include_text': True, 'as_of': '2026-11-08'}, 'entries'),
         ('/sessions/delete', {'session_id': 'smoke-' + uuid.uuid4().hex}, 'deleted'),
     ]
+    for skill in ('nda-screen', 'fact-timeline', 'legal-search-plan'):
+        cases.append(('/legal/skills/run', {'skill_id': skill, 'document': document,
+                      'user_position': 'Заказчик', 'demo': True}, 'findings'))
     for path, payload, key in cases:
         request = urllib.request.Request(base_url.rstrip('/') + path,
                                          data=json.dumps(payload).encode(), headers=headers)
