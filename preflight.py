@@ -41,7 +41,7 @@ def inspect_configuration() -> dict:
     }
 
 
-def workflow_readiness(configuration, *, statutes_ok=True, evidence_ok=True, skills_ok=True):
+def workflow_readiness(configuration, *, statutes_ok=True, evidence_ok=True, skills_ok=True, skill_entries=None):
     """Configuration readiness is distinct from a successful provider request."""
     workflows = [
         ('/ask', 'Правовой вопрос', ('llm', 'search')),
@@ -59,6 +59,13 @@ def workflow_readiness(configuration, *, statutes_ok=True, evidence_ok=True, ski
         ('contract-risk', 'Пять групп рисков', ('llm', 'document_transfer', 'skills')),
         ('claim-audit', 'Аудит утверждений', ('llm', 'search', 'document_transfer', 'skills')),
     ]
+    if skill_entries is not None:
+        workflows = [row for row in workflows if row[0] not in {'contract-playbook', 'contract-risk', 'claim-audit'}]
+        for entry in skill_entries:
+            requirements = ('llm', 'document_transfer', 'skills')
+            if entry['network_mode'] == 'search':
+                requirements += ('search',)
+            workflows.append((entry['id'], entry['title'], requirements))
     available = {**configuration['provider_configuration'],
                  'document_transfer': configuration['document_transfer_permitted_by_configuration'],
                  'statutes': statutes_ok, 'evidence': evidence_ok, 'skills': skills_ok}
@@ -81,9 +88,11 @@ def inspect_runtime() -> dict:
     corpus = evidence_report()
     statutes = corpus_report()
     try:
-        skills_count = len(load_skills())
+        skill_entries = list(load_skills().values())
+        skills_count = len(skill_entries)
         skills_ok = skills_count > 0
     except (OSError, ValueError, KeyError, TypeError):
+        skill_entries = None
         skills_count, skills_ok = 0, False
     return {
         'python_supported': sys.version_info >= (3, 10),
@@ -96,7 +105,8 @@ def inspect_runtime() -> dict:
         'research_configuration_present': all(configuration['provider_configuration'].values()),
         'legal_skills': {'checked_count': skills_count, 'integrity_ok': skills_ok},
         'workflows': workflow_readiness(configuration, statutes_ok=bool(statutes['entries']) and not statutes['errors'],
-                                        evidence_ok=bool(corpus['entries']) and not corpus['errors'], skills_ok=skills_ok),
+                                        evidence_ok=bool(corpus['entries']) and not corpus['errors'], skills_ok=skills_ok,
+                                        skill_entries=skill_entries),
         'docker_binary_present': shutil.which('docker') is not None,
         'external_services_tested': False,
         'docker_daemon_tested': False,

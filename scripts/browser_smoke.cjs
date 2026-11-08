@@ -75,13 +75,13 @@ with zipfile.ZipFile(sys.argv[1],'w') as z:
   assert.match(await page.locator('#verification').innerText(),/Локальные совпадения/);
   await page.locator('#file').setInputFiles([]);await page.locator('#document').fill(text);
   await page.locator('[data-mode="skills"]').click();
-  await page.locator('#skill-id option').nth(2).waitFor({state:'attached'});
+  await page.locator('#skill-id option').nth(5).waitFor({state:'attached'});
   await page.locator('#skill-id').selectOption('contract-playbook');
   await page.locator('#run').click();await page.locator('#result').waitFor({state:'visible'});
   assert.equal(JSON.parse(await page.locator('#json').textContent()).status,'needs_facts');
   await page.locator('#skill-position').fill('Заказчик');
   await page.locator('#skill-playbook').fill('Оплата производится после подписания акта.');
-  for(const skill of ['contract-playbook','contract-risk','claim-audit']){
+  for(const skill of ['contract-playbook','contract-risk','claim-audit','nda-screen','fact-timeline','legal-search-plan']){
    await page.locator('#skill-id').selectOption(skill);
    if(skill==='claim-audit')await page.locator('#skill-query').fill('ГК РФ статья 310');
    assert.equal(await page.locator('#skill-playbook').isVisible(),skill==='contract-playbook');

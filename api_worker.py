@@ -7,7 +7,7 @@ import sys
 
 def execute(envelope):
     from local_extract import handle_local_extract
-    from legal_skills import handle_skill
+    from legal_skills import handle_skill, SkillRegistryError
     from api import (handle_ask, handle_review, handle_legal_review,
                      handle_case_law, handle_extract, handle_diff, AgentError)
     payload = envelope['payload']
@@ -23,6 +23,8 @@ def execute(envelope):
             else:
                 result = handlers[envelope['path']](payload)
         return {'status': 200, 'result': result}
+    except SkillRegistryError:
+        return {'status': 503, 'code': 'skill_registry_unavailable', 'error': 'Реестр навыков недоступен.'}
     except ValueError as exc:
         return {'status': 400, 'code': 'invalid_request', 'error': str(exc)}
     except AgentError as exc:

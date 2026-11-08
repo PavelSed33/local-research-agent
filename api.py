@@ -49,7 +49,7 @@ from case_law import handle_case_law
 from legal_coverage import coverage_report
 from privacy_review import handle_privacy_check, privacy_options
 from legal_research import handle_legal_research, research_options
-from legal_skills import load_skills, skill_options
+from legal_skills import load_skills, skill_options, SkillRegistryError
 from request_jobs import RequestJobs, JobError, ID_PATTERN
 from preflight import inspect_configuration, inspect_runtime
 
@@ -62,7 +62,7 @@ MAX_QUESTION_CHARS = 12_000
 SESSION_MAX_ENTRIES = 10
 SESSION_MAX_COUNT = 1_000
 SERVICE_NAME = "legal-research-agent"
-API_VERSION = "1.12"
+API_VERSION = "1.13"
 SESSION_TTL_SECONDS = 3600
 SESSION_ANSWER_CHARS = 500
 SESSION_ID_PATTERN = re.compile(r"^[A-Za-z0-9-]{1,64}$")
@@ -236,6 +236,10 @@ def health_payload() -> dict[str, Any]:
 
 def openapi_spec(*, require_auth: bool = True) -> dict[str, Any]:
     """Машинное описание API (OpenAPI 3.0) для интеграции с оркестраторами."""
+    try:
+        skill_ids = list(load_skills())
+    except SkillRegistryError:
+        skill_ids = None
     document_property = {
         "document": {"type": "string", "description": "Полный текст договора (UTF-8)"},
         "document_base64": {"type": "string", "description": "Договор в формате DOCX, закодированный в base64"},
@@ -450,7 +454,7 @@ def openapi_spec(*, require_auth: bool = True) -> dict[str, Any]:
         'summary': 'Выполнить методику; цитаты проверяются, правовые выводы требуют приёмки',
         'requestBody': {'required': True, 'content': {'application/json': {'schema': {
             'type': 'object', 'additionalProperties': False, 'required': ['skill_id'],
-            'properties': {'skill_id': {'type': 'string', 'enum': list(load_skills())},
+            'properties': {'skill_id': {'type': 'string', **({'enum': skill_ids} if skill_ids else {})},
                 'document': {'type': 'string', 'minLength': 20, 'maxLength': 200000},
                 'document_base64': {'type': 'string'}, 'demo': {'type': 'boolean'},
                 'as_of': {'type': 'string', 'format': 'date'}, 'jurisdiction': {'enum': ['RU']},
@@ -460,7 +464,8 @@ def openapi_spec(*, require_auth: bool = True) -> dict[str, Any]:
             'oneOf': [{'required': ['document']}, {'required': ['document_base64']}]}}}},
         'responses': {'200': {'description': 'Черновик, запрос фактов или отсутствие проверяемых источников'},
                       '400': {'description': 'Ошибка входных данных'}, '401': {'description': 'Нужен токен'},
-                      '502': {'description': 'Ошибка провайдера или проверки цитат'}}}}
+                      '502': {'description': 'Ошибка провайдера или проверки цитат'},
+                      '503': {'description': 'Реестр навыков недоступен'}}}}
     spec['paths']['/extract/local'] = {'post': {
         'summary': 'Локальные реквизиты: точные фрагменты и позиции, без модели и внешних вызовов',
         'requestBody': {'required': True, 'content': {'application/json': {'schema': {
@@ -615,7 +620,10 @@ class LegalApiHandler(BaseHTTPRequestHandler):
         elif self.path == "/privacy/options":
             self._send_json(200, privacy_options())
         elif self.path == "/legal/skills/options":
-            self._send_json(200, skill_options())
+            try:
+                self._send_json(200, skill_options())
+            except SkillRegistryError:
+                self._send_json(503, {'error': 'Реестр навыков недоступен.', 'code': 'skill_registry_unavailable'})
         elif self.path == "/legal/research/options":
             self._send_json(200, research_options())
         elif self.path == "/review/options":
