@@ -17,12 +17,16 @@ def smoke(base_url: str) -> list[str]:
         headers['Authorization'] = 'Bearer ' + token
     passed = []
     for path, marker in [('/', b'<!doctype html>'), ('/app.js', b'use strict'), ('/style.css', b':root'),
-                         ('/review/options', b'contract_types')]:
+                         ('/review/options', b'contract_types'),
+                         ('/legal/research/options', b'civil-limitation'),
+                         ('/legal/skills/options', b'contract-playbook')]:
         with urllib.request.urlopen(base_url.rstrip('/') + path, timeout=10) as response:
             assert marker in response.read(), path
         passed.append('GET ' + path)
     document = 'Поставка товара производится в течение десяти дней после оплаты.'
     cases = [
+        ('/legal/skills/run', {'skill_id': 'contract-risk', 'user_position': 'Заказчик',
+                             'document': document, 'demo': True}, 'findings'),
         ('/ask', {'question': 'Техническая демонстрация', 'demo': True, 'as_of': '2023-03-01'}, 'answer'),
         ('/review', {'document': document, 'demo': True}, 'risks'),
         ('/review/legal', {'document': document, 'demo': True, 'facts': {'both_businesses': True}}, 'applicability'),
@@ -36,6 +40,8 @@ def smoke(base_url: str) -> list[str]:
         ('/case-law/check', {'question': 'Тест', 'demo': True}, 'decisions'),
         ('/legal/coverage', {'as_of': '2023-03-01', 'module_ids': ['LAW-01', 'LAW-02']}, 'modules'),
         ('/privacy/check', {'scenario': 'consent'}, 'research_cards'),
+        ('/legal/research', {'scenario': 'procedure-costs', 'as_of': '2026-11-08'}, 'research_card_ids'),
+        ('/legal/corpus', {'card_ids': ['LAW-02:165.1'], 'include_text': True, 'as_of': '2026-11-08'}, 'entries'),
         ('/sessions/delete', {'session_id': 'smoke-' + uuid.uuid4().hex}, 'deleted'),
     ]
     for path, payload, key in cases:
@@ -49,6 +55,12 @@ def smoke(base_url: str) -> list[str]:
             assert not result['evidence_summary']['errors']
         if path == '/privacy/check':
             assert result['status'] == 'needs_facts' and result['verified'] is False
+        if path == '/legal/research':
+            assert result['status'] == 'needs_facts' and result['verified'] is False
+        if path == '/legal/corpus':
+            assert result['verified'] is False and not result['errors']
+            assert 'Статья 165.1.' in result['entries'][0]['text']
+            assert result['entries'][0]['period_supported'] is False
         if path == '/review/legal' and payload.get('contract_type') == 'work':
             expected = 'draft' if payload['facts'].get('result_handover') else 'needs_facts'
             assert result['status'] == expected and result['verified'] is False
@@ -61,3 +73,4 @@ if __name__ == '__main__':
     parser.add_argument('--base-url', default='http://127.0.0.1:8080')
     print(json.dumps({'passed': smoke(parser.parse_args().base_url),
                       'scope': 'local_demo_and_research_metadata', 'legal_acceptance': False}, ensure_ascii=False, indent=2))
+

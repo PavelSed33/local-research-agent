@@ -23,7 +23,7 @@ def _capture(root, entry):
         raise ValueError('Недопустимый URL или вид источника.')
     if entry['kind'] == 'government_amending_act_copy' and not url.path.startswith('/npa/federal/'):
         raise ValueError('Ведомственная копия акта должна находиться в разделе федеральных НПА.')
-    if entry.get('capture_kind') != 'web_extract_selected_lines':
+    if entry.get('capture_kind') not in {'web_extract_selected_lines', 'html_selected_paragraphs'}:
         raise ValueError('Неизвестный способ извлечения.')
     captured_on = validate_as_of(entry['captured_on'])
     if captured_on is None:
@@ -86,7 +86,7 @@ def evidence_report(card_ids=None, as_of=None, *, corpus_dir=None):
                 continue
             accepted.append({
                 'id': entry['id'], 'title': entry['title'], 'url': entry['url'],
-                'kind': entry['kind'], 'capture_kind': 'web_extract_selected_lines',
+                'kind': entry['kind'], 'capture_kind': entry['capture_kind'],
                 'observed_scope': entry.get('scope') if isinstance(entry.get('scope'), str) else None,
                 'file': entry['file'], 'sha256': digest, 'captured_on': captured,
                 'document_signed_on': document_date, 'edition_on': None,
@@ -124,3 +124,4 @@ if __name__ == '__main__':
         entry.pop('text')
     print(json.dumps(report, ensure_ascii=False, indent=2))
     raise SystemExit(1 if report['errors'] else 0)
+

@@ -11,6 +11,7 @@ from agent import (AgentError, LEGAL_DISCLAIMER, OpenAICompatibleModel, TavilySe
 from legal_catalog import review_checklist, review_timing
 from legal_coverage import contract_coverage
 from legal_evidence import cached_contract_sources, evidence_report, contract_evidence_cards
+from statute_corpus import statutory_review_sources
 from contract_scope import contract_qualification, scope_options
 from doctext import ensure_document_transfer_allowed, parse_demo_flag, resolve_document
 from review import (DemoReviewModel, MIN_DOCUMENT_CHARS, build_review_prompt,
@@ -114,8 +115,13 @@ def handle_legal_review(payload: dict[str, Any]) -> dict[str, Any]:
     sources = []
     cached = []
     captures = {}
+    statutory_cached = []
+    statutory_captures = {}
     if not demo:
         ensure_document_transfer_allowed()
+        statutory_cached, statute_report = statutory_review_sources(profile, contract_type, as_of)
+        statutory_captures = {entry['url']: entry for entry in statute_report['entries']}
+        base['statutory_corpus'] = {key: value for key, value in statute_report.items() if key != 'entries'}
         if profile != 'employment':
             cached = cached_contract_sources(as_of, profile)
             capture_report = evidence_report(contract_evidence_cards(profile), as_of)
@@ -130,6 +136,18 @@ def handle_legal_review(payload: dict[str, Any]) -> dict[str, Any]:
             errors.append('Не удалось получить сетевые правовые источники; локальные извлечения, если есть, неполны.')
         # Keep retrieved source IDs stable and prefer a newly retrieved copy for the same URL.
         urls = {source.url for source in sources}
+        # Keep fresh search IDs stable while reserving room for article-specific local texts.
+        if statutory_cached:
+            sources = sources[:2]
+            urls = {source.url for source in sources}
+            # Keep the consumer transition beside the article copies even when
+            # the five-source budget is filled by fresh results and local texts.
+            transitions = [source for source in cached if
+                           captures.get(source.url, {}).get('kind') == 'government_amending_act_copy']
+            sources.extend(source for source in transitions if source.url not in urls)
+            urls = {source.url for source in sources}
+            sources.extend(source for source in statutory_cached if source.url not in urls)
+            urls = {source.url for source in sources}
         sources.extend(source for source in cached if source.url not in urls)
     sources = [Source(s.title[:500], s.url[:2000], s.text[:12000], s.query) for s in sources[:5]]
     model = DemoReviewModel() if demo else OpenAICompatibleModel()
@@ -143,6 +161,8 @@ def handle_legal_review(payload: dict[str, Any]) -> dict[str, Any]:
         ' Локальные веб-извлечения прерывисты и не являются исходными HTTP-ответами. '
         'Дата получения не доказывает действие нормы; при неполной истории укажи пробел. '
         'Разъяснение суда не выдавай за первичный текст статьи закона.'
+        ' Локальные нормативные тексты извлечены из справочных копий HTML, без редакционных вставок. '
+        'Они не являются оригинальной официальной публикацией; метка редакции не подтверждает полноту истории. '
         ' Ведомственная копия переходных положений не заменяет текст изменённой статьи. '
         'Переходную норму о перечне недопустимых условий не распространяй на всю статью или иные поправки.'
         ' Выбранный тип договора и ответы пользователя — неподтверждённые исходные данные, а не итоговая квалификация. '
@@ -177,9 +197,15 @@ def handle_legal_review(payload: dict[str, Any]) -> dict[str, Any]:
     return {**base, **{k: result.get(k, [] if k != 'summary' else '') for k in ('summary', 'risks', 'missing_clauses')},
             'status': 'draft', 'search_errors': errors,
             'sources': [{'id': i, 'title': s.title, 'url': s.url, 'text': s.text,
-                         'retrieval_mode': 'local_web_extract' if s in cached else 'search_result',
+                         'retrieval_mode': ('local_statutory_extract' if s in statutory_cached else
+                                            'local_web_extract' if s in cached else 'search_result'),
                          'capture': ({key: captures[s.url][key] for key in
                                       ('id', 'file', 'sha256', 'captured_on', 'capture_kind', 'raw_http_response')}
-                                     if s in cached and s.url in captures else None),
+                                     if s in cached and s.url in captures else
+                                     {key: statutory_captures[s.url][key] for key in
+                                      ('card_id', 'act_id', 'sha256', 'response_sha256', 'captured_on',
+                                       'capture_kind', 'raw_response_archived', 'original_publication')}
+                                     if s in statutory_cached and s.url in statutory_captures else None),
                          'period_supported': False, 'verified': False,
                          'authority_class': classify_source_authority(s.url)} for i, s in enumerate(sources, 1)]}
+
