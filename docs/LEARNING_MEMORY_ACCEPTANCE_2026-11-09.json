@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "checked_on": "2026-11-09",
+  "api_version": "1.28",
+  "base_commit": "b3974893565aac1365069016474b8fbee1f32883",
+  "scope": "Opt-in reviewed-example learning memory for the services pilot; no weight updates",
+  "changes": [
+    "Retrieve up to three reviewed corrected examples from the same matter and exact situation date, requiring current human error scores.",
+    "Bind experience to immutable benchmark content, exact approval record and exact evaluation row; recheck before publishing/downloading a report.",
+    "Exclude supplied holdout benchmark IDs and exact matching questions; lexical similarity and paraphrase leakage remain limitations.",
+    "Keep bad answers and reviewer notes out of model prompts; examples cannot replace normative sources or legal-risk citations.",
+    "Add preview without a model call, explicit per-request use_learning and UI resets on account/matter changes.",
+    "Include analysis_reports.py and learning_memory.py in Dockerfile; isolated shipped-file import/learning check passed."
+  ],
+  "validation": {
+    "unittest": {
+      "command": "python -m unittest discover -q",
+      "ran": 646,
+      "passed": 645,
+      "skipped": 1,
+      "failed": 0,
+      "skip_reason": "Russian OCR language data unavailable"
+    },
+    "new_learning_tests": 14,
+    "http_checks": 114,
+    "node_vm_scenarios": 42,
+    "native_pdf_replay": {
+      "sources": 7,
+      "pages": 90
+    },
+    "python_compilation": "passed",
+    "javascript_syntax": "passed",
+    "git_diff_check": "passed",
+    "model_learning_context_routing": "passed with a synthetic stub; no real model-quality improvement measured",
+    "real_docker_run": "not performed; isolated Dockerfile file-set test passed"
+  },
+  "files_sha256": {
+    "learning_memory.py": "38c3401bb139e732d4603ddc7089bf1866e92e90bedb5c9c355e94eebb5c86a0",
+    "service_pilot.py": "210040f2b29d657941a8bc076eb4036bdd7da78021f5d4a3ac4af080e01e5527",
+    "workspace_api.py": "ab8e8b3c25f4e3f642900bb36d731c746e5a4c574613df9112328b49a91ccb82",
+    "analysis_reports.py": "c5e533df66c1dbfa6a09a1c021a6a3bfe561a86702911833b14aba0abd4bfa75",
+    "api.py": "b428f310bd2bf7af2743509412f9ad63ac093b2ce28c29176361f443fa4ab9af",
+    "web/workspace.js": "f65270c61c1e2727e4dc37749a35619cc1a6ccd0b98abf340e14a55b2fe8954d",
+    "web/workspace.html": "ccf110b4e0d805eb65b9ff11052853caa545a5d6854a2b0c5c54c3665a79d2eb",
+    "test_learning_memory.py": "48aa3b659577c2cd838343d863ba075ccc0fc92287c9db241dbd5a55b74a546c",
+    "Dockerfile": "f55e24c8432ef4046b8c477081259b12be55506d52b8ebae785f29d90d1b17b1",
+    "test_packaging.py": "6105494d3520518226d1cc8382fde69d36e10dbdfef9bf6500b2134775a9739c"
+  },
+  "weights_updated": false,
+  "real_model_training_started": false,
+  "real_legal_training_examples_added": 0,
+  "quality_improvement_measured": false,
+  "legal_acceptance": false,
+  "production_ready": false,
+  "limitations": [
+    "Current human approval records do not automatically verify professional qualifications or legal correctness.",
+    "Examples are matter/date scoped, lexical matches are not legal equivalence and exact-question exclusion does not prevent every paraphrase leak.",
+    "Independent control data and approved real examples are required before claiming improvement.",
+    "Real model/search configuration, Chromium, target deployment, source completeness and independent lawyer acceptance remain open."
+  ],
+  "readiness_report": "docs/LEARNING_MEMORY_READINESS_2026-11-09.json"
+}

@@ -66,7 +66,7 @@ MAX_QUESTION_CHARS = 12_000
 SESSION_MAX_ENTRIES = 10
 SESSION_MAX_COUNT = 1_000
 SERVICE_NAME = "legal-research-agent"
-API_VERSION = "1.27"
+API_VERSION = "1.28"
 SESSION_TTL_SECONDS = 3600
 SESSION_ANSWER_CHARS = 500
 SESSION_ID_PATTERN = re.compile(r"^[A-Za-z0-9-]{1,64}$")
@@ -515,6 +515,7 @@ def openapi_spec(*, require_auth: bool = True) -> dict[str, Any]:
         'ocr_language': {'type': 'string'}, 'document': {'type': 'string'}, 'terms': {'type': 'array', 'items': {'type': 'string'}},
         'replacements': {'type': 'array', 'items': {'type': 'object'}}, 'title': {'type': 'string'},
         'demo': {'type': 'boolean'}, 'allow_cloud': {'type': 'boolean'}, 'limit': {'type': 'integer'},
+        'use_learning': {'type': 'boolean'}, 'learning_exclude_artifact_ids': {'type': 'array', 'maxItems': 100, 'items': {'type': 'string'}},
         'payload': {'type': 'object'}, 'attestations': {'type': 'object'}, 'pages': {'type': 'array', 'items': {'type': 'object'}},
         'missed_risks': {'type': 'array', 'items': {'type': 'integer'}},
         'correctness': {'type': 'integer'}, 'unsupported_claim_count': {'type': 'integer'}}

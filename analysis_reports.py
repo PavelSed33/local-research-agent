@@ -28,6 +28,9 @@ class AnalysisReports:
             if document['matter_id'] != matter or document['sha256'] != ref['sha256']:
                 raise WorkspaceError(409, 'analysis_source_changed', 'Источник отчёта изменился. Сформируйте анализ заново.')
         ReviewedEvidence(self.store).assert_selection(db, principal, matter, snapshot['as_of'], snapshot['editions'])
+        if snapshot.get('learning_references'):
+            from learning_memory import LearningMemory
+            LearningMemory(self.store).assert_current(db, principal, matter, snapshot['as_of'], snapshot['learning_references'])
 
     def save(self, db, principal, prepared, result):
         """Called only by the server's completed worker transaction, never by a client route."""
@@ -46,6 +49,7 @@ class AnalysisReports:
         snapshot = {'schema_version': 1, 'matter_id': prepared['matter_id'],
                     'as_of': day(prepared['as_of'], 'as_of'),
                     'documents': list(documents.values()), 'editions': prepared['selected_editions'],
+                    'learning_references': prepared.get('learning_context', {}).get('references', []),
                     'markdown': markdown, 'markdown_sha256': digest,
                     'filename': 'services-pilot-' + prepared['as_of'] + '.md'}
         self._check_context(db, principal, snapshot)
