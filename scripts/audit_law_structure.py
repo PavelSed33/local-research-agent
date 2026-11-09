@@ -39,7 +39,7 @@ def audit(db,reference):
                 candidates.append({"missing":missing,"verified":bool(doc["verified"]),
                                    "complete":not any(missing.values())})
             complete=[c for c in candidates if c["complete"]]
-            results.append({"title":item["title"],"status":"structurally_complete_unverified" if complete else "gaps_detected",
+            results.append({"title":item["title"],"status":"reference_subset_present_unverified" if complete and item.get("reference_status")=="official_partial_subset_not_complete" else "structurally_complete_unverified" if complete else "gaps_detected",
                             "candidate_editions":len(docs),"missing":min(candidates,key=lambda c:sum(map(len,c["missing"].values())))["missing"],
                             "warning":"Regex-based structural check; legal validity not established"})
     return {"results":results,"note":"Only checks enumerated reference identifiers. Missing numbers may be repealed or intentionally absent; no authoritative validation."}
