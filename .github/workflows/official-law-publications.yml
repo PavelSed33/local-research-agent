@@ -1,0 +1,44 @@
+name: Official law publication pilot
+on:
+  workflow_dispatch:
+    inputs:
+      publication_numbers:
+        description: 'Comma-separated official publication numbers (16 digits each)'
+        required: true
+        default: '0001202411230024,0001202407220005'
+permissions:
+  contents: read
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate publication numbers
+        shell: bash
+        env:
+          NUMBERS: ${{ inputs.publication_numbers }}
+        run: |
+          python - <<'PY'
+          import os, re
+          numbers=[x.strip() for x in os.environ["NUMBERS"].split(",")]
+          if not 1 <= len(numbers) <= 20 or not all(re.fullmatch(r"[0-9]{16}", x) for x in numbers):
+              raise SystemExit("Expected 1-20 comma-separated 16-digit publication numbers")
+          with open("publication_numbers.txt","w") as f:
+              f.write("\n".join(numbers))
+          PY
+      - name: Download to quarantine
+        shell: bash
+        run: |
+          mapfile -t numbers < publication_numbers.txt
+          args=()
+          for n in "${numbers[@]}"; do args+=(--eo-number "$n"); done
+          python scripts/download_official_publications.py "${args[@]}" --execute --output official-publications
+      - name: Upload quarantine artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: official-publications-pilot-${{ github.run_id }}
+          path: official-publications/
+          if-no-files-found: warn
+          retention-days: 7
