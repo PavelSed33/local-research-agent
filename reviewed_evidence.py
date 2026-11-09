@@ -180,6 +180,7 @@ class ReviewedEvidence:
                 row = self._artifact(db, principal, identity[0])
                 result.append({'artifact_id': row['id'], 'kind': row['kind'], 'sha256': row['sha256'],
                               'created_by': row['created_by'], 'review_status': row['review_status'],
+                              'edition': {key: row['payload'][key] for key in ('act_id', 'provision', 'valid_from', 'valid_to')} if row['kind'] == 'edition' else None,
                               'label': (row['payload'].get('question') or row['payload'].get('case_number') or
                                         row['payload'].get('act_id', '') + ' / ' + row['payload'].get('provision', ''))[:200]})
         return {'artifacts': result, 'legal_acceptance': False}
@@ -214,18 +215,30 @@ class ReviewedEvidence:
         act_id, provision = text(act_id, 'act_id', 100), text(provision, 'provision', 100)
         with self.store.connect(True) as db:
             self.store._access(db, principal, matter)
-            identities = [row[0] for row in db.execute("SELECT id FROM artifacts WHERE matter_id=? AND kind='edition'", (matter,))]
-            matches = []
-            for identity in identities:
-                row = self._artifact(db, principal, identity)
-                payload = row['payload']
-                if (row['review_status'] == 'approved' and payload['act_id'] == act_id and payload['provision'] == provision
-                        and payload['valid_from'] <= as_of and (payload['valid_to'] is None or as_of < payload['valid_to'])):
-                    matches.append(row)
+            selected = self._select_in_db(db, principal, matter, act_id, provision, as_of)
             self.store._audit(db, principal, 'edition_selected', matter, matter)
-        return {'status': 'review_recorded' if len(matches) == 1 else 'ambiguous' if matches else 'no_reviewed_edition',
-                'edition': matches[0] if len(matches) == 1 else None, 'matching_count': len(matches),
+        return {**selected,
                 'as_of': as_of, 'legal_acceptance': False, 'source_authenticity_automatically_verified': False}
+
+    def _select_in_db(self, db, principal, matter, act_id, provision, as_of):
+        match_count, selected = 0, None
+        for identity in db.execute("SELECT id FROM artifacts WHERE matter_id=? AND kind='edition'", (matter,)):
+            row = self._artifact(db, principal, identity[0])
+            payload = row['payload']
+            if (row['review_status'] == 'approved' and payload['act_id'] == act_id and payload['provision'] == provision
+                    and payload['valid_from'] <= as_of and (payload['valid_to'] is None or as_of < payload['valid_to'])):
+                match_count += 1
+                selected = row if match_count == 1 else None
+        return {'status': 'review_recorded' if match_count == 1 else 'ambiguous' if match_count else 'no_reviewed_edition',
+                'edition': selected, 'matching_count': match_count}
+
+    def assert_selection(self, db, principal, matter, as_of, expected):
+        for reference in expected:
+            selection = self._select_in_db(db, principal, matter, reference['act_id'], reference['provision'], as_of)
+            current = selection['edition']
+            if (current is None or current['id'] != reference['artifact_id'] or current['sha256'] != reference['sha256']
+                    or hashlib.sha256(canonical(current['review']).encode()).hexdigest() != reference['review_sha256']):
+                raise WorkspaceError(409, 'edition_review_changed', 'Редакция или её проверка изменились во время анализа. Выполните запрос заново.')
 
     def timeline(self, principal, matter, case_number, as_of):
         as_of = day(as_of, 'as_of')

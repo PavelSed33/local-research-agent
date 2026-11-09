@@ -58,6 +58,22 @@ def run_acceptance():
             assert base64.b64decode(original['file_base64']).decode() == 'Синтетический оригинал документа.'
             post('/workspace/users/list', {})
             post('/workspace/evidence/list', {'matter_id': matter})
+            imported = post('/workspace/benchmarks/import', {'matter_id': matter})
+            assert imported['created'] == 90 and imported['answers_generated'] == 0
+            assert post('/workspace/benchmarks/import', {'matter_id': matter})['reused'] == 90
+            listing = post('/workspace/benchmarks/list', {'matter_id': matter})
+            assert listing['needs_expert_answer'] == 90 and listing['reviews_recorded'] == 0
+            task = listing['tasks'][0]['task_id']
+            post('/workspace/benchmarks/read', {'task_id': task})
+            draft = {'task_id': task, 'expected_answer': 'Учебный ответ для проверки механизма.',
+                     'required_risks': ['Учебный риск'], 'forbidden_claims': [],
+                     'citations': [{'document_id': document, 'quote': 'Оплата после подписания акта.'}]}
+            saved = post('/workspace/benchmarks/draft', draft)
+            assert saved['review_status'] == 'draft' and saved['legal_acceptance'] is False
+            post('/workspace/benchmarks/draft', draft, expected=409)
+            post('/workspace/benchmarks/draft', draft, other['token'], 403)
+            post('/workspace/ask', {'matter_id': matter, 'question': 'Оплата', 'demo': True,
+                 'as_of': '2025-01-01', 'editions': [{'act_id': 'not-imported', 'provision': '1'}]}, expected=409)
             post('/workspace/audit', {'matter_id': matter})
             assert store.verify_audit()
         finally:

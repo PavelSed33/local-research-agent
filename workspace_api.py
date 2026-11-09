@@ -1,8 +1,8 @@
 """Closed-input dispatcher for the optional per-user workspace API."""
 import hashlib
 
-from reviewed_evidence import ReviewedEvidence
-from workspace_store import WorkspaceError, text
+from reviewed_evidence import ReviewedEvidence, day
+from workspace_store import WorkspaceError, text, canonical
 
 FIELDS = {
     '/workspace/me': set(), '/workspace/users/create': {'name', 'role'},
@@ -11,7 +11,7 @@ FIELDS = {
     '/workspace/documents/add': {'matter_id', 'title', 'document', 'source_url', 'captured_on', 'pages'},
     '/workspace/documents/list': {'matter_id'}, '/workspace/documents/read': {'document_id'},
     '/workspace/search': {'matter_id', 'query', 'limit'},
-    '/workspace/ask': {'matter_id', 'question', 'demo', 'allow_cloud'},
+    '/workspace/ask': {'matter_id', 'question', 'demo', 'allow_cloud', 'as_of', 'editions'},
     '/workspace/evidence/add': {'matter_id', 'kind', 'payload'},
     '/workspace/evidence/read': {'artifact_id'},
     '/workspace/evidence/review': {'artifact_id', 'decision', 'note', 'attestations'},
@@ -25,13 +25,16 @@ FIELDS = {
     '/workspace/evidence/list': {'matter_id'}, '/workspace/users/list': set(),
     '/workspace/documents/upload': {'matter_id', 'title', 'filename', 'file_base64', 'source_url', 'ocr', 'ocr_language'},
     '/workspace/documents/original': {'document_id'},
+    '/workspace/benchmarks/import': {'matter_id', 'case_ids'}, '/workspace/benchmarks/list': {'matter_id'},
+    '/workspace/benchmarks/read': {'task_id'},
+    '/workspace/benchmarks/draft': {'task_id', 'expected_answer', 'required_risks', 'forbidden_claims', 'citations', 'previous_artifact_id'},
 }
 
 
 def validate(path, payload):
     if not isinstance(payload, dict) or set(payload) - FIELDS[path]:
         raise ValueError('Неизвестные поля запроса рабочего пространства.')
-    for key in ('matter_id', 'user_id', 'document_id', 'artifact_id'):
+    for key in ('matter_id', 'user_id', 'document_id', 'artifact_id', 'task_id', 'previous_artifact_id'):
         if key in payload:
             text(payload[key], key, 64)
 
@@ -47,6 +50,17 @@ def dispatch(store, principal, path, payload):
     if path == '/workspace/me':
         with store.connect() as db:
             return store._user(db, principal)
+    if path.startswith('/workspace/benchmarks/'):
+        from benchmark_tasks import BenchmarkTasks
+        tasks = BenchmarkTasks(store)
+        if path.endswith('/import'):
+            return tasks.import_tasks(principal, p.get('matter_id'), p.get('case_ids'))
+        if path.endswith('/list'):
+            return tasks.list_tasks(principal, p.get('matter_id'))
+        if path.endswith('/read'):
+            return tasks.read(principal, p.get('task_id'))
+        return tasks.save_draft(principal, p.get('task_id'),
+            {key: p.get(key) for key in ('expected_answer', 'required_risks', 'forbidden_claims', 'citations')}, p.get('previous_artifact_id'))
     if path == '/workspace/sources/list':
         from primary_sources import source_catalog
         with store.connect() as db:
@@ -127,7 +141,45 @@ def prepare_answer(store, principal, payload):
     for key in ('demo', 'allow_cloud'):
         if key in payload and type(payload[key]) is not bool:
             raise ValueError(f'{key}: требуется true или false.')
+    as_of = day(payload['as_of'], 'as_of') if 'as_of' in payload else None
+    requested = payload.get('editions', [])
+    if not isinstance(requested, list) or len(requested) > 3 or (requested and as_of is None):
+        raise ValueError('До трёх редакций; при выборе редакций обязательна дата as_of.')
     context = store.search(principal, payload.get('matter_id'), question)
+    sources, selected, seen = context['matches'], [], set()
+    evidence = ReviewedEvidence(store)
+    for request in requested:
+        if not isinstance(request, dict) or set(request) != {'act_id', 'provision'}:
+            raise ValueError('Для редакции требуются act_id и provision.')
+        key = (text(request['act_id'], 'act_id', 100), text(request['provision'], 'provision', 100))
+        if key in seen:
+            raise ValueError('Повторная ссылка на ту же норму.')
+        seen.add(key)
+        result = evidence.select_edition(principal, payload.get('matter_id'), *key, as_of)
+        row = result['edition']
+        if row is None:
+            raise WorkspaceError(409, 'reviewed_edition_required', 'Для указанной нормы нет единственной одобренной редакции на дату ситуации.')
+        reference = {'artifact_id': row['id'], 'sha256': row['sha256'], 'act_id': key[0], 'provision': key[1],
+                     'document_id': row['payload']['document_id'], 'valid_from': row['payload']['valid_from'],
+                     'valid_to': row['payload']['valid_to'], 'review_sha256': hashlib.sha256(canonical(row['review']).encode()).hexdigest(),
+                     'reviewer_id': row['review']['reviewer_id'], 'review_status': 'approved', 'legal_acceptance': False}
+        selected.append(reference)
+        matches = store.search(principal, payload.get('matter_id'), question, 1, document_ids=[reference['document_id']])['matches']
+        if not matches:
+            document = store.document(principal, reference['document_id'])
+            matches = [{'document_id': document['id'], 'document_sha256': document['sha256'], 'title': document['title'],
+                        'text': document['text'][:1200], 'start': 0, 'end': min(1200, len(document['text'])),
+                        'pages': [page['page'] for page in document['pages'] if page['start'] < 1200], 'verified': False,
+                        'source_context': {'origin': document['provenance'].get('origin', 'unspecified'),
+                            'captured_on': document['captured_on'], 'edition_label': document['provenance'].get('edition_label'),
+                            'signed_on': document['provenance'].get('signed_on'),
+                            'current_validity_verified': False, 'history_complete': False}}]
+        for match in matches:
+            if not any(item['document_id'] == match['document_id'] and item['start'] == match['start'] for item in sources):
+                sources.append(match)
+    for index, source in enumerate(sources, 1):
+        source['source_id'] = index
+        source['edition_references'] = [ref for ref in selected if ref['document_id'] == source['document_id']]
     return {'matter_id': payload.get('matter_id'), 'question': question,
-            'sources': context['matches'], 'demo': payload.get('demo', False),
+            'sources': sources, 'selected_editions': selected, 'as_of': as_of, 'demo': payload.get('demo', False),
             'allow_cloud': payload.get('allow_cloud', False)}
