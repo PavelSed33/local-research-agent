@@ -18,6 +18,7 @@ class ReviewedEvidenceTests(unittest.TestCase):
 
     def edition(self, **extra):
         payload = {'act_id': 'synthetic', 'provision': '1', 'document_id': self.document_id,
+                   'provision_quote': 'Условная норма.',
                    'valid_from': '2025-01-01', 'valid_to': '2026-01-01', 'full_text_declared': True,
                    'period_evidence': [{'document_id': self.document_id, 'quote': 'Вступает в силу 01.01.2025. Изменяется с 01.01.2026.'}]}
         payload.update(extra)

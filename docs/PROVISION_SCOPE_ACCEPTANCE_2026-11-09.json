@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "checked_on": "2026-11-09",
+  "api_version": "1.26",
+  "base_commit": "a0f1486c42d27ed65e01760b5cc397ebd07a5493",
+  "scope": "literal provision boundaries for the services pilot; no legal certification",
+  "changes": [
+    "Immutable provision quote, unique occurrence and document offsets in edition dossiers.",
+    "Include the full selected provision independently of search terms.",
+    "Risk citations must be fully contained in a selected provision; adjacent and crossing citations do not count as normative evidence.",
+    "Keep only the specific edition references containing each cited span.",
+    "Legacy unscoped dossiers remain readable and selectable in general analysis; the services pilot requires a newly scoped, independently reviewed dossier.",
+    "Workspace form for drafting scoped editions with period evidence; account and matter changes clear form data."
+  ],
+  "regression_reproduction": {
+    "baseline_accepts_adjacent_text_as_norm": true,
+    "patched_blocks_adjacent_text": true
+  },
+  "validation": {
+    "unittest": {
+      "command": "python -m unittest discover -q",
+      "ran": 619,
+      "passed": 618,
+      "skipped": 1,
+      "failed": 0,
+      "skip_reason": "Russian OCR language data unavailable"
+    },
+    "new_boundary_tests": 7,
+    "node_vm_scenarios": 38,
+    "http_checks": 106,
+    "native_pdf_replay": {
+      "sources": 7,
+      "pages": 90
+    },
+    "python_compilation": "passed",
+    "javascript_syntax": "passed",
+    "git_diff_check": "passed",
+    "synthetic_local_provider_round_trip": "passed; transport and structural checks only"
+  },
+  "files_sha256": {
+    "api.py": "ee02257d5465147fdad88c99aa3c2f352c1efb29b986b84ff07abd817fa593ba",
+    "reviewed_evidence.py": "721e0c7f9caeef3cfa7c527d92a4b62ad9b335564a982c4ead498d2c194d90ad",
+    "workspace_api.py": "bb3a028973727c5fedee5675ccd3a1f918328a8dc59ff308f71dcdb179391ce1",
+    "service_pilot.py": "5168fe0a5f8f395003adbbe8004d5e21bf754203ff6e921e947bd8ba170661d1",
+    "web/workspace.html": "bcf09a55bd16d6abc95ee209ef044cc200e7592fcca8511b6f2475a814fa83dc",
+    "web/workspace.js": "c49782fb50a0167a4828bc988ba31626db07f1ce955ddc9334683e47fa210ab8",
+    "test_provision_scope.py": "bf9fe5b5464b8b40df1a3334881ecf872d79db7d65858c1c549fa0b0a5570dfe",
+    "scripts/test_services_pilot.cjs": "847a952dad0f418f04d605679d517190762002f1fbbfef5e8edec342b4d074b0"
+  },
+  "production_ready": false,
+  "legal_acceptance": false,
+  "real_legal_sources_added": 0,
+  "remaining_gates": [
+    "Independent lawyer acceptance and approved real source editions.",
+    "Complete legislative and case histories.",
+    "Real model/search configuration: LLM_API_KEY, LLM_MODEL, TAVILY_API_KEY.",
+    "Chromium browser acceptance and target deployment."
+  ],
+  "readiness_report": "docs/PROVISION_SCOPE_READINESS_2026-11-09.json"
+}

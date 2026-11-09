@@ -77,13 +77,16 @@ def validate_findings(result, sources, contract_id):
             if not isinstance(quote, str) or not 10 <= len(quote.strip()) <= 3000 or quote not in source['text']:
                 raise AgentError('Пилот: цитата не найдена в источнике.')
             start = source['start'] + source['text'].index(quote)
+            edition_refs = [ref for ref in source.get('edition_references', [])
+                            if type(ref.get('provision_start')) is int and type(ref.get('provision_end')) is int
+                            and ref['provision_start'] <= start and start + len(quote) <= ref['provision_end']]
             role = ('contract' if source['document_id'] == contract_id else
-                    'reviewed_edition' if source.get('edition_references') else 'supporting_document')
+                    'reviewed_edition' if edition_refs else 'supporting_document')
             documents.add(source['document_id']); roles.add(role)
             citations.append({'document_id': source['document_id'], 'document_sha256': source['document_sha256'],
                               'title': source['title'], 'quote': quote, 'start': start, 'end': start + len(quote),
                               'pages': source.get('pages', []), 'evidence_role': role,
-                              'edition_references': source.get('edition_references', []),
+                              'edition_references': edition_refs,
                               'quote_checked': True, 'verified': False})
         if contract_id not in documents:
             raise AgentError('Пилот: вывод должен быть связан с выбранным договором.')
@@ -126,6 +129,7 @@ def finish(result):
             for edition in ref['edition_references']:
                 lines += ['Записанная проверка редакции: ' + edition['artifact_id'],
                           fence(edition['act_id'] + ', ' + edition['provision']),
+                          f"Границы текста нормы в документе: {edition['provision_start']}–{edition['provision_end']}",
                           'Период: ' + edition['valid_from'] + ' — ' + (edition['valid_to'] or 'открытая граница')]
     markdown = '\n\n'.join(lines) + '\n'
     if len(markdown.encode('utf-8')) > 512 * 1024:
@@ -162,7 +166,8 @@ def answer(payload):
             'Учитывай дату as_of. Факты пользователя — заявления, а не доказательства. '
             'Различай observation, risk, contradiction и missing_information. '
             'Для каждого вывода укажи assessment, applicability, next_step и citations [{source_id,quote}]. '
-            'Всегда цитируй выбранный договор. Для risk дополнительно цитируй источник с edition_references; '
+            'Всегда цитируй выбранный договор. Для risk дополнительно цитируй текст нормы строго внутри '
+            'границ provision_start/provision_end выбранной edition_references; соседние статьи не подходят. '
             'для contradiction цитируй два разных документа. Объясни, почему источники связаны с выводом, '
             'Связанные поисковые слова не означают юридическую равнозначность понятий. '
             'отметь противоположные сведения и необходимые уточнения. Если правовых оснований недостаточно, '

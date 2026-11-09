@@ -227,19 +227,25 @@ def prepare_answer(store, principal, payload):
         row = result['edition']
         if row is None:
             raise WorkspaceError(409, 'reviewed_edition_required', 'Для указанной нормы нет единственной одобренной редакции на дату ситуации.')
+        provision = row['payload'].get('provision_evidence')
+        if mode == MODE and not provision:
+            raise WorkspaceError(409, 'edition_provision_required', 'Для пилота нужна редакция с точной цитатой нормы (provision_quote) и новой независимой проверкой.')
         reference = {'artifact_id': row['id'], 'sha256': row['sha256'], 'act_id': key[0], 'provision': key[1],
                      'document_id': row['payload']['document_id'], 'valid_from': row['payload']['valid_from'],
                      'valid_to': row['payload']['valid_to'], 'review_sha256': hashlib.sha256(canonical(row['review']).encode()).hexdigest(),
                      'reviewer_id': row['review']['reviewer_id'], 'review_status': 'approved', 'legal_acceptance': False}
+        if provision:
+            reference.update(provision_start=provision['start'], provision_end=provision['end'])
         selected.append(reference)
         if mode == MODE and reference['document_id'] == contract['document_id']:
             raise ValueError('Договор и источник редакции нормы должны быть разными документами.')
-        matches = store.search(principal, payload.get('matter_id'), question, 1, document_ids=[reference['document_id']])['matches']
+        matches = [] if provision else store.search(principal, payload.get('matter_id'), question, 1, document_ids=[reference['document_id']])['matches']
         if not matches:
             document = store.document(principal, reference['document_id'])
+            begin, end = (provision['start'], provision['end']) if provision else (0, min(1200, len(document['text'])))
             matches = [{'document_id': document['id'], 'document_sha256': document['sha256'], 'title': document['title'],
-                        'text': document['text'][:1200], 'start': 0, 'end': min(1200, len(document['text'])),
-                        'pages': [page['page'] for page in document['pages'] if page['start'] < 1200], 'verified': False,
+                        'text': document['text'][begin:end], 'start': begin, 'end': end,
+                        'pages': [page['page'] for page in document['pages'] if page['start'] < end and page['end'] > begin], 'verified': False,
                         'source_context': {'origin': document['provenance'].get('origin', 'unspecified'),
                             'captured_on': document['captured_on'], 'edition_label': document['provenance'].get('edition_label'),
                             'signed_on': document['provenance'].get('signed_on'),
@@ -249,11 +255,12 @@ def prepare_answer(store, principal, payload):
         for match in matches:
             if as_of and match.get('source_context', {}).get('decision_date') and match['source_context']['decision_date'] > as_of:
                 raise WorkspaceError(409, 'future_decision_selected', 'Выбранный источник судебного акта принят позднее даты ситуации.')
-            if not any(item['document_id'] == match['document_id'] and item['start'] == match['start'] for item in sources):
+            if not any(item['document_id'] == match['document_id'] and item['start'] == match['start'] and item['end'] == match['end'] for item in sources):
                 sources.append(match)
     for index, source in enumerate(sources, 1):
         source['source_id'] = index
-        source['edition_references'] = [ref for ref in selected if ref['document_id'] == source['document_id']]
+        source['edition_references'] = [ref for ref in selected if ref['document_id'] == source['document_id']
+            and ('provision_start' not in ref or source['start'] < ref['provision_end'] and source['end'] > ref['provision_start'])]
     return {'matter_id': payload.get('matter_id'), 'question': question,
             'analysis_mode': mode, 'pilot_scope': pilot_scope,
             'retrieval': context.get('retrieval'),

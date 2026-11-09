@@ -230,6 +230,7 @@ class ServicePilotHttpTests(unittest.TestCase):
         doc = self.store.add_document(owner, matter, {'title': 'СИНТЕТИЧЕСКИЙ источник', 'document': quote,
             'source_url': 'https://publication.pravo.gov.ru/document/synthetic-not-real'})['document_id']
         edition = evidence.add(owner, matter, 'edition', {'act_id': 'synthetic', 'provision': '1', 'document_id': doc,
+            'provision_quote': 'Условная норма.',
             'valid_from': '2025-01-01', 'valid_to': '2026-01-01', 'full_text_declared': True,
             'period_evidence': [{'document_id': doc, 'quote': quote}]})['artifact_id']
         evidence.review(reviewer, edition, 'approved', 'СИНТЕТИЧЕСКАЯ проверка механизма; не приёмка права.',

@@ -18,7 +18,7 @@ class WorkspaceReportUiTests(unittest.TestCase):
         result = subprocess.run(['node', 'scripts/test_services_pilot.cjs'], cwd=Path(__file__).parent,
                                 capture_output=True, text=True, timeout=15)
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn('"checks":6', result.stdout)
+        self.assertIn('"checks":11', result.stdout)
 
     @unittest.skipUnless(shutil.which('node'), 'Node.js is unavailable')
     def test_preview_download_and_privacy_resets(self):
