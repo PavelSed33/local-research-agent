@@ -14,17 +14,19 @@ class Element {
 }
 const el=id=>{if(!elements.has(id))elements.set(id,new Element(id));return elements.get(id);};
 const document={getElementById:el,querySelectorAll:()=>[...elements.values()],createElement:()=>new Element()};
-let snapshot='a'.repeat(64), denied=false, calls=0;
+let snapshot='a'.repeat(64), denied=false, calls=0, hold=false, releaseFetch=null;
 const markdown='# Отчёт\n\nДословная цитата с кириллицей.\n';
 const response=()=>({report:{act_count:1,snapshot_sha256:snapshot,excluded:{future_acts:0,superseded_versions:1},status:'draft'},markdown,filename:'case-report-example.md'});
 const context={document,Blob,TextDecoder,Uint8Array,setTimeout:fn=>fn(),
  btoa:s=>Buffer.from(s,'binary').toString('base64'),atob:s=>Buffer.from(s,'base64').toString('binary'),
  crypto:{randomUUID:()=> 'synthetic-ui-test'},
  URL:{createObjectURL:blob=>{const key='blob:'+urls.size;urls.set(key,blob);return key;},revokeObjectURL:()=>{}},
- fetch:async (route,options)=>{if(route==='/workspace/cases/report'){calls++;return {ok:!denied,status:denied?403:200,json:async()=>denied?{error:'Нет доступа к делу.'}:response()};}return {ok:true,status:200,json:async()=>({documents:[],matters:[]})};}};
+ fetch:async (route,options)=>{if(route==='/workspace/cases/report'){calls++;if(hold)await new Promise(resolve=>releaseFetch=resolve);return {ok:!denied,status:denied?403:200,json:async()=>denied?{error:'Нет доступа к делу.'}:response()};}return {ok:true,status:200,json:async()=>({documents:[],matters:[]})};}};
 vm.createContext(context);
 vm.runInContext(fs.readFileSync(path.join(__dirname,'../web/workspace.js'),'utf8'),context);
-async function emit(id,event){for(const listener of el(id).listeners.get(event)||[])listener({preventDefault(){}});for(let index=0;index<20;index++){await new Promise(resolve=>setImmediate(resolve));if(!vm.runInContext('busy',context))return;}throw Error('UI did not settle');}
+function fire(id,event){for(const listener of el(id).listeners.get(event)||[])listener({preventDefault(){}});}
+async function settle(){for(let index=0;index<20;index++){await new Promise(resolve=>setImmediate(resolve));if(!vm.runInContext('busy',context))return;}throw Error('UI did not settle');}
+async function emit(id,event){fire(id,event);await settle();}
 function scope(){vm.runInContext("activeMatter='synthetic-matter'",context);el('workspace-token').value='PRIVATE_TEST_TOKEN';el('matter-list').value='synthetic-matter';el('report-case-number').value='А00-1/2025';el('report-as-of').value='2025-01-01';}
 async function build(){scope();await emit('build-case-report','submit');assert.equal(el('case-report-preview').textContent,markdown);assert.equal(el('download-case-report').disabled,false);}
 (async()=>{
@@ -36,6 +38,8 @@ async function build(){scope();await emit('build-case-report','submit');assert.e
  await build();await emit('workspace-token','input');assert.equal(el('case-report-preview').textContent,'');assert.equal(el('download-case-report').disabled,true);
  await build();await emit('matter-list','change');assert.equal(el('case-report-preview').textContent,'');assert.equal(el('download-case-report').disabled,true);
  await build();el('report-case-number').value='А00-2/2025';await emit('download-case-report','click');assert.equal(downloads.length,1);assert.equal(el('download-case-report').disabled,true);
+ await build();hold=true;fire('download-case-report','click');assert.ok(releaseFetch);fire('workspace-token','input');releaseFetch();await settle();hold=false;releaseFetch=null;assert.equal(downloads.length,1);assert.equal(el('case-report-preview').textContent,'');assert.equal(el('download-case-report').disabled,true);
+ scope();hold=true;fire('build-case-report','submit');assert.ok(releaseFetch);fire('workspace-token','input');releaseFetch();await settle();hold=false;releaseFetch=null;assert.equal(el('case-report-preview').textContent,'');assert.equal(el('download-case-report').disabled,true);
  assert.ok(!markdown.includes('PRIVATE_TEST_TOKEN'));
- process.stdout.write(JSON.stringify({status:'passed',scope:'node_vm_workspace_report',checks:8,browser_acceptance:false})+'\n');
+ process.stdout.write(JSON.stringify({status:'passed',scope:'node_vm_workspace_report',checks:10,browser_acceptance:false})+'\n');
 })().catch(error=>{process.stderr.write(error.message+'\n');process.exitCode=1;});

@@ -58,13 +58,18 @@ def _human_day(day):
     return f'{day.day} {MONTHS[day.month-1]} {day.year}'
 
 
+def _date_in_text(day, value):
+    forms = (_human_day(day), day.isoformat(), day.strftime('%d.%m.%Y'))
+    return any(re.search(r'(?<!\d)' + re.escape(form) + r'(?!\d)', _normalized(value)) for form in forms)
+
+
 def _document_identity(row, first_page, signed):
     number = row['document_number']
     if row['material_type'] != 'official_court_decision':
-        return _number(number, first_page) and _human_day(signed) in _normalized(first_page)
+        return _number(number, first_page) and _date_in_text(signed, first_page)
     return (isinstance(number, str) and re.fullmatch(r'\d{1,3}-ЭС\d{2}-\d{1,8}(?:\(\d{1,3}\))?', number)
             and re.search(r'№\s*' + re.escape(number) + r'(?![\w(])', first_page)
-            and (_human_day(signed) in _normalized(first_page) or signed.strftime('%d.%m.%Y') in first_page))
+            and _date_in_text(signed, first_page))
 
 
 def _load(root):
@@ -80,7 +85,7 @@ def _load(root):
                 'current_validity_verified', 'lawyer_reviewed', 'document_number', 'signed_on',
                 'identity_terms', 'edition_label', 'amendment_mentions'}
     for row in manifest['sources']:
-        if not isinstance(row, dict) or set(row) - (required | {'retrieved_url', 'case_number', 'disposition_quote'}) or not required <= row.keys():
+        if not isinstance(row, dict) or set(row) - (required | {'retrieved_url', 'case_number', 'disposition_quote', 'procedural_mentions'}) or not required <= row.keys():
             raise ValueError('invalid_archive_entry')
         identity = row['id']
         if not isinstance(identity, str) or not re.fullmatch(r'[a-z][a-z0-9-]{0,79}', identity) or identity in seen:
@@ -141,6 +146,22 @@ def _load(root):
                 raise ValueError('archive_court_disposition_mismatch')
         elif 'case_number' in row or 'disposition_quote' in row:
             raise ValueError('unexpected_court_metadata')
+        procedural = row.get('procedural_mentions', [])
+        if (not isinstance(procedural, list) or len(procedural) > 10
+                or (procedural and row['material_type'] != 'official_court_decision')):
+            raise ValueError('invalid_procedural_mentions')
+        mention_keys = set()
+        for mention in procedural:
+            if not isinstance(mention, dict) or set(mention) != {'court_mention', 'decision_date', 'quote'}:
+                raise ValueError('invalid_procedural_mention')
+            court, quote, mentioned_day = mention['court_mention'], mention['quote'], _day(mention['decision_date'])
+            if (not isinstance(court, str) or not 5 <= len(court) <= 300
+                    or not isinstance(quote, str) or not 30 <= len(quote) <= 6000 or quote not in value
+                    or _normalized(court) not in _normalized(quote) or row['case_number'] not in quote
+                    or mentioned_day > signed or not _date_in_text(mentioned_day, quote)
+                    or (court, mentioned_day) in mention_keys):
+                raise ValueError('unconfirmed_procedural_mention')
+            mention_keys.add((court, mentioned_day))
         mentions = row['amendment_mentions']
         if not isinstance(mentions, list) or len(mentions) > 20:
             raise ValueError('invalid_amendment_mentions')

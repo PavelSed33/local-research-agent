@@ -192,3 +192,22 @@ class OfficialDecisionTests(unittest.TestCase):
         with self.store.connect() as db:
             ref=ReviewedEvidence(self.store)._quote(db,self.owner,self.matter,{'document_id':imported['document_id'],'quote':'  '+quote+'  '})
         self.assertEqual(body[ref['start']:ref['end']],ref['quote'])
+
+    def test_eleven_procedural_mentions_are_literal_not_archived_lower_court_acts(self):
+        sources=load_sources()
+        mentions=[(source,mention) for source in sources for mention in source.get('procedural_mentions',[])]
+        self.assertEqual(len(mentions),11)
+        self.assertEqual(len(sources),7)
+        for source,mention in mentions:
+            self.assertIn(mention['quote'],source['text'])
+            self.assertIn(source['case_number'],mention['quote'])
+            self.assertLessEqual(mention['decision_date'],source['signed_on'])
+            self.assertFalse(source['lawyer_reviewed'])
+
+    def test_procedural_mention_mutations_fail_closed(self):
+        for mutation in [lambda row:row.update(court_mention='Выдуманный суд без подтверждения'),
+                         lambda row:row.update(decision_date='2025-03-01'),
+                         lambda row:row.update(decision_date='2023-05-07'),
+                         lambda row:row.update(quote='Поддельная цитата об отсутствующем судебном акте.')]:
+            PrimaryArchiveValidationTests().mutation(lambda data:mutation(data['sources'][3]['procedural_mentions'][0]))
+        PrimaryArchiveValidationTests().mutation(lambda data:data['sources'][3]['procedural_mentions'].append(data['sources'][3]['procedural_mentions'][0].copy()))
