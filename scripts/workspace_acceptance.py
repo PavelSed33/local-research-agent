@@ -1,6 +1,7 @@
 """Isolated HTTP acceptance with synthetic accounts and documents; no real provider calls."""
 import base64
 import http.client
+import hashlib
 import json
 from pathlib import Path
 import sys
@@ -65,6 +66,19 @@ def run_acceptance():
             timeline = post('/workspace/cases/timeline', {'matter_id': matter, 'case_number': decision['case_number'], 'as_of': decision['signed_on']})
             assert [row['id'] for row in timeline['decisions']] == [revised['artifact_id']]
             assert timeline['superseded_versions_excluded'] == 1 and timeline['complete_history'] is False
+            report_args = {'matter_id': matter, 'case_number': decision['case_number'], 'as_of': decision['signed_on']}
+            report = post('/workspace/cases/report', report_args)
+            assert report['report']['act_count'] == 1 and report['report']['legal_acceptance'] is False
+            assert report['report']['acts'][0]['artifact_id'] == revised['artifact_id']
+            assert report['markdown_sha256'] == hashlib.sha256(report['markdown'].encode('utf-8')).hexdigest()
+            assert post('/workspace/cases/report', report_args, other['token'])['report']['act_count'] == 1
+            outsider = post('/workspace/users/create', {'name': 'Синтетический посторонний'})
+            post('/workspace/cases/report', report_args, outsider['token'], 403)
+            empty = post('/workspace/cases/report', {**report_args, 'as_of': '2010-01-01'})
+            assert empty['report']['act_count'] == 0 and empty['report']['excluded']['future_acts'] == 1
+            post('/workspace/cases/report', {**report_args, 'as_of': '2025-02-30'}, expected=400)
+            post('/workspace/cases/report', report_args, 'invalid-token', 401)
+
             post('/workspace/sources/decision-draft', {'matter_id': matter, 'source_id': decision['id']}, other['token'], 403)
             post('/workspace/sources/decision-draft', {'matter_id': matter, 'source_id': catalog['sources'][0]['id']}, expected=400)
             assert post('/workspace/sources/import', {'matter_id': matter, 'source_id': catalog['sources'][0]['id']})['reused'] is True

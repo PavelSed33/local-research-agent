@@ -26,6 +26,11 @@ class DockerPackagingTests(unittest.TestCase):
                 ['python', '-I', '-c',
                  'import sys; sys.path.insert(0, sys.argv[1]); '
                  'import api, legal_history, pravo_portal, pravo_ips; '
+                 'from case_report import CaseReport; '
+                 'from workspace_store import WorkspaceStore; '
+                 'store=WorkspaceStore(\"case-report.db\"); user=store.create_user(\"Packaging admin\",\"admin\")[\"user_id\"]; '
+                 'matter=store.create_matter(user,\"Packaging case\")[\"matter_id\"]; '
+                 'assert CaseReport(store).build(user,matter,\"А00-1/2025\",\"2025-01-01\")[\"report\"][\"status\"]==\"no_evidence\"; '
                  'from local_extract import handle_local_extract; assert handle_local_extract({"document":"Проверка суммы: 1 000 руб. после приёмки."})["matches"]; '
                  'from legal_skills import skill_options; assert len(skill_options()["skills"])==6; '
                  'from legal_evidence import evidence_report; '

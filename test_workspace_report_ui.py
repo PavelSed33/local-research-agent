@@ -1,0 +1,15 @@
+"""Run actual workspace JavaScript with a small DOM harness; not a browser check."""
+from pathlib import Path
+import shutil
+import subprocess
+import unittest
+
+
+class WorkspaceReportUiTests(unittest.TestCase):
+    @unittest.skipUnless(shutil.which('node'), 'Node.js is unavailable')
+    def test_preview_download_and_privacy_resets(self):
+        root = Path(__file__).parent
+        result = subprocess.run(['node', 'scripts/test_workspace_report.cjs'], cwd=root,
+                                capture_output=True, text=True, timeout=15)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('"browser_acceptance":false', result.stdout)
