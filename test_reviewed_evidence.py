@@ -72,6 +72,13 @@ class ReviewedEvidenceTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.edition(document_id=document)
 
+    def test_nested_document_and_artifact_ids_reject_wrong_types(self):
+        for wrong_id in ([], {}, True, None):
+            with self.subTest(value=wrong_id), self.assertRaises(ValueError):
+                self.edition(period_evidence=[{'document_id': wrong_id, 'quote': 'Условная норма.'}])
+            with self.store.connect() as db, self.assertRaises(ValueError):
+                self.evidence._artifact(db, self.owner, wrong_id)
+
     def test_human_benchmark_scores_track_missed_risks_and_unconfirmed_claims(self):
         payload = {'question': 'Условный вопрос?', 'as_of': '2025-01-01', 'expected_answer': 'Условный ответ для теста.',
                    'required_risks': ['Риск А', 'Риск Б'], 'forbidden_claims': ['Гарантия победы'],

@@ -7,6 +7,19 @@ from matter_research import answer
 
 
 class MatterResearchTests(unittest.TestCase):
+    def test_archival_sources_keep_date_limitations_in_result_and_model_prompt(self):
+        payload = self.payload(False)
+        payload['sources'][0]['source_context'] = {'origin': 'pinned_primary_archive',
+            'captured_on': '2026-11-09', 'edition_label': 'История после 2017 не подтверждена.', 'current_validity_verified': False}
+        result = {'summary': 'Черновик', 'findings': []}
+        with patch.dict('os.environ', {'LLM_BASE_URL': 'http://127.0.0.1:9000/v1'}), patch('matter_research.OpenAICompatibleModel') as model:
+            model.return_value.complete.return_value = json.dumps(result)
+            response = answer(payload)
+            system, user = model.return_value.complete.call_args.args
+        self.assertTrue(response['source_warnings'])
+        self.assertIn('не называй действующими', system)
+        self.assertIn('История после 2017 не подтверждена.', user)
+        self.assertFalse(response['legal_acceptance'])
     def payload(self, demo=True):
         return {'matter_id': 'synthetic', 'question': 'Когда оплата?', 'demo': demo, 'allow_cloud': False,
                 'sources': [{'source_id': 1, 'document_id': 'doc1', 'title': 'Договор',

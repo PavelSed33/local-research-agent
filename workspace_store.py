@@ -210,7 +210,7 @@ class WorkspaceStore:
             self._audit(db, principal, 'membership_' + role, user_id, matter)
         return {'updated': True}
 
-    def add_document(self, principal, matter, payload, *, provenance=None, original=None):
+    def add_document(self, principal, matter, payload, *, provenance=None, original=None, deduplicate_source=False):
         if set(payload) - {'matter_id', 'title', 'document', 'source_url', 'captured_on', 'pages'}:
             raise ValueError('Неизвестное поле документа.')
         value = resolve_document({'document': payload.get('document')})
@@ -244,6 +244,21 @@ class WorkspaceStore:
         identity, digest = uuid.uuid4().hex, document_fingerprint(value)
         with self.connect(True) as db:
             self._access(db, principal, matter, ('owner', 'editor'))
+            if deduplicate_source:
+                if (not provenance or provenance.get('origin') != 'pinned_primary_archive'
+                        or original is None or hashlib.sha256(original[1]).hexdigest() != provenance.get('original_sha256')):
+                    raise ValueError('Повторный импорт требует проверенные байты первоисточника.')
+                for candidate in db.execute('SELECT id FROM documents WHERE matter_id=? AND sha256=?', (matter, digest)):
+                    existing = self._document(db, principal, candidate['id'])
+                    if (existing['provenance'].get('origin') == 'pinned_primary_archive'
+                            and existing['provenance'].get('source_id') == provenance.get('source_id')
+                            and existing['provenance'].get('original_sha256') == provenance.get('original_sha256')):
+                        archived = db.execute('SELECT bytes FROM originals WHERE document_id=?', (existing['id'],)).fetchone()
+                        if archived is None or hashlib.sha256(archived['bytes']).hexdigest() != provenance['original_sha256']:
+                            raise WorkspaceError(503, 'original_integrity', 'Нарушена целостность оригинала.')
+                        self._audit(db, principal, 'primary_source_reused', existing['id'], matter)
+                        return {'document_id': existing['id'], 'sha256': digest, 'text_char_count': len(value),
+                                'provenance_verified': False, 'reused': True}
             if db.execute('SELECT count(*) FROM documents WHERE matter_id=?', (matter,)).fetchone()[0] >= 1000:
                 raise ValueError('Лимит: 1000 документов в деле.')
             db.execute('INSERT INTO documents(id,matter_id,title,text,sha256,source_url,captured_on,pages,created_by,created_on,provenance) VALUES(?,?,?,?,?,?,?,?,?,?,?)',
@@ -255,7 +270,7 @@ class WorkspaceStore:
             for start in range(0, len(value), 1000):
                 db.execute('INSERT INTO chunks(document_id,matter_id,start,text) VALUES(?,?,?,?)', (identity, matter, start, value[start:start + 1200]))
             self._audit(db, principal, 'document_added', identity, matter)
-        return {'document_id': identity, 'sha256': digest, 'text_char_count': len(value), 'provenance_verified': False}
+        return {'document_id': identity, 'sha256': digest, 'text_char_count': len(value), 'provenance_verified': False, 'reused': False}
 
     def original(self, principal, document_id):
         import base64
@@ -316,7 +331,13 @@ class WorkspaceStore:
                 results.append({'source_id': len(results) + 1, 'document_id': document['id'],
                                 'title': document['title'], 'text': row['text'], 'start': start,
                                 'end': start + len(row['text']), 'pages': pages,
-                                'document_sha256': document['sha256'], 'verified': False})
+                                'document_sha256': document['sha256'], 'verified': False,
+                                'source_context': {'origin': document['provenance'].get('origin', 'unspecified'),
+                                    'captured_on': document['captured_on'],
+                                    'edition_label': document['provenance'].get('edition_label'),
+                                    'signed_on': document['provenance'].get('signed_on'),
+                                    'current_validity_verified': False,
+                                    'history_complete': False}})
             self._audit(db, principal, 'matter_search', matter, matter)
         return {'matter_id': matter, 'matches': results, 'search_mode': 'local_fts5_prefix',
                 'semantic_search': False, 'external_requests_attempted': False, 'verified': False}

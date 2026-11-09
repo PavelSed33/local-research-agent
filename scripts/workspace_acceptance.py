@@ -45,7 +45,10 @@ def run_acceptance():
             post('/workspace/members/set', {'matter_id': matter, 'user_id': other['user_id'], 'role': 'viewer'})
             post('/workspace/documents/read', {'document_id': document}, other['token'])
             post('/workspace/documents/add', {'matter_id': matter, 'title': 'Запрещено', 'document': 'Нет прав'}, other['token'], 403)
-            post('/workspace/sources/import', {'matter_id': matter, 'source_id': 'vsrf-plenum-49-2018'})
+            catalog = post('/workspace/sources/list', {})
+            for source in catalog['sources']:
+                post('/workspace/sources/import', {'matter_id': matter, 'source_id': source['id']})
+            assert post('/workspace/sources/import', {'matter_id': matter, 'source_id': catalog['sources'][0]['id']})['reused'] is True
             post('/documents/export', {'document': 'Цена отчёта 12500 рублей.'})
             assert post('/documents/redact', {'document': 'Контакт: test@example.org'})['redaction_count'] == 1
             post('/documents/parse', {'filename': 'example.txt', 'file_base64': base64.b64encode('Условный документ'.encode()).decode()})

@@ -20,6 +20,7 @@ FIELDS = {
     '/workspace/evaluations/record': {'artifact_id', 'answer', 'correctness', 'missed_risks', 'unsupported_claim_count', 'note'},
     '/workspace/evaluations/metrics': {'matter_id'}, '/workspace/audit': {'matter_id', 'limit'},
     '/workspace/sources/import': {'matter_id', 'source_id'},
+    '/workspace/sources/list': set(),
     '/workspace/tokens/rotate': set(), '/workspace/matters/transfer': {'matter_id', 'user_id'},
     '/workspace/evidence/list': {'matter_id'}, '/workspace/users/list': set(),
     '/workspace/documents/upload': {'matter_id', 'title', 'filename', 'file_base64', 'source_url', 'ocr', 'ocr_language'},
@@ -46,9 +47,17 @@ def dispatch(store, principal, path, payload):
     if path == '/workspace/me':
         with store.connect() as db:
             return store._user(db, principal)
+    if path == '/workspace/sources/list':
+        from primary_sources import source_catalog
+        with store.connect() as db:
+            store._user(db, principal)
+        return source_catalog()
     if path == '/workspace/sources/import':
-        from primary_sources import ROOT as PRIMARY_ROOT, load_sources
-        sources = [row for row in load_sources() if row['id'] == p.get('source_id')]
+        from primary_sources import load_sources, original_bytes
+        source_id = text(p.get('source_id'), 'source_id', 80)
+        with store.connect() as db:
+            store._access(db, principal, p.get('matter_id'), ('owner', 'editor'))
+        sources = [row for row in load_sources() if row['id'] == source_id]
         if len(sources) != 1:
             raise ValueError('Неизвестный source_id.')
         source = sources[0]
@@ -58,8 +67,10 @@ def dispatch(store, principal, path, payload):
              provenance={'origin': 'pinned_primary_archive', 'source_id': source['id'],
                          'original_sha256': source['original_sha256'], 'text_sha256': source['text_sha256'],
                          'original_bytes_archived': True, 'all_pdf_pages_extracted': True,
-                         'current_validity_verified': False, 'legal_completeness_verified': False},
-             original=(source['original_file'], (PRIMARY_ROOT / source['original_file']).read_bytes()))
+                         'current_validity_verified': False, 'legal_completeness_verified': False,
+                         'edition_label': source['edition_label'], 'signed_on': source['signed_on'],
+                         'history_complete': False, 'amendment_mentions': source['amendment_mentions']},
+             original=(source['original_file'], original_bytes(source)), deduplicate_source=True)
     if path == '/workspace/users/create':
         return store.create_user(p.get('name'), p.get('role', 'member'), actor=principal)
     if path == '/workspace/users/list':
