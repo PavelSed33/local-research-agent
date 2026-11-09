@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 
 from agent import validate_as_of
+from legal_research import contract_research_questions
 
 CONTRACT_TYPES = ('general', 'supply', 'lease', 'services', 'work')
 REVIEW_EVENTS = ('unspecified', 'conclusion', 'performance', 'termination', 'dispute')
@@ -64,6 +65,8 @@ def review_checklist(profile: str, contract_type: str, as_of: str, *, contract_s
                          'status': 'research_question_not_legal_finding'})
     return {'profile': profile, 'contract_type': contract_type, 'as_of': as_of, 'contract_signed_on': signed,
             'rules': selected, 'excluded_later_source_rules': excluded,
+            'research_workflows': contract_research_questions(profile, contract_type, as_of),
             'excluded_not_yet_effective_rules': not_yet_in_force,
             'verified': False, 'lawyer_reviewed': False,
             'limitation': 'Вопросы для исследования, не выводы о нарушении. Дата источника не является датой действия нормы; исторические редакции и актуальность требуют проверки.'}
+

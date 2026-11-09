@@ -3,3 +3,16 @@ __pycache__/
 *.pyc
 результаты/
 мои_исследования/
+*.db
+*.db-wal
+*.db-shm
+runtime/
+
+# Private workspace recovery files
+*.sqlite
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
+*.workspace-backup.zip
+/backups/
+/recovery/

@@ -1,0 +1,62 @@
+{
+  "checked_on": "2026-11-09",
+  "case_number": "А40-255028/2022",
+  "new_primary_originals": 0,
+  "attempts": [
+    {
+      "url": "https://kad.arbitr.ru/Kad",
+      "case_number": "А40-255028/2022",
+      "purpose": "Поиск оригиналов решения 23.01.2023 и постановлений 10.04.2023, 26.06.2023",
+      "checked_on": "2026-11-09",
+      "archived": false,
+      "http_status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "bytes_read": 12435,
+      "result": "captcha_or_browser_check"
+    },
+    {
+      "url": "https://9aas.arbitr.ru/",
+      "case_number": "А40-255028/2022",
+      "purpose": "Поиск оригиналов решения 23.01.2023 и постановлений 10.04.2023, 26.06.2023",
+      "checked_on": "2026-11-09",
+      "archived": false,
+      "http_status": 200,
+      "content_type": "text/html; charset=UTF-8",
+      "bytes_read": 69280,
+      "result": "landing_page_not_full_court_act"
+    },
+    {
+      "url": "https://fasmo.arbitr.ru/",
+      "case_number": "А40-255028/2022",
+      "purpose": "Поиск оригиналов решения 23.01.2023 и постановлений 10.04.2023, 26.06.2023",
+      "checked_on": "2026-11-09",
+      "archived": false,
+      "http_status": 200,
+      "content_type": "text/html; charset=UTF-8",
+      "bytes_read": 56024,
+      "result": "landing_page_not_full_court_act"
+    }
+  ],
+  "search_result": "Official-domain and exact-PDF searches found no downloadable primary lower-court original; secondary reproductions were not archived.",
+  "legal_acceptance": false,
+  "search_queries": [
+    "\"А40-255028/2022\" \"Ф05-12707/2023\" filetype:pdf",
+    "\"А40-255028/2022\" \"kad.arbitr.ru/Document/Pdf\"",
+    "\"А40-255028/2022\" site:9aas.arbitr.ru",
+    "\"А40-255028/2022\" site:fasmo.arbitr.ru"
+  ],
+  "missing_primary_acts": [
+    {
+      "court": "Арбитражный суд города Москвы",
+      "decision_date": "2023-01-23"
+    },
+    {
+      "court": "Девятый арбитражный апелляционный суд",
+      "decision_date": "2023-04-10"
+    },
+    {
+      "court": "Арбитражный суд Московского округа",
+      "decision_date": "2023-06-26"
+    }
+  ]
+}

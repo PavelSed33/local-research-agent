@@ -1,0 +1,170 @@
+{
+  "checked_on": "2026-11-09",
+  "api_version": "1.18",
+  "unit_tests": {
+    "passed": 521,
+    "skipped": 0
+  },
+  "workspace_http": {
+    "status": "passed",
+    "api_version": "1.18",
+    "http_checks": 39,
+    "scope": "temporary_synthetic_workspace_http",
+    "external_providers_tested": false,
+    "browser_acceptance": false,
+    "legal_acceptance": false,
+    "credentials_in_report": false
+  },
+  "legacy_http": {
+    "api_version": "1.18",
+    "mode": "demo",
+    "status": "passed",
+    "checked_on": "2026-11-09",
+    "checks": [
+      {
+        "id": "local_demo_workflows",
+        "status": "passed",
+        "passed_http_checks": 26
+      }
+    ],
+    "configuration": {
+      "missing": [
+        "LLM_API_KEY",
+        "LLM_MODEL",
+        "TAVILY_API_KEY"
+      ],
+      "invalid_endpoints": [],
+      "documents_permitted_by_configuration": false
+    },
+    "external_requests_attempted": false,
+    "live_acceptance_passed": false,
+    "legal_acceptance": false,
+    "browser_acceptance": false,
+    "scope": "technical_http_acceptance_with_synthetic_inputs",
+    "deadline_seconds": 600
+  },
+  "archive": {
+    "status": "passed",
+    "sources": 7,
+    "total_pages": 90,
+    "total_characters": 230761,
+    "native_pdf_replay": true,
+    "external_requests_attempted": false,
+    "legal_acceptance": false,
+    "results": [
+      {
+        "id": "vsrf-plenum-49-2018",
+        "pdf_bytes": 294211,
+        "pages": 16,
+        "text_characters": 43290,
+        "integrity_checked": true,
+        "identity_checked": true,
+        "legal_acceptance": false,
+        "pdf_page_count_matches": true,
+        "text_replay_matches": true,
+        "page_map_replay_matches": true,
+        "status": "passed"
+      },
+      {
+        "id": "vsrf-plenum-7-2016",
+        "pdf_bytes": 362180,
+        "pages": 25,
+        "text_characters": 69678,
+        "integrity_checked": true,
+        "identity_checked": true,
+        "legal_acceptance": false,
+        "pdf_page_count_matches": true,
+        "text_replay_matches": true,
+        "page_map_replay_matches": true,
+        "status": "passed"
+      },
+      {
+        "id": "vsrf-plenum-54-2016",
+        "pdf_bytes": 233422,
+        "pages": 18,
+        "text_characters": 50552,
+        "integrity_checked": true,
+        "identity_checked": true,
+        "legal_acceptance": false,
+        "pdf_page_count_matches": true,
+        "text_replay_matches": true,
+        "page_map_replay_matches": true,
+        "status": "passed"
+      },
+      {
+        "id": "vsrf-decision-2446026",
+        "pdf_bytes": 97934,
+        "pages": 10,
+        "text_characters": 22602,
+        "integrity_checked": true,
+        "identity_checked": true,
+        "legal_acceptance": false,
+        "pdf_page_count_matches": true,
+        "text_replay_matches": true,
+        "page_map_replay_matches": true,
+        "status": "passed"
+      },
+      {
+        "id": "vsrf-decision-2485538",
+        "pdf_bytes": 86620,
+        "pages": 8,
+        "text_characters": 16621,
+        "integrity_checked": true,
+        "identity_checked": true,
+        "legal_acceptance": false,
+        "pdf_page_count_matches": true,
+        "text_replay_matches": true,
+        "page_map_replay_matches": true,
+        "status": "passed"
+      },
+      {
+        "id": "vsrf-decision-2332384",
+        "pdf_bytes": 86026,
+        "pages": 7,
+        "text_characters": 16413,
+        "integrity_checked": true,
+        "identity_checked": true,
+        "legal_acceptance": false,
+        "pdf_page_count_matches": true,
+        "text_replay_matches": true,
+        "page_map_replay_matches": true,
+        "status": "passed"
+      },
+      {
+        "id": "vsrf-decision-1718280",
+        "pdf_bytes": 75766,
+        "pages": 6,
+        "text_characters": 11605,
+        "integrity_checked": true,
+        "identity_checked": true,
+        "legal_acceptance": false,
+        "pdf_page_count_matches": true,
+        "text_replay_matches": true,
+        "page_map_replay_matches": true,
+        "status": "passed"
+      }
+    ]
+  },
+  "browser": {
+    "scope": "synthetic_demo_browser_acceptance",
+    "browser_acceptance": false,
+    "external_providers_tested": false,
+    "legal_acceptance": false,
+    "status": "blocked",
+    "reason": "chromium_missing"
+  },
+  "new_full_individual_decisions": 4,
+  "new_decision_pages": 31,
+  "human_accepted_legal_tasks": 0,
+  "legal_acceptance": false,
+  "javascript_syntax": "passed",
+  "python_compile": "passed",
+  "docker_execution": "not_tested_binary_missing",
+  "live_provider_execution": "not_tested_missing_credentials",
+  "remaining": [
+    "confirmed_legislative_histories",
+    "lower_court_originals_and_subsequent_case_histories",
+    "lawyer_accepted_golden_answers",
+    "browser_docker_live_model_acceptance"
+  ]
+}

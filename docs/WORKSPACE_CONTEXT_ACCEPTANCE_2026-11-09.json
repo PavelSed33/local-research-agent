@@ -1,0 +1,46 @@
+{
+  "checked_on": "2026-11-09",
+  "api_version": "1.23",
+  "base_commit": "cc189b5866af5c44a96526c334b9fbf465c83ff8",
+  "scope": "workspace_client_context_invalidation",
+  "status": "passed_with_environment_limits",
+  "changes": [
+    "All workspace request results are invalidated after token input, matter change or reconnect, including return to previous values.",
+    "Guard runs after asynchronous JSON decoding and before subsequent requests, including after local file reads.",
+    "Late search/document results cannot repopulate the cleared interface or start original downloads.",
+    "Matter changes synchronously clear document fields, selected file, list, redaction terms and results even during an active action."
+  ],
+  "regression_proof": {
+    "baseline_exit_code": 1,
+    "baseline_failure": "Late search response repopulated the cleared interface with the previous account's synthetic document.",
+    "patched_exit_code": 0,
+    "script": "scripts/test_workspace_context.cjs",
+    "scenarios": 9,
+    "real_browser": false
+  },
+  "validation": {
+    "unittest": {"exit_code": 0, "tests_run": 566, "passed": 565, "skipped": 1, "seconds": 75.345},
+    "skip_reason": "Russian OCR language data not installed; test_real_russian_image_only_pdf_ocr skipped in this environment.",
+    "existing_report_and_docx_ui_scenarios": {"passed": 12, "real_browser": false},
+    "new_context_ui_scenarios": {"passed": 9, "real_browser": false},
+    "workspace_http_checks": {"passed": 54, "temporary_synthetic_accounts_and_db": true},
+    "python_compileall": "passed",
+    "javascript_syntax": "passed",
+    "git_diff_check": "passed"
+  },
+  "browser": {
+    "status": "blocked",
+    "reason": "chromium_missing",
+    "installation_attempt": "Playwright Chromium download returned an invalid/truncated ZIP; browser installation failed.",
+    "browser_acceptance": false
+  },
+  "limits": [
+    "Client invalidation does not undo writes already dispatched to the server. Refresh affected lists before repeating a write.",
+    "Node VM scenarios are UI logic tests, not browser/layout acceptance.",
+    "Real providers and Docker were not exercised; this report does not establish GitHub Actions success.",
+    "Complete legislative histories, complete case chains and independent lawyer acceptance remain open."
+  ],
+  "external_providers_tested": false,
+  "legal_acceptance": false,
+  "main_modified": false
+}

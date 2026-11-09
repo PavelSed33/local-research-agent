@@ -29,8 +29,12 @@ jobs:
         run: python -m unittest discover -v
       - name: Synthetic evaluation (not legal acceptance)
         run: python evaluation.py
+      - name: Saved response snapshot checks (synthetic examples, not legal acceptance)
+        run: python scripts/evaluate_answers.py fixtures/response_quality_examples.json
       - name: Check local capture hashes and quote spans (not legal acceptance)
         run: python legal_evidence.py
+      - name: Validate statutory corpus and research references (not legal acceptance)
+        run: python scripts/validate_legal_data.py
 
   docker-smoke:
     runs-on: ubuntu-latest
@@ -73,3 +77,4 @@ jobs:
       - name: Stop container
         if: always()
         run: docker rm -f legal-agent-test
+

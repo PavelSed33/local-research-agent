@@ -796,7 +796,7 @@ def build_validated_report(model: LanguageModel, topic: str, sources: list[Sourc
     )
     remaining = validate_report(repaired, sources)
     if remaining:
-        raise AgentError("Отчёт не прошёл проверку после исправления: " + " ".join(remaining))
+        raise AgentError(f"Отчёт не прошёл проверку после исправления. Нарушений: {len(remaining)}.")
     return repaired, True
 
 
@@ -836,7 +836,7 @@ def reflect_on_report(model: LanguageModel, topic: str, report: str, sources: li
     )
     validation = validate_report(repaired, sources)
     if validation:
-        raise AgentError("Ответ после самопроверки не прошёл структурную проверку: " + " ".join(validation))
+        raise AgentError(f"Ответ после самопроверки не прошёл структурную проверку. Нарушений: {len(validation)}.")
     journal["repaired"] = True
     return repaired, journal
 
@@ -911,6 +911,9 @@ def save_results(
     journal_sources = [
         {**asdict(source), "title": source.title[:500], "url": source.url[:2000],
          "query": source.query[:1000], "text": source.text[:9000],
+         **({'retrieval_mode': 'local_statutory_extract', 'period_supported': False,
+             'original_publication': False, 'verified': False}
+            if source.query == 'local statutory extract' else {}),
          "authority_class": classify_source_authority(source.url)}
         for source in sources[:16]
     ]
@@ -1014,6 +1017,12 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
     log("[2/8] Ищу нормы и читаю источники…")
     per_query = max(2, min(5, source_limit))
     found, errors = search_queries(search, queries, per_query, verbose=verbose)
+    if not demo:
+        from statute_corpus import search_statutory_sources
+        local_statutes = search_statutory_sources(original_topic, legal_as_of, min(2, source_limit))
+        if local_statutes:
+            keep = max(1, source_limit - len(local_statutes)) if found else 0
+            found = [*found[:keep], *local_statutes, *found[keep:]]
     sources = deduplicate(found, source_limit)
     if not sources:
         details = "\n".join(errors)
@@ -1353,4 +1362,5 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
 

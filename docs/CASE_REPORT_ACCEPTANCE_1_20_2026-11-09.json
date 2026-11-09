@@ -1,0 +1,202 @@
+{
+  "checked_on": "2026-11-09",
+  "api_version": "1.20",
+  "base_remote_commit": "fc15b6cd8330ba133ec1756b85b760579e7be436",
+  "specification": "TZ_legal_agent_2_hours_2026-11-09.md",
+  "stage_status": "implemented_with_external_acceptance_open",
+  "unit_tests": {
+    "passed": 541,
+    "skipped": 0
+  },
+  "workspace_http": {
+    "status": "passed",
+    "api_version": "1.20",
+    "http_checks": 52,
+    "scope": "temporary_synthetic_workspace_http",
+    "external_providers_tested": false,
+    "browser_acceptance": false,
+    "legal_acceptance": false,
+    "credentials_in_report": false
+  },
+  "legacy_http": {
+    "api_version": "1.20",
+    "mode": "demo",
+    "status": "passed",
+    "checked_on": "2026-11-09",
+    "checks": [
+      {
+        "id": "local_demo_workflows",
+        "status": "passed",
+        "passed_http_checks": 26
+      }
+    ],
+    "configuration": {
+      "missing": [
+        "LLM_API_KEY",
+        "LLM_MODEL",
+        "TAVILY_API_KEY"
+      ],
+      "invalid_endpoints": [],
+      "documents_permitted_by_configuration": false
+    },
+    "external_requests_attempted": false,
+    "live_acceptance_passed": false,
+    "legal_acceptance": false,
+    "browser_acceptance": false,
+    "scope": "technical_http_acceptance_with_synthetic_inputs",
+    "deadline_seconds": 600
+  },
+  "archive": {
+    "status": "passed",
+    "sources": 7,
+    "total_pages": 90,
+    "total_characters": 230761,
+    "native_pdf_replay": true,
+    "external_requests_attempted": false,
+    "legal_acceptance": false,
+    "results": [
+      {
+        "id": "vsrf-plenum-49-2018",
+        "pdf_bytes": 294211,
+        "pages": 16,
+        "text_characters": 43290,
+        "integrity_checked": true,
+        "identity_checked": true,
+        "legal_acceptance": false,
+        "pdf_page_count_matches": true,
+        "text_replay_matches": true,
+        "page_map_replay_matches": true,
+        "status": "passed"
+      },
+      {
+        "id": "vsrf-plenum-7-2016",
+        "pdf_bytes": 362180,
+        "pages": 25,
+        "text_characters": 69678,
+        "integrity_checked": true,
+        "identity_checked": true,
+        "legal_acceptance": false,
+        "pdf_page_count_matches": true,
+        "text_replay_matches": true,
+        "page_map_replay_matches": true,
+        "status": "passed"
+      },
+      {
+        "id": "vsrf-plenum-54-2016",
+        "pdf_bytes": 233422,
+        "pages": 18,
+        "text_characters": 50552,
+        "integrity_checked": true,
+        "identity_checked": true,
+        "legal_acceptance": false,
+        "pdf_page_count_matches": true,
+        "text_replay_matches": true,
+        "page_map_replay_matches": true,
+        "status": "passed"
+      },
+      {
+        "id": "vsrf-decision-2446026",
+        "pdf_bytes": 97934,
+        "pages": 10,
+        "text_characters": 22602,
+        "integrity_checked": true,
+        "identity_checked": true,
+        "legal_acceptance": false,
+        "pdf_page_count_matches": true,
+        "text_replay_matches": true,
+        "page_map_replay_matches": true,
+        "status": "passed"
+      },
+      {
+        "id": "vsrf-decision-2485538",
+        "pdf_bytes": 86620,
+        "pages": 8,
+        "text_characters": 16621,
+        "integrity_checked": true,
+        "identity_checked": true,
+        "legal_acceptance": false,
+        "pdf_page_count_matches": true,
+        "text_replay_matches": true,
+        "page_map_replay_matches": true,
+        "status": "passed"
+      },
+      {
+        "id": "vsrf-decision-2332384",
+        "pdf_bytes": 86026,
+        "pages": 7,
+        "text_characters": 16413,
+        "integrity_checked": true,
+        "identity_checked": true,
+        "legal_acceptance": false,
+        "pdf_page_count_matches": true,
+        "text_replay_matches": true,
+        "page_map_replay_matches": true,
+        "status": "passed"
+      },
+      {
+        "id": "vsrf-decision-1718280",
+        "pdf_bytes": 75766,
+        "pages": 6,
+        "text_characters": 11605,
+        "integrity_checked": true,
+        "identity_checked": true,
+        "legal_acceptance": false,
+        "pdf_page_count_matches": true,
+        "text_replay_matches": true,
+        "page_map_replay_matches": true,
+        "status": "passed"
+      }
+    ]
+  },
+  "ui_logic": {
+    "status": "passed",
+    "scope": "node_vm_workspace_report",
+    "checks": 8,
+    "browser_acceptance": false
+  },
+  "browser": {
+    "scope": "synthetic_demo_browser_acceptance",
+    "browser_acceptance": false,
+    "external_providers_tested": false,
+    "legal_acceptance": false,
+    "status": "blocked",
+    "reason": "chromium_missing"
+  },
+  "new_primary_originals": 0,
+  "source_attempts_report": "CASE_REPORT_SOURCE_ATTEMPTS_2026-11-09.json",
+  "human_accepted_legal_tasks": 0,
+  "legal_acceptance": false,
+  "javascript_syntax": "passed",
+  "python_compile": "passed",
+  "docker_execution": "not_tested_binary_missing",
+  "live_provider_execution": "not_tested_missing_credentials",
+  "implemented": [
+    "authenticated_case_snapshot_and_markdown",
+    "latest_versions_and_temporal_filter",
+    "quote_hash_offset_and_page_rechecks",
+    "positions_relationships_and_stale_target_warnings",
+    "bounded_generation_without_silent_truncation",
+    "audit_without_document_contents",
+    "literal_markdown_rendering",
+    "preview_and_download_same_bytes",
+    "download_acl_and_snapshot_recheck",
+    "identity_matter_and_parameter_state_resets"
+  ],
+  "criteria": {
+    "authorized_user_report": "passed",
+    "outsider_and_revoked_access": "passed",
+    "latest_card_no_inherited_approval": "passed",
+    "future_acts_excluded": "passed",
+    "literal_quote_offsets": "passed",
+    "incomplete_history_explicit": "passed",
+    "utf8_preview_export": "passed_http_and_node_vm",
+    "identity_and_matter_reset": "passed_node_vm",
+    "targeted_and_full_technical_regression": "passed",
+    "real_browser_interaction": "blocked_chromium_missing"
+  },
+  "limits": {
+    "max_candidate_cards_including_versions": 200,
+    "max_report_acts": 20,
+    "max_markdown_bytes": 512000
+  }
+}

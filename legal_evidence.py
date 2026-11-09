@@ -11,6 +11,7 @@ MAX_CAPTURE_BYTES = 128 * 1024
 ALLOWED_HOSTS = {
     'government_consolidated_copy': {'mintrud.gov.ru'},
     'supreme_court_plenum': {'vsrf.ru', 'www.vsrf.ru'},
+    'government_amending_act_copy': {'zpp.rospotrebnadzor.ru'},
 }
 
 
@@ -20,7 +21,9 @@ def _capture(root, entry):
     if (url.scheme != 'https' or url.hostname not in ALLOWED_HOSTS.get(entry['kind'], set())
             or url.username or url.password or url.port not in (None, 443)):
         raise ValueError('Недопустимый URL или вид источника.')
-    if entry.get('capture_kind') != 'web_extract_selected_lines':
+    if entry['kind'] == 'government_amending_act_copy' and not url.path.startswith('/npa/federal/'):
+        raise ValueError('Ведомственная копия акта должна находиться в разделе федеральных НПА.')
+    if entry.get('capture_kind') not in {'web_extract_selected_lines', 'html_selected_paragraphs'}:
         raise ValueError('Неизвестный способ извлечения.')
     captured_on = validate_as_of(entry['captured_on'])
     if captured_on is None:
@@ -83,7 +86,8 @@ def evidence_report(card_ids=None, as_of=None, *, corpus_dir=None):
                 continue
             accepted.append({
                 'id': entry['id'], 'title': entry['title'], 'url': entry['url'],
-                'kind': entry['kind'], 'capture_kind': 'web_extract_selected_lines',
+                'kind': entry['kind'], 'capture_kind': entry['capture_kind'],
+                'observed_scope': entry.get('scope') if isinstance(entry.get('scope'), str) else None,
                 'file': entry['file'], 'sha256': digest, 'captured_on': captured,
                 'document_signed_on': document_date, 'edition_on': None,
                 'raw_http_response': False, 'original_publication': False,
@@ -101,9 +105,15 @@ def evidence_report(card_ids=None, as_of=None, *, corpus_dir=None):
             'limitation': 'Локальные извлечения неполны; первичные публикации и история норм не подтверждены.'}
 
 
-def cached_contract_sources(as_of):
-    """Only a court interpretation currently belongs in the civil review context."""
-    report = evidence_report(['LAW-02:310', 'LAW-02:421'], as_of)
+def contract_evidence_cards(profile='business'):
+    if profile == 'employment':
+        return []
+    return ['LAW-02:310', 'LAW-02:421'] + (['LAW-04:16'] if profile == 'consumer' else [])
+
+
+def cached_contract_sources(as_of, profile='business'):
+    """Use profile-scoped extracts only after their capture date; never infer editions."""
+    report = evidence_report(contract_evidence_cards(profile), as_of)
     return [Source(entry['title'], entry['url'], entry['text'], 'local incomplete web extract')
             for entry in report['entries'] if entry['temporal_status'] == 'incomplete_history']
 
@@ -114,3 +124,4 @@ if __name__ == '__main__':
         entry.pop('text')
     print(json.dumps(report, ensure_ascii=False, indent=2))
     raise SystemExit(1 if report['errors'] else 0)
+

@@ -1,0 +1,35 @@
+{
+  "api_version": "1.13",
+  "checked_on": "2026-11-08",
+  "scope": "local automated regression and reviewed skill integration",
+  "unit_tests": {"run": 425, "failed": 0, "status": "passed"},
+  "http_demo_acceptance": {"checks": 26, "status": "passed"},
+  "malformed_http_workflows": {"routes": 12, "expected_status": 400, "status": "passed", "included_in_unit_tests": true},
+  "registry_failure_http": {"skill_options": 503, "health": 200, "openapi": 200, "status": "passed", "included_in_unit_tests": true},
+  "skill_integrity": {"count": 6, "status": "passed"},
+  "data_validation": {"modules": 9, "acts": 15, "extracts": 454, "workflows": 35, "draft_synthetic_cases": 90, "status": "passed"},
+  "offline_response_examples": {"synthetic_snapshots": 2, "status": "passed", "model_execution_verified": false},
+  "python_compilation": "passed",
+  "javascript_syntax": "passed",
+  "git_diff_whitespace": "passed",
+  "docker_copy_packaging": {"status": "passed", "included_in_unit_tests": true, "container_executed": false},
+  "fixes": [
+    "Validate registry schema, permitted paths, symlinks, file limits, license attachments and hashes before loading",
+    "Return sanitized 503 for unavailable skill registry while keeping core health and OpenAPI available",
+    "Treat non-string model priorities as invalid provider output instead of internal TypeError",
+    "Reject whitespace-only playbook evidence and ambiguous dual document inputs",
+    "Derive workflow readiness from reviewed skill network requirements",
+    "Ship newly vendored originals and licenses in the Docker COPY file set"
+  ],
+  "limitations": {
+    "live_provider_acceptance": "blocked: LLM_API_KEY, LLM_MODEL and TAVILY_API_KEY missing",
+    "browser_acceptance": "blocked: chromium_missing",
+    "docker_execution": "blocked: docker binary missing",
+    "github_actions": "not used as passing evidence; previously failed before runner allocation",
+    "legal_acceptance": "requires independent lawyer review",
+    "exhaustive_security_audit": false
+  },
+  "external_requests_attempted_by_acceptance": false,
+  "legal_acceptance": false,
+  "lawyer_reviewed": false
+}
