@@ -1,0 +1,59 @@
+{
+  "status": "structural_ranges_only_not_article_inventory",
+  "as_of": "2026-11-09",
+  "warning": "Диапазоны не означают, что каждая статья существует или действует; вставные статьи и утратившие силу нормы должны проверяться отдельно по редакции.",
+  "source_urls": [
+    "https://minjust.gov.ru/ru/pages/grazhdanskij-kodeks/",
+    "https://ivo.garant.ru/document/redirect/10164072/801",
+    "https://www.pravo.gov.ru/"
+  ],
+  "parts": [
+    {
+      "title": "Гражданский кодекс Российской Федерации (часть первая)",
+      "law_number": "51-ФЗ",
+      "law_date": "1994-11-30",
+      "first_base_article": 1,
+      "last_base_article": 453,
+      "sections": [
+        "I",
+        "II",
+        "III"
+      ],
+      "reference_status": "range_only_pending_edition_reconciliation"
+    },
+    {
+      "title": "Гражданский кодекс Российской Федерации (часть вторая)",
+      "law_number": "14-ФЗ",
+      "law_date": "1996-01-26",
+      "first_base_article": 454,
+      "last_base_article": 1109,
+      "sections": [
+        "IV"
+      ],
+      "reference_status": "range_only_pending_edition_reconciliation"
+    },
+    {
+      "title": "Гражданский кодекс Российской Федерации (часть третья)",
+      "law_number": "146-ФЗ",
+      "law_date": "2001-11-26",
+      "first_base_article": 1110,
+      "last_base_article": 1224,
+      "sections": [
+        "V",
+        "VI"
+      ],
+      "reference_status": "range_only_pending_edition_reconciliation"
+    },
+    {
+      "title": "Гражданский кодекс Российской Федерации (часть четвертая)",
+      "law_number": "230-ФЗ",
+      "law_date": "2006-12-18",
+      "first_base_article": 1225,
+      "last_base_article": 1551,
+      "sections": [
+        "VII"
+      ],
+      "reference_status": "range_only_pending_edition_reconciliation"
+    }
+  ]
+}
