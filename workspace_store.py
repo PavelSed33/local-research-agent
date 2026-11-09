@@ -163,13 +163,14 @@ class WorkspaceStore:
             self._audit(db, actor, 'user_revoked', user_id)
         return {'revoked': True}
 
-    def rotate_token(self, principal):
+    def rotate_token(self, principal, *, local_recovery=False):
         token = secrets.token_urlsafe(32)
         with self.connect(True) as db:
             self._user(db, principal)
             db.execute('UPDATE tokens SET active=0 WHERE user_id=?', (principal,))
             db.execute('INSERT INTO tokens(digest,user_id) VALUES(?,?)', (hashlib.sha256(token.encode()).hexdigest(), principal))
-            self._audit(db, principal, 'token_rotated', principal)
+            self._audit(db, 'local-recovery' if local_recovery else principal,
+                        'token_reissued_local' if local_recovery else 'token_rotated', principal)
         return {'token': token, 'token_shown_once': True, 'old_tokens_revoked': True}
 
     def transfer_matter(self, principal, matter, new_owner):
