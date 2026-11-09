@@ -74,6 +74,17 @@ def render_markdown(report):
         for position in act['positions']:
             lines.extend(['', SIDES[position['side']]]); citation(position['citation'])
             lines.extend(['', 'Ручное объяснение применимости:', '', fence(position['applicability_note'])])
+        lines.extend(['', '### Упомянутые акты и пробелы'])
+        if not act['referenced_acts']:
+            lines.extend(['', 'Подтверждённая разметка упоминаний не добавлена; отсутствие списка не означает полноту истории.'])
+        for mention in act['referenced_acts']:
+            lines.extend(['', plain(mention['court_mention']) + ' · ' + plain(mention['decision_date']),
+                '', 'Это упоминание в тексте выбранного акта, а не загруженный оригинал нижестоящего решения.'])
+            if mention['date_candidate_ids']:
+                lines.extend(['', 'Карточки того же дела на эту дату: ' + ', '.join(mention['date_candidate_ids']) + '. Совпадение даты не подтверждает соответствие суда; требуется проверка.'])
+            else:
+                lines.extend(['', 'Пробел: отдельная карточка этого дела на указанную дату в отчёте отсутствует.'])
+            citation(mention['citation'])
         lines.extend(['', '### Связи с другими актами'])
         if not act['links']:
             lines.extend(['', 'Связи не заполнены.'])
@@ -139,14 +150,33 @@ class CaseReport:
                     'origin': document['provenance'].get('origin', 'unspecified'),
                     'quote_checked': True, 'source_authenticity_automatically_verified': False}
 
-            acts, stale_targets = [], 0
+            acts, stale_targets, archive = [], 0, None
             for row in selected:
                 p = row['payload']; document_id = p['identity']['document_id']
                 act = {'artifact_id': row['id'], 'artifact_sha256': row['sha256'],
                     'case_number': p['case_number'], 'court': p['court'], 'decision_date': p['decision_date'],
                     'instance': p['instance'], 'version': row['version'], 'review_status': row['review_status'],
                     'review': row['review'], 'identity': citation(p['identity'], document_id),
-                    'outcome': citation(p['outcome'], document_id), 'positions': [], 'links': []}
+                    'outcome': citation(p['outcome'], document_id), 'positions': [], 'links': [], 'referenced_acts': []}
+                document = documents[document_id]
+                if document['provenance'].get('origin') == 'pinned_primary_archive':
+                    if archive is None:
+                        from primary_sources import load_sources
+                        archive = {source['id']: source for source in load_sources()}
+                    source = archive.get(document['provenance'].get('source_id'))
+                    if source is None or source['text_sha256'] != document['sha256']:
+                        raise evidence_error()
+                    for mention in source.get('procedural_mentions', []):
+                        start = document['text'].find(mention['quote'])
+                        proof = citation({'document_id': document_id, 'quote': mention['quote'],
+                            'document_sha256': document['sha256'], 'start': start, 'end': start + len(mention['quote'])}, document_id)
+                        candidates = [candidate['id'] for candidate in selected
+                            if candidate['id'] != row['id'] and candidate['payload']['decision_date'] == mention['decision_date']]
+                        act['referenced_acts'].append({'court_mention': mention['court_mention'],
+                            'decision_date': mention['decision_date'], 'citation': proof, 'date_candidate_ids': candidates,
+                            'status': 'date_candidate_requires_review' if candidates else 'not_represented_on_date',
+                            'literal_reference_checked': True, 'court_date_association_verified': False,
+                            'original_act_automatically_verified': False})
                 for position in p['positions']:
                     if position['side'] not in SIDES:
                         raise evidence_error()
@@ -169,7 +199,10 @@ class CaseReport:
             warnings = list(WARNINGS)
             if stale_targets:
                 warnings.append('Есть ссылки на прежние версии карточек: ' + str(stale_targets) + '. Проверьте их заново.')
-            report = {'schema_version': 1, 'matter_id': matter, 'case_number': case_number, 'as_of': as_of,
+            missing_references = sum(not mention['date_candidate_ids'] for act in acts for mention in act['referenced_acts'])
+            if missing_references:
+                warnings.append('Упоминаний актов без отдельной карточки на указанную дату: ' + str(missing_references) + '. Упоминание не заменяет оригинал.')
+            report = {'schema_version': 2, 'matter_id': matter, 'case_number': case_number, 'as_of': as_of,
                 'act_count': len(acts), 'acts': acts, 'excluded': excluded, 'warnings': warnings,
                 'complete_history': False, 'legal_acceptance': False, 'reviewer_qualification_verified': False,
                 'model_called': False, 'external_requests_attempted': False,

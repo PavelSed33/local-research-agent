@@ -70,6 +70,10 @@ def run_acceptance():
             report = post('/workspace/cases/report', report_args)
             assert report['report']['act_count'] == 1 and report['report']['legal_acceptance'] is False
             assert report['report']['acts'][0]['artifact_id'] == revised['artifact_id']
+            assert report['report']['schema_version'] == 2
+            assert len(report['report']['acts'][0]['referenced_acts']) == 2
+            assert all(not ref['original_act_automatically_verified'] for ref in report['report']['acts'][0]['referenced_acts'])
+            assert 'Пробел: отдельная карточка' in report['markdown']
             assert report['markdown_sha256'] == hashlib.sha256(report['markdown'].encode('utf-8')).hexdigest()
             assert post('/workspace/cases/report', report_args, other['token'])['report']['act_count'] == 1
             outsider = post('/workspace/users/create', {'name': 'Синтетический посторонний'})

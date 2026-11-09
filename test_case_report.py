@@ -159,3 +159,32 @@ class CaseReportTests(unittest.TestCase):
                         {'matter_id':self.matter,'case_number':'А00-1/2025','as_of':'2025-02-30'},
                         {'matter_id':self.matter,'case_number':'А00-1/2025','as_of':'2025-01-01','allow_cloud':True}):
             with self.assertRaises(ValueError):dispatch(self.store,self.owner,'/workspace/cases/report',payload)
+
+    def test_known_lower_act_mentions_are_explicit_gaps_with_source_proofs(self):
+        dispatch(self.store,self.owner,'/workspace/sources/decision-draft',{'matter_id':self.matter,'source_id':'vsrf-decision-2332384'})
+        result=self.report(case='А40-255028/2022',as_of='2024-01-29')
+        references=result['report']['acts'][0]['referenced_acts']
+        self.assertEqual(result['report']['schema_version'],2)
+        self.assertEqual({row['decision_date'] for row in references},{'2023-01-23','2023-04-10','2023-06-26'})
+        for mention in references:
+            self.assertEqual(mention['status'],'not_represented_on_date')
+            self.assertEqual(mention['date_candidate_ids'],[])
+            self.assertFalse(mention['original_act_automatically_verified'])
+            proof=mention['citation'];doc=self.store.document(self.owner,proof['document_id'])
+            self.assertEqual(doc['text'][proof['start']:proof['end']],proof['quote'])
+            self.assertTrue(proof['pages'])
+        self.assertIn('Пробел: отдельная карточка',result['markdown'])
+        self.assertFalse(result['report']['complete_history'])
+
+    def test_date_candidate_does_not_claim_court_correspondence_or_original_authenticity(self):
+        dispatch(self.store,self.owner,'/workspace/sources/decision-draft',{'matter_id':self.matter,'source_id':'vsrf-decision-2332384'})
+        body='Синтетический иной суд. Первая инстанция. Дело А40-255028/2022 от 23.01.2023\nУчебный результат только для проверки механизма.'
+        document=self.store.add_document(self.owner,self.matter,{'title':'СИНТЕТИЧЕСКИЙ АКТ','document':body})['document_id']
+        candidate=self.evidence.add(self.owner,self.matter,'decision',{'court':'Синтетический иной суд','instance':'Первая инстанция','case_number':'А40-255028/2022','decision_date':'2023-01-23','identity':{'document_id':document,'quote':body.split('\n')[0]},'outcome':{'document_id':document,'quote':body.split('\n')[1]},'positions':[],'links':[],'full_text_declared':True})['artifact_id']
+        result=self.report(case='А40-255028/2022',as_of='2024-01-29')
+        refs=[ref for row in result['report']['acts'] for ref in row['referenced_acts'] if ref['decision_date']=='2023-01-23']
+        self.assertEqual(refs[0]['date_candidate_ids'],[candidate])
+        self.assertEqual(refs[0]['status'],'date_candidate_requires_review')
+        self.assertFalse(refs[0]['court_date_association_verified'])
+        self.assertFalse(refs[0]['original_act_automatically_verified'])
+        self.assertIn('Совпадение даты не подтверждает соответствие суда',result['markdown'])
