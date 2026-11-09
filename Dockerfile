@@ -13,6 +13,8 @@ COPY legal_skills.py ./
 COPY local_extract.py ./
 COPY document_tools.py workspace_store.py reviewed_evidence.py workspace_api.py matter_research.py ./
 COPY primary_sources.py ./
+COPY benchmark_tasks.py ./
+COPY fixtures/legal_benchmarks.json ./fixtures/
 COPY scripts/manage_workspace.py ./scripts/
 COPY fixtures/primary_sources ./fixtures/primary_sources
 COPY skills ./skills

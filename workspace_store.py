@@ -61,6 +61,10 @@ class WorkspaceStore:
                   start UNINDEXED,text,tokenize='unicode61');
                 CREATE TABLE IF NOT EXISTS artifacts(id TEXT PRIMARY KEY,matter_id TEXT REFERENCES matters(id),kind TEXT NOT NULL,
                   payload TEXT NOT NULL,sha256 TEXT NOT NULL,created_by TEXT REFERENCES users(id),created_on TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS benchmark_tasks(id TEXT PRIMARY KEY,matter_id TEXT REFERENCES matters(id),
+                  case_id TEXT NOT NULL,payload TEXT NOT NULL,sha256 TEXT NOT NULL,created_by TEXT REFERENCES users(id),
+                  created_on TEXT NOT NULL,artifact_id TEXT REFERENCES artifacts(id),UNIQUE(matter_id,case_id));
+                CREATE TRIGGER IF NOT EXISTS benchmark_task_immutable BEFORE UPDATE OF matter_id,case_id,payload,sha256,created_by,created_on ON benchmark_tasks BEGIN SELECT RAISE(ABORT,'immutable task'); END;
                 CREATE TABLE IF NOT EXISTS originals(document_id TEXT PRIMARY KEY REFERENCES documents(id),filename TEXT NOT NULL,
                   sha256 TEXT NOT NULL,bytes BLOB NOT NULL);
                 CREATE TRIGGER IF NOT EXISTS originals_no_update BEFORE UPDATE ON originals BEGIN SELECT RAISE(ABORT,'immutable original'); END;
@@ -308,17 +312,22 @@ class WorkspaceStore:
             rows = db.execute('SELECT d.id,d.title,d.sha256,d.captured_on,d.created_on,EXISTS(SELECT 1 FROM originals o WHERE o.document_id=d.id) AS has_original FROM documents d WHERE d.matter_id=? ORDER BY d.created_on LIMIT 1000', (matter,))
             return {'documents': [{**dict(row), 'has_original': bool(row['has_original'])} for row in rows]}
 
-    def search(self, principal, matter, query, limit=8):
+    def search(self, principal, matter, query, limit=8, *, document_ids=None):
         query = text(query, 'query', 2000)
         if type(limit) is not int or not 1 <= limit <= 12:
             raise ValueError('limit должен быть от 1 до 12.')
+        if document_ids is not None and (not isinstance(document_ids, list) or not 1 <= len(document_ids) <= 32
+                or any(not isinstance(identity, str) or len(identity) > 64 for identity in document_ids)):
+            raise ValueError('Некорректное ограничение списка документов.')
         words = re.findall(r'\w{2,80}', query.casefold())[:16]
         if not words:
             raise ValueError('Запрос должен содержать слова длиной от двух символов.')
         expression = ' OR '.join('"' + word + '"*' for word in words)
         with self.connect(True) as db:
             self._access(db, principal, matter)
-            rows = db.execute('SELECT document_id,start,text,bm25(chunks) AS score FROM chunks WHERE chunks MATCH ? AND matter_id=? ORDER BY score LIMIT ?', (expression, matter, limit))
+            restriction = ' AND document_id IN (' + ','.join('?' for _ in document_ids) + ')' if document_ids else ''
+            rows = db.execute('SELECT document_id,start,text,bm25(chunks) AS score FROM chunks WHERE chunks MATCH ? AND matter_id=?' + restriction + ' ORDER BY score LIMIT ?',
+                              (expression, matter, *(document_ids or []), limit))
             results = []
             for row in rows:
                 if len(row['text'].strip()) < 10:

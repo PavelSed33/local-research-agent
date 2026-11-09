@@ -54,6 +54,7 @@ from request_jobs import RequestJobs, JobError, ID_PATTERN
 from preflight import inspect_configuration, inspect_runtime
 from workspace_store import WorkspaceStore, WorkspaceError
 from primary_sources import PrimarySourceError
+from benchmark_tasks import BenchmarkTemplateError
 from workspace_api import FIELDS as WORKSPACE_FIELDS, dispatch as workspace_dispatch, prepare_answer, namespace, validate as validate_workspace
 
 DEFAULT_HOST = "127.0.0.1"
@@ -65,7 +66,7 @@ MAX_QUESTION_CHARS = 12_000
 SESSION_MAX_ENTRIES = 10
 SESSION_MAX_COUNT = 1_000
 SERVICE_NAME = "legal-research-agent"
-API_VERSION = "1.16"
+API_VERSION = "1.17"
 SESSION_TTL_SECONDS = 3600
 SESSION_ANSWER_CHARS = 500
 SESSION_ID_PATTERN = re.compile(r"^[A-Za-z0-9-]{1,64}$")
@@ -493,6 +494,12 @@ def openapi_spec(*, require_auth: bool = True) -> dict[str, Any]:
         if 'post' in path:
             path['post']['security'] = [{'ApiToken': []}] if require_auth else []
     properties = {
+        'as_of': {'type': 'string', 'format': 'date'},
+        'editions': {'type': 'array', 'maxItems': 3, 'items': {'type': 'object', 'additionalProperties': False, 'required': ['act_id', 'provision'], 'properties': {'act_id': {'type': 'string'}, 'provision': {'type': 'string'}}}},
+        'case_ids': {'type': 'array', 'items': {'type': 'string'}},
+        'required_risks': {'type': 'array', 'items': {'type': 'string'}},
+        'forbidden_claims': {'type': 'array', 'items': {'type': 'string'}},
+        'citations': {'type': 'array', 'items': {'type': 'object'}},
         'filename': {'type': 'string'}, 'file_base64': {'type': 'string'}, 'ocr': {'type': 'boolean'},
         'ocr_language': {'type': 'string'}, 'document': {'type': 'string'}, 'terms': {'type': 'array', 'items': {'type': 'string'}},
         'replacements': {'type': 'array', 'items': {'type': 'object'}}, 'title': {'type': 'string'},
@@ -730,6 +737,8 @@ class LegalApiHandler(BaseHTTPRequestHandler):
                         # A revoked user/member must not receive a late model answer.
                         with self.server.workspace.connect(True) as db:
                             self.server.workspace._access(db, principal, prepared['matter_id'])
+                            from reviewed_evidence import ReviewedEvidence
+                            ReviewedEvidence(self.server.workspace).assert_selection(db, principal, prepared['matter_id'], prepared.get('as_of'), prepared.get('selected_editions', []))
                             self.server.workspace._audit(db, principal, 'matter_answered', prepared['matter_id'], prepared['matter_id'])
                         return result
                     result = self.server.jobs.execute(self._scoped_id(request_id),
@@ -792,6 +801,8 @@ class LegalApiHandler(BaseHTTPRequestHandler):
                     return result
                 result = self.server.jobs.execute(self._scoped_id(self.request_id),
                     {'path': self.path, 'payload': payload, 'context': context}, commit)
+        except BenchmarkTemplateError:
+            self._send_json(503, {'error': 'Черновые задания недоступны.', 'code': 'benchmark_templates_unavailable'})
         except PrimarySourceError:
             self._send_json(503, {'error': 'Архив первоисточников недоступен.', 'code': 'primary_archive_unavailable'})
         except WorkspaceError as exc:

@@ -11,7 +11,8 @@ from doctext import ensure_document_transfer_allowed
 def answer(payload):
     question, sources, demo = payload['question'], payload['sources'], payload['demo']
     base = {'matter_id': payload['matter_id'], 'verified': False, 'lawyer_reviewed': False,
-            'legal_acceptance': False, 'demo': demo, 'sources': sources}
+            'legal_acceptance': False, 'demo': demo, 'sources': sources,
+            'as_of': payload.get('as_of'), 'selected_editions': payload.get('selected_editions', [])}
     base['source_warnings'] = (['В контексте есть архивные правовые материалы: актуальность редакции и действие на дату ситуации не подтверждены.']
         if any(source.get('source_context', {}).get('origin') == 'pinned_primary_archive' for source in sources) else [])
     if not sources:
@@ -35,10 +36,11 @@ def answer(payload):
                   'Сопоставь факты, противоречия и недостающие сведения. Не выдумывай нормы или события. '
                   'Архивные правовые материалы не называй действующими или подтверждёнными на дату ситуации. '
                   'Дата получения файла не подтверждает период действия; учитывай source_context и обозначай пробелы. '
+                  'Отметки edition_references — зарегистрированные проверки других аккаунтов на as_of; они не удостоверяют квалификацию проверяющего. '
                   'Каждый вывод снабди дословной цитатой из переданных фрагментов. '
                   'Верни только JSON {"summary":"...","findings":[{"assessment":"...",'
                   '"citations":[{"source_id":1,"quote":"дословная цитата"}]}]}. Не более 30 выводов.')
-        result = extract_json(OpenAICompatibleModel().complete(system, json.dumps({'question': question, 'sources': sources}, ensure_ascii=False)))
+        result = extract_json(OpenAICompatibleModel().complete(system, json.dumps({'question': question, 'as_of': payload.get('as_of'), 'sources': sources}, ensure_ascii=False)))
     if (not isinstance(result.get('summary'), str) or not 1 <= len(result['summary']) <= 12000
             or not isinstance(result.get('findings'), list) or len(result['findings']) > 30):
         raise AgentError('Некорректный результат анализа дела.')
