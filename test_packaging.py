@@ -30,6 +30,7 @@ class DockerPackagingTests(unittest.TestCase):
                  'from docx_redline import redline_docx; '
                  'from workspace_backup import create_backup, restore_backup; '
                  'from analysis_reports import AnalysisReports; from learning_memory import LearningMemory; '
+                 'from control_evaluation import control_plan; assert len(control_plan()["control_case_ids"])==10; '
                  'from pathlib import Path; '
                  'from workspace_store import WorkspaceStore; '
                  'store=WorkspaceStore(\"case-report.db\"); user=store.create_user(\"Packaging admin\",\"admin\")[\"user_id\"]; '

@@ -103,7 +103,9 @@ class PilotAcceptanceTests(unittest.TestCase):
         self.assertEqual(result['statutory_extracts'], 454)
         self.assertEqual(result['draft_synthetic_cases'], 90)
         self.assertEqual(result['services_pilot_tasks'], 25)
-        self.assertEqual(set(result), {'id', 'status', 'statutory_extracts', 'draft_synthetic_cases', 'services_pilot_tasks'})
+        self.assertEqual(set(result), {'id', 'status', 'statutory_extracts', 'draft_synthetic_cases', 'services_pilot_tasks',
+                                       'draft_control_cases', 'training_candidate_cases'})
+        self.assertEqual((result['draft_control_cases'], result['training_candidate_cases']), (10, 15))
 
     def test_unknown_worker_is_rejected_before_process_start(self):
         with patch('scripts.pilot_acceptance._run_isolated') as worker, self.assertRaises(ValueError):

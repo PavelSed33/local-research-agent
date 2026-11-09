@@ -14,6 +14,10 @@ FIELDS = {
     '/workspace/search': {'matter_id', 'query', 'limit'},
     '/workspace/ask': {'matter_id', 'question', 'demo', 'allow_cloud', 'as_of', 'editions', 'analysis_mode', 'contract_document_id', 'facts', 'use_learning', 'learning_exclude_artifact_ids'},
     '/workspace/learning/preview': {'matter_id', 'question', 'as_of', 'learning_exclude_artifact_ids'},
+    '/workspace/quality/sets/create': {'matter_id', 'title', 'benchmark_ids'},
+    '/workspace/quality/sets/list': {'matter_id'},
+    '/workspace/quality/compare': {'matter_id', 'set_id', 'baseline_label', 'candidate_label'},
+    '/workspace/quality/runs/register': {'matter_id', 'set_id', 'evaluation_id', 'run_label', 'same_answer_declared'},
     '/workspace/analysis/validate': {'matter_id', 'as_of', 'documents', 'editions'},
     '/workspace/analysis/read': {'matter_id', 'report_id', 'markdown_sha256'},
     '/workspace/evidence/add': {'matter_id', 'kind', 'payload'},
@@ -54,6 +58,16 @@ def dispatch(store, principal, path, payload):
     validate(path, payload)
     evidence = ReviewedEvidence(store)
     p = payload
+    if path.startswith('/workspace/quality/'):
+        from control_evaluation import ControlEvaluation
+        quality = ControlEvaluation(store)
+        if path.endswith('/create'):
+            return quality.create(principal, p.get('matter_id'), p.get('title'), p.get('benchmark_ids'))
+        if path.endswith('/list'):
+            return quality.listing(principal, p.get('matter_id'))
+        if path.endswith('/register'):
+            return quality.register_same_answer(principal, p.get('matter_id'), p.get('set_id'), p.get('evaluation_id'), p.get('run_label'), p.get('same_answer_declared'))
+        return quality.compare(principal, p.get('matter_id'), p.get('set_id'), p.get('baseline_label'), p.get('candidate_label'))
     if path == '/workspace/learning/preview':
         from learning_memory import LearningMemory
         return LearningMemory(store).select(principal, p.get('matter_id'), p.get('question'), p.get('as_of'), p.get('learning_exclude_artifact_ids'))

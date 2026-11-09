@@ -125,6 +125,10 @@ def run_acceptance():
             learning_args = {'matter_id': matter, 'question': 'Оплата', 'as_of': '2025-01-01'}
             memory = post('/workspace/learning/preview', learning_args)
             assert memory['used_count'] == 0 and memory['weights_updated'] is False
+            assert post('/workspace/quality/sets/list', {'matter_id': matter})['sets'] == []
+            post('/workspace/quality/sets/create', {'matter_id': matter, 'title': 'Пустой контроль', 'benchmark_ids': []}, expected=400)
+            post('/workspace/quality/sets/list', {'matter_id': matter}, outsider['token'], 403)
+            post('/workspace/quality/compare', {'matter_id': matter, 'set_id': 'missing', 'baseline_label': 'v1', 'candidate_label': 'v2'}, expected=403)
             post('/workspace/learning/preview', learning_args, outsider['token'], 403)
             post('/workspace/learning/preview', {**learning_args, 'learning_exclude_artifact_ids': 'bad'}, expected=400)
             assert pilot['report_saved'] is True
