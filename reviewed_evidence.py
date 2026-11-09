@@ -92,7 +92,7 @@ class ReviewedEvidence:
 
     def _edition(self, db, principal, matter, payload):
         required = {'act_id', 'provision', 'document_id', 'valid_from', 'valid_to', 'period_evidence', 'full_text_declared'}
-        if set(payload) != required or payload['full_text_declared'] is not True:
+        if not required <= payload.keys() or set(payload) - required - {'provision_quote'} or payload['full_text_declared'] is not True:
             raise ValueError('Редакция требует реквизиты, интервал, источники периода и full_text_declared=true.')
         value = dict(payload)
         value['act_id'] = text(value['act_id'], 'act_id', 100)
@@ -114,6 +114,13 @@ class ReviewedEvidence:
                 raise ValueError('Дата границы периода отсутствует в представленных цитатах.')
         value.update(document_sha256=document['sha256'], source_url=document['source_url'],
                      captured_on=document['captured_on'], completeness_verified=False)
+        if 'provision_quote' in value:
+            quote = text(value.pop('provision_quote'), 'provision_quote', 10000, 10)
+            start = document['text'].find(quote)
+            if start < 0 or document['text'].find(quote, start + 1) >= 0:
+                raise ValueError('Текст нормы должен встречаться в документе ровно один раз; расширьте цитату для однозначной привязки.')
+            value['provision_evidence'] = self._quote(db, principal, matter,
+                {'document_id': document['id'], 'quote': quote})
         return value
 
     def _decision(self, db, principal, matter, payload):

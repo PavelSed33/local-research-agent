@@ -59,6 +59,7 @@ async function refreshMatters(selected=null){
 async function refreshDocuments(){
  w('document-list').replaceChildren();w('pilot-contract').replaceChildren();if(!activeMatter)return;
  const data=await call('/workspace/documents/list',{matter_id:activeMatter});
+ for(const id of ['edition-document','edition-period-document']){const select=w(id),selected=select.value;select.replaceChildren();for(const row of data.documents){const option=document.createElement('option');option.value=row.id;option.textContent=row.title;select.append(option)}if(data.documents.some(row=>row.id===selected))select.value=selected;}
  for(const row of data.documents){const option=document.createElement('option');option.value=row.id;option.textContent=row.title;w('pilot-contract').append(option);const li=document.createElement('li');const button=document.createElement('button');button.className='secondary';button.textContent=row.title;
   button.addEventListener('click',()=>run(async()=>{const data=await call('/workspace/documents/read',{document_id:row.id});w('document-title').value=data.title;w('document-text').value=data.text;w('source-url').value=data.source_url;parsedPages=data.pages;pendingOriginal=null;w('document-file').value='';show({title:data.title,sha256:data.sha256})}));li.append(button);if(row.has_original){const original=document.createElement('button');original.className='secondary';original.textContent='Оригинал';original.addEventListener('click',()=>run(async()=>{const file=await call('/workspace/documents/original',{document_id:row.id});downloadFile(file.file_base64,file.filename)}));li.append(original)}w('document-list').append(li)}
 }
@@ -93,6 +94,17 @@ async function refreshPrimarySources(){w('primary-source').replaceChildren();pri
 w('primary-source').addEventListener('change',primarySourceNote);
 w('workspace-token').addEventListener('input',()=>{primarySources=[];w('primary-source').replaceChildren();primarySourceNote()});
 w('refresh-evidence').addEventListener('click',()=>run(refreshEvidence));
+function clearEdition(){for(const id of ['edition-document','edition-period-document'])w(id).replaceChildren();for(const id of ['edition-act','edition-provision','edition-quote','edition-from','edition-to','edition-period-quote'])w(id).value='';w('edition-full-text').checked=false;}
+for(const [id,event] of [['workspace-token','input'],['matter-list','change'],['connect','click']])w(id).addEventListener(event,clearEdition);
+w('create-edition').addEventListener('submit',event=>{event.preventDefault();run(async()=>{
+ if(!w('edition-full-text').checked)throw Error('Подтвердите, что полный текст нормы загружен.');
+ const result=await call('/workspace/evidence/add',{matter_id:matter(),kind:'edition',payload:{
+  act_id:w('edition-act').value,provision:w('edition-provision').value,document_id:w('edition-document').value,
+  provision_quote:w('edition-quote').value,valid_from:w('edition-from').value,valid_to:w('edition-to').value||null,
+  full_text_declared:true,period_evidence:[{document_id:w('edition-period-document').value,quote:w('edition-period-quote').value}]}});
+ clearPilotReport();show(result);w('workspace-result').textContent='Черновик редакции сохранён. Другой эксперт должен проверить текст нормы, происхождение и период действия.';
+ for(const id of ['edition-quote','edition-period-quote'])w(id).value='';w('edition-full-text').checked=false;
+})});
 w('read-evidence').addEventListener('click',()=>run(async()=>{if(!w('evidence-list').value)throw Error('Выберите материал.');const data=await call('/workspace/evidence/read',{artifact_id:w('evidence-list').value});show(data);w('workspace-result').textContent=JSON.stringify(data.payload,null,2)}));
 w('review-evidence').addEventListener('submit',event=>{event.preventDefault();run(async()=>{if(!w('evidence-list').value)throw Error('Выберите материал.');show(await call('/workspace/evidence/review',{artifact_id:w('evidence-list').value,decision:w('review-decision').value,note:w('review-note').value,attestations:{source_authenticity:w('attest-source').checked,completeness:w('attest-completeness').checked,temporal_applicability:w('attest-period').checked,legal_reasoning:w('attest-reasoning').checked}}));await refreshEvidence()})});
 
