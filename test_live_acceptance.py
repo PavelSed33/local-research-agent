@@ -28,7 +28,7 @@ class LocalAcceptanceTests(unittest.TestCase):
         with patch.dict(os.environ, {}, clear=True):
             report = run_acceptance(timeout_seconds=30)
         self.assertEqual(report['status'], 'passed')
-        self.assertEqual(report['checks'][0]['passed_http_checks'], 15)
+        self.assertEqual(report['checks'][0]['passed_http_checks'], 26)
         self.assertFalse(report['external_requests_attempted'])
         self.assertFalse(report['live_acceptance_passed'])
         self.assertFalse(report['legal_acceptance'])
@@ -46,11 +46,11 @@ class LocalAcceptanceTests(unittest.TestCase):
             self.assertEqual(_finish({'mode': 'live', 'checks': checks})['status'], 'failed')
 
     def test_timeout_or_missing_child_report_fails_closed(self):
-        with patch('scripts.acceptance.subprocess.run', side_effect=subprocess.TimeoutExpired('synthetic', 10)):
+        with patch('scripts.acceptance._run_isolated', side_effect=subprocess.TimeoutExpired('synthetic', 10)):
             report = run_acceptance(live=True, timeout_seconds=10)
         self.assertEqual(report['status'], 'failed')
         self.assertEqual(report['checks'][-1]['reason'], 'deadline_exceeded')
-        with patch('scripts.acceptance.subprocess.run') as run:
+        with patch('scripts.acceptance._run_isolated') as run:
             run.return_value.returncode = 0
             self.assertEqual(run_acceptance()['status'], 'failed')
 
@@ -64,7 +64,7 @@ class LocalAcceptanceTests(unittest.TestCase):
                   'TAVILY_API_KEY': 'PRIVATE-SEARCH-KEY'}
         error = urllib.error.HTTPError('https://example.org/PRIVATE-URL', 401, 'PRIVATE-ERROR', {}, io.BytesIO(b'PRIVATE-BODY'))
         with tempfile.TemporaryDirectory() as directory, patch.dict(os.environ, values, clear=True), \
-                patch('scripts.acceptance.smoke', return_value=['ok'] * 15), \
+                patch('scripts.acceptance.smoke', return_value=['ok'] * 18), \
                 patch('scripts.acceptance.OpenAICompatibleModel') as model, patch('scripts.acceptance.TavilySearch') as search:
             model.return_value.complete.side_effect = RuntimeError('PRIVATE-DETAILS')
             search.return_value.search.side_effect = error
@@ -86,7 +86,7 @@ class LocalAcceptanceTests(unittest.TestCase):
 
         values = {'LLM_API_KEY': 'TEST', 'LLM_MODEL': 'TEST', 'TAVILY_API_KEY': 'TEST'}
         with tempfile.TemporaryDirectory() as directory, patch.dict(os.environ, values, clear=True), \
-                patch('scripts.acceptance.smoke', return_value=['ok'] * 15), \
+                patch('scripts.acceptance.smoke', return_value=['ok'] * 18), \
                 patch('scripts.acceptance.OpenAICompatibleModel') as model, patch('scripts.acceptance.TavilySearch') as search, \
                 patch('scripts.acceptance.urllib.request.urlopen', side_effect=response):
             model.return_value.complete.return_value = '{"ok":true}'
@@ -112,7 +112,7 @@ class LocalAcceptanceTests(unittest.TestCase):
                 'amounts': [{'quote': '1 000 рублей'}], 'decisions': [], 'answer': 'Технический ответ', 'sources': []}).encode())
         values = {'LLM_API_KEY': 'TEST', 'LLM_MODEL': 'TEST', 'TAVILY_API_KEY': 'TEST', 'ALLOW_CLOUD_DOCUMENTS': 'true'}
         with tempfile.TemporaryDirectory() as directory, patch.dict(os.environ, values, clear=True), \
-                patch('scripts.acceptance.smoke', return_value=['ok'] * 15), \
+                patch('scripts.acceptance.smoke', return_value=['ok'] * 18), \
                 patch('scripts.acceptance.OpenAICompatibleModel') as model, patch('scripts.acceptance.TavilySearch') as search, \
                 patch('scripts.acceptance.urllib.request.urlopen', side_effect=response):
             model.return_value.complete.return_value = '{"ok":true}'
@@ -142,3 +142,4 @@ class LocalAcceptanceTests(unittest.TestCase):
             search.assert_not_called()
         self.assertEqual(report['status'], 'failed')
         self.assertFalse(report['external_requests_attempted'])
+

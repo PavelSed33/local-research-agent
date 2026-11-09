@@ -1,0 +1,204 @@
+{
+  "checked_on": "2026-11-09",
+  "api_version": "1.22",
+  "unit_tests": {
+    "passed": 553,
+    "skipped": 0
+  },
+  "workspace_http": {
+    "status": "passed",
+    "api_version": "1.22",
+    "http_checks": 54,
+    "scope": "temporary_synthetic_workspace_http",
+    "external_providers_tested": false,
+    "browser_acceptance": false,
+    "legal_acceptance": false,
+    "credentials_in_report": false
+  },
+  "legacy_http": {
+    "api_version": "1.22",
+    "mode": "demo",
+    "status": "passed",
+    "checked_on": "2026-11-09",
+    "checks": [
+      {
+        "id": "local_demo_workflows",
+        "status": "passed",
+        "passed_http_checks": 26
+      }
+    ],
+    "configuration": {
+      "missing": [
+        "LLM_API_KEY",
+        "LLM_MODEL",
+        "TAVILY_API_KEY"
+      ],
+      "invalid_endpoints": [],
+      "documents_permitted_by_configuration": false
+    },
+    "external_requests_attempted": false,
+    "live_acceptance_passed": false,
+    "legal_acceptance": false,
+    "browser_acceptance": false,
+    "scope": "technical_http_acceptance_with_synthetic_inputs",
+    "deadline_seconds": 600
+  },
+  "archive": {
+    "status": "passed",
+    "sources": 7,
+    "total_pages": 90,
+    "total_characters": 230761,
+    "native_pdf_replay": true,
+    "external_requests_attempted": false,
+    "legal_acceptance": false,
+    "results": [
+      {
+        "id": "vsrf-plenum-49-2018",
+        "pdf_bytes": 294211,
+        "pages": 16,
+        "text_characters": 43290,
+        "integrity_checked": true,
+        "identity_checked": true,
+        "legal_acceptance": false,
+        "pdf_page_count_matches": true,
+        "text_replay_matches": true,
+        "page_map_replay_matches": true,
+        "status": "passed"
+      },
+      {
+        "id": "vsrf-plenum-7-2016",
+        "pdf_bytes": 362180,
+        "pages": 25,
+        "text_characters": 69678,
+        "integrity_checked": true,
+        "identity_checked": true,
+        "legal_acceptance": false,
+        "pdf_page_count_matches": true,
+        "text_replay_matches": true,
+        "page_map_replay_matches": true,
+        "status": "passed"
+      },
+      {
+        "id": "vsrf-plenum-54-2016",
+        "pdf_bytes": 233422,
+        "pages": 18,
+        "text_characters": 50552,
+        "integrity_checked": true,
+        "identity_checked": true,
+        "legal_acceptance": false,
+        "pdf_page_count_matches": true,
+        "text_replay_matches": true,
+        "page_map_replay_matches": true,
+        "status": "passed"
+      },
+      {
+        "id": "vsrf-decision-2446026",
+        "pdf_bytes": 97934,
+        "pages": 10,
+        "text_characters": 22602,
+        "integrity_checked": true,
+        "identity_checked": true,
+        "legal_acceptance": false,
+        "pdf_page_count_matches": true,
+        "text_replay_matches": true,
+        "page_map_replay_matches": true,
+        "status": "passed"
+      },
+      {
+        "id": "vsrf-decision-2485538",
+        "pdf_bytes": 86620,
+        "pages": 8,
+        "text_characters": 16621,
+        "integrity_checked": true,
+        "identity_checked": true,
+        "legal_acceptance": false,
+        "pdf_page_count_matches": true,
+        "text_replay_matches": true,
+        "page_map_replay_matches": true,
+        "status": "passed"
+      },
+      {
+        "id": "vsrf-decision-2332384",
+        "pdf_bytes": 86026,
+        "pages": 7,
+        "text_characters": 16413,
+        "integrity_checked": true,
+        "identity_checked": true,
+        "legal_acceptance": false,
+        "pdf_page_count_matches": true,
+        "text_replay_matches": true,
+        "page_map_replay_matches": true,
+        "status": "passed"
+      },
+      {
+        "id": "vsrf-decision-1718280",
+        "pdf_bytes": 75766,
+        "pages": 6,
+        "text_characters": 11605,
+        "integrity_checked": true,
+        "identity_checked": true,
+        "legal_acceptance": false,
+        "pdf_page_count_matches": true,
+        "text_replay_matches": true,
+        "page_map_replay_matches": true,
+        "status": "passed"
+      }
+    ]
+  },
+  "ui_logic": {
+    "status": "passed",
+    "scope": "node_vm_workspace_report",
+    "checks": 12,
+    "browser_acceptance": false
+  },
+  "browser": {
+    "scope": "synthetic_demo_browser_acceptance",
+    "browser_acceptance": false,
+    "external_providers_tested": false,
+    "legal_acceptance": false,
+    "status": "blocked",
+    "reason": "chromium_missing"
+  },
+  "docx_visual_qa": {
+    "status": "passed_libreoffice_render_and_png_inspection",
+    "original_pages": 1,
+    "redlined_pages": 1,
+    "tracked_markup_visible": true,
+    "table_header_footer_image_preserved": true,
+    "source_sha256": "ff21bf8f725a3d95f957e54a72005c74fa882fa4a07041be5115961be27436d9",
+    "output_sha256": "3b0aa7a0b3bf1ef240fb09d87527df85f013fd0e0ae17f78131bb4fe8e7e6f65",
+    "unchanged_package_parts": 19,
+    "microsoft_word_application_tested": false
+  },
+  "live_provider_configuration": {
+    "missing_configuration": [
+      "LLM_API_KEY",
+      "LLM_MODEL",
+      "TAVILY_API_KEY"
+    ],
+    "invalid_endpoint_configuration": [],
+    "document_transfer_permitted_by_configuration": false,
+    "provider_configuration": {
+      "llm": false,
+      "search": false
+    }
+  },
+  "docker_execution": "not_tested_binary_missing",
+  "legal_acceptance": false,
+  "human_accepted_legal_tasks": 0,
+  "new_primary_originals": 0,
+  "javascript_syntax": "passed",
+  "python_compile": "passed",
+  "source_research": {
+    "queries": [
+      "site.pravo.gov.ru Гражданский кодекс часть вторая полный текст",
+      "А40-255028/2022 site:9aas.arbitr.ru filetype:pdf"
+    ],
+    "outcome": "No newly confirmed primary legislative edition or lower-court original obtained; department reproductions were not promoted to confirmed current law."
+  },
+  "additional_revocation_regression": {
+    "status": "passed",
+    "http_status_after_revocation": 401,
+    "late_file_contents_returned": false
+  }
+}

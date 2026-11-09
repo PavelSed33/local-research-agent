@@ -17,7 +17,7 @@ class EvidenceCorpusTests(unittest.TestCase):
     def test_real_captures_have_exact_spans_but_no_original_or_period_claim(self):
         report = evidence_report(as_of='2026-11-07')
         self.assertEqual(report['errors'], [])
-        self.assertEqual(len(report['entries']), 3)
+        self.assertEqual(len(report['entries']), 5)
         for entry in report['entries']:
             self.assertTrue(entry['integrity_checked'])
             self.assertFalse(entry['raw_http_response'])
@@ -31,7 +31,7 @@ class EvidenceCorpusTests(unittest.TestCase):
 
     def test_quotes_do_not_complete_statute_cards(self):
         result = coverage_report(['LAW-01', 'LAW-02'], '2026-11-07')
-        self.assertEqual(result['evidence_summary']['checked_quote_count'], 4)
+        self.assertEqual(result['evidence_summary']['checked_quote_count'], 5)
         for module in result['modules']:
             self.assertEqual(module['accepted_provision_count'], 0)
             for card in module['cards']:
@@ -63,7 +63,7 @@ class EvidenceCorpusTests(unittest.TestCase):
             (root / entry['file']).write_text('Текст изменён')
         result = self.mutate(change)
         self.assertTrue(result['errors'])
-        self.assertEqual(len(result['entries']), 2)
+        self.assertEqual(len(result['entries']), 4)
         self.assertFalse(result['verified'])
 
     def test_forged_span_and_boolean_offset_are_excluded(self):
@@ -73,14 +73,14 @@ class EvidenceCorpusTests(unittest.TestCase):
             with self.subTest(value=value):
                 result = self.mutate(change)
                 self.assertTrue(result['errors'])
-                self.assertEqual(len(result['entries']), 2)
+                self.assertEqual(len(result['entries']), 4)
 
     def test_missing_file_and_path_traversal_fail_closed(self):
         for value in ['../README.md', '/etc/passwd', 'missing.txt']:
             with self.subTest(value=value):
                 result = self.mutate(lambda root, m: m['entries'][0].update(file=value))
                 self.assertTrue(result['errors'])
-                self.assertEqual(len(result['entries']), 2)
+                self.assertEqual(len(result['entries']), 4)
 
     def test_symlink_outside_corpus_rejected(self):
         def change(root, manifest):
@@ -168,3 +168,4 @@ class EvidenceCorpusTests(unittest.TestCase):
         self.assertFalse(basis['lawyer_reviewed'])
         self.assertFalse(basis['period_supported'])
         self.assertNotIn('effective_from', basis)
+

@@ -1,0 +1,2683 @@
+{
+  "schema_version": 1,
+  "status": "draft_for_lawyer_review",
+  "lawyer_reviewed": false,
+  "verified": false,
+  "cases": [
+    {
+      "id": "LAW-01-B01",
+      "module_id": "LAW-01",
+      "scenario": "pd-access",
+      "facts": "Запрос копии данных прислал человек без подтверждённых полномочий.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-01:14",
+        "LAW-01:20",
+        "LAW-01:21"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Раскрыть данные без проверки заявителя.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-01-B02",
+      "module_id": "LAW-01",
+      "scenario": "pd-access",
+      "facts": "Запрос касается одновременно данных заявителя и третьих лиц.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-01:14",
+        "LAW-01:20",
+        "LAW-01:21"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Предоставить все данные без разграничения.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-01-B03",
+      "module_id": "LAW-01",
+      "scenario": "pd-operator",
+      "facts": "Обработчик утверждает, что он только подрядчик, но сам определяет цели.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-01:18.1",
+        "LAW-01:19",
+        "LAW-01:22",
+        "LAW-01:22.1",
+        "LAW-07:9",
+        "LAW-07:16"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Признать роль только по названию договора.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-01-B04",
+      "module_id": "LAW-01",
+      "scenario": "service-provider",
+      "facts": "Российский клиент использует API с неизвестной территорией поддержки.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-01:6",
+        "LAW-01:7",
+        "LAW-01:12",
+        "LAW-01:18",
+        "LAW-01:18.1",
+        "LAW-01:19",
+        "LAW-01:21",
+        "LAW-01:22",
+        "LAW-07:6",
+        "LAW-07:9",
+        "LAW-07:16"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Определить страну обработки по домену.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-01-B05",
+      "module_id": "LAW-01",
+      "scenario": "service-deletion",
+      "facts": "Сессия удалена из RAM, но резервные копии и журнал не исследованы.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-01:5",
+        "LAW-01:21",
+        "LAW-07:rkn179:requirements"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Подтвердить уничтожение всех данных.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-01-B06",
+      "module_id": "LAW-01",
+      "scenario": "pd-operator",
+      "facts": "Назначен ответственный, но отсутствует карта операций.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-01:18.1",
+        "LAW-01:19",
+        "LAW-01:22",
+        "LAW-01:22.1",
+        "LAW-07:9",
+        "LAW-07:16"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Подтвердить полное соответствие по одному назначению.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-01-B07",
+      "module_id": "LAW-01",
+      "scenario": "service-provider",
+      "facts": "Пользователь согласился на обработку, но основание передачи третьему лицу не установлено.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-01:6",
+        "LAW-01:7",
+        "LAW-01:12",
+        "LAW-01:18",
+        "LAW-01:18.1",
+        "LAW-01:19",
+        "LAW-01:21",
+        "LAW-01:22",
+        "LAW-07:6",
+        "LAW-07:9",
+        "LAW-07:16"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Признать любую передачу законной по одному согласию.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-01-B08",
+      "module_id": "LAW-01",
+      "scenario": "privacy:consent",
+      "facts": "Проверяется оформление согласия 31.08.2025.",
+      "as_of": "2025-08-31",
+      "source_card_ids": [
+        "LAW-01:6",
+        "LAW-01:9"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Применить более позднее требование без проверки дат.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-01-B09",
+      "module_id": "LAW-01",
+      "scenario": "privacy:consent",
+      "facts": "Проверяется оформление согласия 01.09.2025.",
+      "as_of": "2025-09-01",
+      "source_card_ids": [
+        "LAW-01:6",
+        "LAW-01:9"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Вывести действие поправки из даты получения копии.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-01-B10",
+      "module_id": "LAW-01",
+      "scenario": "privacy:consent",
+      "facts": "Проверяется согласие 02.09.2025 по договору, заключённому ранее.",
+      "as_of": "2025-09-02",
+      "source_card_ids": [
+        "LAW-01:6",
+        "LAW-01:9"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Игнорировать переходные положения и дату операции.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-02-B01",
+      "module_id": "LAW-02",
+      "scenario": "civil-notices",
+      "facts": "Письмо отправлено на старый адрес, факт доставки спорный.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-02:165.1",
+        "LAW-02:450.1"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Приравнять отправку к безусловному наступлению последствий.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-02-B02",
+      "module_id": "LAW-02",
+      "scenario": "civil-limitation",
+      "facts": "Истец узнал о нарушении позже даты договора; ответчик о давности не заявлял.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-02:190",
+        "LAW-02:191",
+        "LAW-02:192",
+        "LAW-02:193",
+        "LAW-02:194",
+        "LAW-02:195",
+        "LAW-02:196",
+        "LAW-02:199",
+        "LAW-02:200",
+        "LAW-02:202",
+        "LAW-02:203",
+        "LAW-02:204",
+        "LAW-02:205",
+        "LAW-02:206",
+        "LAW-02:207",
+        "LAW-02:208"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Отказать в защите автоматически от даты подписания.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-02-B03",
+      "module_id": "LAW-02",
+      "scenario": "civil-invalidity",
+      "facts": "Условие невыгодно одной стороне; основание недействительности не указано.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-02:166",
+        "LAW-02:167",
+        "LAW-02:168",
+        "LAW-02:170",
+        "LAW-02:174",
+        "LAW-02:178",
+        "LAW-02:179",
+        "LAW-02:180",
+        "LAW-02:181",
+        "LAW-02:431.1"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Объявить условие ничтожным без квалификации.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-02-B04",
+      "module_id": "LAW-02",
+      "scenario": "civil-payment",
+      "facts": "Платёж зависит от приёмки, акт приёмки отсутствует.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-02:314",
+        "LAW-02:317",
+        "LAW-02:317.1",
+        "LAW-02:319",
+        "LAW-02:328",
+        "LAW-02:424",
+        "LAW-02:425"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Назначить просрочку без события начала.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-02-B05",
+      "module_id": "LAW-02",
+      "scenario": "civil-liability",
+      "facts": "Должник ссылается на повышение цен как форс-мажор.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-02:15",
+        "LAW-02:330",
+        "LAW-02:333",
+        "LAW-02:393",
+        "LAW-02:393.1",
+        "LAW-02:394",
+        "LAW-02:395",
+        "LAW-02:400",
+        "LAW-02:401",
+        "LAW-02:404",
+        "LAW-02:405",
+        "LAW-02:406"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Признать любое удорожание непреодолимой силой.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-02-B06",
+      "module_id": "LAW-02",
+      "scenario": "civil-business-risk",
+      "facts": "Стороны назвали неустойку возмещением потерь.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-02:406.1",
+        "LAW-02:431.2"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Квалифицировать обязательство только по названию.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-02-B07",
+      "module_id": "LAW-02",
+      "scenario": "civil-setoff",
+      "facts": "Одна сторона сделала бухгалтерскую проводку зачёта.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-02:407",
+        "LAW-02:408",
+        "LAW-02:410",
+        "LAW-02:411"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Признать зачёт без проверки требований и заявления.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-02-B08",
+      "module_id": "LAW-02",
+      "scenario": "civil-interpretation",
+      "facts": "Предмет раскрыт в приложении и переписке, но не в основном файле.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-02:421",
+        "LAW-02:428",
+        "LAW-02:431",
+        "LAW-02:432"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Объявить договор незаключённым из-за одного файла.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-02-B09",
+      "module_id": "LAW-02",
+      "scenario": "civil-termination",
+      "facts": "Договор расторгнут, но сохраняются взаиморасчёты.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-02:310",
+        "LAW-02:450",
+        "LAW-02:450.1",
+        "LAW-02:451",
+        "LAW-02:452",
+        "LAW-02:453"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Считать прекращёнными все обязанности без проверки.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-02-B10",
+      "module_id": "LAW-02",
+      "scenario": "civil-limitation",
+      "facts": "Для спора на 01.01.2014 найдено разъяснение суда 2015 года.",
+      "as_of": "2014-01-01",
+      "source_card_ids": [
+        "LAW-02:190",
+        "LAW-02:191",
+        "LAW-02:192",
+        "LAW-02:193",
+        "LAW-02:194",
+        "LAW-02:195",
+        "LAW-02:196",
+        "LAW-02:199",
+        "LAW-02:200",
+        "LAW-02:202",
+        "LAW-02:203",
+        "LAW-02:204",
+        "LAW-02:205",
+        "LAW-02:206",
+        "LAW-02:207",
+        "LAW-02:208"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Выдать поздний акт за известный на историческую дату.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-03-B01",
+      "module_id": "LAW-03",
+      "scenario": "supply-quality",
+      "facts": "Предприниматель получил товар с недостатком; дата уведомления неизвестна.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-03:469",
+        "LAW-03:470",
+        "LAW-03:475",
+        "LAW-03:476",
+        "LAW-03:477",
+        "LAW-03:483",
+        "LAW-03:513",
+        "LAW-03:514",
+        "LAW-03:518",
+        "LAW-03:520"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Автоматически применить потребительский срок.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-03-B02",
+      "module_id": "LAW-03",
+      "scenario": "supply-performance",
+      "facts": "Рамочный договор есть, отдельный заказ согласован перепиской.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-03:455",
+        "LAW-03:465",
+        "LAW-03:506",
+        "LAW-03:508",
+        "LAW-03:509",
+        "LAW-03:510",
+        "LAW-03:511",
+        "LAW-03:515",
+        "LAW-03:516",
+        "LAW-03:521",
+        "LAW-03:523",
+        "LAW-03:524"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Игнорировать переписку при определении количества.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-03-B03",
+      "module_id": "LAW-03",
+      "scenario": "services-performance",
+      "facts": "Заказчик отказывается от частично оказанных услуг.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-03:779",
+        "LAW-03:780",
+        "LAW-03:781",
+        "LAW-03:782",
+        "LAW-03:783"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Обещать полный возврат без исследования расходов.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-03-B04",
+      "module_id": "LAW-03",
+      "scenario": "services-performance",
+      "facts": "От исполнения отказывается исполнитель, а не заказчик.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-03:779",
+        "LAW-03:780",
+        "LAW-03:781",
+        "LAW-03:782",
+        "LAW-03:783"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Перенести последствия отказа заказчика на исполнителя.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-03-B05",
+      "module_id": "LAW-03",
+      "scenario": "lease-transfer",
+      "facts": "В договоре аренды неясно описан объект, но есть акт и план.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-03:606",
+        "LAW-03:607",
+        "LAW-03:608",
+        "LAW-03:609",
+        "LAW-03:610",
+        "LAW-03:611",
+        "LAW-03:612",
+        "LAW-03:613",
+        "LAW-03:614",
+        "LAW-03:615",
+        "LAW-03:616",
+        "LAW-03:617"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Признать объект неопределённым без приложений.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-03-B06",
+      "module_id": "LAW-03",
+      "scenario": "lease-exit",
+      "facts": "Срок аренды истёк, стороны продолжают исполнение.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-03:610",
+        "LAW-03:619",
+        "LAW-03:620",
+        "LAW-03:621",
+        "LAW-03:622",
+        "LAW-03:623",
+        "LAW-03:624"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Признать пользование автоматически бездоговорным.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-03-B07",
+      "module_id": "LAW-03",
+      "scenario": "lease-transfer",
+      "facts": "Документ назван арендой, фактически речь о найме жилья.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-03:606",
+        "LAW-03:607",
+        "LAW-03:608",
+        "LAW-03:609",
+        "LAW-03:610",
+        "LAW-03:611",
+        "LAW-03:612",
+        "LAW-03:613",
+        "LAW-03:614",
+        "LAW-03:615",
+        "LAW-03:616",
+        "LAW-03:617"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Применить общий набор без специальной квалификации.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-03-B08",
+      "module_id": "LAW-03",
+      "scenario": "work-performance",
+      "facts": "Работы названы услугами, предусмотрен сдаваемый результат.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-03:702",
+        "LAW-03:703",
+        "LAW-03:704",
+        "LAW-03:705",
+        "LAW-03:706",
+        "LAW-03:708",
+        "LAW-03:709",
+        "LAW-03:710",
+        "LAW-03:711",
+        "LAW-03:715",
+        "LAW-03:716",
+        "LAW-03:717",
+        "LAW-03:718",
+        "LAW-03:719"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Квалифицировать только по заголовку.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-03-B09",
+      "module_id": "LAW-03",
+      "scenario": "work-defects",
+      "facts": "После приёмки обнаружен скрытый дефект, условия гарантии спорные.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-03:720",
+        "LAW-03:721",
+        "LAW-03:722",
+        "LAW-03:723",
+        "LAW-03:724",
+        "LAW-03:725",
+        "LAW-03:726",
+        "LAW-03:729"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Отказать только из-за подписанного акта.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-03-B10",
+      "module_id": "LAW-03",
+      "scenario": "work-defects",
+      "facts": "Сторона смешивает гарантийный срок и срок исковой давности.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-03:720",
+        "LAW-03:721",
+        "LAW-03:722",
+        "LAW-03:723",
+        "LAW-03:724",
+        "LAW-03:725",
+        "LAW-03:726",
+        "LAW-03:729"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Считать их одним сроком.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-04-B01",
+      "module_id": "LAW-04",
+      "scenario": "consumer-quality",
+      "facts": "Физлицо приобрело оборудование исключительно для бизнеса.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-04:4",
+        "LAW-04:5",
+        "LAW-04:6",
+        "LAW-04:7",
+        "LAW-04:18",
+        "LAW-04:19",
+        "LAW-04:20",
+        "LAW-04:21",
+        "LAW-04:22",
+        "LAW-04:23",
+        "LAW-04:23.1",
+        "LAW-04:25",
+        "LAW-04:26.1"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Применить потребительский режим только по статусу физлица.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-04-B02",
+      "module_id": "LAW-04",
+      "scenario": "consumer-quality",
+      "facts": "Покупатель хочет вернуть качественный товар; вид товара неизвестен.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-04:4",
+        "LAW-04:5",
+        "LAW-04:6",
+        "LAW-04:7",
+        "LAW-04:18",
+        "LAW-04:19",
+        "LAW-04:20",
+        "LAW-04:21",
+        "LAW-04:22",
+        "LAW-04:23",
+        "LAW-04:23.1",
+        "LAW-04:25",
+        "LAW-04:26.1"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Обещать возврат любого товара.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-04-B03",
+      "module_id": "LAW-04",
+      "scenario": "consumer-quality",
+      "facts": "Товар заказан дистанционно, условия доставки и возврата неизвестны.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-04:4",
+        "LAW-04:5",
+        "LAW-04:6",
+        "LAW-04:7",
+        "LAW-04:18",
+        "LAW-04:19",
+        "LAW-04:20",
+        "LAW-04:21",
+        "LAW-04:22",
+        "LAW-04:23",
+        "LAW-04:23.1",
+        "LAW-04:25",
+        "LAW-04:26.1"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Подменить дистанционную продажу обычной без проверки.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-04-B04",
+      "module_id": "LAW-04",
+      "scenario": "consumer-remedies",
+      "facts": "Размер неустойки рассчитывается по старой статье из копии 2019 года.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-04:12",
+        "LAW-04:13",
+        "LAW-04:14",
+        "LAW-04:15",
+        "LAW-04:16",
+        "LAW-04:17"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Подтвердить актуальную сумму по старой редакции.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-04-B05",
+      "module_id": "LAW-04",
+      "scenario": "consumer-remedies",
+      "facts": "Претензия не исследована, заявлены штраф и моральный вред.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-04:12",
+        "LAW-04:13",
+        "LAW-04:14",
+        "LAW-04:15",
+        "LAW-04:16",
+        "LAW-04:17"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Гарантировать взыскание всех санкций.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-04-B06",
+      "module_id": "LAW-04",
+      "scenario": "consumer-work-services",
+      "facts": "Дополнительная опция отмечена заранее; доказательство выбора отсутствует.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-04:8",
+        "LAW-04:9",
+        "LAW-04:10",
+        "LAW-04:11",
+        "LAW-04:16",
+        "LAW-04:27",
+        "LAW-04:28",
+        "LAW-04:29",
+        "LAW-04:30",
+        "LAW-04:31",
+        "LAW-04:32"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Считать предварительную отметку доказанным выбором.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-04-B07",
+      "module_id": "LAW-04",
+      "scenario": "consumer-work-services",
+      "facts": "Проверяется условие отказа от услуги 31.08.2022.",
+      "as_of": "2022-08-31",
+      "source_card_ids": [
+        "LAW-04:8",
+        "LAW-04:9",
+        "LAW-04:10",
+        "LAW-04:11",
+        "LAW-04:16",
+        "LAW-04:27",
+        "LAW-04:28",
+        "LAW-04:29",
+        "LAW-04:30",
+        "LAW-04:31",
+        "LAW-04:32"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Автоматически применить будущую редакцию.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-04-B08",
+      "module_id": "LAW-04",
+      "scenario": "consumer-work-services",
+      "facts": "Проверяется условие отказа от услуги 01.09.2022.",
+      "as_of": "2022-09-01",
+      "source_card_ids": [
+        "LAW-04:8",
+        "LAW-04:9",
+        "LAW-04:10",
+        "LAW-04:11",
+        "LAW-04:16",
+        "LAW-04:27",
+        "LAW-04:28",
+        "LAW-04:29",
+        "LAW-04:30",
+        "LAW-04:31",
+        "LAW-04:32"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Игнорировать дату вступления и переходные положения.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-04-B09",
+      "module_id": "LAW-04",
+      "scenario": "consumer-work-services",
+      "facts": "Проверяется условие 02.09.2022 по договору 2021 года.",
+      "as_of": "2022-09-02",
+      "source_card_ids": [
+        "LAW-04:8",
+        "LAW-04:9",
+        "LAW-04:10",
+        "LAW-04:11",
+        "LAW-04:16",
+        "LAW-04:27",
+        "LAW-04:28",
+        "LAW-04:29",
+        "LAW-04:30",
+        "LAW-04:31",
+        "LAW-04:32"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Отбросить переходные правила для старого договора.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-04-B10",
+      "module_id": "LAW-04",
+      "scenario": "consumer-remedies",
+      "facts": "Потребитель ссылается на согласованную исключительную подсудность.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-04:12",
+        "LAW-04:13",
+        "LAW-04:14",
+        "LAW-04:15",
+        "LAW-04:16",
+        "LAW-04:17"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Считать любую договорную подсудность безусловной.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-05-B01",
+      "module_id": "LAW-05",
+      "scenario": "employment-qualification",
+      "facts": "Договор ГПХ требует личной работы по графику под контролем заказчика.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-05:15",
+        "LAW-05:19.1",
+        "LAW-05:56",
+        "LAW-05:57",
+        "LAW-05:58",
+        "LAW-05:59",
+        "LAW-05:60",
+        "LAW-05:61",
+        "LAW-05:64",
+        "LAW-05:65",
+        "LAW-05:67",
+        "LAW-05:68",
+        "LAW-05:70",
+        "LAW-05:71"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Подтвердить гражданский режим только по названию.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-05-B02",
+      "module_id": "LAW-05",
+      "scenario": "employment-qualification",
+      "facts": "В трудовом договоре отсутствует обязательное условие.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-05:15",
+        "LAW-05:19.1",
+        "LAW-05:56",
+        "LAW-05:57",
+        "LAW-05:58",
+        "LAW-05:59",
+        "LAW-05:60",
+        "LAW-05:61",
+        "LAW-05:64",
+        "LAW-05:65",
+        "LAW-05:67",
+        "LAW-05:68",
+        "LAW-05:70",
+        "LAW-05:71"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Объявить договор незаключённым автоматически.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-05-B03",
+      "module_id": "LAW-05",
+      "scenario": "employment-qualification",
+      "facts": "Срочный договор не содержит исследованного основания.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-05:15",
+        "LAW-05:19.1",
+        "LAW-05:56",
+        "LAW-05:57",
+        "LAW-05:58",
+        "LAW-05:59",
+        "LAW-05:60",
+        "LAW-05:61",
+        "LAW-05:64",
+        "LAW-05:65",
+        "LAW-05:67",
+        "LAW-05:68",
+        "LAW-05:70",
+        "LAW-05:71"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Признать срочность законной только по подписи.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-05-B04",
+      "module_id": "LAW-05",
+      "scenario": "employment-qualification",
+      "facts": "Испытание согласовано после фактического допуска.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-05:15",
+        "LAW-05:19.1",
+        "LAW-05:56",
+        "LAW-05:57",
+        "LAW-05:58",
+        "LAW-05:59",
+        "LAW-05:60",
+        "LAW-05:61",
+        "LAW-05:64",
+        "LAW-05:65",
+        "LAW-05:67",
+        "LAW-05:68",
+        "LAW-05:70",
+        "LAW-05:71"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Подтвердить испытание без проверки даты.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-05-B05",
+      "module_id": "LAW-05",
+      "scenario": "employment-time-pay",
+      "facts": "Работнику указали только оклад, регион и доплаты неизвестны.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-05:91",
+        "LAW-05:92",
+        "LAW-05:93",
+        "LAW-05:99",
+        "LAW-05:100",
+        "LAW-05:103",
+        "LAW-05:104",
+        "LAW-05:108",
+        "LAW-05:110",
+        "LAW-05:113",
+        "LAW-05:114",
+        "LAW-05:115",
+        "LAW-05:122",
+        "LAW-05:123",
+        "LAW-05:126",
+        "LAW-05:127",
+        "LAW-05:129",
+        "LAW-05:132",
+        "LAW-05:133",
+        "LAW-05:133.1",
+        "LAW-05:135",
+        "LAW-05:136",
+        "LAW-05:140",
+        "LAW-05:142",
+        "LAW-05:152",
+        "LAW-05:153",
+        "LAW-05:154",
+        "LAW-05:157",
+        "LAW-05:236"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Подтвердить соответствие минимальной оплате без региона.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-05-B06",
+      "module_id": "LAW-05",
+      "scenario": "employment-time-pay",
+      "facts": "Работа в выходной день названа добровольной помощью.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-05:91",
+        "LAW-05:92",
+        "LAW-05:93",
+        "LAW-05:99",
+        "LAW-05:100",
+        "LAW-05:103",
+        "LAW-05:104",
+        "LAW-05:108",
+        "LAW-05:110",
+        "LAW-05:113",
+        "LAW-05:114",
+        "LAW-05:115",
+        "LAW-05:122",
+        "LAW-05:123",
+        "LAW-05:126",
+        "LAW-05:127",
+        "LAW-05:129",
+        "LAW-05:132",
+        "LAW-05:133",
+        "LAW-05:133.1",
+        "LAW-05:135",
+        "LAW-05:136",
+        "LAW-05:140",
+        "LAW-05:142",
+        "LAW-05:152",
+        "LAW-05:153",
+        "LAW-05:154",
+        "LAW-05:157",
+        "LAW-05:236"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Игнорировать фактическую работу и порядок компенсации.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-05-B07",
+      "module_id": "LAW-05",
+      "scenario": "employment-time-pay",
+      "facts": "Отпуск заменяют деньгами; категория работника неизвестна.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-05:91",
+        "LAW-05:92",
+        "LAW-05:93",
+        "LAW-05:99",
+        "LAW-05:100",
+        "LAW-05:103",
+        "LAW-05:104",
+        "LAW-05:108",
+        "LAW-05:110",
+        "LAW-05:113",
+        "LAW-05:114",
+        "LAW-05:115",
+        "LAW-05:122",
+        "LAW-05:123",
+        "LAW-05:126",
+        "LAW-05:127",
+        "LAW-05:129",
+        "LAW-05:132",
+        "LAW-05:133",
+        "LAW-05:133.1",
+        "LAW-05:135",
+        "LAW-05:136",
+        "LAW-05:140",
+        "LAW-05:142",
+        "LAW-05:152",
+        "LAW-05:153",
+        "LAW-05:154",
+        "LAW-05:157",
+        "LAW-05:236"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Разрешить замену без исключений.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-05-B08",
+      "module_id": "LAW-05",
+      "scenario": "employment-change-exit",
+      "facts": "Работодатель меняет условия, но организационные причины не исследованы.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-05:72",
+        "LAW-05:72.1",
+        "LAW-05:72.2",
+        "LAW-05:73",
+        "LAW-05:74",
+        "LAW-05:76",
+        "LAW-05:77",
+        "LAW-05:78",
+        "LAW-05:79",
+        "LAW-05:80",
+        "LAW-05:81",
+        "LAW-05:82",
+        "LAW-05:83",
+        "LAW-05:84",
+        "LAW-05:84.1",
+        "LAW-05:178",
+        "LAW-05:179",
+        "LAW-05:180",
+        "LAW-05:192",
+        "LAW-05:193",
+        "LAW-05:234",
+        "LAW-05:236",
+        "LAW-05:237",
+        "LAW-05:392",
+        "LAW-05:394"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Признать любое изменение допустимым по уведомлению.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-05-B09",
+      "module_id": "LAW-05",
+      "scenario": "employment-change-exit",
+      "facts": "Увольнение оформлено приказом, доказательства процедуры отсутствуют.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-05:72",
+        "LAW-05:72.1",
+        "LAW-05:72.2",
+        "LAW-05:73",
+        "LAW-05:74",
+        "LAW-05:76",
+        "LAW-05:77",
+        "LAW-05:78",
+        "LAW-05:79",
+        "LAW-05:80",
+        "LAW-05:81",
+        "LAW-05:82",
+        "LAW-05:83",
+        "LAW-05:84",
+        "LAW-05:84.1",
+        "LAW-05:178",
+        "LAW-05:179",
+        "LAW-05:180",
+        "LAW-05:192",
+        "LAW-05:193",
+        "LAW-05:234",
+        "LAW-05:236",
+        "LAW-05:237",
+        "LAW-05:392",
+        "LAW-05:394"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Подтвердить законность только по приказу.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-05-B10",
+      "module_id": "LAW-05",
+      "scenario": "employment-change-exit",
+      "facts": "Работник спорит с увольнением; дата получения документов неизвестна.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-05:72",
+        "LAW-05:72.1",
+        "LAW-05:72.2",
+        "LAW-05:73",
+        "LAW-05:74",
+        "LAW-05:76",
+        "LAW-05:77",
+        "LAW-05:78",
+        "LAW-05:79",
+        "LAW-05:80",
+        "LAW-05:81",
+        "LAW-05:82",
+        "LAW-05:83",
+        "LAW-05:84",
+        "LAW-05:84.1",
+        "LAW-05:178",
+        "LAW-05:179",
+        "LAW-05:180",
+        "LAW-05:192",
+        "LAW-05:193",
+        "LAW-05:234",
+        "LAW-05:236",
+        "LAW-05:237",
+        "LAW-05:392",
+        "LAW-05:394"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Рассчитать срок обращения без события начала.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-06-B01",
+      "module_id": "LAW-06",
+      "scenario": "gpk-claim",
+      "facts": "Истец физлицо, предмет спора и статус ответчика не установлены.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-06:gpk:22",
+        "LAW-06:gpk:23",
+        "LAW-06:gpk:24",
+        "LAW-06:gpk:28",
+        "LAW-06:gpk:29",
+        "LAW-06:gpk:30",
+        "LAW-06:gpk:32",
+        "LAW-06:gpk:55",
+        "LAW-06:gpk:56",
+        "LAW-06:gpk:57",
+        "LAW-06:gpk:59",
+        "LAW-06:gpk:60",
+        "LAW-06:gpk:61",
+        "LAW-06:gpk:67",
+        "LAW-06:gpk:71",
+        "LAW-06:gpk:131",
+        "LAW-06:gpk:132",
+        "LAW-06:gpk:135",
+        "LAW-06:gpk:136",
+        "LAW-04:17"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Назначить конкретный суд без квалификации.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-06-B02",
+      "module_id": "LAW-06",
+      "scenario": "apk-claim",
+      "facts": "В споре участвует организация, но характер отношений неизвестен.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-06:apk:4",
+        "LAW-06:apk:27",
+        "LAW-06:apk:28",
+        "LAW-06:apk:34",
+        "LAW-06:apk:35",
+        "LAW-06:apk:36",
+        "LAW-06:apk:37",
+        "LAW-06:apk:38",
+        "LAW-06:apk:39",
+        "LAW-06:apk:64",
+        "LAW-06:apk:65",
+        "LAW-06:apk:66",
+        "LAW-06:apk:67",
+        "LAW-06:apk:68",
+        "LAW-06:apk:69",
+        "LAW-06:apk:70",
+        "LAW-06:apk:71",
+        "LAW-06:apk:75",
+        "LAW-06:apk:125",
+        "LAW-06:apk:126",
+        "LAW-06:apk:128",
+        "LAW-06:apk:129"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Считать любой такой спор арбитражным.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-06-B03",
+      "module_id": "LAW-06",
+      "scenario": "apk-claim",
+      "facts": "По денежному требованию не исследованы исключения претензионного порядка.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-06:apk:4",
+        "LAW-06:apk:27",
+        "LAW-06:apk:28",
+        "LAW-06:apk:34",
+        "LAW-06:apk:35",
+        "LAW-06:apk:36",
+        "LAW-06:apk:37",
+        "LAW-06:apk:38",
+        "LAW-06:apk:39",
+        "LAW-06:apk:64",
+        "LAW-06:apk:65",
+        "LAW-06:apk:66",
+        "LAW-06:apk:67",
+        "LAW-06:apk:68",
+        "LAW-06:apk:69",
+        "LAW-06:apk:70",
+        "LAW-06:apk:71",
+        "LAW-06:apk:75",
+        "LAW-06:apk:125",
+        "LAW-06:apk:126",
+        "LAW-06:apk:128",
+        "LAW-06:apk:129"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Назначить одинаковый претензионный срок всем спорам.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-06-B04",
+      "module_id": "LAW-06",
+      "scenario": "gpk-claim",
+      "facts": "Договор содержит условие о подсудности, спор может быть потребительским.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-06:gpk:22",
+        "LAW-06:gpk:23",
+        "LAW-06:gpk:24",
+        "LAW-06:gpk:28",
+        "LAW-06:gpk:29",
+        "LAW-06:gpk:30",
+        "LAW-06:gpk:32",
+        "LAW-06:gpk:55",
+        "LAW-06:gpk:56",
+        "LAW-06:gpk:57",
+        "LAW-06:gpk:59",
+        "LAW-06:gpk:60",
+        "LAW-06:gpk:61",
+        "LAW-06:gpk:67",
+        "LAW-06:gpk:71",
+        "LAW-06:gpk:131",
+        "LAW-06:gpk:132",
+        "LAW-06:gpk:135",
+        "LAW-06:gpk:136",
+        "LAW-04:17"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Применить условие без проверки ограничений.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-06-B05",
+      "module_id": "LAW-06",
+      "scenario": "gpk-claim",
+      "facts": "Есть скриншот переписки без подтверждения источника и целостности.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-06:gpk:22",
+        "LAW-06:gpk:23",
+        "LAW-06:gpk:24",
+        "LAW-06:gpk:28",
+        "LAW-06:gpk:29",
+        "LAW-06:gpk:30",
+        "LAW-06:gpk:32",
+        "LAW-06:gpk:55",
+        "LAW-06:gpk:56",
+        "LAW-06:gpk:57",
+        "LAW-06:gpk:59",
+        "LAW-06:gpk:60",
+        "LAW-06:gpk:61",
+        "LAW-06:gpk:67",
+        "LAW-06:gpk:71",
+        "LAW-06:gpk:131",
+        "LAW-06:gpk:132",
+        "LAW-06:gpk:135",
+        "LAW-06:gpk:136",
+        "LAW-04:17"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Признать его достаточным доказательством автоматически.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-06-B06",
+      "module_id": "LAW-06",
+      "scenario": "procedure-deadlines",
+      "facts": "Известна дата оглашения, дата изготовления и вид акта неизвестны.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-06:gpk:107",
+        "LAW-06:gpk:108",
+        "LAW-06:gpk:109",
+        "LAW-06:gpk:110",
+        "LAW-06:gpk:111",
+        "LAW-06:gpk:112",
+        "LAW-06:gpk:209",
+        "LAW-06:gpk:321",
+        "LAW-06:gpk:376.1",
+        "LAW-06:apk:113",
+        "LAW-06:apk:114",
+        "LAW-06:apk:115",
+        "LAW-06:apk:116",
+        "LAW-06:apk:117",
+        "LAW-06:apk:180",
+        "LAW-06:apk:259",
+        "LAW-06:apk:276"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Рассчитать обжалование только от оглашения.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-06-B07",
+      "module_id": "LAW-06",
+      "scenario": "procedure-deadlines",
+      "facts": "Последний день предполагаемого срока приходится на нерабочий день.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-06:gpk:107",
+        "LAW-06:gpk:108",
+        "LAW-06:gpk:109",
+        "LAW-06:gpk:110",
+        "LAW-06:gpk:111",
+        "LAW-06:gpk:112",
+        "LAW-06:gpk:209",
+        "LAW-06:gpk:321",
+        "LAW-06:gpk:376.1",
+        "LAW-06:apk:113",
+        "LAW-06:apk:114",
+        "LAW-06:apk:115",
+        "LAW-06:apk:116",
+        "LAW-06:apk:117",
+        "LAW-06:apk:180",
+        "LAW-06:apk:259",
+        "LAW-06:apk:276"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Игнорировать применимый календарь и правила переноса.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-06-B08",
+      "module_id": "LAW-06",
+      "scenario": "procedure-costs",
+      "facts": "Истец указывает цену иска, но не суд и вид требований.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-06:gpk:88",
+        "LAW-06:gpk:94",
+        "LAW-06:gpk:98",
+        "LAW-06:gpk:100",
+        "LAW-06:apk:101",
+        "LAW-06:apk:106",
+        "LAW-06:apk:110",
+        "LAW-06:nk2:333.18",
+        "LAW-06:nk2:333.19",
+        "LAW-06:nk2:333.20",
+        "LAW-06:nk2:333.21",
+        "LAW-06:nk2:333.22",
+        "LAW-06:nk2:333.36",
+        "LAW-06:nk2:333.37",
+        "LAW-06:nk2:333.40",
+        "LAW-06:nk2:333.41"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Рассчитать пошлину только по сумме.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-06-B09",
+      "module_id": "LAW-06",
+      "scenario": "procedure-costs",
+      "facts": "Потребитель просит освобождение от пошлины без проверки условий льготы.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-06:gpk:88",
+        "LAW-06:gpk:94",
+        "LAW-06:gpk:98",
+        "LAW-06:gpk:100",
+        "LAW-06:apk:101",
+        "LAW-06:apk:106",
+        "LAW-06:apk:110",
+        "LAW-06:nk2:333.18",
+        "LAW-06:nk2:333.19",
+        "LAW-06:nk2:333.20",
+        "LAW-06:nk2:333.21",
+        "LAW-06:nk2:333.22",
+        "LAW-06:nk2:333.36",
+        "LAW-06:nk2:333.37",
+        "LAW-06:nk2:333.40",
+        "LAW-06:nk2:333.41"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Считать освобождение безусловным для любых требований.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-06-B10",
+      "module_id": "LAW-06",
+      "scenario": "procedure-deadlines",
+      "facts": "У дела есть поздняя кассация, но проверяется состояние на более раннюю дату.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-06:gpk:107",
+        "LAW-06:gpk:108",
+        "LAW-06:gpk:109",
+        "LAW-06:gpk:110",
+        "LAW-06:gpk:111",
+        "LAW-06:gpk:112",
+        "LAW-06:gpk:209",
+        "LAW-06:gpk:321",
+        "LAW-06:gpk:376.1",
+        "LAW-06:apk:113",
+        "LAW-06:apk:114",
+        "LAW-06:apk:115",
+        "LAW-06:apk:116",
+        "LAW-06:apk:117",
+        "LAW-06:apk:180",
+        "LAW-06:apk:259",
+        "LAW-06:apk:276"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Выдать поздний исход за известный ранее.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-07-B01",
+      "module_id": "LAW-07",
+      "scenario": "service-provider",
+      "facts": "API находится на российском домене, поддержка и бэкапы неизвестны.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-01:6",
+        "LAW-01:7",
+        "LAW-01:12",
+        "LAW-01:18",
+        "LAW-01:18.1",
+        "LAW-01:19",
+        "LAW-01:21",
+        "LAW-01:22",
+        "LAW-07:6",
+        "LAW-07:9",
+        "LAW-07:16"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Вывести территорию обработки из домена.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-07-B02",
+      "module_id": "LAW-07",
+      "scenario": "service-provider",
+      "facts": "Поставщик модели привлекает неизвестных субподрядчиков.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-01:6",
+        "LAW-01:7",
+        "LAW-01:12",
+        "LAW-01:18",
+        "LAW-01:18.1",
+        "LAW-01:19",
+        "LAW-01:21",
+        "LAW-01:22",
+        "LAW-07:6",
+        "LAW-07:9",
+        "LAW-07:16"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Подтвердить поручение без цепочки обработчиков.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-07-B03",
+      "module_id": "LAW-07",
+      "scenario": "service-data-security",
+      "facts": "Сервис использует TLS и объявляет полное соответствие.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-01:18.1",
+        "LAW-01:19",
+        "LAW-07:9",
+        "LAW-07:16",
+        "LAW-07:pp1119:requirements",
+        "LAW-07:fstec21:requirements",
+        "LAW-07:rkn178:requirements",
+        "LAW-07:fstec21:appendix-01",
+        "LAW-07:fstec21:appendix-02",
+        "LAW-07:fstec21:appendix-03",
+        "LAW-07:fstec21:appendix-04",
+        "LAW-07:fstec21:appendix-05",
+        "LAW-07:fstec21:appendix-06",
+        "LAW-07:fstec21:appendix-07",
+        "LAW-07:fstec21:appendix-08",
+        "LAW-07:fstec21:appendix-09",
+        "LAW-07:fstec21:appendix-10",
+        "LAW-07:fstec21:appendix-11",
+        "LAW-07:fstec21:appendix-12",
+        "LAW-07:fstec21:appendix-13",
+        "LAW-07:fstec21:appendix-14",
+        "LAW-07:fstec21:appendix-15"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Подтвердить безопасность по одному TLS.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-07-B04",
+      "module_id": "LAW-07",
+      "scenario": "service-data-security",
+      "facts": "Установлен локальный сервер, угрозы и права доступа не описаны.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-01:18.1",
+        "LAW-01:19",
+        "LAW-07:9",
+        "LAW-07:16",
+        "LAW-07:pp1119:requirements",
+        "LAW-07:fstec21:requirements",
+        "LAW-07:rkn178:requirements",
+        "LAW-07:fstec21:appendix-01",
+        "LAW-07:fstec21:appendix-02",
+        "LAW-07:fstec21:appendix-03",
+        "LAW-07:fstec21:appendix-04",
+        "LAW-07:fstec21:appendix-05",
+        "LAW-07:fstec21:appendix-06",
+        "LAW-07:fstec21:appendix-07",
+        "LAW-07:fstec21:appendix-08",
+        "LAW-07:fstec21:appendix-09",
+        "LAW-07:fstec21:appendix-10",
+        "LAW-07:fstec21:appendix-11",
+        "LAW-07:fstec21:appendix-12",
+        "LAW-07:fstec21:appendix-13",
+        "LAW-07:fstec21:appendix-14",
+        "LAW-07:fstec21:appendix-15"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Считать локальность достаточной защитой.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-07-B05",
+      "module_id": "LAW-07",
+      "scenario": "service-data-security",
+      "facts": "Все меры из приложения ФСТЭК предлагается применять одинаково.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-01:18.1",
+        "LAW-01:19",
+        "LAW-07:9",
+        "LAW-07:16",
+        "LAW-07:pp1119:requirements",
+        "LAW-07:fstec21:requirements",
+        "LAW-07:rkn178:requirements",
+        "LAW-07:fstec21:appendix-01",
+        "LAW-07:fstec21:appendix-02",
+        "LAW-07:fstec21:appendix-03",
+        "LAW-07:fstec21:appendix-04",
+        "LAW-07:fstec21:appendix-05",
+        "LAW-07:fstec21:appendix-06",
+        "LAW-07:fstec21:appendix-07",
+        "LAW-07:fstec21:appendix-08",
+        "LAW-07:fstec21:appendix-09",
+        "LAW-07:fstec21:appendix-10",
+        "LAW-07:fstec21:appendix-11",
+        "LAW-07:fstec21:appendix-12",
+        "LAW-07:fstec21:appendix-13",
+        "LAW-07:fstec21:appendix-14",
+        "LAW-07:fstec21:appendix-15"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Игнорировать уровень защищённости и модель угроз.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-07-B06",
+      "module_id": "LAW-07",
+      "scenario": "service-data-security",
+      "facts": "Оценка вреда субъектам отсутствует, имеется только оценка убытков компании.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-01:18.1",
+        "LAW-01:19",
+        "LAW-07:9",
+        "LAW-07:16",
+        "LAW-07:pp1119:requirements",
+        "LAW-07:fstec21:requirements",
+        "LAW-07:rkn178:requirements",
+        "LAW-07:fstec21:appendix-01",
+        "LAW-07:fstec21:appendix-02",
+        "LAW-07:fstec21:appendix-03",
+        "LAW-07:fstec21:appendix-04",
+        "LAW-07:fstec21:appendix-05",
+        "LAW-07:fstec21:appendix-06",
+        "LAW-07:fstec21:appendix-07",
+        "LAW-07:fstec21:appendix-08",
+        "LAW-07:fstec21:appendix-09",
+        "LAW-07:fstec21:appendix-10",
+        "LAW-07:fstec21:appendix-11",
+        "LAW-07:fstec21:appendix-12",
+        "LAW-07:fstec21:appendix-13",
+        "LAW-07:fstec21:appendix-14",
+        "LAW-07:fstec21:appendix-15"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Подменить вред субъектам коммерческими потерями оператора.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-07-B07",
+      "module_id": "LAW-07",
+      "scenario": "service-deletion",
+      "facts": "Пользователь удалил сессию, отчёт остался на диске.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-01:5",
+        "LAW-01:21",
+        "LAW-07:rkn179:requirements"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Подтвердить уничтожение всех данных.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-07-B08",
+      "module_id": "LAW-07",
+      "scenario": "service-deletion",
+      "facts": "Данные удалены из основной базы, резервная копия ещё хранится.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-01:5",
+        "LAW-01:21",
+        "LAW-07:rkn179:requirements"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Игнорировать копии и основания хранения.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-07-B09",
+      "module_id": "LAW-07",
+      "scenario": "service-provider",
+      "facts": "Облачная передача разрешена переменной окружения.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-01:6",
+        "LAW-01:7",
+        "LAW-01:12",
+        "LAW-01:18",
+        "LAW-01:18.1",
+        "LAW-01:19",
+        "LAW-01:21",
+        "LAW-01:22",
+        "LAW-07:6",
+        "LAW-07:9",
+        "LAW-07:16"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Считать настройку правовым основанием.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-07-B10",
+      "module_id": "LAW-07",
+      "scenario": "service-deletion",
+      "facts": "Составлен акт удаления без проверки применимых подтверждений.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-01:5",
+        "LAW-01:21",
+        "LAW-07:rkn179:requirements"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Считать акт достаточным для любого способа обработки.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-08-B01",
+      "module_id": "LAW-08",
+      "scenario": "signature-simple",
+      "facts": "В PDF вставлено изображение подписи.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-08:2",
+        "LAW-08:5",
+        "LAW-08:6",
+        "LAW-08:9",
+        "LAW-02:160",
+        "LAW-02:165.1",
+        "LAW-02:434"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Приравнять изображение к действительной электронной подписи.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-08-B02",
+      "module_id": "LAW-08",
+      "scenario": "signature-simple",
+      "facts": "Подтверждение по SMS есть, соглашение об идентификации неизвестно.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-08:2",
+        "LAW-08:5",
+        "LAW-08:6",
+        "LAW-08:9",
+        "LAW-02:160",
+        "LAW-02:165.1",
+        "LAW-02:434"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Считать SMS безусловно достаточным.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-08-B03",
+      "module_id": "LAW-08",
+      "scenario": "signature-simple",
+      "facts": "Кнопку нажал сотрудник с общей учётной записи.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-08:2",
+        "LAW-08:5",
+        "LAW-08:6",
+        "LAW-08:9",
+        "LAW-02:160",
+        "LAW-02:165.1",
+        "LAW-02:434"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Однозначно установить подписанта по общей записи.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-08-B04",
+      "module_id": "LAW-08",
+      "scenario": "signature-qualified",
+      "facts": "Предоставлен только печатный отчёт проверки сертификата.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-08:5",
+        "LAW-08:6",
+        "LAW-08:10",
+        "LAW-08:11",
+        "LAW-08:14",
+        "LAW-08:17.1",
+        "LAW-08:17.2",
+        "LAW-08:17.3",
+        "LAW-08:17.5",
+        "LAW-02:182",
+        "LAW-02:183",
+        "LAW-02:185",
+        "LAW-02:185.1",
+        "LAW-02:186",
+        "LAW-02:188",
+        "LAW-02:189"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Заявить, что выполнена собственная криптопроверка.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-08-B05",
+      "module_id": "LAW-08",
+      "scenario": "signature-qualified",
+      "facts": "Сертификат действителен сейчас, время подписания неизвестно.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-08:5",
+        "LAW-08:6",
+        "LAW-08:10",
+        "LAW-08:11",
+        "LAW-08:14",
+        "LAW-08:17.1",
+        "LAW-08:17.2",
+        "LAW-08:17.3",
+        "LAW-08:17.5",
+        "LAW-02:182",
+        "LAW-02:183",
+        "LAW-02:185",
+        "LAW-02:185.1",
+        "LAW-02:186",
+        "LAW-02:188",
+        "LAW-02:189"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Подтвердить действительность подписи на прошлую дату.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-08-B06",
+      "module_id": "LAW-08",
+      "scenario": "signature-qualified",
+      "facts": "Подписывает представитель, доверенность не исследована.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-08:5",
+        "LAW-08:6",
+        "LAW-08:10",
+        "LAW-08:11",
+        "LAW-08:14",
+        "LAW-08:17.1",
+        "LAW-08:17.2",
+        "LAW-08:17.3",
+        "LAW-08:17.5",
+        "LAW-02:182",
+        "LAW-02:183",
+        "LAW-02:185",
+        "LAW-02:185.1",
+        "LAW-02:186",
+        "LAW-02:188",
+        "LAW-02:189"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Вывести полномочия из имени в сертификате.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-08-B07",
+      "module_id": "LAW-08",
+      "scenario": "signature-qualified",
+      "facts": "Предъявлена машиночитаемая доверенность без проверки её действия.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-08:5",
+        "LAW-08:6",
+        "LAW-08:10",
+        "LAW-08:11",
+        "LAW-08:14",
+        "LAW-08:17.1",
+        "LAW-08:17.2",
+        "LAW-08:17.3",
+        "LAW-08:17.5",
+        "LAW-02:182",
+        "LAW-02:183",
+        "LAW-02:185",
+        "LAW-02:185.1",
+        "LAW-02:186",
+        "LAW-02:188",
+        "LAW-02:189"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Признать любые полномочия по факту наличия файла.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-08-B08",
+      "module_id": "LAW-08",
+      "scenario": "signature-simple",
+      "facts": "Электронный документ относится к виду со специальными требованиями к форме.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-08:2",
+        "LAW-08:5",
+        "LAW-08:6",
+        "LAW-08:9",
+        "LAW-02:160",
+        "LAW-02:165.1",
+        "LAW-02:434"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Применить общее правило без исключений.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-08-B09",
+      "module_id": "LAW-08",
+      "scenario": "signature-qualified",
+      "facts": "Сертификат отозван; неизвестны дата отзыва и подписания.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-08:5",
+        "LAW-08:6",
+        "LAW-08:10",
+        "LAW-08:11",
+        "LAW-08:14",
+        "LAW-08:17.1",
+        "LAW-08:17.2",
+        "LAW-08:17.3",
+        "LAW-08:17.5",
+        "LAW-02:182",
+        "LAW-02:183",
+        "LAW-02:185",
+        "LAW-02:185.1",
+        "LAW-02:186",
+        "LAW-02:188",
+        "LAW-02:189"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Признать подпись недействительной без дат.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-08-B10",
+      "module_id": "LAW-08",
+      "scenario": "signature-simple",
+      "facts": "Договор заключён перепиской с оспариваемого адреса.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-08:2",
+        "LAW-08:5",
+        "LAW-08:6",
+        "LAW-08:9",
+        "LAW-02:160",
+        "LAW-02:165.1",
+        "LAW-02:434"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Признать авторство без доказательств.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-09-B01",
+      "module_id": "LAW-09",
+      "scenario": "liability-personal-data",
+      "facts": "Выявлен инцидент, состав данных и роль лица неизвестны.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-09:1.5",
+        "LAW-09:1.7",
+        "LAW-09:2.1",
+        "LAW-09:2.4",
+        "LAW-09:4.1",
+        "LAW-09:4.5",
+        "LAW-09:13.11",
+        "LAW-09:13.14"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Назначить штраф только по слову утечка.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-09-B02",
+      "module_id": "LAW-09",
+      "scenario": "liability-personal-data",
+      "facts": "Нарушение совершено до изменения санкций.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-09:1.5",
+        "LAW-09:1.7",
+        "LAW-09:2.1",
+        "LAW-09:2.4",
+        "LAW-09:4.1",
+        "LAW-09:4.5",
+        "LAW-09:13.11",
+        "LAW-09:13.14"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Автоматически применить более строгую позднюю санкцию.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-09-B03",
+      "module_id": "LAW-09",
+      "scenario": "liability-personal-data",
+      "facts": "Указывается повторность, прежнее постановление не исследовано.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-09:1.5",
+        "LAW-09:1.7",
+        "LAW-09:2.1",
+        "LAW-09:2.4",
+        "LAW-09:4.1",
+        "LAW-09:4.5",
+        "LAW-09:13.11",
+        "LAW-09:13.14"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Признать повторность по слухам о прошлом инциденте.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-09-B04",
+      "module_id": "LAW-09",
+      "scenario": "liability-personal-data",
+      "facts": "Пропущен срок, но событие начала и характер нарушения неясны.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-09:1.5",
+        "LAW-09:1.7",
+        "LAW-09:2.1",
+        "LAW-09:2.4",
+        "LAW-09:4.1",
+        "LAW-09:4.5",
+        "LAW-09:13.11",
+        "LAW-09:13.14"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Подтвердить истечение давности без квалификации.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-09-B05",
+      "module_id": "LAW-09",
+      "scenario": "liability-personal-data",
+      "facts": "Обработчик и оператор спорят о субъекте ответственности.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-09:1.5",
+        "LAW-09:1.7",
+        "LAW-09:2.1",
+        "LAW-09:2.4",
+        "LAW-09:4.1",
+        "LAW-09:4.5",
+        "LAW-09:13.11",
+        "LAW-09:13.14"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Назначить ответственность только по названию договора.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-09-B06",
+      "module_id": "LAW-09",
+      "scenario": "liability-personal-data",
+      "facts": "Сумму штрафа взяли из статьи в блоге без части состава.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-09:1.5",
+        "LAW-09:1.7",
+        "LAW-09:2.1",
+        "LAW-09:2.4",
+        "LAW-09:4.1",
+        "LAW-09:4.5",
+        "LAW-09:13.11",
+        "LAW-09:13.14"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Применить сумму без точной нормы и редакции.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-09-B07",
+      "module_id": "LAW-09",
+      "scenario": "liability-consumer-labour",
+      "facts": "Работнику задержали выплату, обсуждается административный штраф.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-09:1.5",
+        "LAW-09:1.7",
+        "LAW-09:2.1",
+        "LAW-09:2.4",
+        "LAW-09:4.1",
+        "LAW-09:4.5",
+        "LAW-09:5.27",
+        "LAW-09:5.27.1",
+        "LAW-09:14.8"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Приравнять штраф к компенсации работнику.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-09-B08",
+      "module_id": "LAW-09",
+      "scenario": "liability-consumer-labour",
+      "facts": "Продавец нарушил право потребителя, ущерб пока не исследован.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-09:1.5",
+        "LAW-09:1.7",
+        "LAW-09:2.1",
+        "LAW-09:2.4",
+        "LAW-09:4.1",
+        "LAW-09:4.5",
+        "LAW-09:5.27",
+        "LAW-09:5.27.1",
+        "LAW-09:14.8"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Смешать административную и гражданскую ответственность.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-09-B09",
+      "module_id": "LAW-09",
+      "scenario": "liability-personal-data",
+      "facts": "Юридическое лицо и должностное лицо имеют разные обстоятельства.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-09:1.5",
+        "LAW-09:1.7",
+        "LAW-09:2.1",
+        "LAW-09:2.4",
+        "LAW-09:4.1",
+        "LAW-09:4.5",
+        "LAW-09:13.11",
+        "LAW-09:13.14"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Перенести субъект и санкцию с одного на другого.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    },
+    {
+      "id": "LAW-09-B10",
+      "module_id": "LAW-09",
+      "scenario": "liability-consumer-labour",
+      "facts": "Выявлен риск по договору, факт нарушения не установлен.",
+      "as_of": "2026-11-08",
+      "source_card_ids": [
+        "LAW-09:1.5",
+        "LAW-09:1.7",
+        "LAW-09:2.1",
+        "LAW-09:2.4",
+        "LAW-09:4.1",
+        "LAW-09:4.5",
+        "LAW-09:5.27",
+        "LAW-09:5.27.1",
+        "LAW-09:14.8"
+      ],
+      "expected_behavior": "Уточнить недостающие факты; сопоставить норму, редакцию и исключения с датой ситуации. При пробеле указать его и сохранить результат как непроверенный.",
+      "forbidden_conclusion": "Считать договорный риск доказанным составом правонарушения.",
+      "approved_legal_answer": null,
+      "review": {
+        "approved": false,
+        "reviewer": null,
+        "reviewed_on": null
+      },
+      "synthetic": true
+    }
+  ]
+}

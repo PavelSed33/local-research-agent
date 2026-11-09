@@ -2,6 +2,10 @@
 .git
 __pycache__/
 *.pyc
+runtime/
+*.db
+*.db-wal
+*.db-shm
 результаты/
 мои_исследования/
 test_agent.py

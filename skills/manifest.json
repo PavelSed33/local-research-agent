@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "skills": [
+    {
+      "id": "contract-playbook",
+      "title": "Проверка по правилам компании",
+      "author": "Anthropic",
+      "license": "Apache-2.0",
+      "required_fields": [
+        "user_position",
+        "playbook"
+      ],
+      "upstream_commit": "f9f28cdccbeb98bbdde010042ea9f525ca427c72",
+      "upstream_url": "https://github.com/lawve-ai/awesome-legal-skills/blob/f9f28cdccbeb98bbdde010042ea9f525ca427c72/skills/playbook-reviewer-anthropic/SKILL.md",
+      "adapter_file": "skills/contract-playbook/SKILL.md",
+      "adapter_sha256": "6358817af7928cd349ac42e20092f7284736bdcf7e0e8bf1a25d0cae902ada49",
+      "original_file": "third_party/lawve/playbook-reviewer-anthropic/SKILL.md",
+      "original_sha256": "5bfa080462dfc0d471b4c0afcfc042006e5707359a9f88f77d2a210da5cc5e91",
+      "license_files": [
+        {
+          "file": "third_party/lawve/playbook-reviewer-anthropic/LICENSE.txt",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        }
+      ],
+      "network_mode": "model_only"
+    },
+    {
+      "id": "contract-risk",
+      "title": "Пять групп договорных рисков",
+      "author": "Sneha Ganapavarapu",
+      "license": "CC-BY-4.0",
+      "required_fields": [
+        "user_position"
+      ],
+      "upstream_commit": "f9f28cdccbeb98bbdde010042ea9f525ca427c72",
+      "upstream_url": "https://github.com/lawve-ai/awesome-legal-skills/blob/f9f28cdccbeb98bbdde010042ea9f525ca427c72/skills/contract-risk-analyzer-sneha-ganapavarapu/SKILL.md",
+      "adapter_file": "skills/contract-risk/SKILL.md",
+      "adapter_sha256": "05765400d61149a42979a33160ca0001ae5124574c567332a8db8a16fa984af0",
+      "original_file": "third_party/lawve/contract-risk-analyzer-sneha-ganapavarapu/SKILL.md",
+      "original_sha256": "24b3be93686dfdb9ad3628271e9e075234a52344a0b0d11bb387f3f7b43f2b70",
+      "license_files": [],
+      "network_mode": "model_only"
+    },
+    {
+      "id": "claim-audit",
+      "title": "Аудит утверждений и источников",
+      "author": "Anthony Searle",
+      "license": "Apache-2.0",
+      "required_fields": [
+        "research_query"
+      ],
+      "upstream_commit": "f9f28cdccbeb98bbdde010042ea9f525ca427c72",
+      "upstream_url": "https://github.com/lawve-ai/awesome-legal-skills/blob/f9f28cdccbeb98bbdde010042ea9f525ca427c72/skills/proposition-audit-anthony-searle/SKILL.md",
+      "adapter_file": "skills/claim-audit/SKILL.md",
+      "adapter_sha256": "580712413a6c6a9b37486efa6f6a130ebe44f9db997eb41ecc6c69decc32e1e7",
+      "original_file": "third_party/lawve/proposition-audit-anthony-searle/SKILL.md",
+      "original_sha256": "b9f7f8678259194b25aebab1e27328eb71310e84aac58dd5df29cfcb8f3933a9",
+      "license_files": [
+        {
+          "file": "third_party/lawve/proposition-audit-anthony-searle/LICENSE.txt",
+          "sha256": "1a415a1c6b9b2fd794944368499d32ce07f760511f859fd9a56203af5b378d11"
+        },
+        {
+          "file": "third_party/lawve/proposition-audit-anthony-searle/NOTICE",
+          "sha256": "545b28c6f61c9e200fc05eb153a6c8e862c64b69d44053e9f23763e933c2dbcf"
+        }
+      ],
+      "network_mode": "search"
+    },
+    {
+      "id": "nda-screen",
+      "title": "Предварительная проверка NDA",
+      "author": "Anthropic",
+      "license": "Apache-2.0",
+      "required_fields": [
+        "user_position"
+      ],
+      "network_mode": "model_only",
+      "upstream_commit": "e050c2ec856373787143d7057663a6ebd1277df3",
+      "upstream_url": "https://github.com/anthropics/knowledge-work-plugins/blob/e050c2ec856373787143d7057663a6ebd1277df3/legal/skills/triage-nda/SKILL.md",
+      "adapter_file": "skills/nda-screen/SKILL.md",
+      "adapter_sha256": "659d9ab69698154a0865e4ca82269ca189d128366f500960b7e99383b7831ef3",
+      "original_file": "third_party/selected-skills/nda-screen/SKILL.md",
+      "original_sha256": "767a8f6759268e003ee882af8dfb56579aca2121b9dc49a2c65c4e77de93f768",
+      "license_files": [
+        {
+          "file": "third_party/selected-skills/nda-screen/LICENSE.txt",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        }
+      ]
+    },
+    {
+      "id": "fact-timeline",
+      "title": "Хронология фактов по документу",
+      "author": "Anthropic",
+      "license": "Apache-2.0",
+      "required_fields": [],
+      "network_mode": "model_only",
+      "upstream_commit": "4a6c651889c97cc9140580363c73e0eb17379c2b",
+      "upstream_url": "https://github.com/anthropics/claude-for-legal/blob/4a6c651889c97cc9140580363c73e0eb17379c2b/litigation-legal/skills/chronology/SKILL.md",
+      "adapter_file": "skills/fact-timeline/SKILL.md",
+      "adapter_sha256": "f8c345f9b1cbb69ea59bff3a6e78d5ff2e9beacf5f5c0e8d8aeb72862c31e979",
+      "original_file": "third_party/selected-skills/fact-timeline/SKILL.md",
+      "original_sha256": "f6b4df4a170fb33ea844aff951b6d6e40780d07d6fb592cd08596825e71d12f5",
+      "license_files": [
+        {
+          "file": "third_party/selected-skills/fact-timeline/LICENSE.txt",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        }
+      ]
+    },
+    {
+      "id": "legal-search-plan",
+      "title": "План правового поиска",
+      "author": "StellaHan",
+      "license": "MIT",
+      "required_fields": [],
+      "network_mode": "model_only",
+      "upstream_commit": "97647d3678d1e9f1e1d27cf2bc0436c214f37d79",
+      "upstream_url": "https://github.com/Stella2309/Legal-Skills/blob/97647d3678d1e9f1e1d27cf2bc0436c214f37d79/case-search-assistant/SKILL.md",
+      "adapter_file": "skills/legal-search-plan/SKILL.md",
+      "adapter_sha256": "6a5157320eec8bc176e89ee4f634523de8a7ee3e97b930c7924d8a10acb6798d",
+      "original_file": "third_party/selected-skills/legal-search-plan/SKILL.md",
+      "original_sha256": "935ea957ed9be12dff312ffb452b07a4213154a7ee5405a88d6c2f05a7222408",
+      "license_files": [
+        {
+          "file": "third_party/selected-skills/legal-search-plan/LICENSE.txt",
+          "sha256": "8da76145dd2fb1155abbe90f133967c34f02b186f826da1baa342573f89b543c"
+        }
+      ]
+    }
+  ]
+}

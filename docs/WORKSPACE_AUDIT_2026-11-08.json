@@ -1,0 +1,63 @@
+{
+  "api_version": "1.15",
+  "checked_on": "2026-11-08",
+  "scope": "matter workspace, evidence review, local document processing and per-user authorization",
+  "unit_tests": {"run": 493, "failed": 0, "skipped": 0, "status": "passed"},
+  "legacy_http_acceptance": {"checks": 26, "status": "passed", "mode": "synthetic_demo"},
+  "workspace_http_acceptance": {"checks": 19, "status": "passed", "mode": "temporary_synthetic_accounts_and_documents", "includes_expected_access_denials": true},
+  "validated_features": {
+    "individual_tokens": "hashed at rest; bootstrap restricted; rotation and revocation tested",
+    "matter_permissions": "owner/editor/viewer; cross-user access denied; ownership transfer tested",
+    "request_isolation": "session and cancellation IDs namespaced by user; late answer blocked after access revocation",
+    "document_storage": "SQLite transactions; original bytes, extracted text, SHA-256 and page maps; immutable records; original downloads enforce ACL",
+    "retrieval": "local FTS5 prefix search; multiple documents; literal citation offsets and hashes",
+    "edition_dossiers": "quoted date boundaries; independent account approval; half-open periods; overlap ambiguity; revoked records excluded",
+    "case_dossiers": "identity and outcome quotes; same-case links; declared opposing/supporting positions; future events excluded",
+    "human_benchmarks": "independent account review; manual correctness and missed-risk scoring; duplicate evaluations rejected; revoked benchmarks excluded from metrics",
+    "local_pdf": "real 16-page official court PDF parsed",
+    "local_ocr": "real image-only synthetic PDFs recognized in English and Russian",
+    "docx_export": "literal unique replacements with change protocol; readable by independent python-docx library",
+    "redaction": "local incomplete preview; never claims verified anonymization",
+    "worker_cleanup": "POSIX worker and converter child killed on deadline",
+    "audit": "append-only SQL triggers, metadata-only events, hash-chain verification"
+  },
+  "primary_archive": {
+    "source_count": 1,
+    "material_type": "supreme_court_plenum",
+    "source_url": "https://www.vsrf.ru/files/27530/",
+    "document": "Постановление Пленума ВС РФ от 25.12.2018 №49",
+    "pdf_bytes": 294211,
+    "pdf_sha256": "78fe8238a6390afdd8ecd2f8010d21fdca27b6c1d671a663bb8917a5808874da",
+    "pages_extracted": 16,
+    "text_characters": 43290,
+    "current_validity_verified": false,
+    "legal_completeness_verified": false
+  },
+  "ocr_language_data": {
+    "source": "tesseract-ocr/tessdata_fast",
+    "commit": "87416418657359cb625c412a48b6e1d6d41c29bd",
+    "license": "Apache-2.0",
+    "git_blob_hashes_verified": true,
+    "models_in_git": false,
+    "automatic_api_startup_downloads": false
+  },
+  "python_compilation": "passed",
+  "javascript_syntax": "passed",
+  "git_diff_whitespace": "passed",
+  "legal_data_validation": {"statutory_extracts": 454, "acts": 15, "modules": 9, "workflows": 35, "draft_synthetic_cases": 90, "evidence_gaps_closed_by_this_release": 0},
+  "real_human_approved_editions_added": 0,
+  "real_human_approved_benchmarks_added": 0,
+  "individual_case_histories_verified": 0,
+  "live_llm_search_acceptance": false,
+  "browser_acceptance": false,
+  "docker_execution_tested": false,
+  "legal_acceptance": false,
+  "remaining": [
+    "Acquire complete primary legislative texts and amendment/transition histories for the selected scope",
+    "Collect and independently assess individual court cases and their full procedural histories",
+    "Have qualified independent humans approve legal benchmark answers and apply the scoring rubric",
+    "Run real provider, browser and deployment acceptance",
+    "Prepare production TLS, backup/encryption and retention procedures",
+    "Semantic retrieval, automatic semantic grading, SSO and Word tracked changes are not implemented"
+  ]
+}

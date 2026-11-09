@@ -22,7 +22,7 @@ class P0CoverageTests(unittest.TestCase):
     def test_scope_and_unaccepted_cards_match_spec(self):
         result = coverage_report(as_of='2026-11-07')
         self.assertEqual(len(result['modules']), 9)
-        self.assertEqual([m['research_card_count'] for m in result['modules'][:2]], [15, 19])
+        self.assertEqual([m['research_card_count'] for m in result['modules'][:2]], [21, 111])
         for module in result['modules']:
             self.assertEqual(module['accepted_provision_count'], 0)
             self.assertFalse(module['verified'])
@@ -149,3 +149,4 @@ class P0HttpTests(unittest.TestCase):
                 server.shutdown()
                 server.server_close()
                 thread.join(timeout=2)
+

@@ -1,0 +1,128 @@
+{
+  "checked_on": "2026-11-09",
+  "api_version": "1.17",
+  "unit_tests": {
+    "passed": 515,
+    "skipped": 0
+  },
+  "workspace_http": {
+    "status": "passed",
+    "api_version": "1.17",
+    "http_checks": 31,
+    "scope": "temporary_synthetic_workspace_http",
+    "external_providers_tested": false,
+    "browser_acceptance": false,
+    "legal_acceptance": false,
+    "credentials_in_report": false
+  },
+  "legacy_http": {
+    "api_version": "1.17",
+    "mode": "demo",
+    "status": "passed",
+    "checked_on": "2026-11-09",
+    "checks": [
+      {
+        "id": "local_demo_workflows",
+        "status": "passed",
+        "passed_http_checks": 26
+      }
+    ],
+    "configuration": {
+      "missing": [
+        "LLM_API_KEY",
+        "LLM_MODEL",
+        "TAVILY_API_KEY"
+      ],
+      "invalid_endpoints": [],
+      "documents_permitted_by_configuration": false
+    },
+    "external_requests_attempted": false,
+    "live_acceptance_passed": false,
+    "legal_acceptance": false,
+    "browser_acceptance": false,
+    "scope": "technical_http_acceptance_with_synthetic_inputs",
+    "deadline_seconds": 600
+  },
+  "archive": {
+    "status": "passed",
+    "sources": 3,
+    "total_pages": 59,
+    "total_characters": 163520,
+    "native_pdf_replay": true,
+    "external_requests_attempted": false,
+    "legal_acceptance": false,
+    "results": [
+      {
+        "id": "vsrf-plenum-49-2018",
+        "pdf_bytes": 294211,
+        "pages": 16,
+        "text_characters": 43290,
+        "integrity_checked": true,
+        "identity_checked": true,
+        "legal_acceptance": false,
+        "pdf_page_count_matches": true,
+        "text_replay_matches": true,
+        "page_map_replay_matches": true,
+        "status": "passed"
+      },
+      {
+        "id": "vsrf-plenum-7-2016",
+        "pdf_bytes": 362180,
+        "pages": 25,
+        "text_characters": 69678,
+        "integrity_checked": true,
+        "identity_checked": true,
+        "legal_acceptance": false,
+        "pdf_page_count_matches": true,
+        "text_replay_matches": true,
+        "page_map_replay_matches": true,
+        "status": "passed"
+      },
+      {
+        "id": "vsrf-plenum-54-2016",
+        "pdf_bytes": 233422,
+        "pages": 18,
+        "text_characters": 50552,
+        "integrity_checked": true,
+        "identity_checked": true,
+        "legal_acceptance": false,
+        "pdf_page_count_matches": true,
+        "text_replay_matches": true,
+        "page_map_replay_matches": true,
+        "status": "passed"
+      }
+    ]
+  },
+  "browser": {
+    "scope": "synthetic_demo_browser_acceptance",
+    "browser_acceptance": false,
+    "external_providers_tested": false,
+    "legal_acceptance": false,
+    "status": "blocked",
+    "reason": "chromium_missing"
+  },
+  "javascript_syntax": "passed",
+  "python_compile": "passed",
+  "docker_execution": "not_tested_binary_missing",
+  "new_primary_legal_texts_added": 0,
+  "human_accepted_legal_tasks": 0,
+  "synthetic_task_templates": 90,
+  "legal_acceptance": false,
+  "source_retrieval_attempts": [
+    {
+      "source": "pravo.gov.ru / Минюст",
+      "result": "http_errors_or_timeouts",
+      "archived": false
+    },
+    {
+      "source": "kad.arbitr.ru primary case PDF URL",
+      "result": "captcha_html_not_pdf",
+      "archived": false
+    },
+    {
+      "source": "vsrf.ru public judicial acts listing",
+      "result": "http_503",
+      "archived": false
+    }
+  ]
+}

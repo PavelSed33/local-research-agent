@@ -1,0 +1,1339 @@
+{
+  "schema_version": 1,
+  "researched_on": "2026-11-08",
+  "verified": false,
+  "lawyer_reviewed": false,
+  "workflows": [
+    {
+      "id": "pd-access",
+      "title": "Доступ субъекта и ответы на обращения",
+      "module_ids": [
+        "LAW-01"
+      ],
+      "area": "privacy",
+      "card_ids": [
+        "LAW-01:14",
+        "LAW-01:20",
+        "LAW-01:21"
+      ],
+      "profiles": [],
+      "contract_types": [],
+      "questions": {
+        "identity_checked": "Установлены личность заявителя и его полномочия?",
+        "request_scope_known": "Известны содержание и дата получения обращения?",
+        "restriction_checked": "Исследованы ограничения доступа и права третьих лиц?",
+        "response_evidence": "Есть доказательства ответа и предпринятых действий?"
+      },
+      "caution": "Нельзя раскрывать чужие данные или назначать срок без квалификации обращения.",
+      "status": "research_questions",
+      "verified": false,
+      "lawyer_reviewed": false
+    },
+    {
+      "id": "pd-operator",
+      "title": "Обязанности оператора и ответственный за обработку",
+      "module_ids": [
+        "LAW-01",
+        "LAW-07"
+      ],
+      "area": "privacy",
+      "card_ids": [
+        "LAW-01:18.1",
+        "LAW-01:19",
+        "LAW-01:22",
+        "LAW-01:22.1",
+        "LAW-07:9",
+        "LAW-07:16"
+      ],
+      "profiles": [],
+      "contract_types": [],
+      "questions": {
+        "operator_identified": "Установлены оператор и лица, действующие по его поручению?",
+        "operations_mapped": "Описаны данные, цели, операции, доступ и места обработки?",
+        "duties_assigned": "Определены применимые обязанности и ответственные?",
+        "implementation_evidenced": "Есть документы и технические доказательства выполнения мер?"
+      },
+      "caution": "Назначение ответственного и наличие политики сами по себе не подтверждают соблюдение всех обязанностей.",
+      "status": "research_questions",
+      "verified": false,
+      "lawyer_reviewed": false
+    },
+    {
+      "id": "civil-notices",
+      "title": "Юридически значимые сообщения",
+      "module_ids": [
+        "LAW-02"
+      ],
+      "area": "contracts",
+      "card_ids": [
+        "LAW-02:165.1",
+        "LAW-02:450.1"
+      ],
+      "profiles": [
+        "business",
+        "consumer"
+      ],
+      "contract_types": [
+        "general",
+        "supply",
+        "lease",
+        "services",
+        "work"
+      ],
+      "questions": {
+        "recipient_known": "Установлены надлежащий адресат и согласованные каналы связи?",
+        "notice_content_known": "Известны содержание и цель уведомления?",
+        "delivery_evidenced": "Есть доказательства направления и доставки?",
+        "exceptions_checked": "Проверены договорные и специальные правила уведомления?"
+      },
+      "caution": "Отправка сообщения сама по себе не доказывает наступление последствий; проверить доставку и исключения.",
+      "status": "research_questions",
+      "verified": false,
+      "lawyer_reviewed": false
+    },
+    {
+      "id": "civil-limitation",
+      "title": "Исковая давность и календарные сроки",
+      "module_ids": [
+        "LAW-02"
+      ],
+      "area": "contracts",
+      "card_ids": [
+        "LAW-02:190",
+        "LAW-02:191",
+        "LAW-02:192",
+        "LAW-02:193",
+        "LAW-02:194",
+        "LAW-02:195",
+        "LAW-02:196",
+        "LAW-02:199",
+        "LAW-02:200",
+        "LAW-02:202",
+        "LAW-02:203",
+        "LAW-02:204",
+        "LAW-02:205",
+        "LAW-02:206",
+        "LAW-02:207",
+        "LAW-02:208"
+      ],
+      "profiles": [
+        "business",
+        "consumer"
+      ],
+      "contract_types": [
+        "general",
+        "supply",
+        "lease",
+        "services",
+        "work"
+      ],
+      "questions": {
+        "claim_classified": "Определены требование и применимый вид срока?",
+        "start_event_known": "Установлены событие начала и необходимые даты?",
+        "suspension_checked": "Проверены приостановление, перерыв и судебная защита?",
+        "party_position_known": "Установлено, заявляла ли сторона об исковой давности?"
+      },
+      "caution": "Не считать давность автоматически применённой судом и не рассчитывать её только от даты договора.",
+      "status": "research_questions",
+      "verified": false,
+      "lawyer_reviewed": false
+    },
+    {
+      "id": "civil-invalidity",
+      "title": "Недействительность и последствия",
+      "module_ids": [
+        "LAW-02"
+      ],
+      "area": "contracts",
+      "card_ids": [
+        "LAW-02:166",
+        "LAW-02:167",
+        "LAW-02:168",
+        "LAW-02:170",
+        "LAW-02:174",
+        "LAW-02:178",
+        "LAW-02:179",
+        "LAW-02:180",
+        "LAW-02:181",
+        "LAW-02:431.1"
+      ],
+      "profiles": [
+        "business",
+        "consumer"
+      ],
+      "contract_types": [
+        "general",
+        "supply",
+        "lease",
+        "services",
+        "work"
+      ],
+      "questions": {
+        "ground_identified": "Установлено конкретное предполагаемое основание недействительности?",
+        "standing_known": "Установлены надлежащий заявитель и затронутый интерес?",
+        "evidence_available": "Есть доказательства существенных обстоятельств?",
+        "consequences_checked": "Исследованы последствия, сроки и сохранение остальных условий?"
+      },
+      "caution": "Не объявлять любую невыгодную оговорку ничтожной; отличать недействительность от незаключённости.",
+      "status": "research_questions",
+      "verified": false,
+      "lawyer_reviewed": false
+    },
+    {
+      "id": "civil-payment",
+      "title": "Цена, срок и встречное исполнение",
+      "module_ids": [
+        "LAW-02"
+      ],
+      "area": "contracts",
+      "card_ids": [
+        "LAW-02:314",
+        "LAW-02:317",
+        "LAW-02:317.1",
+        "LAW-02:319",
+        "LAW-02:328",
+        "LAW-02:424",
+        "LAW-02:425"
+      ],
+      "profiles": [
+        "business",
+        "consumer"
+      ],
+      "contract_types": [
+        "general",
+        "supply",
+        "lease",
+        "services",
+        "work"
+      ],
+      "questions": {
+        "price_determined": "Установлены цена, валюта и порядок её определения?",
+        "payment_trigger_known": "Определены событие и срок оплаты?",
+        "performance_evidenced": "Известно фактическое встречное исполнение?",
+        "special_rules_checked": "Исследованы специальные нормы и согласованные исключения?"
+      },
+      "caution": "Не приравнивать любую неоплату к основанию немедленного отказа; проценты квалифицировать отдельно.",
+      "status": "research_questions",
+      "verified": false,
+      "lawyer_reviewed": false
+    },
+    {
+      "id": "civil-liability",
+      "title": "Убытки, неустойка и освобождение от ответственности",
+      "module_ids": [
+        "LAW-02"
+      ],
+      "area": "contracts",
+      "card_ids": [
+        "LAW-02:15",
+        "LAW-02:330",
+        "LAW-02:333",
+        "LAW-02:393",
+        "LAW-02:393.1",
+        "LAW-02:394",
+        "LAW-02:395",
+        "LAW-02:400",
+        "LAW-02:401",
+        "LAW-02:404",
+        "LAW-02:405",
+        "LAW-02:406"
+      ],
+      "profiles": [
+        "business",
+        "consumer"
+      ],
+      "contract_types": [
+        "general",
+        "supply",
+        "lease",
+        "services",
+        "work"
+      ],
+      "questions": {
+        "breach_known": "Установлено нарушенное обязательство и характер нарушения?",
+        "loss_evidence": "Есть доказательства убытков и причинной связи?",
+        "sanctions_classified": "Разграничены неустойка, проценты и убытки?",
+        "exemption_checked": "Проверены вина, непреодолимая сила и допустимые ограничения?"
+      },
+      "caution": "Форс-мажор не освобождает автоматически от всех обязательств; нельзя складывать санкции без проверки оснований.",
+      "status": "research_questions",
+      "verified": false,
+      "lawyer_reviewed": false
+    },
+    {
+      "id": "civil-business-risk",
+      "title": "Заверения и возмещение потерь",
+      "module_ids": [
+        "LAW-02"
+      ],
+      "area": "contracts",
+      "card_ids": [
+        "LAW-02:406.1",
+        "LAW-02:431.2"
+      ],
+      "profiles": [
+        "business"
+      ],
+      "contract_types": [
+        "general",
+        "supply",
+        "lease",
+        "services",
+        "work"
+      ],
+      "questions": {
+        "parties_status_known": "Установлены статус сторон и применимый режим?",
+        "trigger_defined": "Определены заверение либо обстоятельство возмещения потерь?",
+        "reliance_evidenced": "Известны разумное полагание и существенные обстоятельства?",
+        "remedies_checked": "Проверены последствия, пределы соглашения и соотношение требований?"
+      },
+      "caution": "Возмещение потерь и убытки за нарушение — разные конструкции; потребительские ограничения проверяются отдельно.",
+      "status": "research_questions",
+      "verified": false,
+      "lawyer_reviewed": false
+    },
+    {
+      "id": "civil-setoff",
+      "title": "Зачёт и прекращение обязательств",
+      "module_ids": [
+        "LAW-02"
+      ],
+      "area": "contracts",
+      "card_ids": [
+        "LAW-02:407",
+        "LAW-02:408",
+        "LAW-02:410",
+        "LAW-02:411"
+      ],
+      "profiles": [
+        "business",
+        "consumer"
+      ],
+      "contract_types": [
+        "general",
+        "supply",
+        "lease",
+        "services",
+        "work"
+      ],
+      "questions": {
+        "claims_known": "Установлены встречные требования и их стороны?",
+        "maturity_known": "Известны сроки и характер требований?",
+        "setoff_notice_known": "Есть заявление и доказательства его получения?",
+        "prohibition_checked": "Проверены запреты и специальные режимы, включая банкротство?"
+      },
+      "caution": "Не подтверждать зачёт только по бухгалтерской записи; специальные режимы вне принятого покрытия.",
+      "status": "research_questions",
+      "verified": false,
+      "lawyer_reviewed": false
+    },
+    {
+      "id": "civil-interpretation",
+      "title": "Толкование и стандартные условия",
+      "module_ids": [
+        "LAW-02"
+      ],
+      "area": "contracts",
+      "card_ids": [
+        "LAW-02:421",
+        "LAW-02:428",
+        "LAW-02:431",
+        "LAW-02:432"
+      ],
+      "profiles": [
+        "business",
+        "consumer"
+      ],
+      "contract_types": [
+        "general",
+        "supply",
+        "lease",
+        "services",
+        "work"
+      ],
+      "questions": {
+        "all_documents_known": "Исследованы договор, приложения, переписка и исполнение?",
+        "negotiation_known": "Установлено, как стороны согласовали спорное условие?",
+        "common_intent_checked": "Исследована общая воля сторон и цель договора?",
+        "imbalance_checked": "Проверены стандартные условия и возможности их изменения?"
+      },
+      "caution": "Название договора и отсутствие фразы в основном файле не устанавливают квалификацию или незаключённость.",
+      "status": "research_questions",
+      "verified": false,
+      "lawyer_reviewed": false
+    },
+    {
+      "id": "civil-termination",
+      "title": "Изменение и прекращение договора",
+      "module_ids": [
+        "LAW-02"
+      ],
+      "area": "contracts",
+      "card_ids": [
+        "LAW-02:310",
+        "LAW-02:450",
+        "LAW-02:450.1",
+        "LAW-02:451",
+        "LAW-02:452",
+        "LAW-02:453"
+      ],
+      "profiles": [
+        "business",
+        "consumer"
+      ],
+      "contract_types": [
+        "general",
+        "supply",
+        "lease",
+        "services",
+        "work"
+      ],
+      "questions": {
+        "termination_ground_known": "Установлены основание и способ прекращения?",
+        "procedure_checked": "Проверены уведомление, претензия и договорный порядок?",
+        "event_dates_known": "Известны значимые даты и применимая редакция?",
+        "settlement_known": "Установлены исполнение, возвраты и сохраняющиеся обязанности?"
+      },
+      "caution": "Разграничивать соглашение, односторонний отказ и судебное расторжение; не переносить последствия между ними.",
+      "status": "research_questions",
+      "verified": false,
+      "lawyer_reviewed": false
+    },
+    {
+      "id": "supply-quality",
+      "title": "Поставка: качество, приёмка и требования",
+      "module_ids": [
+        "LAW-03"
+      ],
+      "area": "contracts",
+      "card_ids": [
+        "LAW-03:469",
+        "LAW-03:470",
+        "LAW-03:475",
+        "LAW-03:476",
+        "LAW-03:477",
+        "LAW-03:483",
+        "LAW-03:513",
+        "LAW-03:514",
+        "LAW-03:518",
+        "LAW-03:520"
+      ],
+      "profiles": [
+        "business"
+      ],
+      "contract_types": [
+        "supply"
+      ],
+      "questions": {
+        "goods_identified": "Установлены товар, качество и согласованные требования?",
+        "acceptance_evidenced": "Есть доказательства передачи, осмотра и уведомления о недостатках?",
+        "defect_timing_known": "Известны характер и время возникновения недостатка?",
+        "remedy_classified": "Выбранное требование сопоставлено с договором, гарантиями и сроками?"
+      },
+      "caution": "Не применять потребительские сроки к предпринимательской поставке автоматически.",
+      "status": "research_questions",
+      "verified": false,
+      "lawyer_reviewed": false
+    },
+    {
+      "id": "supply-performance",
+      "title": "Поставка: передача, оплата и отказ",
+      "module_ids": [
+        "LAW-03"
+      ],
+      "area": "contracts",
+      "card_ids": [
+        "LAW-03:455",
+        "LAW-03:465",
+        "LAW-03:506",
+        "LAW-03:508",
+        "LAW-03:509",
+        "LAW-03:510",
+        "LAW-03:511",
+        "LAW-03:515",
+        "LAW-03:516",
+        "LAW-03:521",
+        "LAW-03:523",
+        "LAW-03:524"
+      ],
+      "profiles": [
+        "business"
+      ],
+      "contract_types": [
+        "supply"
+      ],
+      "questions": {
+        "scope_known": "Согласованы товар, количество и порядок заказов?",
+        "delivery_terms_known": "Установлены график и способ передачи?",
+        "payment_terms_known": "Определены оплата и подтверждение исполнения?",
+        "withdrawal_ground_checked": "Исследованы существенность нарушения и последствия отказа?"
+      },
+      "caution": "Отдельно квалифицировать каждую поставку и не переносить ставку неустойки из чужого дела.",
+      "status": "research_questions",
+      "verified": false,
+      "lawyer_reviewed": false
+    },
+    {
+      "id": "services-performance",
+      "title": "Услуги: содержание, оплата и отказ",
+      "module_ids": [
+        "LAW-03"
+      ],
+      "area": "contracts",
+      "card_ids": [
+        "LAW-03:779",
+        "LAW-03:780",
+        "LAW-03:781",
+        "LAW-03:782",
+        "LAW-03:783"
+      ],
+      "profiles": [
+        "business",
+        "consumer"
+      ],
+      "contract_types": [
+        "services"
+      ],
+      "questions": {
+        "activity_known": "Определены оплачиваемая деятельность и её объём?",
+        "performance_known": "Известны исполнение и документы его подтверждения?",
+        "withdrawal_party_known": "Установлено, какая сторона отказывается и когда?",
+        "expenses_evidenced": "Подтверждены расходы, убытки и применимые специальные нормы?"
+      },
+      "caution": "Не обещать полный возврат и не переносить правила отказа заказчика на исполнителя.",
+      "status": "research_questions",
+      "verified": false,
+      "lawyer_reviewed": false
+    },
+    {
+      "id": "lease-transfer",
+      "title": "Аренда: объект, передача, состояние и платежи",
+      "module_ids": [
+        "LAW-03"
+      ],
+      "area": "contracts",
+      "card_ids": [
+        "LAW-03:606",
+        "LAW-03:607",
+        "LAW-03:608",
+        "LAW-03:609",
+        "LAW-03:610",
+        "LAW-03:611",
+        "LAW-03:612",
+        "LAW-03:613",
+        "LAW-03:614",
+        "LAW-03:615",
+        "LAW-03:616",
+        "LAW-03:617"
+      ],
+      "profiles": [
+        "business",
+        "consumer"
+      ],
+      "contract_types": [
+        "lease"
+      ],
+      "questions": {
+        "object_identified": "Установлены объект, собственник и полномочия арендодателя?",
+        "special_object_checked": "Проверены специальный вид аренды, форма и регистрация?",
+        "condition_evidenced": "Есть документы передачи и сведения о недостатках?",
+        "rent_costs_known": "Разграничены аренда, расходы на содержание и ремонт?"
+      },
+      "caution": "Обычная аренда не покрывает автоматически жильё, лизинг и специальные объекты.",
+      "status": "research_questions",
+      "verified": false,
+      "lawyer_reviewed": false
+    },
+    {
+      "id": "lease-exit",
+      "title": "Аренда: прекращение, возобновление и возврат",
+      "module_ids": [
+        "LAW-03"
+      ],
+      "area": "contracts",
+      "card_ids": [
+        "LAW-03:610",
+        "LAW-03:619",
+        "LAW-03:620",
+        "LAW-03:621",
+        "LAW-03:622",
+        "LAW-03:623",
+        "LAW-03:624"
+      ],
+      "profiles": [
+        "business",
+        "consumer"
+      ],
+      "contract_types": [
+        "lease"
+      ],
+      "questions": {
+        "term_known": "Установлены срок и фактическое пользование после его окончания?",
+        "notice_evidenced": "Проверены предупреждения и уведомления?",
+        "return_evidenced": "Есть доказательства возврата, состояния и расчётов?",
+        "improvements_known": "Исследованы улучшения и согласие на них?"
+      },
+      "caution": "Не считать договор прекратившимся и имущество возвращённым только по дате в документе.",
+      "status": "research_questions",
+      "verified": false,
+      "lawyer_reviewed": false
+    },
+    {
+      "id": "work-performance",
+      "title": "Подряд: результат, сроки, цена и содействие",
+      "module_ids": [
+        "LAW-03"
+      ],
+      "area": "contracts",
+      "card_ids": [
+        "LAW-03:702",
+        "LAW-03:703",
+        "LAW-03:704",
+        "LAW-03:705",
+        "LAW-03:706",
+        "LAW-03:708",
+        "LAW-03:709",
+        "LAW-03:710",
+        "LAW-03:711",
+        "LAW-03:715",
+        "LAW-03:716",
+        "LAW-03:717",
+        "LAW-03:718",
+        "LAW-03:719"
+      ],
+      "profiles": [
+        "business",
+        "consumer"
+      ],
+      "contract_types": [
+        "work"
+      ],
+      "questions": {
+        "result_identified": "Установлен сдаваемый результат, а не только деятельность?",
+        "stages_known": "Определены этапы, сроки, смета и порядок оплаты?",
+        "cooperation_known": "Известны материалы, предупреждения и содействие заказчика?",
+        "exit_ground_checked": "Исследованы основание отказа и последствия для сторон?"
+      },
+      "caution": "Строительный и государственный подряд требуют дополнительных специальных норм.",
+      "status": "research_questions",
+      "verified": false,
+      "lawyer_reviewed": false
+    },
+    {
+      "id": "work-defects",
+      "title": "Подряд: приёмка, недостатки и гарантия",
+      "module_ids": [
+        "LAW-03"
+      ],
+      "area": "contracts",
+      "card_ids": [
+        "LAW-03:720",
+        "LAW-03:721",
+        "LAW-03:722",
+        "LAW-03:723",
+        "LAW-03:724",
+        "LAW-03:725",
+        "LAW-03:726",
+        "LAW-03:729"
+      ],
+      "profiles": [
+        "business",
+        "consumer"
+      ],
+      "contract_types": [
+        "work"
+      ],
+      "questions": {
+        "acceptance_known": "Известны процедура и результаты приёмки?",
+        "defect_classified": "Разграничены явные, скрытые и существенные недостатки?",
+        "notice_date_known": "Установлены обнаружение и уведомление?",
+        "periods_distinguished": "Разграничены гарантийные сроки, обнаружение недостатков и исковая давность?"
+      },
+      "caution": "Не отождествлять гарантийный срок со сроком обращения в суд.",
+      "status": "research_questions",
+      "verified": false,
+      "lawyer_reviewed": false
+    },
+    {
+      "id": "consumer-quality",
+      "title": "Потребитель: качество, обмен и возврат",
+      "module_ids": [
+        "LAW-04"
+      ],
+      "area": "consumer",
+      "card_ids": [
+        "LAW-04:4",
+        "LAW-04:5",
+        "LAW-04:6",
+        "LAW-04:7",
+        "LAW-04:18",
+        "LAW-04:19",
+        "LAW-04:20",
+        "LAW-04:21",
+        "LAW-04:22",
+        "LAW-04:23",
+        "LAW-04:23.1",
+        "LAW-04:25",
+        "LAW-04:26.1"
+      ],
+      "profiles": [
+        "consumer"
+      ],
+      "contract_types": [
+        "general",
+        "supply",
+        "lease",
+        "services",
+        "work"
+      ],
+      "questions": {
+        "personal_purpose_known": "Установлены личная цель и статус продавца?",
+        "purchase_mode_known": "Известны товар, способ приобретения и специальные исключения?",
+        "defect_or_exchange_known": "Разграничены недостаток и обмен качественного товара?",
+        "demand_date_known": "Известны выбранное требование, дата предъявления и ответ?"
+      },
+      "caution": "Нельзя обещать возврат любого товара; исключения, вид товара и редакция проверяются отдельно.",
+      "status": "research_questions",
+      "verified": false,
+      "lawyer_reviewed": false
+    },
+    {
+      "id": "consumer-remedies",
+      "title": "Потребитель: ответственность и компенсации",
+      "module_ids": [
+        "LAW-04"
+      ],
+      "area": "consumer",
+      "card_ids": [
+        "LAW-04:12",
+        "LAW-04:13",
+        "LAW-04:14",
+        "LAW-04:15",
+        "LAW-04:16",
+        "LAW-04:17"
+      ],
+      "profiles": [
+        "consumer"
+      ],
+      "contract_types": [
+        "general",
+        "supply",
+        "lease",
+        "services",
+        "work"
+      ],
+      "questions": {
+        "violation_known": "Установлены нарушение и обстоятельства требования?",
+        "voluntary_response_known": "Известны претензия и возможность добровольного исполнения?",
+        "damage_evidenced": "Разграничены имущественный вред, моральный вред и санкции?",
+        "edition_exceptions_checked": "Проверены редакция, специальные исключения и ограничения санкций?"
+      },
+      "caution": "Не считать штраф, неустойку и компенсацию безусловными и неизменными величинами.",
+      "status": "research_questions",
+      "verified": false,
+      "lawyer_reviewed": false
+    },
+    {
+      "id": "consumer-work-services",
+      "title": "Потребитель: работы, услуги и дополнительные опции",
+      "module_ids": [
+        "LAW-04"
+      ],
+      "area": "consumer",
+      "card_ids": [
+        "LAW-04:8",
+        "LAW-04:9",
+        "LAW-04:10",
+        "LAW-04:11",
+        "LAW-04:16",
+        "LAW-04:27",
+        "LAW-04:28",
+        "LAW-04:29",
+        "LAW-04:30",
+        "LAW-04:31",
+        "LAW-04:32"
+      ],
+      "profiles": [
+        "consumer"
+      ],
+      "contract_types": [
+        "services",
+        "work",
+        "general"
+      ],
+      "questions": {
+        "service_scope_known": "Определены услуга или работа и согласованные условия?",
+        "consent_evidenced": "Есть доказательства отдельного выбора платных опций?",
+        "breach_or_exit_known": "Разграничены недостаток, просрочка и добровольный отказ?",
+        "expenses_and_dates_known": "Известны исполнение, расходы и даты требований?"
+      },
+      "caution": "Согласие на обработку данных не является согласием на платную опцию.",
+      "status": "research_questions",
+      "verified": false,
+      "lawyer_reviewed": false
+    },
+    {
+      "id": "employment-qualification",
+      "title": "Трудовые отношения и условия договора",
+      "module_ids": [
+        "LAW-05"
+      ],
+      "area": "employment",
+      "card_ids": [
+        "LAW-05:15",
+        "LAW-05:19.1",
+        "LAW-05:56",
+        "LAW-05:57",
+        "LAW-05:58",
+        "LAW-05:59",
+        "LAW-05:60",
+        "LAW-05:61",
+        "LAW-05:64",
+        "LAW-05:65",
+        "LAW-05:67",
+        "LAW-05:68",
+        "LAW-05:70",
+        "LAW-05:71"
+      ],
+      "profiles": [
+        "employment"
+      ],
+      "contract_types": [
+        "general"
+      ],
+      "questions": {
+        "work_relation_known": "Известны подчинение, личное выполнение и организация труда?",
+        "mandatory_terms_known": "Исследованы обязательные сведения и условия?",
+        "fixed_term_ground_known": "Проверены основания срочности и испытания?",
+        "admission_evidenced": "Известны фактический допуск и полномочия допустившего лица?"
+      },
+      "caution": "Отсутствие условия не означает автоматически незаключённость; переквалификация требует фактов.",
+      "status": "research_questions",
+      "verified": false,
+      "lawyer_reviewed": false
+    },
+    {
+      "id": "employment-time-pay",
+      "title": "Рабочее время, оплата и отпуск",
+      "module_ids": [
+        "LAW-05"
+      ],
+      "area": "employment",
+      "card_ids": [
+        "LAW-05:91",
+        "LAW-05:92",
+        "LAW-05:93",
+        "LAW-05:99",
+        "LAW-05:100",
+        "LAW-05:103",
+        "LAW-05:104",
+        "LAW-05:108",
+        "LAW-05:110",
+        "LAW-05:113",
+        "LAW-05:114",
+        "LAW-05:115",
+        "LAW-05:122",
+        "LAW-05:123",
+        "LAW-05:126",
+        "LAW-05:127",
+        "LAW-05:129",
+        "LAW-05:132",
+        "LAW-05:133",
+        "LAW-05:133.1",
+        "LAW-05:135",
+        "LAW-05:136",
+        "LAW-05:140",
+        "LAW-05:142",
+        "LAW-05:152",
+        "LAW-05:153",
+        "LAW-05:154",
+        "LAW-05:157",
+        "LAW-05:236"
+      ],
+      "profiles": [
+        "employment"
+      ],
+      "contract_types": [
+        "general"
+      ],
+      "questions": {
+        "work_schedule_known": "Установлены режим, учёт времени и фактическая работа?",
+        "pay_components_known": "Известны оклад, доплаты, район и условия оплаты?",
+        "payment_dates_known": "Установлены начисления и фактические даты выплат?",
+        "leave_category_known": "Проверены отпуск и специальные гарантии работника?"
+      },
+      "caution": "МРОТ, региональные соглашения и календарь нельзя хранить как бессрочные константы.",
+      "status": "research_questions",
+      "verified": false,
+      "lawyer_reviewed": false
+    },
+    {
+      "id": "employment-change-exit",
+      "title": "Изменение условий, увольнение и защита",
+      "module_ids": [
+        "LAW-05"
+      ],
+      "area": "employment",
+      "card_ids": [
+        "LAW-05:72",
+        "LAW-05:72.1",
+        "LAW-05:72.2",
+        "LAW-05:73",
+        "LAW-05:74",
+        "LAW-05:76",
+        "LAW-05:77",
+        "LAW-05:78",
+        "LAW-05:79",
+        "LAW-05:80",
+        "LAW-05:81",
+        "LAW-05:82",
+        "LAW-05:83",
+        "LAW-05:84",
+        "LAW-05:84.1",
+        "LAW-05:178",
+        "LAW-05:179",
+        "LAW-05:180",
+        "LAW-05:192",
+        "LAW-05:193",
+        "LAW-05:234",
+        "LAW-05:236",
+        "LAW-05:237",
+        "LAW-05:392",
+        "LAW-05:394"
+      ],
+      "profiles": [
+        "employment"
+      ],
+      "contract_types": [
+        "general"
+      ],
+      "questions": {
+        "ground_and_category_known": "Установлены основание и защищённые категории работника?",
+        "procedure_evidenced": "Есть доказательства уведомлений, предложений и соблюдения процедуры?",
+        "dates_known": "Установлены все значимые даты и получение документов?",
+        "settlement_known": "Проверены расчёт, выплаты, документы и способ защиты?"
+      },
+      "caution": "Не признавать увольнение законным только по формулировке приказа.",
+      "status": "research_questions",
+      "verified": false,
+      "lawyer_reviewed": false
+    },
+    {
+      "id": "gpk-claim",
+      "title": "Гражданский процесс: суд, иск и доказательства",
+      "module_ids": [
+        "LAW-06",
+        "LAW-04"
+      ],
+      "area": "procedure",
+      "card_ids": [
+        "LAW-06:gpk:22",
+        "LAW-06:gpk:23",
+        "LAW-06:gpk:24",
+        "LAW-06:gpk:28",
+        "LAW-06:gpk:29",
+        "LAW-06:gpk:30",
+        "LAW-06:gpk:32",
+        "LAW-06:gpk:55",
+        "LAW-06:gpk:56",
+        "LAW-06:gpk:57",
+        "LAW-06:gpk:59",
+        "LAW-06:gpk:60",
+        "LAW-06:gpk:61",
+        "LAW-06:gpk:67",
+        "LAW-06:gpk:71",
+        "LAW-06:gpk:131",
+        "LAW-06:gpk:132",
+        "LAW-06:gpk:135",
+        "LAW-06:gpk:136",
+        "LAW-04:17"
+      ],
+      "profiles": [],
+      "contract_types": [],
+      "questions": {
+        "parties_and_claim_known": "Установлены стороны, требование и характер правоотношений?",
+        "jurisdiction_facts_known": "Известны адреса и факты для выбора суда?",
+        "pretrial_checked": "Проверены обязательный досудебный порядок и доказательства его соблюдения?",
+        "evidence_collected": "Определены предмет доказывания и необходимые приложения?"
+      },
+      "caution": "Потребительскую подсудность применять только после квалификации; не смешивать ГПК, АПК и КАС.",
+      "status": "research_questions",
+      "verified": false,
+      "lawyer_reviewed": false
+    },
+    {
+      "id": "apk-claim",
+      "title": "Арбитражный процесс: суд, претензия и доказательства",
+      "module_ids": [
+        "LAW-06"
+      ],
+      "area": "procedure",
+      "card_ids": [
+        "LAW-06:apk:4",
+        "LAW-06:apk:27",
+        "LAW-06:apk:28",
+        "LAW-06:apk:34",
+        "LAW-06:apk:35",
+        "LAW-06:apk:36",
+        "LAW-06:apk:37",
+        "LAW-06:apk:38",
+        "LAW-06:apk:39",
+        "LAW-06:apk:64",
+        "LAW-06:apk:65",
+        "LAW-06:apk:66",
+        "LAW-06:apk:67",
+        "LAW-06:apk:68",
+        "LAW-06:apk:69",
+        "LAW-06:apk:70",
+        "LAW-06:apk:71",
+        "LAW-06:apk:75",
+        "LAW-06:apk:125",
+        "LAW-06:apk:126",
+        "LAW-06:apk:128",
+        "LAW-06:apk:129"
+      ],
+      "profiles": [],
+      "contract_types": [],
+      "questions": {
+        "commercial_dispute_known": "Установлены состав сторон и экономический характер спора?",
+        "court_facts_known": "Известны факты для компетенции и подсудности?",
+        "pretrial_requirement_checked": "Исследованы обязанность претензии, исключения и договорный порядок?",
+        "proof_allocation_known": "Определены бремя доказывания и приложения к иску?"
+      },
+      "caution": "Не считать любой спор с организацией арбитражным и не назначать единый претензионный срок всем требованиям.",
+      "status": "research_questions",
+      "verified": false,
+      "lawyer_reviewed": false
+    },
+    {
+      "id": "procedure-deadlines",
+      "title": "Процессуальные сроки и обжалование",
+      "module_ids": [
+        "LAW-06"
+      ],
+      "area": "procedure",
+      "card_ids": [
+        "LAW-06:gpk:107",
+        "LAW-06:gpk:108",
+        "LAW-06:gpk:109",
+        "LAW-06:gpk:110",
+        "LAW-06:gpk:111",
+        "LAW-06:gpk:112",
+        "LAW-06:gpk:209",
+        "LAW-06:gpk:321",
+        "LAW-06:gpk:376.1",
+        "LAW-06:apk:113",
+        "LAW-06:apk:114",
+        "LAW-06:apk:115",
+        "LAW-06:apk:116",
+        "LAW-06:apk:117",
+        "LAW-06:apk:180",
+        "LAW-06:apk:259",
+        "LAW-06:apk:276"
+      ],
+      "profiles": [],
+      "contract_types": [],
+      "questions": {
+        "procedure_identified": "Установлены процессуальный кодекс, вид акта и инстанция?",
+        "trigger_evidenced": "Подтверждены событие начала и значимые даты?",
+        "calendar_known": "Проверены правила исчисления и производственный календарь?",
+        "restoration_facts_known": "Исследованы основания приостановления, продления или восстановления?"
+      },
+      "caution": "Не объединять сроки разных кодексов и не рассчитывать их без события начала.",
+      "status": "research_questions",
+      "verified": false,
+      "lawyer_reviewed": false
+    },
+    {
+      "id": "procedure-costs",
+      "title": "Госпошлина и судебные расходы",
+      "module_ids": [
+        "LAW-06"
+      ],
+      "area": "procedure",
+      "card_ids": [
+        "LAW-06:gpk:88",
+        "LAW-06:gpk:94",
+        "LAW-06:gpk:98",
+        "LAW-06:gpk:100",
+        "LAW-06:apk:101",
+        "LAW-06:apk:106",
+        "LAW-06:apk:110",
+        "LAW-06:nk2:333.18",
+        "LAW-06:nk2:333.19",
+        "LAW-06:nk2:333.20",
+        "LAW-06:nk2:333.21",
+        "LAW-06:nk2:333.22",
+        "LAW-06:nk2:333.36",
+        "LAW-06:nk2:333.37",
+        "LAW-06:nk2:333.40",
+        "LAW-06:nk2:333.41"
+      ],
+      "profiles": [],
+      "contract_types": [],
+      "questions": {
+        "court_and_demand_known": "Установлены суд, требования и цена иска?",
+        "filing_date_known": "Известна дата обращения для выбора редакции?",
+        "benefits_checked": "Проверены льготы, отсрочка, рассрочка и возврат?",
+        "costs_evidenced": "Подтверждены расходы и основания их распределения?"
+      },
+      "caution": "Не рассчитывать пошлину по старым ставкам или только по цене иска.",
+      "status": "research_questions",
+      "verified": false,
+      "lawyer_reviewed": false
+    },
+    {
+      "id": "service-data-security",
+      "title": "Защита данных сервиса и оценка вреда",
+      "module_ids": [
+        "LAW-01",
+        "LAW-07"
+      ],
+      "area": "service",
+      "card_ids": [
+        "LAW-01:18.1",
+        "LAW-01:19",
+        "LAW-07:9",
+        "LAW-07:16",
+        "LAW-07:pp1119:requirements",
+        "LAW-07:fstec21:requirements",
+        "LAW-07:rkn178:requirements",
+        "LAW-07:fstec21:appendix-01",
+        "LAW-07:fstec21:appendix-02",
+        "LAW-07:fstec21:appendix-03",
+        "LAW-07:fstec21:appendix-04",
+        "LAW-07:fstec21:appendix-05",
+        "LAW-07:fstec21:appendix-06",
+        "LAW-07:fstec21:appendix-07",
+        "LAW-07:fstec21:appendix-08",
+        "LAW-07:fstec21:appendix-09",
+        "LAW-07:fstec21:appendix-10",
+        "LAW-07:fstec21:appendix-11",
+        "LAW-07:fstec21:appendix-12",
+        "LAW-07:fstec21:appendix-13",
+        "LAW-07:fstec21:appendix-14",
+        "LAW-07:fstec21:appendix-15"
+      ],
+      "profiles": [],
+      "contract_types": [],
+      "questions": {
+        "system_scope_known": "Установлены тип системы, данные и применимость требований?",
+        "threats_assessed": "Определены актуальные угрозы и уровень защищённости?",
+        "harm_assessed": "Исследованы возможный вред субъектам и применимые критерии?",
+        "controls_evidenced": "Есть доказательства организационных и технических мер?"
+      },
+      "caution": "Перечень мер зависит от системы и угроз; наличие TLS или локальной модели не доказывает соответствие.",
+      "status": "research_questions",
+      "verified": false,
+      "lawyer_reviewed": false
+    },
+    {
+      "id": "service-deletion",
+      "title": "Подтверждение уничтожения данных",
+      "module_ids": [
+        "LAW-01",
+        "LAW-07"
+      ],
+      "area": "service",
+      "card_ids": [
+        "LAW-01:5",
+        "LAW-01:21",
+        "LAW-07:rkn179:requirements"
+      ],
+      "profiles": [],
+      "contract_types": [],
+      "questions": {
+        "deletion_ground_known": "Установлены основание и дата прекращения обработки?",
+        "copies_mapped": "Учтены базы, файлы, журналы, резервные копии и провайдеры?",
+        "destruction_evidenced": "Есть подтверждение уничтожения применимым способом?",
+        "confirmation_checked": "Проверены состав и хранение подтверждающих документов?"
+      },
+      "caution": "Удаление сессии из памяти приложения не подтверждает уничтожение всех копий данных.",
+      "status": "research_questions",
+      "verified": false,
+      "lawyer_reviewed": false
+    },
+    {
+      "id": "service-provider",
+      "title": "Провайдеры, поручение и трансграничная передача",
+      "module_ids": [
+        "LAW-01",
+        "LAW-07"
+      ],
+      "area": "service",
+      "card_ids": [
+        "LAW-01:6",
+        "LAW-01:7",
+        "LAW-01:12",
+        "LAW-01:18",
+        "LAW-01:18.1",
+        "LAW-01:19",
+        "LAW-01:21",
+        "LAW-01:22",
+        "LAW-07:6",
+        "LAW-07:9",
+        "LAW-07:16"
+      ],
+      "profiles": [],
+      "contract_types": [],
+      "questions": {
+        "roles_known": "Установлены роли оператора, обработчиков и получателей?",
+        "locations_known": "Известны фактические страны обработки, хранения и поддержки?",
+        "contract_and_basis_checked": "Проверены основания, поручения и договоры с провайдерами?",
+        "notifications_checked": "Проверены локализация, уведомления и ограничения передачи?"
+      },
+      "caution": "Домен API, согласие и флаг разрешения облака не доказывают правомерность передачи.",
+      "status": "research_questions",
+      "verified": false,
+      "lawyer_reviewed": false
+    },
+    {
+      "id": "signature-simple",
+      "title": "Простая электронная подпись и электронная форма",
+      "module_ids": [
+        "LAW-08",
+        "LAW-02"
+      ],
+      "area": "signature",
+      "card_ids": [
+        "LAW-08:2",
+        "LAW-08:5",
+        "LAW-08:6",
+        "LAW-08:9",
+        "LAW-02:160",
+        "LAW-02:165.1",
+        "LAW-02:434"
+      ],
+      "profiles": [
+        "business",
+        "consumer"
+      ],
+      "contract_types": [
+        "general",
+        "supply",
+        "lease",
+        "services",
+        "work"
+      ],
+      "questions": {
+        "document_type_known": "Установлены вид документа и требования к форме?",
+        "signature_method_known": "Известны способ идентификации и применение ключа?",
+        "agreement_checked": "Исследованы закон и соглашение об электронной подписи?",
+        "attribution_evidenced": "Есть доказательства принадлежности действия подписанту?"
+      },
+      "caution": "Скан, кнопка и SMS не становятся действительной подписью автоматически.",
+      "status": "research_questions",
+      "verified": false,
+      "lawyer_reviewed": false
+    },
+    {
+      "id": "signature-qualified",
+      "title": "Усиленная подпись и представитель",
+      "module_ids": [
+        "LAW-08",
+        "LAW-02"
+      ],
+      "area": "signature",
+      "card_ids": [
+        "LAW-08:5",
+        "LAW-08:6",
+        "LAW-08:10",
+        "LAW-08:11",
+        "LAW-08:14",
+        "LAW-08:17.1",
+        "LAW-08:17.2",
+        "LAW-08:17.3",
+        "LAW-08:17.5",
+        "LAW-02:182",
+        "LAW-02:183",
+        "LAW-02:185",
+        "LAW-02:185.1",
+        "LAW-02:186",
+        "LAW-02:188",
+        "LAW-02:189"
+      ],
+      "profiles": [
+        "business",
+        "consumer"
+      ],
+      "contract_types": [
+        "general",
+        "supply",
+        "lease",
+        "services",
+        "work"
+      ],
+      "questions": {
+        "signature_kind_known": "Установлены вид подписи и подписанный электронный оригинал?",
+        "certificate_checked": "Исследованы сертификат, ограничения и результат проверки?",
+        "signing_time_known": "Подтверждены момент подписания и статус сертификата на него?",
+        "authority_checked": "Проверены полномочия представителя и применимые требования к доверенности?"
+      },
+      "caution": "Имя в сертификате и изображение подписи не доказывают полномочия; техническая криптопроверка — отдельная операция.",
+      "status": "research_questions",
+      "verified": false,
+      "lawyer_reviewed": false
+    },
+    {
+      "id": "liability-personal-data",
+      "title": "Ответственность за нарушения обработки данных",
+      "module_ids": [
+        "LAW-09"
+      ],
+      "area": "liability",
+      "card_ids": [
+        "LAW-09:1.5",
+        "LAW-09:1.7",
+        "LAW-09:2.1",
+        "LAW-09:2.4",
+        "LAW-09:4.1",
+        "LAW-09:4.5",
+        "LAW-09:13.11",
+        "LAW-09:13.14"
+      ],
+      "profiles": [],
+      "contract_types": [],
+      "questions": {
+        "conduct_and_date_known": "Установлены событие, дата и характер действий?",
+        "subject_known": "Определены субъект ответственности и его роль?",
+        "composition_checked": "Исследованы все признаки конкретной части состава?",
+        "repeat_and_limits_checked": "Проверены повторность, сроки, редакция и применимые исключения?"
+      },
+      "caution": "Не назначать штраф только по факту инцидента и не смешивать обязанности оператора с квалификацией состава.",
+      "status": "research_questions",
+      "verified": false,
+      "lawyer_reviewed": false
+    },
+    {
+      "id": "liability-consumer-labour",
+      "title": "Ответственность в потребительских и трудовых отношениях",
+      "module_ids": [
+        "LAW-09"
+      ],
+      "area": "liability",
+      "card_ids": [
+        "LAW-09:1.5",
+        "LAW-09:1.7",
+        "LAW-09:2.1",
+        "LAW-09:2.4",
+        "LAW-09:4.1",
+        "LAW-09:4.5",
+        "LAW-09:5.27",
+        "LAW-09:5.27.1",
+        "LAW-09:14.8"
+      ],
+      "profiles": [],
+      "contract_types": [],
+      "questions": {
+        "relationship_known": "Определён применимый трудовой или потребительский режим?",
+        "conduct_proved": "Установлены конкретные действия и доказательства?",
+        "subject_identified": "Определены субъект и основания ответственности?",
+        "temporal_rules_checked": "Проверены редакция, повторность и сроки?"
+      },
+      "caution": "Административный штраф не равен выплате работнику или потребителю.",
+      "status": "research_questions",
+      "verified": false,
+      "lawyer_reviewed": false
+    }
+  ]
+}
