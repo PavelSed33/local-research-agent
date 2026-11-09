@@ -61,6 +61,10 @@ class WorkspaceStore:
                   start UNINDEXED,text,tokenize='unicode61');
                 CREATE TABLE IF NOT EXISTS artifacts(id TEXT PRIMARY KEY,matter_id TEXT REFERENCES matters(id),kind TEXT NOT NULL,
                   payload TEXT NOT NULL,sha256 TEXT NOT NULL,created_by TEXT REFERENCES users(id),created_on TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS decision_revisions(artifact_id TEXT PRIMARY KEY REFERENCES artifacts(id),
+                  previous_artifact_id TEXT UNIQUE NOT NULL REFERENCES artifacts(id),root_artifact_id TEXT NOT NULL REFERENCES artifacts(id));
+                CREATE TRIGGER IF NOT EXISTS decision_revisions_no_update BEFORE UPDATE ON decision_revisions BEGIN SELECT RAISE(ABORT,'immutable revision'); END;
+                CREATE TRIGGER IF NOT EXISTS decision_revisions_no_delete BEFORE DELETE ON decision_revisions BEGIN SELECT RAISE(ABORT,'append only'); END;
                 CREATE TABLE IF NOT EXISTS benchmark_tasks(id TEXT PRIMARY KEY,matter_id TEXT REFERENCES matters(id),
                   case_id TEXT NOT NULL,payload TEXT NOT NULL,sha256 TEXT NOT NULL,created_by TEXT REFERENCES users(id),
                   created_on TEXT NOT NULL,artifact_id TEXT REFERENCES artifacts(id),UNIQUE(matter_id,case_id));

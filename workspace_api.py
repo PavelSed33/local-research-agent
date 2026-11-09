@@ -18,6 +18,7 @@ FIELDS = {
     '/workspace/evidence/review': {'artifact_id', 'decision', 'note', 'attestations'},
     '/workspace/editions/select': {'matter_id', 'act_id', 'provision', 'as_of'},
     '/workspace/cases/timeline': {'matter_id', 'case_number', 'as_of'},
+    '/workspace/cases/revise': {'artifact_id', 'positions', 'links'},
     '/workspace/evaluations/record': {'artifact_id', 'answer', 'correctness', 'missed_risks', 'unsupported_claim_count', 'note'},
     '/workspace/evaluations/metrics': {'matter_id'}, '/workspace/audit': {'matter_id', 'limit'},
     '/workspace/sources/import': {'matter_id', 'source_id'},
@@ -97,7 +98,7 @@ def dispatch(store, principal, path, payload):
             store._access(db, principal, p.get('matter_id'), ('owner', 'editor'))
             for existing in db.execute("SELECT id FROM artifacts WHERE matter_id=? AND kind='decision'", (p.get('matter_id'),)):
                 artifact = evidence._artifact(db, principal, existing['id'])
-                if artifact['payload']['identity']['document_id'] == imported['document_id']:
+                if artifact['payload']['identity']['document_id'] == imported['document_id'] and not artifact['version']['superseded_by']:
                     store._audit(db, principal, 'primary_decision_reused', artifact['id'], p.get('matter_id'))
                     return {'artifact_id': artifact['id'], 'document_id': imported['document_id'],
                             'review_status': artifact['review_status'], 'reused': True,
@@ -153,6 +154,8 @@ def dispatch(store, principal, path, payload):
         return evidence.review(principal, p.get('artifact_id'), p.get('decision'), p.get('note'), p.get('attestations'))
     if path == '/workspace/editions/select':
         return evidence.select_edition(principal, p.get('matter_id'), p.get('act_id'), p.get('provision'), p.get('as_of'))
+    if path == '/workspace/cases/revise':
+        return evidence.revise_decision(principal, p.get('artifact_id'), p.get('positions'), p.get('links'))
     if path == '/workspace/cases/timeline':
         return evidence.timeline(principal, p.get('matter_id'), p.get('case_number'), p.get('as_of'))
     if path == '/workspace/evaluations/record':

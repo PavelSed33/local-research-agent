@@ -52,6 +52,19 @@ def run_acceptance():
             drafted = post('/workspace/sources/decision-draft', {'matter_id': matter, 'source_id': decision['id']})
             assert drafted['review_status'] == 'draft' and drafted['legal_acceptance'] is False
             assert post('/workspace/sources/decision-draft', {'matter_id': matter, 'source_id': decision['id']})['reused'] is True
+            original_card = post('/workspace/evidence/read', {'artifact_id': drafted['artifact_id']})
+            citation = original_card['payload']['outcome']
+            revision = {'artifact_id': drafted['artifact_id'], 'positions': [{'side':'distinguishing',
+                'citation': {'document_id': citation['document_id'], 'quote':citation['quote']},
+                'applicability_note': 'Синтетическая заметка проверки API; юридическая применимость не установлена.'}], 'links': []}
+            post('/workspace/cases/revise', revision, other['token'], 403)
+            revised = post('/workspace/cases/revise', revision)
+            assert revised['review_status'] == 'draft' and revised['legal_acceptance'] is False
+            post('/workspace/cases/revise', revision, expected=409)
+            assert post('/workspace/sources/decision-draft', {'matter_id': matter, 'source_id': decision['id']})['artifact_id'] == revised['artifact_id']
+            timeline = post('/workspace/cases/timeline', {'matter_id': matter, 'case_number': decision['case_number'], 'as_of': decision['signed_on']})
+            assert [row['id'] for row in timeline['decisions']] == [revised['artifact_id']]
+            assert timeline['superseded_versions_excluded'] == 1 and timeline['complete_history'] is False
             post('/workspace/sources/decision-draft', {'matter_id': matter, 'source_id': decision['id']}, other['token'], 403)
             post('/workspace/sources/decision-draft', {'matter_id': matter, 'source_id': catalog['sources'][0]['id']}, expected=400)
             assert post('/workspace/sources/import', {'matter_id': matter, 'source_id': catalog['sources'][0]['id']})['reused'] is True
