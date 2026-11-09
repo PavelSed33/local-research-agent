@@ -104,6 +104,8 @@ def finish(result):
         'В контекст включён полный сохранённый текст договора, но полнота приложений, поиска и истории норм не подтверждена.']
     if not result.get('selected_editions'):
         result['source_warnings'].append('Редакции норм на дату ситуации не выбраны; правовые риски не могут считаться обоснованными.')
+    if result.get('retrieval'):
+        result['source_warnings'].append(result['retrieval']['limitation'])
     labels = {'observation': 'Наблюдение', 'risk': 'Кандидат на правовой риск',
               'contradiction': 'Предполагаемое противоречие', 'missing_information': 'Недостающие сведения'}
     lines = ['# Черновик проверки договора услуг', '', 'Не является юридически принятым заключением.', '',
@@ -139,7 +141,8 @@ def answer(payload):
     base.update(analysis_mode=MODE, verified=False, lawyer_reviewed=False, legal_acceptance=False,
                 semantic_support_verified=False, model_called=False, findings=[],
                 future_decision_fragments_excluded=payload.get('future_decision_fragments_excluded', 0),
-                search_mode='local_fts5_prefix', semantic_search=False)
+                search_mode=(payload.get('retrieval') or {}).get('mode', 'local_fts5_prefix'),
+                retrieval=payload.get('retrieval'), semantic_search=False)
     qualification = payload['pilot_scope']
     if qualification['status'] != 'candidate_scope':
         return finish({**base, 'status': qualification['status'],
@@ -161,11 +164,13 @@ def answer(payload):
             'Для каждого вывода укажи assessment, applicability, next_step и citations [{source_id,quote}]. '
             'Всегда цитируй выбранный договор. Для risk дополнительно цитируй источник с edition_references; '
             'для contradiction цитируй два разных документа. Объясни, почему источники связаны с выводом, '
+            'Связанные поисковые слова не означают юридическую равнозначность понятий. '
             'отметь противоположные сведения и необходимые уточнения. Если правовых оснований недостаточно, '
             'используй missing_information, а не придумывай норму. Не объявляй договор безопасным или '
             'полностью проверенным. Не гарантируй исход спора. Верни JSON {summary,findings}; до 20 выводов.')
         result = query_model(payload, system, {'question': payload['question'], 'as_of': payload['as_of'],
             'declared_facts': qualification['declared_facts'], 'contract_document_id': payload['contract_document_id'],
+            'retrieval': payload.get('retrieval'),
             'sources': payload['sources']})
         base['model_called'] = True
     checked = validate_findings(result, payload['sources'], payload['contract_document_id'])
