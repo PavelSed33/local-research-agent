@@ -58,8 +58,11 @@ def execute_check(identity):
         pilot = load_templates(ROOT / 'fixtures/services_pilot_cases.json')
         if set(pilot) != {f'SERV-P{index:02}' for index in range(1, 26)}:
             raise ValueError('incomplete_pilot_tasks')
+        from control_evaluation import control_plan
+        plan = control_plan()
         return {'status': 'passed', 'statutory_extracts': result['statutory_extracts'],
-                'draft_synthetic_cases': result['draft_synthetic_cases'], 'services_pilot_tasks': len(pilot)}
+                'draft_synthetic_cases': result['draft_synthetic_cases'], 'services_pilot_tasks': len(pilot),
+                'draft_control_cases': len(plan['control_case_ids']), 'training_candidate_cases': len(plan['training_case_ids'])}
     if identity == 'archive':
         if not all(shutil.which(name) for name in ('pdfinfo', 'pdftotext')):
             return {'status': 'blocked', 'reason': 'poppler_missing'}
@@ -91,7 +94,7 @@ def execute_check(identity):
         if not node:
             return {'status': 'blocked', 'reason': 'node_missing'}
         count = 0
-        for script in ('test_workspace_report.cjs', 'test_workspace_context.cjs', 'test_services_pilot.cjs', 'test_quality_scoring.cjs'):
+        for script in ('test_workspace_report.cjs', 'test_workspace_context.cjs', 'test_services_pilot.cjs', 'test_quality_scoring.cjs', 'test_control_comparison.cjs'):
             result = subprocess.run([node, str(ROOT / 'scripts' / script)], cwd=ROOT,
                                     capture_output=True, text=True, timeout=20)
             if result.returncode:

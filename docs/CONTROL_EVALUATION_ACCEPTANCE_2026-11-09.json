@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "checked_on": "2026-11-09",
+  "api_version": "1.29",
+  "base_commit": "0ecd472689f80ecf6b8c4b977d0c672ba9abcccd",
+  "scope": "Frozen control assignments, automatic learning exclusions and paired human-score regression gates",
+  "changes": [
+    "Partition the 25 existing synthetic services cases into 10 draft controls and 15 training candidates; no approved answers generated.",
+    "Imported planned control questions and their benchmark versions are excluded from learning before human scores exist; frozen custom sets additionally exclude IDs and exact question duplicates.",
+    "Create immutable snapshots of approved benchmark membership and exact approval hashes without a database migration.",
+    "Compare the same tasks and expert cohorts using scores created after set creation; reject missing or ambiguous pairs and changed reviews.",
+    "Give each task equal weight, and flag regression in any individual pair even if averages improve; a newly missed risk index is a regression even if missed-risk counts are unchanged.",
+    "Allow experts to explicitly attribute their own single score to a second label for a declared identical output; do not manufacture duplicate scores or claim actual run verification.",
+    "Add workspace forms, HTTP routes, review-route restrictions and shipped-file/config verification."
+  ],
+  "validation": {
+    "unittest": {
+      "command": "python -m unittest discover -q",
+      "ran": 665,
+      "passed": 664,
+      "skipped": 1,
+      "failed": 0,
+      "skip_reason": "Russian OCR language data unavailable"
+    },
+    "new_control_tests": 18,
+    "node_vm_scenarios": 50,
+    "new_control_ui_scenarios": 8,
+    "http_checks": 118,
+    "native_pdf_replay": {
+      "sources": 7,
+      "pages": 90
+    },
+    "python_compilation": "passed",
+    "javascript_syntax": "passed",
+    "git_diff_check": "passed",
+    "checks_include": [
+      "Automatic exclusion of frozen IDs, exact question copies and reserved imported control tasks.",
+      "Invalidation of already selected learning when a benchmark becomes a control.",
+      "Averages improve but an individual task regresses: gate blocks.",
+      "New missed risk with unchanged count: gate blocks.",
+      "Missing, ambiguous, pre-freeze and mismatched-reviewer scores do not pass.",
+      "Human identity/access, changed approval records, corrupted responses and explicit identical-answer attribution.",
+      "Backup restoration preserves controls and their learning exclusions; old restored tokens stay disabled.",
+      "Real HTTP round trip with synthetic scores; UI rejects late responses after identity/parameter changes."
+    ]
+  },
+  "files_sha256": {
+    "control_evaluation.py": "09f89d92c83a5e353270815d5d07a33164dddd8186c11a3593663fabda7869dd",
+    "learning_memory.py": "9969fcb6a7fc84d5a19092442a361d38620d346e1ce286d181a2e4e095b86cf1",
+    "api.py": "ba13a9284438436feb1746fdd8ea2738b559333b02b8703281585802d657328d",
+    "workspace_api.py": "bdc0e895ae43b64ceb9237d1a0f4bb46677e2c5f2cbc697353a4f01e69052bde",
+    "reviewed_evidence.py": "efeca2055a76fbc0a75eef9882d3f3217198b53b1e68b50a1294865553ae7e04",
+    "fixtures/quality_control_plan.json": "b3fff8429f63c1bd0f881fda26c4b3ef4c7c1deb7dcbf8ec9f8f489de2b38588",
+    "web/workspace.js": "8a0457636767c45af316cf22a805077d5bf4ef1c9b80cab27574ff19776f06f6",
+    "web/workspace.html": "ea4fdac0975cac519b6e9e2c3a5612b6b9ad50cfb4198a02689e289235b3f92c",
+    "test_control_evaluation.py": "d8095452363aeaddeac9ba2c1bd28c1d10f580f9deb73344eb158849d780e28a",
+    "scripts/test_control_comparison.cjs": "d4155dd8cadddff6f58d6c41aaebf33fef31bc43db76391f30c8661ddba271a5",
+    "Dockerfile": "f0b3c4e421591374c8eaa2c6e28b27d2285f25b0e4a0dcee4f0638fccb09eacf"
+  },
+  "draft_control_cases": 10,
+  "training_candidate_cases": 15,
+  "real_approved_control_answers_added": 0,
+  "actual_models_compared": false,
+  "quality_improvement_proven": false,
+  "adoption_approved": false,
+  "legal_acceptance": false,
+  "production_ready": false,
+  "limitations": [
+    "Expert qualification and actual model-run provenance are not automatically authenticated.",
+    "Exact question matching cannot eliminate every paraphrase or cross-source contamination; independent data preparation remains necessary.",
+    "A no-regression gate permits expert consideration only, never automatic model/memory/code deployment.",
+    "Control/alias records have no API release or automatic expiry; target retention and recovery remain operational acceptance requirements.",
+    "Real model/search configuration, Chromium browser acceptance, independent lawyer review and complete source coverage remain open."
+  ],
+  "readiness_report": "docs/CONTROL_EVALUATION_READINESS_2026-11-09.json"
+}

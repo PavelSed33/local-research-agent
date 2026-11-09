@@ -23,9 +23,13 @@ class LearningMemory:
     def __init__(self, store):
         self.store, self.evidence = store, ReviewedEvidence(store)
 
-    def _example(self, db, principal, identity, as_of):
+    def _example(self, db, principal, identity, as_of, held_out=None):
         artifact = self.evidence._artifact(db, principal, identity)
         p = artifact['payload']
+        from control_evaluation import holdouts
+        held_out = holdouts(self.store, db, principal, artifact['matter_id']) if held_out is None else held_out
+        if identity in held_out[0] or normalized(p.get('question', '')) in held_out[1]:
+            return None
         if artifact['kind'] != 'benchmark' or artifact['review_status'] != 'approved' or p['as_of'] != as_of:
             return None
         review_hash = digest(artifact['review'])
@@ -70,19 +74,23 @@ class LearningMemory:
             raise ValueError('learning_exclude_artifact_ids: до 100 разных идентификаторов эталонов.')
         with self.store.connect(True) as db:
             self.store._access(db, principal, matter)
+            from control_evaluation import holdouts
+            held_out = holdouts(self.store, db, principal, matter)
             candidates = list(db.execute("SELECT id FROM artifacts WHERE matter_id=? AND kind='benchmark' ORDER BY created_on DESC,id LIMIT ?", (matter, MAX_CANDIDATES + 1)))
             ranked = []
             for row in candidates[:MAX_CANDIDATES]:
-                if row['id'] in exclude:
+                if row['id'] in exclude or row['id'] in held_out[0]:
                     continue
                 artifact = self.evidence._artifact(db, principal, row['id'])
+                if normalized(artifact['payload']['question']) in held_out[1]:
+                    continue
                 # Exact-question exclusion is a guard, not proof against paraphrase leakage.
                 if normalized(artifact['payload']['question']) == normalized(question):
                     continue
                 overlap = len(tokens(question) & tokens(artifact['payload']['question']))
                 if not overlap:
                     continue
-                value = self._example(db, principal, row['id'], as_of)
+                value = self._example(db, principal, row['id'], as_of, held_out)
                 if value:
                     ranked.append((overlap, row['id'], value))
             ranked.sort(key=lambda item: (-item[0], item[1]))
@@ -91,8 +99,9 @@ class LearningMemory:
         return {'enabled': True, 'mode': 'reviewed_examples', 'examples': [value[0] for value in selected],
                 'references': [value[1] for value in selected], 'used_count': len(selected),
                 'candidate_limit_reached': len(candidates) > MAX_CANDIDATES,
+                'automatic_holdout_count': len(held_out[0]), 'automatic_holdout_question_count': len(held_out[1]),
                 'weights_updated': False, 'legal_acceptance': False,
-                'limitation': 'Опыт ограничен этим делом и той же датой. Сходство слов не доказывает применимость. Исключайте весь контрольный набор через learning_exclude_artifact_ids; точное сравнение вопроса не выявляет все перефразирования.'}
+                'limitation': 'Опыт ограничен этим делом и той же датой. Сохранённые контрольные наборы и назначенные контрольные задания исключаются автоматически. Для остальных используйте learning_exclude_artifact_ids. Сходство слов не доказывает применимость; точное сравнение не выявляет все перефразирования.'}
 
     def assert_current(self, db, principal, matter, as_of, references):
         self.store._access(db, principal, matter)

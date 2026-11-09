@@ -66,7 +66,7 @@ MAX_QUESTION_CHARS = 12_000
 SESSION_MAX_ENTRIES = 10
 SESSION_MAX_COUNT = 1_000
 SERVICE_NAME = "legal-research-agent"
-API_VERSION = "1.28"
+API_VERSION = "1.29"
 SESSION_TTL_SECONDS = 3600
 SESSION_ANSWER_CHARS = 500
 SESSION_ID_PATTERN = re.compile(r"^[A-Za-z0-9-]{1,64}$")
@@ -516,6 +516,7 @@ def openapi_spec(*, require_auth: bool = True) -> dict[str, Any]:
         'replacements': {'type': 'array', 'items': {'type': 'object'}}, 'title': {'type': 'string'},
         'demo': {'type': 'boolean'}, 'allow_cloud': {'type': 'boolean'}, 'limit': {'type': 'integer'},
         'use_learning': {'type': 'boolean'}, 'learning_exclude_artifact_ids': {'type': 'array', 'maxItems': 100, 'items': {'type': 'string'}},
+        'benchmark_ids': {'type': 'array', 'maxItems': 100, 'items': {'type': 'string'}}, 'same_answer_declared': {'type': 'boolean'},
         'payload': {'type': 'object'}, 'attestations': {'type': 'object'}, 'pages': {'type': 'array', 'items': {'type': 'object'}},
         'missed_risks': {'type': 'array', 'items': {'type': 'integer'}},
         'correctness': {'type': 'integer'}, 'unsupported_claim_count': {'type': 'integer'}}
@@ -540,6 +541,13 @@ def openapi_spec(*, require_auth: bool = True) -> dict[str, Any]:
     report_schema = spec['paths']['/workspace/analysis/read']['post']['requestBody']['content']['application/json']['schema']
     report_schema['required'] = ['matter_id', 'report_id', 'markdown_sha256']
     report_schema['properties']['markdown_sha256'] = {'type': 'string', 'pattern': '^[a-f0-9]{64}$'}
+    for route, fields in {
+        '/workspace/quality/sets/create': ['matter_id', 'title', 'benchmark_ids'],
+        '/workspace/quality/sets/list': ['matter_id'],
+        '/workspace/quality/compare': ['matter_id', 'set_id', 'baseline_label', 'candidate_label'],
+        '/workspace/quality/runs/register': ['matter_id', 'set_id', 'evaluation_id', 'run_label', 'same_answer_declared'],
+    }.items():
+        spec['paths'][route]['post']['requestBody']['content']['application/json']['schema']['required'] = fields
     spec['paths']['/workspace/analysis/read']['post']['summary'] = 'Сохранённый сервером Markdown с повторной проверкой источников и доступа'
     spec['paths']['/documents/redline']['post']['requestBody']['content']['application/json']['schema']['required'] = ['filename', 'file_base64', 'replacements']
     spec['paths']['/documents/redline']['post']['summary'] = 'Явные замены в исходном DOCX с исправлениями Word'

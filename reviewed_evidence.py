@@ -266,6 +266,8 @@ class ReviewedEvidence:
             row = self._artifact(db, principal, identity)
             if row['kind'] == 'analysis_report':
                 raise WorkspaceError(403, 'analysis_report_review_denied', 'Снимок отчёта не является материалом юридической приёмки.')
+            if row['kind'] not in {'benchmark', 'edition', 'decision'}:
+                raise WorkspaceError(403, 'material_review_denied', 'Этот тип записи не является материалом юридической приёмки.')
             if reviewer['role'] != 'reviewer' or row['created_by'] == principal:
                 raise WorkspaceError(403, 'independent_reviewer_required', 'Нужен другой пользователь с ролью reviewer.')
             if decision == 'approved' and row['kind'] == 'decision' and row['version']['superseded_by']:
