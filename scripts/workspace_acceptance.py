@@ -48,6 +48,12 @@ def run_acceptance():
             catalog = post('/workspace/sources/list', {})
             for source in catalog['sources']:
                 post('/workspace/sources/import', {'matter_id': matter, 'source_id': source['id']})
+            decision = next(row for row in catalog['sources'] if row['material_type'] == 'official_court_decision')
+            drafted = post('/workspace/sources/decision-draft', {'matter_id': matter, 'source_id': decision['id']})
+            assert drafted['review_status'] == 'draft' and drafted['legal_acceptance'] is False
+            assert post('/workspace/sources/decision-draft', {'matter_id': matter, 'source_id': decision['id']})['reused'] is True
+            post('/workspace/sources/decision-draft', {'matter_id': matter, 'source_id': decision['id']}, other['token'], 403)
+            post('/workspace/sources/decision-draft', {'matter_id': matter, 'source_id': catalog['sources'][0]['id']}, expected=400)
             assert post('/workspace/sources/import', {'matter_id': matter, 'source_id': catalog['sources'][0]['id']})['reused'] is True
             post('/documents/export', {'document': 'Цена отчёта 12500 рублей.'})
             assert post('/documents/redact', {'document': 'Контакт: test@example.org'})['redaction_count'] == 1

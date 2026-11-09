@@ -21,6 +21,19 @@ def day(value, name):
     return value
 
 
+def normalized(value):
+    return ' '.join(value.casefold().split())
+
+
+def date_quoted(value, quote):
+    stamp = date.fromisoformat(value)
+    months = ('января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
+              'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря')
+    forms = (value, stamp.strftime('%d.%m.%Y'),
+             f'{stamp.day} {months[stamp.month - 1]} {stamp.year}')
+    return any(re.search(r'(?<!\d)' + re.escape(form) + r'(?!\d)', normalized(quote)) for form in forms)
+
+
 class ReviewedEvidence:
     def __init__(self, store):
         self.store = store
@@ -35,7 +48,7 @@ class ReviewedEvidence:
         start = document['text'].find(quote)
         if start < 0:
             raise ValueError('Цитата отсутствует в документе.')
-        return {**citation, 'start': start, 'end': start + len(quote),
+        return {**citation, 'quote': quote, 'start': start, 'end': start + len(quote),
                 'document_sha256': document['sha256'], 'quote_checked': True}
 
     def _artifact(self, db, principal, identity):
@@ -91,7 +104,7 @@ class ReviewedEvidence:
         value['period_evidence'] = [self._quote(db, principal, matter, citation) for citation in citations]
         proof = '\n'.join(row['quote'] for row in value['period_evidence'])
         for period_day in (begin, end):
-            if period_day and period_day not in proof and date.fromisoformat(period_day).strftime('%d.%m.%Y') not in proof:
+            if period_day and not date_quoted(period_day, proof):
                 raise ValueError('Дата границы периода отсутствует в представленных цитатах.')
         value.update(document_sha256=document['sha256'], source_url=document['source_url'],
                      captured_on=document['captured_on'], completeness_verified=False)
@@ -108,8 +121,8 @@ class ReviewedEvidence:
             raise ValueError('Требуется полученный полный текст акта без будущей даты.')
         identity = self._quote(db, principal, matter, value['identity'])
         quote = identity['quote']
-        if (value['case_number'] not in quote or value['court'] not in quote or value['instance'].casefold() not in quote.casefold()
-                or (value['decision_date'] not in quote and date.fromisoformat(value['decision_date']).strftime('%d.%m.%Y') not in quote)):
+        if (any(normalized(value[key]) not in normalized(quote) for key in ('case_number', 'court', 'instance'))
+                or not date_quoted(value['decision_date'], quote)):
             raise ValueError('Реквизиты суда, дела и даты должны присутствовать в общей цитате.')
         value['identity'], value['outcome'] = identity, self._quote(db, principal, matter, value['outcome'])
         if value['outcome']['document_id'] != identity['document_id']:
@@ -142,7 +155,7 @@ class ReviewedEvidence:
             citation = self._quote(db, principal, matter, link['citation'])
             target_date = target['payload']['decision_date']
             if (citation['document_id'] != identity['document_id'] or value['case_number'] not in citation['quote']
-                    or (target_date not in citation['quote'] and date.fromisoformat(target_date).strftime('%d.%m.%Y') not in citation['quote'])):
+                    or not date_quoted(target_date, citation['quote'])):
                 raise ValueError('Связь должна цитировать упоминание исходного акта в последующем.')
             links.append({**link, 'citation': citation, 'literal_connection_checked': True, 'legal_effect_verified': False})
         value['links'] = links

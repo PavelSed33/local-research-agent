@@ -58,6 +58,15 @@ def _human_day(day):
     return f'{day.day} {MONTHS[day.month-1]} {day.year}'
 
 
+def _document_identity(row, first_page, signed):
+    number = row['document_number']
+    if row['material_type'] != 'official_court_decision':
+        return _number(number, first_page) and _human_day(signed) in _normalized(first_page)
+    return (isinstance(number, str) and re.fullmatch(r'\d{1,3}-ЭС\d{2}-\d{1,8}(?:\(\d{1,3}\))?', number)
+            and re.search(r'№\s*' + re.escape(number) + r'(?![\w(])', first_page)
+            and (_human_day(signed) in _normalized(first_page) or signed.strftime('%d.%m.%Y') in first_page))
+
+
 def _load(root):
     manifest = json.loads(_read(root, 'manifest.json', 262144))
     if (not isinstance(manifest, dict) or type(manifest.get('schema_version')) is not int
@@ -71,7 +80,7 @@ def _load(root):
                 'current_validity_verified', 'lawyer_reviewed', 'document_number', 'signed_on',
                 'identity_terms', 'edition_label', 'amendment_mentions'}
     for row in manifest['sources']:
-        if not isinstance(row, dict) or set(row) - (required | {'retrieved_url'}) or not required <= row.keys():
+        if not isinstance(row, dict) or set(row) - (required | {'retrieved_url', 'case_number', 'disposition_quote'}) or not required <= row.keys():
             raise ValueError('invalid_archive_entry')
         identity = row['id']
         if not isinstance(identity, str) or not re.fullmatch(r'[a-z][a-z0-9-]{0,79}', identity) or identity in seen:
@@ -120,9 +129,18 @@ def _load(root):
         terms, first_page = row['identity_terms'], value[:pages[0]['end']]
         if (not isinstance(terms, list) or not 2 <= len(terms) <= 8
                 or any(not isinstance(term, str) or not 5 <= len(term) <= 500 or _normalized(term) not in _normalized(first_page) for term in terms)
-                or not _number(row['document_number'], first_page)
-                or _human_day(signed) not in _normalized(first_page)):
+                or not _document_identity(row, first_page, signed)):
             raise ValueError('archive_document_identity_mismatch')
+        if row['material_type'] == 'official_court_decision':
+            case, disposition = row.get('case_number'), row.get('disposition_quote')
+            if (not isinstance(case, str) or not re.fullmatch(r'А\d{1,3}-\d{1,9}/\d{4}', case)
+                    or not re.search(r'№\s*' + re.escape(case) + r'(?![\d/])', first_page)
+                    or not isinstance(disposition, str) or not 30 <= len(disposition) <= 4000
+                    or disposition not in value or not re.search(r'определила\s*:', value, re.I)
+                    or disposition not in re.split(r'определила\s*:', value, flags=re.I)[-1]):
+                raise ValueError('archive_court_disposition_mismatch')
+        elif 'case_number' in row or 'disposition_quote' in row:
+            raise ValueError('unexpected_court_metadata')
         mentions = row['amendment_mentions']
         if not isinstance(mentions, list) or len(mentions) > 20:
             raise ValueError('invalid_amendment_mentions')
@@ -150,7 +168,8 @@ def source_catalog():
             'document_number', 'signed_on', 'edition_label', 'original_sha256', 'text_sha256',
             'integrity_checked', 'current_validity_verified', 'legal_completeness_verified',
             'lawyer_reviewed', 'history_complete', 'amendment_mentions')
-    return {'sources': [{**{key: row[key] for key in keys}, 'page_count': len(row['pages']),
+    return {'sources': [{**{key: row[key] for key in keys},
+                         **{key: row[key] for key in ('case_number', 'disposition_quote') if key in row}, 'page_count': len(row['pages']),
                          'text_char_count': len(row['text'])} for row in load_sources()],
             'legal_acceptance': False, 'external_requests_attempted': False}
 

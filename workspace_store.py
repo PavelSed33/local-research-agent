@@ -345,6 +345,9 @@ class WorkspaceStore:
                                     'captured_on': document['captured_on'],
                                     'edition_label': document['provenance'].get('edition_label'),
                                     'signed_on': document['provenance'].get('signed_on'),
+                                    'material_type': document['provenance'].get('material_type'),
+                                    'case_number': document['provenance'].get('case_number'),
+                                    'decision_date': document['provenance'].get('decision_date'),
                                     'current_validity_verified': False,
                                     'history_complete': False}})
             self._audit(db, principal, 'matter_search', matter, matter)
