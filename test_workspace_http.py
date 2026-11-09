@@ -172,3 +172,30 @@ class WorkspaceHttpTests(unittest.TestCase):
             self.assertEqual(response.status, 200)
             self.assertTrue(body)
             connection.close()
+
+
+    def test_case_report_http_schema_limits_and_revoked_access(self):
+        matter = self.matter()
+        args = {'matter_id': matter, 'case_number': 'А56-119496/2023', 'as_of': '2025-09-04'}
+        self.assertEqual(self.request('/workspace/sources/decision-draft', {'matter_id':matter, 'source_id':'vsrf-decision-2485538'})[0],200)
+        status, report = self.request('/workspace/cases/report',args)
+        self.assertEqual(status,200)
+        self.assertEqual(report['report']['act_count'],1)
+        self.assertIn('Материалы судебного дела',report['markdown'])
+        self.assertEqual(self.request('/workspace/cases/report',args,token=self.other['token'])[0],403)
+        with patch('case_report.MAX_REPORT_BYTES',0):
+            status, failure = self.request('/workspace/cases/report',args)
+        self.assertEqual(status,413)
+        self.assertEqual(failure['code'],'case_report_limit')
+        self.assertEqual(self.request('/workspace/cases/report',{**args,'unexpected':True})[0],400)
+        self.assertEqual(self.request('/workspace/cases/report',{**args,'as_of':'2025-02-30'})[0],400)
+        self.store.grant(self.admin['user_id'],matter,self.other['user_id'],'viewer')
+        self.assertEqual(self.request('/workspace/cases/report',args,token=self.other['token'])[0],200)
+        self.store.grant(self.admin['user_id'],matter,self.other['user_id'],'remove')
+        status, blocked = self.request('/workspace/cases/report',args,token=self.other['token'])
+        self.assertEqual(status,403)
+        self.assertNotIn('markdown',blocked)
+        self.assertNotIn(str(self.path),json.dumps(blocked))
+        spec = self.request('/openapi.json',method='GET')[1]['paths']['/workspace/cases/report']['post']
+        self.assertEqual(set(spec['requestBody']['content']['application/json']['schema']['required']),{'matter_id','case_number','as_of'})
+        self.assertIn('413',spec['responses'])

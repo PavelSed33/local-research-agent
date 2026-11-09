@@ -66,7 +66,7 @@ MAX_QUESTION_CHARS = 12_000
 SESSION_MAX_ENTRIES = 10
 SESSION_MAX_COUNT = 1_000
 SERVICE_NAME = "legal-research-agent"
-API_VERSION = "1.19"
+API_VERSION = "1.20"
 SESSION_TTL_SECONDS = 3600
 SESSION_ANSWER_CHARS = 500
 SESSION_ID_PATTERN = re.compile(r"^[A-Za-z0-9-]{1,64}$")
@@ -520,8 +520,10 @@ def openapi_spec(*, require_auth: bool = True) -> dict[str, Any]:
                 'properties': {key: properties.get(key, {'type': 'string'}) for key in fields}}}}},
             'responses': {str(code): {'description': description} for code, description in
                 [(200, 'Результат'), (400, 'Некорректный запрос'), (401, 'Нужен токен'),
-                 (403, 'Нет доступа'), (409, 'Конфликт состояния'), (429, 'Лимит запросов'),
+                 (403, 'Нет доступа'), (409, 'Конфликт состояния'), (413, 'Превышен объём материалов'), (429, 'Лимит запросов'),
                  (500, 'Ошибка обработки'), (502, 'Ошибка модели'), (503, 'Рабочее пространство отключено'), (504, 'Истёк срок вычисления')]}}}
+    spec['paths']['/workspace/cases/report']['post']['summary'] = 'Отчёт по судебному делу и экспорт Markdown'
+    spec['paths']['/workspace/cases/report']['post']['requestBody']['content']['application/json']['schema']['required'] = ['matter_id', 'case_number', 'as_of']
     spec['paths']['/documents/capabilities'] = {'get': {'summary': 'Наличие локальных PDF/OCR инструментов',
         'security': [{'ApiToken': []}] if require_auth else [], 'responses': {'200': {'description': 'Локальные возможности'}}}}
     return spec

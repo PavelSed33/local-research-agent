@@ -18,6 +18,7 @@ FIELDS = {
     '/workspace/evidence/review': {'artifact_id', 'decision', 'note', 'attestations'},
     '/workspace/editions/select': {'matter_id', 'act_id', 'provision', 'as_of'},
     '/workspace/cases/timeline': {'matter_id', 'case_number', 'as_of'},
+    '/workspace/cases/report': {'matter_id', 'case_number', 'as_of'},
     '/workspace/cases/revise': {'artifact_id', 'positions', 'links'},
     '/workspace/evaluations/record': {'artifact_id', 'answer', 'correctness', 'missed_risks', 'unsupported_claim_count', 'note'},
     '/workspace/evaluations/metrics': {'matter_id'}, '/workspace/audit': {'matter_id', 'limit'},
@@ -154,6 +155,9 @@ def dispatch(store, principal, path, payload):
         return evidence.review(principal, p.get('artifact_id'), p.get('decision'), p.get('note'), p.get('attestations'))
     if path == '/workspace/editions/select':
         return evidence.select_edition(principal, p.get('matter_id'), p.get('act_id'), p.get('provision'), p.get('as_of'))
+    if path == '/workspace/cases/report':
+        from case_report import CaseReport
+        return CaseReport(store).build(principal, p.get('matter_id'), p.get('case_number'), p.get('as_of'))
     if path == '/workspace/cases/revise':
         return evidence.revise_decision(principal, p.get('artifact_id'), p.get('positions'), p.get('links'))
     if path == '/workspace/cases/timeline':
