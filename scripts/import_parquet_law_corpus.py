@@ -5,6 +5,7 @@ Install optional dependency: pip install pyarrow
 No network calls. All imported records remain verified=0.
 """
 import argparse
+from check_external_corpus_manifest import approved_files
 import datetime as dt
 import hashlib
 import json
@@ -14,6 +15,7 @@ from pathlib import Path
 def main():
     p=argparse.ArgumentParser()
     p.add_argument("--input",required=True,type=Path,help="Local .parquet file or directory")
+    p.add_argument("--manifest",required=True,type=Path)
     p.add_argument("--db",required=True,type=Path)
     p.add_argument("--source-id",required=True)
     p.add_argument("--text-column",required=True)
@@ -31,6 +33,7 @@ def main():
     paths=sorted(a.input.glob("*.parquet")) if a.input.is_dir() else [a.input]
     if not paths or any(not x.is_file() or x.suffix!=".parquet" for x in paths):
         p.error("No valid local Parquet files")
+    approved_files(a.manifest,paths,a.source_id)
     db=None
     if not a.dry_run:
         a.db.parent.mkdir(parents=True,exist_ok=True)
