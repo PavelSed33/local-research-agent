@@ -12,7 +12,8 @@ FIELDS = {
     '/workspace/documents/add': {'matter_id', 'title', 'document', 'source_url', 'captured_on', 'pages'},
     '/workspace/documents/list': {'matter_id'}, '/workspace/documents/read': {'document_id'},
     '/workspace/search': {'matter_id', 'query', 'limit'},
-    '/workspace/ask': {'matter_id', 'question', 'demo', 'allow_cloud', 'as_of', 'editions'},
+    '/workspace/ask': {'matter_id', 'question', 'demo', 'allow_cloud', 'as_of', 'editions', 'analysis_mode', 'contract_document_id', 'facts'},
+    '/workspace/analysis/validate': {'matter_id', 'as_of', 'documents', 'editions'},
     '/workspace/evidence/add': {'matter_id', 'kind', 'payload'},
     '/workspace/evidence/read': {'artifact_id'},
     '/workspace/evidence/review': {'artifact_id', 'decision', 'note', 'attestations'},
@@ -54,6 +55,9 @@ def dispatch(store, principal, path, payload):
     if path == '/workspace/me':
         with store.connect() as db:
             return store._user(db, principal)
+    if path == '/workspace/analysis/validate':
+        from service_pilot import validate_context
+        return validate_context(store, principal, p)
     if path.startswith('/workspace/benchmarks/'):
         from benchmark_tasks import BenchmarkTasks
         tasks = BenchmarkTasks(store)
@@ -178,11 +182,25 @@ def prepare_answer(store, principal, payload):
         if key in payload and type(payload[key]) is not bool:
             raise ValueError(f'{key}: требуется true или false.')
     as_of = day(payload['as_of'], 'as_of') if 'as_of' in payload else None
+    from service_pilot import MODE, scope, contract_source
+    mode = payload.get('analysis_mode', 'general')
+    if not isinstance(mode, str) or mode not in ('general', MODE):
+        raise ValueError('Неизвестный режим анализа дела.')
+    if mode == 'general' and any(key in payload for key in ('contract_document_id', 'facts')):
+        raise ValueError('Обстоятельства и выбранный договор доступны в режиме services_pilot.')
+    pilot_scope = None
+    if mode == MODE:
+        if as_of is None:
+            raise ValueError('Для пилота обязательна дата ситуации.')
+        pilot_scope = scope(payload.get('facts', {}))
+        contract = contract_source(store, principal, payload.get('matter_id'), payload.get('contract_document_id'))
     requested = payload.get('editions', [])
     if not isinstance(requested, list) or len(requested) > 3 or (requested and as_of is None):
         raise ValueError('До трёх редакций; при выборе редакций обязательна дата as_of.')
     context = store.search(principal, payload.get('matter_id'), question)
     sources, selected, seen = context['matches'], [], set()
+    if mode == MODE:
+        sources = [contract] + [row for row in sources if row['document_id'] != contract['document_id']]
     excluded = 0
     if as_of:
         allowed = []
@@ -210,6 +228,8 @@ def prepare_answer(store, principal, payload):
                      'valid_to': row['payload']['valid_to'], 'review_sha256': hashlib.sha256(canonical(row['review']).encode()).hexdigest(),
                      'reviewer_id': row['review']['reviewer_id'], 'review_status': 'approved', 'legal_acceptance': False}
         selected.append(reference)
+        if mode == MODE and reference['document_id'] == contract['document_id']:
+            raise ValueError('Договор и источник редакции нормы должны быть разными документами.')
         matches = store.search(principal, payload.get('matter_id'), question, 1, document_ids=[reference['document_id']])['matches']
         if not matches:
             document = store.document(principal, reference['document_id'])
@@ -231,5 +251,7 @@ def prepare_answer(store, principal, payload):
         source['source_id'] = index
         source['edition_references'] = [ref for ref in selected if ref['document_id'] == source['document_id']]
     return {'matter_id': payload.get('matter_id'), 'question': question,
+            'analysis_mode': mode, 'pilot_scope': pilot_scope,
+            'contract_document_id': contract['document_id'] if mode == MODE else None,
             'sources': sources, 'selected_editions': selected, 'as_of': as_of, 'future_decision_fragments_excluded': excluded, 'demo': payload.get('demo', False),
             'allow_cloud': payload.get('allow_cloud', False)}

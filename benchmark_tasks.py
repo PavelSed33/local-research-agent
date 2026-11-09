@@ -29,7 +29,7 @@ def load_templates(path=ROOT / 'fixtures/legal_benchmarks.json'):
         result = {}
         for row in data['cases']:
             if (not isinstance(row, dict) or not isinstance(row.get('id'), str)
-                    or not re.fullmatch(r'LAW-\d{2}-B\d{2}', row['id']) or row['id'] in result
+                    or not re.fullmatch(r'(?:LAW-\d{2}-B\d{2}|SERV-P\d{2})', row['id']) or row['id'] in result
                     or row.get('synthetic') is not True or row.get('approved_legal_answer') is not None
                     or row['review']['approved'] is not False):
                 raise ValueError('invalid draft case')
@@ -52,6 +52,11 @@ class BenchmarkTasks:
         templates = load_templates()
         if case_ids is None:
             case_ids = list(templates)
+        elif isinstance(case_ids, list) and any(isinstance(value, str) and value.startswith('SERV-P') for value in case_ids):
+            pilot = load_templates(ROOT / 'fixtures/services_pilot_cases.json')
+            if set(pilot) != {f'SERV-P{index:02}' for index in range(1, 26)}:
+                raise BenchmarkTemplateError('Набор пилотных заданий неполон.')
+            templates.update(pilot)
         if (not isinstance(case_ids, list) or not 1 <= len(case_ids) <= 200
                 or any(not isinstance(value, str) or value not in templates for value in case_ids)
                 or len(set(case_ids)) != len(case_ids)):

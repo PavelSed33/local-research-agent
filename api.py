@@ -66,7 +66,7 @@ MAX_QUESTION_CHARS = 12_000
 SESSION_MAX_ENTRIES = 10
 SESSION_MAX_COUNT = 1_000
 SERVICE_NAME = "legal-research-agent"
-API_VERSION = "1.23"
+API_VERSION = "1.24"
 SESSION_TTL_SECONDS = 3600
 SESSION_ANSWER_CHARS = 500
 SESSION_ID_PATTERN = re.compile(r"^[A-Za-z0-9-]{1,64}$")
@@ -494,6 +494,14 @@ def openapi_spec(*, require_auth: bool = True) -> dict[str, Any]:
         if 'post' in path:
             path['post']['security'] = [{'ApiToken': []}] if require_auth else []
     properties = {
+        'analysis_mode': {'type': 'string', 'enum': ['general', 'services_pilot'], 'default': 'general'},
+        'contract_document_id': {'type': 'string', 'maxLength': 64},
+        'facts': {'type': 'object', 'additionalProperties': False, 'properties': {
+            key: {'type': 'boolean', 'nullable': True} for key in
+            ('both_businesses', 'paid_activity', 'mixed_contract', 'special_regime')}},
+        'documents': {'type': 'array', 'minItems': 1, 'maxItems': 12, 'items': {
+            'type': 'object', 'additionalProperties': False, 'required': ['document_id', 'sha256'],
+            'properties': {'document_id': {'type': 'string'}, 'sha256': {'type': 'string', 'pattern': '^[a-f0-9]{64}$'}}}},
         'as_of': {'type': 'string', 'format': 'date'},
         'positions': {'type': 'array', 'maxItems': 20, 'items': {'type': 'object'}},
         'links': {'type': 'array', 'maxItems': 20, 'items': {'type': 'object'}},
@@ -523,6 +531,10 @@ def openapi_spec(*, require_auth: bool = True) -> dict[str, Any]:
                 [(200, 'Результат'), (400, 'Некорректный запрос'), (401, 'Нужен токен'),
                  (403, 'Нет доступа'), (409, 'Конфликт состояния'), (413, 'Превышен объём материалов'), (429, 'Лимит запросов'),
                  (500, 'Ошибка обработки'), (502, 'Ошибка модели'), (503, 'Рабочее пространство отключено'), (504, 'Истёк срок вычисления')]}}}
+    spec['paths']['/workspace/analysis/validate']['post']['requestBody']['content']['application/json']['schema']['properties']['editions'] = {
+        'type': 'array', 'maxItems': 3, 'items': {'type': 'object',
+            'required': ['act_id', 'provision', 'artifact_id', 'sha256', 'review_sha256'],
+            'properties': {key: {'type': 'string'} for key in ('act_id', 'provision', 'artifact_id', 'sha256', 'review_sha256')}}}
     spec['paths']['/documents/redline']['post']['requestBody']['content']['application/json']['schema']['required'] = ['filename', 'file_base64', 'replacements']
     spec['paths']['/documents/redline']['post']['summary'] = 'Явные замены в исходном DOCX с исправлениями Word'
     spec['paths']['/workspace/cases/report']['post']['summary'] = 'Отчёт по судебному делу и экспорт Markdown'
