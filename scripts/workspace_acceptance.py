@@ -86,7 +86,13 @@ def run_acceptance():
             post('/workspace/sources/decision-draft', {'matter_id': matter, 'source_id': decision['id']}, other['token'], 403)
             post('/workspace/sources/decision-draft', {'matter_id': matter, 'source_id': catalog['sources'][0]['id']}, expected=400)
             assert post('/workspace/sources/import', {'matter_id': matter, 'source_id': catalog['sources'][0]['id']})['reused'] is True
-            post('/documents/export', {'document': 'Цена отчёта 12500 рублей.'})
+            plain = post('/documents/export', {'document': 'Цена отчёта 12500 рублей.'})
+            redline_payload = {'filename':'original.docx','file_base64':plain['document_base64'],
+                               'replacements':[{'quote':'12500 рублей','replacement':'15000 рублей'}]}
+            tracked = post('/documents/redline', redline_payload)
+            assert tracked['word_track_changes'] is True and tracked['other_parts_preserved'] is True
+            post('/documents/redline', {**redline_payload,'file_base64':tracked['document_base64']}, expected=400)
+
             assert post('/documents/redact', {'document': 'Контакт: test@example.org'})['redaction_count'] == 1
             post('/documents/parse', {'filename': 'example.txt', 'file_base64': base64.b64encode('Условный документ'.encode()).decode()})
             upload = post('/workspace/documents/upload', {'matter_id': matter, 'filename': 'original.txt',

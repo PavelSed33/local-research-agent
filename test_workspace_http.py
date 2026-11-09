@@ -199,3 +199,29 @@ class WorkspaceHttpTests(unittest.TestCase):
         spec = self.request('/openapi.json',method='GET')[1]['paths']['/workspace/cases/report']['post']
         self.assertEqual(set(spec['requestBody']['content']['application/json']['schema']['required']),{'matter_id','case_number','as_of'})
         self.assertIn('413',spec['responses'])
+
+
+    def test_original_docx_redline_worker_route_auth_schema_and_revisions(self):
+        from document_tools import export_docx
+        import io,zipfile
+        raw=export_docx({'document':'Оплата производится за 10 дней.'})['document_base64']
+        payload={'filename':'original.docx','file_base64':raw,'replacements':[{'quote':'10 дней','replacement':'15 дней'}]}
+        status,result=self.request('/documents/redline',payload)
+        self.assertEqual(status,200)
+        self.assertTrue(result['word_track_changes'])
+        with zipfile.ZipFile(io.BytesIO(base64.b64decode(result['document_base64']))) as archive:
+            xml=archive.read('word/document.xml')
+            self.assertIn(b'delText',xml);self.assertIn(b':ins ',xml)
+        self.assertEqual(self.request('/documents/redline',payload,token='invalid-token')[0],401)
+        self.assertEqual(self.request('/documents/redline',{**payload,'unexpected':True})[0],400)
+        again={**payload,'file_base64':result['document_base64']}
+        self.assertEqual(self.request('/documents/redline',again)[0],400)
+        spec=self.request('/openapi.json',method='GET')[1]
+        self.assertIn('/documents/redline',spec['paths'])
+        def finish(request_id,envelope,commit):
+            self.store.revoke_user(self.admin['user_id'],self.other['user_id'])
+            return commit({'document_base64':'PRIVATE-LATE-DOCX'})
+        with patch.object(self.server.jobs,'execute',side_effect=finish):
+            status,blocked=self.request('/documents/redline',payload,token=self.other['token'])
+        self.assertEqual(status,401)
+        self.assertNotIn('PRIVATE-',json.dumps(blocked))
