@@ -21,7 +21,7 @@ FIELDS = {
     '/workspace/cases/timeline': {'matter_id', 'case_number', 'as_of'},
     '/workspace/cases/report': {'matter_id', 'case_number', 'as_of'},
     '/workspace/cases/revise': {'artifact_id', 'positions', 'links'},
-    '/workspace/evaluations/record': {'artifact_id', 'answer', 'correctness', 'missed_risks', 'unsupported_claim_count', 'note'},
+    '/workspace/evaluations/record': {'artifact_id', 'answer', 'correctness', 'missed_risks', 'unsupported_claim_count', 'note', 'run_label'},
     '/workspace/evaluations/metrics': {'matter_id'}, '/workspace/audit': {'matter_id', 'limit'},
     '/workspace/sources/import': {'matter_id', 'source_id'},
     '/workspace/sources/decision-draft': {'matter_id', 'source_id'},
@@ -167,7 +167,7 @@ def dispatch(store, principal, path, payload):
     if path == '/workspace/cases/timeline':
         return evidence.timeline(principal, p.get('matter_id'), p.get('case_number'), p.get('as_of'))
     if path == '/workspace/evaluations/record':
-        return evidence.score(principal, p.get('artifact_id'), p.get('answer'), p.get('correctness'), p.get('missed_risks'), p.get('unsupported_claim_count'), p.get('note'))
+        return evidence.score(principal, p.get('artifact_id'), p.get('answer'), p.get('correctness'), p.get('missed_risks'), p.get('unsupported_claim_count'), p.get('note'), p.get('run_label', 'untagged'))
     if path == '/workspace/evaluations/metrics':
         return evidence.metrics(principal, p.get('matter_id'))
     if path == '/workspace/audit':
