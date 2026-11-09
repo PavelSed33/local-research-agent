@@ -1,8 +1,9 @@
 """Closed-input dispatcher for the optional per-user workspace API."""
 import hashlib
+import uuid
 
 from reviewed_evidence import ReviewedEvidence, day
-from workspace_store import WorkspaceError, text, canonical
+from workspace_store import WorkspaceError, text, canonical, now
 
 FIELDS = {
     '/workspace/me': set(), '/workspace/users/create': {'name', 'role'},
@@ -20,6 +21,7 @@ FIELDS = {
     '/workspace/evaluations/record': {'artifact_id', 'answer', 'correctness', 'missed_risks', 'unsupported_claim_count', 'note'},
     '/workspace/evaluations/metrics': {'matter_id'}, '/workspace/audit': {'matter_id', 'limit'},
     '/workspace/sources/import': {'matter_id', 'source_id'},
+    '/workspace/sources/decision-draft': {'matter_id', 'source_id'},
     '/workspace/sources/list': set(),
     '/workspace/tokens/rotate': set(), '/workspace/matters/transfer': {'matter_id', 'user_id'},
     '/workspace/evidence/list': {'matter_id'}, '/workspace/users/list': set(),
@@ -66,7 +68,7 @@ def dispatch(store, principal, path, payload):
         with store.connect() as db:
             store._user(db, principal)
         return source_catalog()
-    if path == '/workspace/sources/import':
+    if path in ('/workspace/sources/import', '/workspace/sources/decision-draft'):
         from primary_sources import load_sources, original_bytes
         source_id = text(p.get('source_id'), 'source_id', 80)
         with store.connect() as db:
@@ -75,7 +77,9 @@ def dispatch(store, principal, path, payload):
         if len(sources) != 1:
             raise ValueError('Неизвестный source_id.')
         source = sources[0]
-        return store.add_document(principal, p.get('matter_id'),
+        if path.endswith('/decision-draft') and source['material_type'] != 'official_court_decision':
+            raise ValueError('Карточка требует отдельный судебный акт из архива.')
+        imported = store.add_document(principal, p.get('matter_id'),
             {'title': source['title'], 'document': source['text'], 'source_url': source['source_url'],
              'captured_on': source['captured_on'], 'pages': source['pages']},
              provenance={'origin': 'pinned_primary_archive', 'source_id': source['id'],
@@ -83,8 +87,33 @@ def dispatch(store, principal, path, payload):
                          'original_bytes_archived': True, 'all_pdf_pages_extracted': True,
                          'current_validity_verified': False, 'legal_completeness_verified': False,
                          'edition_label': source['edition_label'], 'signed_on': source['signed_on'],
+                         'material_type': source['material_type'], 'case_number': source.get('case_number'),
+                         'decision_date': source['signed_on'] if source['material_type'] == 'official_court_decision' else None,
                          'history_complete': False, 'amendment_mentions': source['amendment_mentions']},
              original=(source['original_file'], original_bytes(source)), deduplicate_source=True)
+        if path.endswith('/import'):
+            return imported
+        with store.connect(True) as db:
+            store._access(db, principal, p.get('matter_id'), ('owner', 'editor'))
+            for existing in db.execute("SELECT id FROM artifacts WHERE matter_id=? AND kind='decision'", (p.get('matter_id'),)):
+                artifact = evidence._artifact(db, principal, existing['id'])
+                if artifact['payload']['identity']['document_id'] == imported['document_id']:
+                    store._audit(db, principal, 'primary_decision_reused', artifact['id'], p.get('matter_id'))
+                    return {'artifact_id': artifact['id'], 'document_id': imported['document_id'],
+                            'review_status': artifact['review_status'], 'reused': True,
+                            'legal_acceptance': False, 'complete_history': False}
+            value = evidence._decision(db, principal, p.get('matter_id'), {
+                'case_number': source['case_number'], 'court': 'Верховный Суд Российской Федерации',
+                'decision_date': source['signed_on'], 'instance': 'Судебная коллегия по экономическим спорам',
+                'identity': {'document_id': imported['document_id'], 'quote': source['text'][:source['pages'][0]['end']].strip()},
+                'outcome': {'document_id': imported['document_id'], 'quote': source['disposition_quote']},
+                'positions': [], 'links': [], 'full_text_declared': True})
+            raw = canonical(value); artifact_id = uuid.uuid4().hex
+            db.execute('INSERT INTO artifacts VALUES(?,?,?,?,?,?,?)',
+                       (artifact_id, p.get('matter_id'), 'decision', raw, hashlib.sha256(raw.encode()).hexdigest(), principal, now()))
+            store._audit(db, principal, 'primary_decision_drafted', artifact_id, p.get('matter_id'))
+        return {'artifact_id': artifact_id, 'document_id': imported['document_id'],
+                'review_status': 'draft', 'reused': False, 'legal_acceptance': False, 'complete_history': False}
     if path == '/workspace/users/create':
         return store.create_user(p.get('name'), p.get('role', 'member'), actor=principal)
     if path == '/workspace/users/list':
@@ -147,6 +176,16 @@ def prepare_answer(store, principal, payload):
         raise ValueError('До трёх редакций; при выборе редакций обязательна дата as_of.')
     context = store.search(principal, payload.get('matter_id'), question)
     sources, selected, seen = context['matches'], [], set()
+    excluded = 0
+    if as_of:
+        allowed = []
+        for source in sources:
+            decision_date = source.get('source_context', {}).get('decision_date')
+            if decision_date and decision_date > as_of:
+                excluded += 1
+            else:
+                allowed.append(source)
+        sources = allowed
     evidence = ReviewedEvidence(store)
     for request in requested:
         if not isinstance(request, dict) or set(request) != {'act_id', 'provision'}:
@@ -173,13 +212,17 @@ def prepare_answer(store, principal, payload):
                         'source_context': {'origin': document['provenance'].get('origin', 'unspecified'),
                             'captured_on': document['captured_on'], 'edition_label': document['provenance'].get('edition_label'),
                             'signed_on': document['provenance'].get('signed_on'),
+                            'decision_date': document['provenance'].get('decision_date'),
+                            'material_type': document['provenance'].get('material_type'),
                             'current_validity_verified': False, 'history_complete': False}}]
         for match in matches:
+            if as_of and match.get('source_context', {}).get('decision_date') and match['source_context']['decision_date'] > as_of:
+                raise WorkspaceError(409, 'future_decision_selected', 'Выбранный источник судебного акта принят позднее даты ситуации.')
             if not any(item['document_id'] == match['document_id'] and item['start'] == match['start'] for item in sources):
                 sources.append(match)
     for index, source in enumerate(sources, 1):
         source['source_id'] = index
         source['edition_references'] = [ref for ref in selected if ref['document_id'] == source['document_id']]
     return {'matter_id': payload.get('matter_id'), 'question': question,
-            'sources': sources, 'selected_editions': selected, 'as_of': as_of, 'demo': payload.get('demo', False),
+            'sources': sources, 'selected_editions': selected, 'as_of': as_of, 'future_decision_fragments_excluded': excluded, 'demo': payload.get('demo', False),
             'allow_cloud': payload.get('allow_cloud', False)}

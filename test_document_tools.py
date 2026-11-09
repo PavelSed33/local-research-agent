@@ -69,7 +69,7 @@ class DocumentToolsTests(unittest.TestCase):
 
     def test_original_source_integrity_and_corruption_detection(self):
         rows = load_sources()
-        self.assertEqual(len(rows), 3)
+        self.assertEqual(len(rows), 7)
         self.assertEqual(len(rows[0]['pages']), 16)
         self.assertFalse(rows[0]['current_validity_verified'])
         with tempfile.TemporaryDirectory() as directory:

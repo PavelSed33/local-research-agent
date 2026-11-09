@@ -387,6 +387,281 @@
       ],
       "edition_label": "Архивная копия; актуальность на дату ситуации не подтверждена.",
       "amendment_mentions": []
+    },
+    {
+      "id": "vsrf-decision-2446026",
+      "material_type": "official_court_decision",
+      "title": "ВС РФ 307-ЭС24-20538 от 2025-02-28: Поставка: неустойка и решение третейского суда",
+      "source_url": "https://vsrf.ru/lk/practice/stor_pdf_ec/2446026",
+      "source_page": "https://vsrf.ru/lk/practice/stor_pdf_ec/2446026",
+      "captured_on": "2026-11-09",
+      "original_file": "vsrf-decision-2446026.pdf",
+      "original_sha256": "8f0f6f26aa613c447d7c02b1c62109b9105042236e9b5b3a905367842dbea1cd",
+      "text_file": "vsrf-decision-2446026.txt",
+      "text_sha256": "f5c27290e55de7a2eb7d5fc48355e2e299e80990c15bc3379d9d705271cfe742",
+      "pages": [
+        {
+          "page": 1,
+          "start": 0,
+          "end": 1542
+        },
+        {
+          "page": 2,
+          "start": 1544,
+          "end": 3718
+        },
+        {
+          "page": 3,
+          "start": 3720,
+          "end": 6202
+        },
+        {
+          "page": 4,
+          "start": 6204,
+          "end": 8705
+        },
+        {
+          "page": 5,
+          "start": 8707,
+          "end": 11203
+        },
+        {
+          "page": 6,
+          "start": 11205,
+          "end": 13859
+        },
+        {
+          "page": 7,
+          "start": 13861,
+          "end": 16313
+        },
+        {
+          "page": 8,
+          "start": 16315,
+          "end": 18854
+        },
+        {
+          "page": 9,
+          "start": 18856,
+          "end": 21419
+        },
+        {
+          "page": 10,
+          "start": 21421,
+          "end": 22602
+        }
+      ],
+      "original_bytes_archived": true,
+      "all_pdf_pages_extracted": true,
+      "legal_completeness_verified": false,
+      "current_validity_verified": false,
+      "lawyer_reviewed": false,
+      "document_number": "307-ЭС24-20538",
+      "signed_on": "2025-02-28",
+      "identity_terms": [
+        "ВЕРХОВНЫЙ СУД",
+        "Судебная коллегия по экономическим спорам",
+        "А56-24586/2024"
+      ],
+      "edition_label": "Полный текст отдельного определения; последующее движение дела не подтверждено.",
+      "amendment_mentions": [],
+      "case_number": "А56-24586/2024",
+      "disposition_quote": "определение Арбитражного суда города Санкт-Петербурга и Ленинградской\nобласти от 7 мая 2024 г. по делу № А56-24586/2024 и постановление\nАрбитражного суда Северо-Западного округа от 1 августа 2024 г. по тому же\nделу отменить.\n    В удовлетворении заявления общества с ограниченной ответственностью\n«Газпром комплектация» об отмене решения Арбитражного центра при\nАвтономной некоммерческой организации «Национальный институт развития\nарбитража в топливно-энергетическом комплексе» от 27 ноября 2023 г. по делу\n№ 23/165 об отказе в удовлетворении исковых требований о взыскании\nнеустойки в размере 20 290 010 рублей 40 копеек за нарушение сроков\nпоставки по договору поставки от 4 марта 2022 г. № 50-014/22-0373п отказать."
+    },
+    {
+      "id": "vsrf-decision-2485538",
+      "material_type": "official_court_decision",
+      "title": "ВС РФ 307-ЭС25-3481 от 2025-09-04: Поставка: сроки, документация и мораторий",
+      "source_url": "https://vsrf.ru/lk/practice/stor_pdf_ec/2485538",
+      "source_page": "https://vsrf.ru/lk/practice/stor_pdf_ec/2485538",
+      "captured_on": "2026-11-09",
+      "original_file": "vsrf-decision-2485538.pdf",
+      "original_sha256": "b300db7c5e348819d09c63cddc86399a0aeffbfc1138edfbcb5504d6fc4a3643",
+      "text_file": "vsrf-decision-2485538.txt",
+      "text_sha256": "7e1021691dee7ebec4faeabe0d9a37dbd66f419fd68db871db50c7d669dd003d",
+      "pages": [
+        {
+          "page": 1,
+          "start": 0,
+          "end": 1608
+        },
+        {
+          "page": 2,
+          "start": 1610,
+          "end": 4030
+        },
+        {
+          "page": 3,
+          "start": 4032,
+          "end": 6568
+        },
+        {
+          "page": 4,
+          "start": 6570,
+          "end": 9031
+        },
+        {
+          "page": 5,
+          "start": 9033,
+          "end": 11538
+        },
+        {
+          "page": 6,
+          "start": 11540,
+          "end": 14057
+        },
+        {
+          "page": 7,
+          "start": 14059,
+          "end": 16282
+        },
+        {
+          "page": 8,
+          "start": 16284,
+          "end": 16621
+        }
+      ],
+      "original_bytes_archived": true,
+      "all_pdf_pages_extracted": true,
+      "legal_completeness_verified": false,
+      "current_validity_verified": false,
+      "lawyer_reviewed": false,
+      "document_number": "307-ЭС25-3481",
+      "signed_on": "2025-09-04",
+      "identity_terms": [
+        "ВЕРХОВНЫЙ СУД",
+        "Судебная коллегия по экономическим спорам",
+        "А56-119496/2023"
+      ],
+      "edition_label": "Полный текст отдельного определения; последующее движение дела не подтверждено.",
+      "amendment_mentions": [],
+      "case_number": "А56-119496/2023",
+      "disposition_quote": "решение Арбитражного суда города Санкт-Петербурга и Ленинградской\nобласти от 30 июля 2024 г. по делу № А56-119496/2023, постановление\nТринадцатого арбитражного апелляционного суда от 11 декабря 2024 г. и\nпостановление Арбитражного суда Северо-Западного округа от 3 марта 2025 г.\nпо тому же делу отменить.\n\n8\n     Дело направить на новое рассмотрение в Арбитражный суд города Санкт-\nПетербурга и Ленинградской области."
+    },
+    {
+      "id": "vsrf-decision-2332384",
+      "material_type": "official_court_decision",
+      "title": "ВС РФ 305-ЭС23-19099 от 2024-01-29: Поставка: аванс и срок исполнения",
+      "source_url": "https://vsrf.ru/lk/practice/stor_pdf_ec/2332384",
+      "source_page": "https://vsrf.ru/lk/practice/stor_pdf_ec/2332384",
+      "captured_on": "2026-11-09",
+      "original_file": "vsrf-decision-2332384.pdf",
+      "original_sha256": "c375f85dac27f0a08d8f4796c11c6a63a25cc4e901098fa0e42c56accd97620b",
+      "text_file": "vsrf-decision-2332384.txt",
+      "text_sha256": "ff88ffff7916a867bc7c97095aa72dea963c87306bd9931dd62b3160acddc99a",
+      "pages": [
+        {
+          "page": 1,
+          "start": 0,
+          "end": 1615
+        },
+        {
+          "page": 2,
+          "start": 1617,
+          "end": 3963
+        },
+        {
+          "page": 3,
+          "start": 3965,
+          "end": 6599
+        },
+        {
+          "page": 4,
+          "start": 6601,
+          "end": 9250
+        },
+        {
+          "page": 5,
+          "start": 9252,
+          "end": 11754
+        },
+        {
+          "page": 6,
+          "start": 11756,
+          "end": 14343
+        },
+        {
+          "page": 7,
+          "start": 14345,
+          "end": 16413
+        }
+      ],
+      "original_bytes_archived": true,
+      "all_pdf_pages_extracted": true,
+      "legal_completeness_verified": false,
+      "current_validity_verified": false,
+      "lawyer_reviewed": false,
+      "document_number": "305-ЭС23-19099",
+      "signed_on": "2024-01-29",
+      "identity_terms": [
+        "ВЕРХОВНЫЙ СУД",
+        "Судебная коллегия по экономическим спорам",
+        "А40-255028/2022"
+      ],
+      "edition_label": "Полный текст отдельного определения; последующее движение дела не подтверждено.",
+      "amendment_mentions": [],
+      "case_number": "А40-255028/2022",
+      "disposition_quote": "решение Арбитражного суда города Москвы от 23.01.2023, постановление\nДевятого арбитражного апелляционного суда от 10.04.2023 и постановление\nАрбитражного суда Московского округа от 26.06.2023 по делу\n№ А40-255028/2022 отменить.\n     Дело направить на новое рассмотрение в Арбитражный суд города\nМосквы."
+    },
+    {
+      "id": "vsrf-decision-1718280",
+      "material_type": "official_court_decision",
+      "title": "ВС РФ 305-ЭС18-10125 от 2018-12-13: Убытки: стоимость утраченного товара и НДС",
+      "source_url": "https://vsrf.ru/lk/practice/stor_pdf_ec/1718280",
+      "source_page": "https://vsrf.ru/lk/practice/stor_pdf_ec/1718280",
+      "captured_on": "2026-11-09",
+      "original_file": "vsrf-decision-1718280.pdf",
+      "original_sha256": "5c4da08c452a45fd53710ab7ed7359fc2e67b75ef3048ce32171a589bf3a934a",
+      "text_file": "vsrf-decision-1718280.txt",
+      "text_sha256": "1ff9a601694953f866aaa4d1918fef6dd4704d930978a719e126e9f7b22225d6",
+      "pages": [
+        {
+          "page": 1,
+          "start": 0,
+          "end": 1513
+        },
+        {
+          "page": 2,
+          "start": 1515,
+          "end": 3630
+        },
+        {
+          "page": 3,
+          "start": 3632,
+          "end": 6180
+        },
+        {
+          "page": 4,
+          "start": 6182,
+          "end": 8687
+        },
+        {
+          "page": 5,
+          "start": 8689,
+          "end": 11097
+        },
+        {
+          "page": 6,
+          "start": 11099,
+          "end": 11605
+        }
+      ],
+      "original_bytes_archived": true,
+      "all_pdf_pages_extracted": true,
+      "legal_completeness_verified": false,
+      "current_validity_verified": false,
+      "lawyer_reviewed": false,
+      "document_number": "305-ЭС18-10125",
+      "signed_on": "2018-12-13",
+      "identity_terms": [
+        "ВЕРХОВНЫЙ СУД",
+        "Судебная коллегия по экономическим спорам",
+        "А40-52603/2017"
+      ],
+      "edition_label": "Полный текст отдельного определения; последующее движение дела не подтверждено.",
+      "amendment_mentions": [],
+      "case_number": "А40-52603/2017",
+      "disposition_quote": "решение Арбитражного суда города Москвы от 11.08.2017 по делу\n№ А40-52603/2017 и постановление Арбитражного суда Московского округа\nот 09.04.2018 по тому же делу отменить.\n\n6\n\n      Постановление      Девятого     арбитражного апелляционного      суда\nот 26.12.2017 оставить без изменения.\n      Настоящее определение вступает в законную силу со дня его вынесения и\nможет быть обжаловано в порядке надзора в Верховный Суд Российской\nФедерации в трехмесячный срок."
     }
   ]
 }

@@ -120,7 +120,7 @@ class WorkspaceHttpTests(unittest.TestCase):
     def test_archive_catalog_and_repeat_import_are_available_without_duplicates(self):
         status, catalog = self.request('/workspace/sources/list')
         self.assertEqual(status, 200)
-        self.assertEqual(len(catalog['sources']), 3)
+        self.assertEqual(len(catalog['sources']), 7)
         self.assertFalse(catalog['legal_acceptance'])
         matter = self.matter()
         payload = {'matter_id': matter, 'source_id': 'vsrf-plenum-54-2016'}

@@ -12,9 +12,12 @@ def answer(payload):
     question, sources, demo = payload['question'], payload['sources'], payload['demo']
     base = {'matter_id': payload['matter_id'], 'verified': False, 'lawyer_reviewed': False,
             'legal_acceptance': False, 'demo': demo, 'sources': sources,
+            'future_decision_fragments_excluded': payload.get('future_decision_fragments_excluded', 0),
             'as_of': payload.get('as_of'), 'selected_editions': payload.get('selected_editions', [])}
     base['source_warnings'] = (['В контексте есть архивные правовые материалы: актуальность редакции и действие на дату ситуации не подтверждены.']
         if any(source.get('source_context', {}).get('origin') == 'pinned_primary_archive' for source in sources) else [])
+    if base['future_decision_fragments_excluded']:
+        base['source_warnings'].append('Фрагменты судебных актов позднее даты ситуации исключены. Поиск ограничен найденными фрагментами; полнота практики не подтверждена.')
     if not sources:
         return {**base, 'status': 'no_evidence', 'summary': 'В документах дела не найдены подходящие фрагменты.', 'findings': []}
     if demo:

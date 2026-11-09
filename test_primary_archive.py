@@ -7,7 +7,8 @@ import tempfile
 import unittest
 
 from primary_sources import ROOT, PrimarySourceError, load_sources, original_bytes, source_catalog
-from workspace_api import dispatch
+from workspace_api import dispatch, prepare_answer
+from reviewed_evidence import ReviewedEvidence, date_quoted
 from workspace_store import WorkspaceStore, WorkspaceError
 
 
@@ -24,11 +25,11 @@ class PrimaryArchiveValidationTests(unittest.TestCase):
                 load_sources(root)
             self.assertNotIn(str(root), str(caught.exception))
 
-    def test_three_physical_originals_have_identity_and_page_maps_without_legal_acceptance(self):
+    def test_seven_physical_originals_have_identity_and_page_maps_without_legal_acceptance(self):
         sources = source_catalog()
-        self.assertEqual(len(sources['sources']), 3)
-        self.assertEqual(sum(row['page_count'] for row in sources['sources']), 59)
-        self.assertEqual({row['document_number'] for row in sources['sources']}, {'49', '7', '54'})
+        self.assertEqual(len(sources['sources']), 7)
+        self.assertEqual(sum(row['page_count'] for row in sources['sources']), 90)
+        self.assertEqual({row['document_number'] for row in sources['sources']}, {'49', '7', '54', '307-ЭС24-20538', '307-ЭС25-3481', '305-ЭС23-19099', '305-ЭС18-10125'})
         self.assertFalse(sources['legal_acceptance'])
         for row in sources['sources']:
             self.assertNotIn('text', row)
@@ -125,3 +126,69 @@ class PrimaryArchiveImportTests(unittest.TestCase):
         with self.assertRaises(WorkspaceError) as caught:
             self.do_import()
         self.assertEqual(caught.exception.status, 503)
+
+
+class OfficialDecisionTests(unittest.TestCase):
+    setUp = PrimaryArchiveImportTests.setUp
+    do_import = PrimaryArchiveImportTests.do_import
+    def test_official_decision_metadata_is_literal_and_never_promotes_trust(self):
+        for mutate in [lambda row: row.update(case_number='А56-999999/2024'),
+                       lambda row: row.update(document_number='307-ЭС24-205380'),
+                       lambda row: row.update(signed_on='2025-02-27'),
+                       lambda row: row.update(disposition_quote='Выдуманный результат судебного рассмотрения.')]:
+            PrimaryArchiveValidationTests().mutation(lambda data: mutate(data['sources'][3]))
+
+    def test_real_first_pages_and_dispositions_can_form_unreviewed_dossiers(self):
+        evidence = ReviewedEvidence(self.store)
+        for source in load_sources():
+            if source['material_type'] != 'official_court_decision': continue
+            imported=self.do_import(source['id'])
+            identity=source['text'][:source['pages'][0]['end']]
+            artifact=evidence.add(self.owner,self.matter,'decision',{
+                'case_number':source['case_number'],'court':'Верховный Суд Российской Федерации',
+                'decision_date':source['signed_on'],'instance':'Судебная коллегия по экономическим спорам',
+                'identity':{'document_id':imported['document_id'],'quote':identity},
+                'outcome':{'document_id':imported['document_id'],'quote':source['disposition_quote']},
+                'positions':[],'links':[],'full_text_declared':True})
+            row=evidence.get(self.owner,artifact['artifact_id'])
+            self.assertEqual(row['review_status'],'draft')
+            self.assertFalse(row['legal_acceptance'])
+            timeline=evidence.timeline(self.owner,self.matter,source['case_number'],'2026-11-09')
+            self.assertEqual(len(timeline['decisions']),1)
+            self.assertFalse(timeline['complete_history'])
+
+    def test_future_archived_decisions_are_excluded_on_date(self):
+        self.do_import('vsrf-decision-2485538')
+        before=prepare_answer(self.store,self.owner,{'matter_id':self.matter,'question':'поставка неустойка','as_of':'2025-09-03','demo':True})
+        self.assertEqual(before['sources'],[])
+        self.assertGreater(before['future_decision_fragments_excluded'],0)
+        on=prepare_answer(self.store,self.owner,{'matter_id':self.matter,'question':'поставка неустойка','as_of':'2025-09-04','demo':True})
+        self.assertGreater(len(on['sources']),0)
+        self.assertTrue(all(row['source_context']['decision_date']=='2025-09-04' for row in on['sources']))
+
+    def test_date_quotes_accept_russian_months_but_reject_numeric_prefixes(self):
+        self.assertTrue(date_quoted('2025-09-04','4 сентября\n2025 г.'))
+        self.assertFalse(date_quoted('2025-09-04','14 сентября 2025 г.'))
+        self.assertFalse(date_quoted('2025-09-04','2025-09-040'))
+
+
+    def test_decision_card_import_is_atomic_idempotent_and_keeps_review_empty(self):
+        def create(_):
+            return dispatch(self.store,self.owner,'/workspace/sources/decision-draft',{'matter_id':self.matter,'source_id':'vsrf-decision-2485538'})
+        with ThreadPoolExecutor(max_workers=4) as pool:
+            rows=list(pool.map(create,range(8)))
+        self.assertEqual(len({row['artifact_id'] for row in rows}),1)
+        self.assertEqual(sum(row['reused'] for row in rows),7)
+        with self.store.connect() as db:
+            self.assertEqual(db.execute('SELECT COUNT(*) FROM artifacts').fetchone()[0],1)
+            self.assertEqual(db.execute('SELECT COUNT(*) FROM reviews').fetchone()[0],0)
+        self.assertTrue(self.store.verify_audit())
+
+    def test_citation_whitespace_keeps_returned_quote_and_offsets_consistent(self):
+        imported=self.do_import('vsrf-decision-2485538')
+        # Use an actual literal fragment, preserving the extraction as the source of truth.
+        body=self.store.document(self.owner,imported['document_id'])['text']
+        quote=body[:50]
+        with self.store.connect() as db:
+            ref=ReviewedEvidence(self.store)._quote(db,self.owner,self.matter,{'document_id':imported['document_id'],'quote':'  '+quote+'  '})
+        self.assertEqual(body[ref['start']:ref['end']],ref['quote'])
