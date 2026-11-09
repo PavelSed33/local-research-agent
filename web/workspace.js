@@ -1,6 +1,7 @@
 'use strict';
 const w = id => document.getElementById(id);
 let activeMatter = '', parsedPages = [], currentJob = null, busy = false, pendingOriginal = null;
+let primarySources = [];
 async function call(path, payload, jobId = null) {
  const headers = {'Content-Type':'application/json', Authorization:'Bearer '+w('workspace-token').value.trim()};
  if(jobId) headers['X-Request-ID'] = jobId;
@@ -26,7 +27,7 @@ function matter(){if(!activeMatter)throw Error('Выберите дело.');ret
 function show(data){
  w('workspace-json').textContent=JSON.stringify(data,null,2);
  if(data.matches)w('workspace-result').textContent=data.matches.map(row=>row.title+'\n'+row.text).join('\n\n')||'Подходящих фрагментов нет.';
- else if(data.findings)w('workspace-result').textContent=data.summary+'\n\n'+data.findings.map(row=>row.assessment+'\n'+row.citations.map(ref=>ref.quote).join('\n')).join('\n\n');
+ else if(data.findings)w('workspace-result').textContent=[data.summary,...(data.source_warnings||[])].join('\n\n')+'\n\n'+data.findings.map(row=>row.assessment+'\n'+row.citations.map(ref=>ref.quote).join('\n')).join('\n\n');
  else w('workspace-result').textContent=data.warning||data.title||'Действие выполнено. Подробности доступны ниже.';
 }
 function clearReview(){w('review-note').value='';for(const id of ['attest-source','attest-completeness','attest-period','attest-reasoning'])w(id).checked=false}
@@ -46,7 +47,7 @@ async function refreshDocuments(){
   button.addEventListener('click',()=>run(async()=>{const data=await call('/workspace/documents/read',{document_id:row.id});w('document-title').value=data.title;w('document-text').value=data.text;w('source-url').value=data.source_url;parsedPages=data.pages;pendingOriginal=null;w('document-file').value='';show({title:data.title,sha256:data.sha256})}));li.append(button);if(row.has_original){const original=document.createElement('button');original.className='secondary';original.textContent='Оригинал';original.addEventListener('click',()=>run(async()=>{const file=await call('/workspace/documents/original',{document_id:row.id});downloadFile(file.file_base64,file.filename)}));li.append(original)}w('document-list').append(li)}
 }
 w('workspace-token').addEventListener('input',()=>{activeMatter='';w('identity').textContent='Подключитесь с новым токеном.';for(const id of ['matter-list','document-list','evidence-list'])w(id).replaceChildren();for(const id of ['workspace-result','workspace-json','new-user-result'])w(id).textContent='';for(const id of ['document-text','document-title','source-url','matter-question','search-query','redact-terms','document-file','matter-title','member-id','user-name'])w(id).value='';clearReview();w('allow-cloud').checked=false;w('matter-demo').checked=true;w('user-admin').hidden=true;parsedPages=[]});
-w('connect').addEventListener('click',()=>run(async()=>{const user=await call('/workspace/me',{});w('identity').textContent=user.name+' · '+user.role+' · '+user.id;w('user-admin').hidden=user.role!=='admin';await refreshMatters()}));
+w('connect').addEventListener('click',()=>run(async()=>{const user=await call('/workspace/me',{});w('identity').textContent=user.name+' · '+user.role+' · '+user.id;w('user-admin').hidden=user.role!=='admin';await refreshPrimarySources();await refreshMatters()}));
 w('matter-list').addEventListener('change',()=>run(async()=>{activeMatter=w('matter-list').value;w('workspace-result').textContent='';w('workspace-json').textContent='';w('evidence-list').replaceChildren();clearReview();for(const id of ['document-text','document-title','source-url','matter-question'])w(id).value='';parsedPages=[];await refreshDocuments()}));
 w('create-matter').addEventListener('submit',event=>{event.preventDefault();run(async()=>{const created=await call('/workspace/matters/create',{title:w('matter-title').value});await refreshMatters(created.matter_id)})});
 w('grant-access').addEventListener('submit',event=>{event.preventDefault();run(async()=>show(await call('/workspace/members/set',{matter_id:matter(),user_id:w('member-id').value,role:w('member-role').value}))) });
@@ -61,7 +62,7 @@ w('parse-file').addEventListener('click',()=>run(async()=>{
  w('document-text').value=data.document;w('document-title').value=file.name;parsedPages=data.pages;show({mode:data.mode,pages:data.pages.length,warning:data.warning});
 }));
 w('add-document').addEventListener('submit',event=>{event.preventDefault();run(async()=>{const metadata={matter_id:matter(),title:w('document-title').value,source_url:w('source-url').value};show(pendingOriginal?await compute('/workspace/documents/upload',{...metadata,...pendingOriginal}):await call('/workspace/documents/add',{...metadata,document:w('document-text').value,pages:parsedPages}));await refreshDocuments()})});
-w('import-primary').addEventListener('click',()=>run(async()=>{show(await call('/workspace/sources/import',{matter_id:matter(),source_id:'vsrf-plenum-49-2018'}));await refreshDocuments()}));
+w('import-primary').addEventListener('click',()=>run(async()=>{if(!w('primary-source').value)throw Error('Выберите доступный первоисточник.');const result=await call('/workspace/sources/import',{matter_id:matter(),source_id:w('primary-source').value});show(result);w('workspace-result').textContent=result.reused?'Этот источник уже есть в деле.':'Источник добавлен. Актуальность и применимость требуют проверки.';await refreshDocuments()}));
 w('search-matter').addEventListener('submit',event=>{event.preventDefault();run(async()=>show(await call('/workspace/search',{matter_id:matter(),query:w('search-query').value}))) });
 w('ask-matter').addEventListener('submit',event=>{event.preventDefault();run(async()=>show(await compute('/workspace/ask',{matter_id:matter(),question:w('matter-question').value,demo:w('matter-demo').checked,allow_cloud:w('allow-cloud').checked}))) });
 w('redact-preview').addEventListener('click',()=>run(async()=>{const result=await compute('/documents/redact',{document:w('document-text').value,terms:w('redact-terms').value.split('\n').map(s=>s.trim()).filter(Boolean)});w('document-text').value=result.document;parsedPages=[];pendingOriginal=null;show({redaction_count:result.redaction_count,review_required:result.review_required,anonymization_verified:false})}));
@@ -71,6 +72,10 @@ async function refreshEvidence(){const data=await call('/workspace/evidence/list
 w('evidence-list').addEventListener('change',clearReview);
 w('workspace-token').addEventListener('input',()=>{pendingOriginal=null});
 w('matter-list').addEventListener('change',()=>{pendingOriginal=null});
+function primarySourceNote(){const source=primarySources.find(row=>row.id===w('primary-source').value);w('primary-source-note').textContent=source?source.page_count+' стр. · '+source.edition_label+' История изменений полностью не подтверждена.':'Каталог недоступен; работа с документами дела остаётся доступной.'}
+async function refreshPrimarySources(){w('primary-source').replaceChildren();primarySources=[];try{const data=await call('/workspace/sources/list',{});primarySources=data.sources;for(const source of data.sources){const option=document.createElement('option');option.value=source.id;option.textContent=source.title;w('primary-source').append(option)}}catch{}primarySourceNote()}
+w('primary-source').addEventListener('change',primarySourceNote);
+w('workspace-token').addEventListener('input',()=>{primarySources=[];w('primary-source').replaceChildren();primarySourceNote()});
 w('refresh-evidence').addEventListener('click',()=>run(refreshEvidence));
 w('read-evidence').addEventListener('click',()=>run(async()=>{if(!w('evidence-list').value)throw Error('Выберите материал.');const data=await call('/workspace/evidence/read',{artifact_id:w('evidence-list').value});show(data);w('workspace-result').textContent=JSON.stringify(data.payload,null,2)}));
 w('review-evidence').addEventListener('submit',event=>{event.preventDefault();run(async()=>{if(!w('evidence-list').value)throw Error('Выберите материал.');show(await call('/workspace/evidence/review',{artifact_id:w('evidence-list').value,decision:w('review-decision').value,note:w('review-note').value,attestations:{source_authenticity:w('attest-source').checked,completeness:w('attest-completeness').checked,temporal_applicability:w('attest-period').checked,legal_reasoning:w('attest-reasoning').checked}}));await refreshEvidence()})});

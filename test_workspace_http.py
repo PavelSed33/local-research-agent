@@ -117,6 +117,33 @@ class WorkspaceHttpTests(unittest.TestCase):
                               ('/documents/parse', {'filename': 'test.txt', 'file_base64': '!!!'})]:
             self.assertEqual(self.request(path, payload)[0], 400)
 
+    def test_archive_catalog_and_repeat_import_are_available_without_duplicates(self):
+        status, catalog = self.request('/workspace/sources/list')
+        self.assertEqual(status, 200)
+        self.assertEqual(len(catalog['sources']), 3)
+        self.assertFalse(catalog['legal_acceptance'])
+        matter = self.matter()
+        payload = {'matter_id': matter, 'source_id': 'vsrf-plenum-54-2016'}
+        first = self.request('/workspace/sources/import', payload)[1]
+        second = self.request('/workspace/sources/import', payload)[1]
+        self.assertEqual(first['document_id'], second['document_id'])
+        self.assertTrue(second['reused'])
+        search = self.request('/workspace/search', {'matter_id': matter, 'query': 'обязательств'})[1]
+        self.assertTrue(search['matches'])
+        self.assertEqual(search['matches'][0]['source_context']['origin'], 'pinned_primary_archive')
+        self.assertFalse(search['matches'][0]['source_context']['current_validity_verified'])
+        self.assertEqual(len(self.store.documents(self.admin['user_id'], matter)['documents']), 1)
+
+    def test_archive_failure_is_503_without_breaking_health_or_document_work(self):
+        from primary_sources import PrimarySourceError
+        with patch('primary_sources.source_catalog', side_effect=PrimarySourceError('PRIVATE-PATH')):
+            status, result = self.request('/workspace/sources/list')
+        self.assertEqual(status, 503)
+        self.assertEqual(result['code'], 'primary_archive_unavailable')
+        self.assertNotIn('PRIVATE-', json.dumps(result))
+        self.assertEqual(self.request('/health', method='GET')[0], 200)
+        self.assertEqual(self.request('/workspace/matters/list')[0], 200)
+
     def test_uploaded_original_is_bound_to_parsed_text_and_protected_by_acl(self):
         import hashlib
         matter = self.matter()

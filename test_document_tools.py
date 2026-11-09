@@ -69,7 +69,7 @@ class DocumentToolsTests(unittest.TestCase):
 
     def test_original_source_integrity_and_corruption_detection(self):
         rows = load_sources()
-        self.assertEqual(len(rows), 1)
+        self.assertEqual(len(rows), 3)
         self.assertEqual(len(rows[0]['pages']), 16)
         self.assertFalse(rows[0]['current_validity_verified'])
         with tempfile.TemporaryDirectory() as directory:
@@ -93,7 +93,7 @@ class DocumentToolsTests(unittest.TestCase):
     def test_real_image_only_pdf_english_ocr(self):
         self._ocr_image('PAYMENT 12500 USD', 'eng')
 
-    @unittest.skipUnless((ROOT.parent.parent / 'runtime/tessdata/rus.traineddata').exists(), 'Pinned Russian OCR data not installed')
+    @unittest.skipUnless('rus' in capabilities()['ocr_languages'], 'Russian OCR language data not installed')
     def test_real_russian_image_only_pdf_ocr(self):
         if not all(shutil.which(name) for name in ('pdftotext', 'pdfinfo', 'pdftoppm', 'tesseract')) or not importlib.util.find_spec('reportlab') or not importlib.util.find_spec('PIL'):
             self.skipTest('OCR test dependencies missing')

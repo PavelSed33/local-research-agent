@@ -53,6 +53,7 @@ from legal_skills import load_skills, skill_options, SkillRegistryError
 from request_jobs import RequestJobs, JobError, ID_PATTERN
 from preflight import inspect_configuration, inspect_runtime
 from workspace_store import WorkspaceStore, WorkspaceError
+from primary_sources import PrimarySourceError
 from workspace_api import FIELDS as WORKSPACE_FIELDS, dispatch as workspace_dispatch, prepare_answer, namespace, validate as validate_workspace
 
 DEFAULT_HOST = "127.0.0.1"
@@ -64,7 +65,7 @@ MAX_QUESTION_CHARS = 12_000
 SESSION_MAX_ENTRIES = 10
 SESSION_MAX_COUNT = 1_000
 SERVICE_NAME = "legal-research-agent"
-API_VERSION = "1.15"
+API_VERSION = "1.16"
 SESSION_TTL_SECONDS = 3600
 SESSION_ANSWER_CHARS = 500
 SESSION_ID_PATTERN = re.compile(r"^[A-Za-z0-9-]{1,64}$")
@@ -791,6 +792,8 @@ class LegalApiHandler(BaseHTTPRequestHandler):
                     return result
                 result = self.server.jobs.execute(self._scoped_id(self.request_id),
                     {'path': self.path, 'payload': payload, 'context': context}, commit)
+        except PrimarySourceError:
+            self._send_json(503, {'error': 'Архив первоисточников недоступен.', 'code': 'primary_archive_unavailable'})
         except WorkspaceError as exc:
             self._send_json(exc.status, {'error': str(exc), 'code': exc.code})
         except JobError as exc:

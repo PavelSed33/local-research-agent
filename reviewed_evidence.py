@@ -28,7 +28,7 @@ class ReviewedEvidence:
     def _quote(self, db, principal, matter, citation):
         if not isinstance(citation, dict) or set(citation) != {'document_id', 'quote'}:
             raise ValueError('Цитата требует document_id и quote.')
-        document = self.store._document(db, principal, citation['document_id'])
+        document = self.store._document(db, principal, text(citation['document_id'], 'document_id', 64))
         if document['matter_id'] != matter:
             raise ValueError('Источник относится к другому делу.')
         quote = text(citation['quote'], 'quote', 10000, 10)
@@ -39,6 +39,7 @@ class ReviewedEvidence:
                 'document_sha256': document['sha256'], 'quote_checked': True}
 
     def _artifact(self, db, principal, identity):
+        identity = text(identity, 'artifact_id', 64)
         row = db.execute('SELECT * FROM artifacts WHERE id=?', (identity,)).fetchone()
         if not row:
             raise WorkspaceError(403, 'matter_access_denied', 'Нет доступа к материалу.')
