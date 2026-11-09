@@ -15,7 +15,7 @@ def main():
     p=argparse.ArgumentParser()
     p.add_argument("--input",required=True,type=Path,help="Local .parquet file or directory")
     p.add_argument("--db",required=True,type=Path)
-    p.add_argument("--source-id",default="ruslawod")
+    p.add_argument("--source-id",required=True)
     p.add_argument("--text-column",required=True)
     p.add_argument("--title-column")
     p.add_argument("--url-column")
