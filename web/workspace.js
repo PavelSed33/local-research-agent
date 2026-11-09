@@ -2,24 +2,38 @@
 const w = id => document.getElementById(id);
 let activeMatter = '', parsedPages = [], currentJob = null, busy = false, pendingOriginal = null;
 let primarySources = [];
+let workspaceEpoch = 0, actionContext = null;
+function assertActionContext(){
+ if(actionContext&&(actionContext.epoch!==workspaceEpoch||actionContext.token!==w('workspace-token').value.trim()))
+  throw Error('Учётная запись или дело изменились. Повторите действие.');
+}
+// Register before action handlers so reconnecting captures the new generation.
+for(const [id,event] of [['workspace-token','input'],['matter-list','change'],['connect','click']])
+ w(id).addEventListener(event,()=>{workspaceEpoch++});
 async function call(path, payload, jobId = null) {
- const headers = {'Content-Type':'application/json', Authorization:'Bearer '+w('workspace-token').value.trim()};
+ assertActionContext();
+ const epoch=workspaceEpoch, token=w('workspace-token').value.trim(), scope=activeMatter;
+ const headers = {'Content-Type':'application/json', Authorization:'Bearer '+token};
  if(jobId) headers['X-Request-ID'] = jobId;
  const response = await fetch(path,{method:'POST',headers,body:JSON.stringify(payload),cache:'no-store'});
  const data = await response.json();
+ if(epoch!==workspaceEpoch||token!==w('workspace-token').value.trim()||scope!==activeMatter)
+  throw Error('Учётная запись или дело изменились. Повторите действие.');
  if(!response.ok) throw Error(data.error || 'Ошибка '+response.status);
  return data;
 }
 async function run(action) {
  if(busy)return;busy=true;
+ actionContext={epoch:workspaceEpoch,token:w('workspace-token').value.trim()};
  const controls = [...document.querySelectorAll('input,textarea,select,button')].filter(el=>el.id!=='workspace-cancel');
  const previous = controls.map(el=>el.disabled); controls.forEach(el=>el.disabled=true);
  w('workspace-status').textContent='Выполняется…';
  try {await action();w('workspace-status').textContent='Готово. Проверьте результат и ограничения.'}
  catch(error){w('workspace-status').textContent=error.message}
- finally{controls.forEach((el,i)=>el.disabled=previous[i]);currentJob=null;busy=false;w('workspace-cancel').hidden=true;syncCaseReportDownload()}
+ finally{controls.forEach((el,i)=>el.disabled=previous[i]);currentJob=null;busy=false;actionContext=null;w('workspace-cancel').hidden=true;syncCaseReportDownload()}
 }
 async function compute(path,payload){
+ assertActionContext();
  currentJob=crypto.randomUUID();w('workspace-cancel').hidden=false;
  return call(path,payload,currentJob);
 }
@@ -48,7 +62,7 @@ async function refreshDocuments(){
 }
 w('workspace-token').addEventListener('input',()=>{activeMatter='';w('identity').textContent='Подключитесь с новым токеном.';for(const id of ['matter-list','document-list','evidence-list'])w(id).replaceChildren();for(const id of ['workspace-result','workspace-json','new-user-result'])w(id).textContent='';for(const id of ['document-text','document-title','source-url','matter-question','search-query','redact-terms','document-file','matter-title','member-id','user-name'])w(id).value='';clearReview();w('allow-cloud').checked=false;w('matter-demo').checked=true;w('user-admin').hidden=true;parsedPages=[]});
 w('connect').addEventListener('click',()=>run(async()=>{const user=await call('/workspace/me',{});w('identity').textContent=user.name+' · '+user.role+' · '+user.id;w('user-admin').hidden=user.role!=='admin';await refreshPrimarySources();await refreshMatters()}));
-w('matter-list').addEventListener('change',()=>run(async()=>{activeMatter=w('matter-list').value;w('workspace-result').textContent='';w('workspace-json').textContent='';w('evidence-list').replaceChildren();clearReview();for(const id of ['document-text','document-title','source-url','matter-question'])w(id).value='';parsedPages=[];await refreshDocuments()}));
+w('matter-list').addEventListener('change',()=>{activeMatter=w('matter-list').value;w('workspace-result').textContent='';w('workspace-json').textContent='';w('evidence-list').replaceChildren();w('document-list').replaceChildren();clearReview();for(const id of ['document-text','document-title','source-url','matter-question','search-query','redact-terms','document-file'])w(id).value='';parsedPages=[];run(refreshDocuments)});
 w('create-matter').addEventListener('submit',event=>{event.preventDefault();run(async()=>{const created=await call('/workspace/matters/create',{title:w('matter-title').value});await refreshMatters(created.matter_id)})});
 w('grant-access').addEventListener('submit',event=>{event.preventDefault();run(async()=>show(await call('/workspace/members/set',{matter_id:matter(),user_id:w('member-id').value,role:w('member-role').value}))) });
 w('create-user').addEventListener('submit',event=>{event.preventDefault();run(async()=>{const user=await call('/workspace/users/create',{name:w('user-name').value,role:w('user-role').value});w('new-user-result').textContent=JSON.stringify(user,null,2)})});
