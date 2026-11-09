@@ -1,14 +1,127 @@
 [
   {
     "title": "Гражданский кодекс Российской Федерации (часть первая)",
-    "required_articles": []
+    "required_articles": [],
+    "inventory_status": "candidate_requires_official_validation"
   },
   {
-    "title": "Трудовой кодекс Российской Федерации",
-    "required_articles": []
+    "title": "Гражданский кодекс Российской Федерации (часть вторая)",
+    "required_articles": [],
+    "inventory_status": "candidate_requires_official_validation"
+  },
+  {
+    "title": "Гражданский кодекс Российской Федерации (часть третья)",
+    "required_articles": [],
+    "inventory_status": "candidate_requires_official_validation"
+  },
+  {
+    "title": "Гражданский кодекс Российской Федерации (часть четвертая)",
+    "required_articles": [],
+    "inventory_status": "candidate_requires_official_validation"
   },
   {
     "title": "Налоговый кодекс Российской Федерации (часть первая)",
-    "required_articles": []
+    "required_articles": [],
+    "inventory_status": "candidate_requires_official_validation"
+  },
+  {
+    "title": "Налоговый кодекс Российской Федерации (часть вторая)",
+    "required_articles": [],
+    "inventory_status": "candidate_requires_official_validation"
+  },
+  {
+    "title": "Трудовой кодекс Российской Федерации",
+    "required_articles": [],
+    "inventory_status": "candidate_requires_official_validation"
+  },
+  {
+    "title": "Уголовный кодекс Российской Федерации",
+    "required_articles": [],
+    "inventory_status": "candidate_requires_official_validation"
+  },
+  {
+    "title": "Уголовно-процессуальный кодекс Российской Федерации",
+    "required_articles": [],
+    "inventory_status": "candidate_requires_official_validation"
+  },
+  {
+    "title": "Уголовно-исполнительный кодекс Российской Федерации",
+    "required_articles": [],
+    "inventory_status": "candidate_requires_official_validation"
+  },
+  {
+    "title": "Кодекс Российской Федерации об административных правонарушениях",
+    "required_articles": [],
+    "inventory_status": "candidate_requires_official_validation"
+  },
+  {
+    "title": "Кодекс административного судопроизводства Российской Федерации",
+    "required_articles": [],
+    "inventory_status": "candidate_requires_official_validation"
+  },
+  {
+    "title": "Гражданский процессуальный кодекс Российской Федерации",
+    "required_articles": [],
+    "inventory_status": "candidate_requires_official_validation"
+  },
+  {
+    "title": "Арбитражный процессуальный кодекс Российской Федерации",
+    "required_articles": [],
+    "inventory_status": "candidate_requires_official_validation"
+  },
+  {
+    "title": "Бюджетный кодекс Российской Федерации",
+    "required_articles": [],
+    "inventory_status": "candidate_requires_official_validation"
+  },
+  {
+    "title": "Земельный кодекс Российской Федерации",
+    "required_articles": [],
+    "inventory_status": "candidate_requires_official_validation"
+  },
+  {
+    "title": "Жилищный кодекс Российской Федерации",
+    "required_articles": [],
+    "inventory_status": "candidate_requires_official_validation"
+  },
+  {
+    "title": "Семейный кодекс Российской Федерации",
+    "required_articles": [],
+    "inventory_status": "candidate_requires_official_validation"
+  },
+  {
+    "title": "Водный кодекс Российской Федерации",
+    "required_articles": [],
+    "inventory_status": "candidate_requires_official_validation"
+  },
+  {
+    "title": "Лесной кодекс Российской Федерации",
+    "required_articles": [],
+    "inventory_status": "candidate_requires_official_validation"
+  },
+  {
+    "title": "Градостроительный кодекс Российской Федерации",
+    "required_articles": [],
+    "inventory_status": "candidate_requires_official_validation"
+  },
+  {
+    "title": "Воздушный кодекс Российской Федерации",
+    "required_articles": [],
+    "inventory_status": "candidate_requires_official_validation"
+  },
+  {
+    "title": "Таможенный кодекс Евразийского экономического союза",
+    "required_articles": [],
+    "inventory_status": "candidate_requires_official_validation"
+  },
+  {
+    "title": "Кодекс торгового мореплавания Российской Федерации",
+    "required_articles": [],
+    "inventory_status": "candidate_requires_official_validation"
+  },
+  {
+    "title": "Кодекс внутреннего водного транспорта Российской Федерации",
+    "required_articles": [],
+    "inventory_status": "candidate_requires_official_validation"
   }
 ]
