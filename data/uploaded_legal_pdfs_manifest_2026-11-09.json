@@ -1,0 +1,58 @@
+{
+  "as_of": "2026-11-09",
+  "source": "user_supplied_pdfs",
+  "status": "quarantined_unverified",
+  "approved_for_import": false,
+  "notes": "Publisher date is not independently validated. NK first page lists amendments through 2022. PDF bytes not committed due to rights review.",
+  "documents": [
+    {
+      "id": "GK_RF",
+      "pages": 633,
+      "sha256": "2f6a50fa83b9eeb3452f463f42087d15d7ddb4f1bb5c6e1e11c6a1ffd861c4a7",
+      "publisher_date": "2026-10-26",
+      "verified": false
+    },
+    {
+      "id": "NK_RF",
+      "pages": 1994,
+      "sha256": "da16fd3a7683b544fb84ddf89834278ad95212694bc8b0c79ac8a527ebf2c2bd",
+      "publisher_date": null,
+      "verified": false
+    },
+    {
+      "id": "TK_RF",
+      "pages": 262,
+      "sha256": "acaae6c6508f7a737a7322333b43ab31568b4d0518de0b2e438c9ce892885265",
+      "publisher_date": "2026-11-09",
+      "verified": false
+    },
+    {
+      "id": "UPK_RF",
+      "pages": 312,
+      "sha256": "22215dda4e8be63d6a641ad31884b95c75c05f18dcc323932c21c28e6dc02e27",
+      "publisher_date": "2026-11-09",
+      "verified": false
+    },
+    {
+      "id": "UK_RF",
+      "pages": 291,
+      "sha256": "71e16ecf20b036376f48f951c3c9e6d5f9739ce637d5ef6f5b776bb88084f948",
+      "publisher_date": "2026-11-09",
+      "verified": false
+    },
+    {
+      "id": "GPK_RF",
+      "pages": 196,
+      "sha256": "a284efdd21fb5b1e395fd1237426d7c6775f0ce0c90a910dfceec985515b340f",
+      "publisher_date": "2026-11-09",
+      "verified": false
+    },
+    {
+      "id": "APK_RF",
+      "pages": 209,
+      "sha256": "27d90e6a3383487ead2dc2ebf45a969cb0a6982d51b18901d046a4120b37cd3f",
+      "publisher_date": "2026-11-09",
+      "verified": false
+    }
+  ]
+}
