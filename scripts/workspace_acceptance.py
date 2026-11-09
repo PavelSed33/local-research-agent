@@ -117,6 +117,23 @@ def run_acceptance():
             post('/workspace/benchmarks/draft', draft, other['token'], 403)
             post('/workspace/ask', {'matter_id': matter, 'question': 'Оплата', 'demo': True,
                  'as_of': '2025-01-01', 'editions': [{'act_id': 'not-imported', 'provision': '1'}]}, expected=409)
+            pilot_args = {'matter_id': matter, 'question': 'Оплата', 'analysis_mode': 'services_pilot',
+                          'contract_document_id': document, 'as_of': '2025-01-01', 'demo': False,
+                          'facts': {'both_businesses': True, 'paid_activity': True, 'mixed_contract': False, 'special_regime': False}}
+            pilot = post('/workspace/ask', pilot_args)
+            assert pilot['status'] == 'needs_sources' and pilot['model_called'] is False
+            assert post('/workspace/ask', {**pilot_args, 'facts': {}})['status'] == 'needs_facts'
+            context = {'matter_id': matter, 'as_of': pilot_args['as_of'], 'editions': [],
+                       'documents': list({row['document_id']: {'document_id': row['document_id'], 'sha256': row['document_sha256']}
+                                          for row in pilot['sources']}.values())}
+            assert post('/workspace/analysis/validate', context)['context_current'] is True
+            post('/workspace/ask', pilot_args, outsider['token'], 403)
+            assert post('/workspace/benchmarks/import', {'matter_id': matter,
+                'case_ids': [f'SERV-P{index:02}' for index in range(1, 26)]})['created'] == 25
+            pilot_tasks = post('/workspace/benchmarks/list', {'matter_id': matter})
+            assert pilot_tasks['total'] == 115 and pilot_tasks['reviews_recorded'] == 0
+            pilot_task = next(row for row in pilot_tasks['tasks'] if row['case_id'] == 'SERV-P01')
+            assert post('/workspace/benchmarks/read', {'task_id': pilot_task['task_id']})['source_case']['approved_legal_answer'] is None
             post('/workspace/audit', {'matter_id': matter})
             assert store.verify_audit()
         finally:

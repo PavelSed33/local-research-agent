@@ -12,9 +12,10 @@ COPY legal_research.py statute_corpus.py ./
 COPY legal_skills.py ./
 COPY local_extract.py ./
 COPY document_tools.py workspace_store.py reviewed_evidence.py workspace_api.py matter_research.py ./
-COPY primary_sources.py case_report.py docx_redline.py workspace_backup.py ./
+COPY primary_sources.py case_report.py docx_redline.py workspace_backup.py service_pilot.py ./
 COPY benchmark_tasks.py ./
 COPY fixtures/legal_benchmarks.json ./fixtures/
+COPY fixtures/services_pilot_cases.json ./fixtures/
 COPY scripts/manage_workspace.py ./scripts/
 COPY fixtures/primary_sources ./fixtures/primary_sources
 COPY skills ./skills

@@ -30,7 +30,7 @@ async function run(action) {
  w('workspace-status').textContent='Выполняется…';
  try {await action();w('workspace-status').textContent='Готово. Проверьте результат и ограничения.'}
  catch(error){w('workspace-status').textContent=error.message}
- finally{controls.forEach((el,i)=>el.disabled=previous[i]);currentJob=null;busy=false;actionContext=null;w('workspace-cancel').hidden=true;syncCaseReportDownload()}
+ finally{controls.forEach((el,i)=>el.disabled=previous[i]);currentJob=null;busy=false;actionContext=null;w('workspace-cancel').hidden=true;syncCaseReportDownload();syncPilotDownload()}
 }
 async function compute(path,payload){
  assertActionContext();
@@ -39,6 +39,8 @@ async function compute(path,payload){
 }
 function matter(){if(!activeMatter)throw Error('Выберите дело.');return activeMatter}
 function show(data){
+ clearPilotReport();
+ if(data.analysis_mode==='services_pilot'){w('workspace-json').textContent=JSON.stringify(data,null,2);w('workspace-result').textContent=data.markdown;return;}
  w('workspace-json').textContent=JSON.stringify(data,null,2);
  if(data.matches)w('workspace-result').textContent=data.matches.map(row=>row.title+'\n'+row.text).join('\n\n')||'Подходящих фрагментов нет.';
  else if(data.findings)w('workspace-result').textContent=[data.summary,...(data.source_warnings||[])].join('\n\n')+'\n\n'+data.findings.map(row=>row.assessment+'\n'+row.citations.map(ref=>ref.quote).join('\n')).join('\n\n');
@@ -47,7 +49,7 @@ function show(data){
 function clearReview(){w('review-note').value='';for(const id of ['attest-source','attest-completeness','attest-period','attest-reasoning'])w(id).checked=false}
 function downloadFile(encoded,filename){const raw=Uint8Array.from(atob(encoded),c=>c.charCodeAt(0));const url=URL.createObjectURL(new Blob([raw],{type:'application/octet-stream'}));const a=document.createElement('a');a.href=url;a.download=filename;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 async function refreshMatters(selected=null){
- clearTask();clearCase();clearDocxRedline();pendingOriginal=null;
+ clearTask();clearCase();clearPilot();clearDocxRedline();pendingOriginal=null;
  w('evidence-list').replaceChildren();clearReview();
  const data=await call('/workspace/matters/list',{});w('matter-list').replaceChildren();
  for(const row of data.matters){const option=document.createElement('option');option.value=row.id;option.textContent=row.title+' · '+row.role;w('matter-list').append(option)}
@@ -55,9 +57,9 @@ async function refreshMatters(selected=null){
  activeMatter=w('matter-list').value;await refreshDocuments();
 }
 async function refreshDocuments(){
- w('document-list').replaceChildren();if(!activeMatter)return;
+ w('document-list').replaceChildren();w('pilot-contract').replaceChildren();if(!activeMatter)return;
  const data=await call('/workspace/documents/list',{matter_id:activeMatter});
- for(const row of data.documents){const li=document.createElement('li');const button=document.createElement('button');button.className='secondary';button.textContent=row.title;
+ for(const row of data.documents){const option=document.createElement('option');option.value=row.id;option.textContent=row.title;w('pilot-contract').append(option);const li=document.createElement('li');const button=document.createElement('button');button.className='secondary';button.textContent=row.title;
   button.addEventListener('click',()=>run(async()=>{const data=await call('/workspace/documents/read',{document_id:row.id});w('document-title').value=data.title;w('document-text').value=data.text;w('source-url').value=data.source_url;parsedPages=data.pages;pendingOriginal=null;w('document-file').value='';show({title:data.title,sha256:data.sha256})}));li.append(button);if(row.has_original){const original=document.createElement('button');original.className='secondary';original.textContent='Оригинал';original.addEventListener('click',()=>run(async()=>{const file=await call('/workspace/documents/original',{document_id:row.id});downloadFile(file.file_base64,file.filename)}));li.append(original)}w('document-list').append(li)}
 }
 w('workspace-token').addEventListener('input',()=>{activeMatter='';w('identity').textContent='Подключитесь с новым токеном.';for(const id of ['matter-list','document-list','evidence-list'])w(id).replaceChildren();for(const id of ['workspace-result','workspace-json','new-user-result'])w(id).textContent='';for(const id of ['document-text','document-title','source-url','matter-question','search-query','redact-terms','document-file','matter-title','member-id','user-name'])w(id).value='';clearReview();w('allow-cloud').checked=false;w('matter-demo').checked=true;w('user-admin').hidden=true;parsedPages=[]});
@@ -78,7 +80,7 @@ w('parse-file').addEventListener('click',()=>run(async()=>{
 w('add-document').addEventListener('submit',event=>{event.preventDefault();run(async()=>{const metadata={matter_id:matter(),title:w('document-title').value,source_url:w('source-url').value};show(pendingOriginal?await compute('/workspace/documents/upload',{...metadata,...pendingOriginal}):await call('/workspace/documents/add',{...metadata,document:w('document-text').value,pages:parsedPages}));await refreshDocuments()})});
 w('import-primary').addEventListener('click',()=>run(async()=>{if(!w('primary-source').value)throw Error('Выберите доступный первоисточник.');const result=await call('/workspace/sources/import',{matter_id:matter(),source_id:w('primary-source').value});show(result);w('workspace-result').textContent=result.reused?'Этот источник уже есть в деле.':'Источник добавлен. Актуальность и применимость требуют проверки.';await refreshDocuments()}));
 w('search-matter').addEventListener('submit',event=>{event.preventDefault();run(async()=>show(await call('/workspace/search',{matter_id:matter(),query:w('search-query').value}))) });
-w('ask-matter').addEventListener('submit',event=>{event.preventDefault();run(async()=>{const payload={matter_id:matter(),question:w('matter-question').value,demo:w('matter-demo').checked,allow_cloud:w('allow-cloud').checked,editions:[...w('ask-editions').selectedOptions].map(option=>JSON.parse(option.value))};if(w('matter-as-of').value)payload.as_of=w('matter-as-of').value;show(await compute('/workspace/ask',payload))}) });
+w('ask-matter').addEventListener('submit',event=>{event.preventDefault();run(async()=>{const payload={matter_id:matter(),question:w('matter-question').value,demo:w('matter-demo').checked,allow_cloud:w('allow-cloud').checked,editions:[...w('ask-editions').selectedOptions].map(option=>JSON.parse(option.value))};if(w('matter-as-of').value)payload.as_of=w('matter-as-of').value;clearPilotReport();const epoch=pilotReportEpoch;if(w('services-pilot').checked){payload.analysis_mode='services_pilot';payload.contract_document_id=w('pilot-contract').value;payload.facts=Object.fromEntries(pilotFactIds.map(key=>[key,w('pilot-'+key).value===''?null:w('pilot-'+key).value==='true']))}const result=await compute('/workspace/ask',payload);if(epoch!==pilotReportEpoch)throw Error('Параметры изменились. Повторите анализ.');show(result);if(result.analysis_mode==='services_pilot'){preparedPilot=result;syncPilotDownload()}}) });
 w('redact-preview').addEventListener('click',()=>run(async()=>{const result=await compute('/documents/redact',{document:w('document-text').value,terms:w('redact-terms').value.split('\n').map(s=>s.trim()).filter(Boolean)});w('document-text').value=result.document;parsedPages=[];pendingOriginal=null;show({redaction_count:result.redaction_count,review_required:result.review_required,anonymization_verified:false})}));
 w('export-docx').addEventListener('click',()=>run(async()=>{const data=await compute('/documents/export',{document:w('document-text').value,title:w('document-title').value||'Черновик'});const raw=Uint8Array.from(atob(data.document_base64),c=>c.charCodeAt(0));const url=URL.createObjectURL(new Blob([raw],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'}));const a=document.createElement('a');a.href=url;a.download='draft.docx';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}));
 w('workspace-cancel').addEventListener('click',async()=>{if(!currentJob)return;try{await call('/requests/cancel',{request_id:currentJob})}catch{w('workspace-status').textContent='Отмена не подтверждена; действует серверный дедлайн.'}});
@@ -140,3 +142,21 @@ for(const [id,event] of [['workspace-token','input'],['matter-list','change'],['
 w('redline-docx-file').addEventListener('change',()=>clearDocxRedline(true));
 w('add-docx-change').addEventListener('click',()=>run(async()=>{const quote=w('redline-docx-quote').value,replacement=w('redline-docx-replacement').value;if(!quote||quote===replacement)throw Error('Укажите исходную цитату и отличающийся новый текст.');if(docxChanges.length>=50)throw Error('До 50 замен за один проход.');docxChanges.push({quote,replacement});docxRedlineEpoch++;renderDocxChanges();w('redline-docx-quote').value='';w('redline-docx-replacement').value=''}));
 w('download-docx-redline').addEventListener('click',()=>run(async()=>{const file=w('redline-docx-file').files[0];if(!file||!file.name.toLowerCase().endsWith('.docx'))throw Error('Выберите исходный DOCX.');if(file.size>10*1024*1024)throw Error('Файл больше 10 МиБ.');if(!docxChanges.length)throw Error('Добавьте хотя бы одну замену.');const epoch=docxRedlineEpoch,token=w('workspace-token').value.trim(),scope=activeMatter;const changes=docxChanges.map(row=>({...row}));const author=w('redline-docx-author').value;const current=()=>epoch===docxRedlineEpoch&&token===w('workspace-token').value.trim()&&scope===activeMatter;const bytes=new Uint8Array(await file.arrayBuffer());if(!current())throw Error('Учётная запись или файл изменились. Повторите подготовку.');let binary='';for(let i=0;i<bytes.length;i+=8192)binary+=String.fromCharCode(...bytes.subarray(i,i+8192));const result=await compute('/documents/redline',{filename:file.name,file_base64:btoa(binary),replacements:changes,author});if(!current())throw Error('Учётная запись или файл изменились. Скачивание отменено.');downloadFile(result.document_base64,result.filename);show({filename:result.filename,source_sha256:result.source_sha256,sha256:result.sha256,replacement_count:result.replacement_count,word_track_changes:result.word_track_changes,warning:result.warning})}));
+
+const pilotFactIds=['both_businesses','paid_activity','mixed_contract','special_regime'];
+let preparedPilot=null,pilotReportEpoch=0;
+function syncPilotDownload(){w('download-pilot-analysis').disabled=busy||!preparedPilot}
+function clearPilotReport(){pilotReportEpoch++;if(preparedPilot){w('workspace-result').textContent='';w('workspace-json').textContent=''}preparedPilot=null;syncPilotDownload()}
+function clearPilot(){clearPilotReport();w('services-pilot').checked=false;w('pilot-contract').replaceChildren();for(const key of pilotFactIds)w('pilot-'+key).value=''}
+for(const [id,event] of [['workspace-token','input'],['matter-list','change'],['connect','click']])w(id).addEventListener(event,clearPilot);
+for(const id of ['services-pilot','pilot-contract','matter-question','matter-as-of','ask-editions','matter-demo','allow-cloud',...pilotFactIds.map(key=>'pilot-'+key)])w(id).addEventListener('input',clearPilotReport);
+w('import-services-tasks').addEventListener('click',()=>run(async()=>{const case_ids=Array.from({length:25},(_,index)=>'SERV-P'+String(index+1).padStart(2,'0'));await call('/workspace/benchmarks/import',{matter_id:matter(),case_ids});await refreshTasks()}));
+w('download-pilot-analysis').addEventListener('click',()=>run(async()=>{
+ if(!preparedPilot)throw Error('Сначала выполните разбор договора.');
+ const report=preparedPilot,epoch=pilotReportEpoch;
+ const documents=[...new Map(report.sources.map(source=>[source.document_id,{document_id:source.document_id,sha256:source.document_sha256}])).values()];
+ try{await call('/workspace/analysis/validate',{matter_id:report.matter_id,as_of:report.as_of,documents,editions:report.selected_editions})}catch(error){clearPilotReport();throw error}
+ if(epoch!==pilotReportEpoch||report.matter_id!==activeMatter)throw Error('Параметры изменились. Повторите анализ.');
+ const url=URL.createObjectURL(new Blob([report.markdown],{type:'text/markdown;charset=utf-8'}));
+ try{const a=document.createElement('a');a.href=url;a.download=report.filename;a.click()}finally{setTimeout(()=>URL.revokeObjectURL(url),1000)}
+}));

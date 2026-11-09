@@ -53,9 +53,13 @@ def execute_check(identity):
     """Return only explicit counters/flags; never copy provider text or exceptions."""
     if identity == 'data':
         from scripts.validate_legal_data import validate
+        from benchmark_tasks import load_templates
         result = validate()
+        pilot = load_templates(ROOT / 'fixtures/services_pilot_cases.json')
+        if set(pilot) != {f'SERV-P{index:02}' for index in range(1, 26)}:
+            raise ValueError('incomplete_pilot_tasks')
         return {'status': 'passed', 'statutory_extracts': result['statutory_extracts'],
-                'draft_synthetic_cases': result['draft_synthetic_cases']}
+                'draft_synthetic_cases': result['draft_synthetic_cases'], 'services_pilot_tasks': len(pilot)}
     if identity == 'archive':
         if not all(shutil.which(name) for name in ('pdfinfo', 'pdftotext')):
             return {'status': 'blocked', 'reason': 'poppler_missing'}
@@ -87,7 +91,7 @@ def execute_check(identity):
         if not node:
             return {'status': 'blocked', 'reason': 'node_missing'}
         count = 0
-        for script in ('test_workspace_report.cjs', 'test_workspace_context.cjs'):
+        for script in ('test_workspace_report.cjs', 'test_workspace_context.cjs', 'test_services_pilot.cjs'):
             result = subprocess.run([node, str(ROOT / 'scripts' / script)], cwd=ROOT,
                                     capture_output=True, text=True, timeout=20)
             if result.returncode:

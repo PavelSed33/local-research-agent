@@ -1,0 +1,53 @@
+{
+  "checked_on": "2026-11-09",
+  "api_version": "1.24",
+  "base_main_commit": "5f68a073d45ba562a37c58340920e603bad858c5",
+  "prior_pr_head": "0be208eca9da00bf4c30c65dfaa932f9d5005266",
+  "scope": "b2b_services_contract_pilot",
+  "status": "technical_checks_passed_external_and_legal_acceptance_open",
+  "implemented": [
+    "Opt-in services_pilot mode on the existing protected workspace ask route.",
+    "Four explicit tri-state declared facts; missing facts, incompatible scope and absent selected editions prevent model execution.",
+    "Full saved contract included up to 20000 characters; larger contracts fail without truncation.",
+    "Structured observations, candidate legal risks, proposed contradictions and missing information.",
+    "Each finding requires contract evidence, applicability explanation and next action. Legal risks additionally require a selected edition source; inter-document contradictions require two document identities.",
+    "UTF-8 Markdown preview and download; untrusted text is literal and quote offsets remain bound to source hashes.",
+    "Download context checks enforce matter access, document hashes and unchanged edition reviews; they do not authenticate a client-held report.",
+    "Twenty-five opt-in synthetic services tasks; default import of ninety earlier tasks unchanged; no answers or approvals generated.",
+    "Docker file set and OpenAPI schemas updated. Actual Docker execution remains untested."
+  ],
+  "validation": {
+    "full_unittest": {"tests_run": 594, "passed": 593, "skipped": 1, "seconds": 73.808, "exit_code": 0},
+    "skip_reason": "Russian OCR language data not installed.",
+    "final_targeted_after_schema_update": {"tests_run": 42, "passed": 42, "exit_code": 0},
+    "service_pilot_tests": 15,
+    "new_service_ui_logic_scenarios": 6,
+    "all_ui_logic_scenarios": 27,
+    "unified_http_checks": {"demo": 26, "workspace": 61, "recovery": 9, "total": 96},
+    "native_pdf_replay": {"sources": 7, "pages": 90, "passed": true},
+    "synthetic_non_demo_round_trip": {
+      "real_http_and_child_worker": true,
+      "provider": "temporary_synthetic_loopback_server",
+      "legal_editions": "synthetic_review_ledger_fixtures_only",
+      "real_external_model_tested": false,
+      "legal_acceptance": false
+    },
+    "python_compilation": "passed",
+    "javascript_syntax": "passed",
+    "git_diff_check": "passed"
+  },
+  "remaining": {
+    "real_model_and_search": "blocked_missing_configuration",
+    "browser_acceptance": "blocked_chromium_missing",
+    "approved_real_pilot_editions_added": 0,
+    "lawyer_accepted_pilot_answers_added": 0,
+    "semantic_retrieval": "not_implemented",
+    "complete_legislative_histories": "not_confirmed",
+    "complete_case_chains": "not_confirmed",
+    "target_deployment": "not_accepted"
+  },
+  "production_ready": false,
+  "legal_acceptance": false,
+  "browser_acceptance": false,
+  "main_modified": false
+}
