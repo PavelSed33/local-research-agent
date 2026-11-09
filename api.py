@@ -66,7 +66,7 @@ MAX_QUESTION_CHARS = 12_000
 SESSION_MAX_ENTRIES = 10
 SESSION_MAX_COUNT = 1_000
 SERVICE_NAME = "legal-research-agent"
-API_VERSION = "1.24"
+API_VERSION = "1.25"
 SESSION_TTL_SECONDS = 3600
 SESSION_ANSWER_CHARS = 500
 SESSION_ID_PATTERN = re.compile(r"^[A-Za-z0-9-]{1,64}$")
@@ -494,6 +494,7 @@ def openapi_spec(*, require_auth: bool = True) -> dict[str, Any]:
         if 'post' in path:
             path['post']['security'] = [{'ApiToken': []}] if require_auth else []
     properties = {
+        'run_label': {'type': 'string', 'minLength': 1, 'maxLength': 80, 'default': 'untagged'},
         'analysis_mode': {'type': 'string', 'enum': ['general', 'services_pilot'], 'default': 'general'},
         'contract_document_id': {'type': 'string', 'maxLength': 64},
         'facts': {'type': 'object', 'additionalProperties': False, 'properties': {

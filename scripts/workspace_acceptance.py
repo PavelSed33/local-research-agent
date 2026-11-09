@@ -134,6 +134,25 @@ def run_acceptance():
             assert pilot_tasks['total'] == 115 and pilot_tasks['reviews_recorded'] == 0
             pilot_task = next(row for row in pilot_tasks['tasks'] if row['case_id'] == 'SERV-P01')
             assert post('/workspace/benchmarks/read', {'task_id': pilot_task['task_id']})['source_case']['approved_legal_answer'] is None
+            reviewer = post('/workspace/users/create', {'name': 'СИНТЕТИЧЕСКИЙ эксперт оценок', 'role': 'reviewer'})
+            post('/workspace/members/set', {'matter_id': matter, 'user_id': reviewer['user_id'], 'role': 'viewer'})
+            review_args = {'artifact_id': saved['artifact_id'], 'decision': 'approved',
+                           'note': 'СИНТЕТИЧЕСКАЯ проверка механизма, не юридическая приёмка.',
+                           'attestations': dict.fromkeys(['source_authenticity','completeness','temporal_applicability','legal_reasoning'], True)}
+            post('/workspace/evidence/review', review_args, reviewer['token'])
+            score_args = {'artifact_id': saved['artifact_id'], 'answer': 'Учебный ответ первой версии.',
+                          'correctness': 2, 'missed_risks': [0], 'unsupported_claim_count': 1,
+                          'note': 'СИНТЕТИЧЕСКАЯ оценка, не проверка права.', 'run_label': 'synthetic-v1'}
+            post('/workspace/evaluations/record', score_args, reviewer['token'])
+            post('/workspace/evaluations/record', {**score_args,'answer':'Учебный ответ второй версии.',
+                'correctness':4,'missed_risks':[],'unsupported_claim_count':0,'run_label':'synthetic-v2'}, reviewer['token'])
+            quality = post('/workspace/evaluations/metrics', {'matter_id': matter})
+            assert quality['shared_benchmark_count'] == 1 and len(quality['shared_benchmark_comparison']) == 2
+            post('/workspace/evaluations/record', score_args, other['token'], 403)
+            post('/workspace/evidence/review', {**review_args, 'decision':'revoked'}, reviewer['token'])
+            post('/workspace/evidence/review', review_args, reviewer['token'])
+            quality = post('/workspace/evaluations/metrics', {'matter_id': matter})
+            assert quality['human_evaluations'] == 0 and quality['excluded_due_to_review_change'] == 2
             post('/workspace/audit', {'matter_id': matter})
             assert store.verify_audit()
         finally:

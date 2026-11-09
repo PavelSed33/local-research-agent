@@ -91,7 +91,7 @@ def execute_check(identity):
         if not node:
             return {'status': 'blocked', 'reason': 'node_missing'}
         count = 0
-        for script in ('test_workspace_report.cjs', 'test_workspace_context.cjs', 'test_services_pilot.cjs'):
+        for script in ('test_workspace_report.cjs', 'test_workspace_context.cjs', 'test_services_pilot.cjs', 'test_quality_scoring.cjs'):
             result = subprocess.run([node, str(ROOT / 'scripts' / script)], cwd=ROOT,
                                     capture_output=True, text=True, timeout=20)
             if result.returncode:

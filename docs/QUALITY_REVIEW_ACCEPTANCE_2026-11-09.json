@@ -1,0 +1,49 @@
+{
+  "checked_on": "2026-11-09",
+  "api_version": "1.25",
+  "prior_pr_head": "3c571588dd491db8a04cee83639e3dca5af8998c",
+  "scope": "human_answer_scoring_and_common_benchmark_comparison",
+  "status": "technical_checks_passed_manual_and_external_gates_open",
+  "implemented": [
+    "Workspace form for a reviewer to score an answer against an approved immutable benchmark.",
+    "Run labels, correctness, missed required risks, unsupported assertions and an explanatory note.",
+    "Aggregate and per-label metrics plus a comparison restricted to the intersection of approved benchmark identities across all labels.",
+    "Every new evaluation binds the exact approval record, including its unique record ID, by hash.",
+    "Revoked or changed approvals exclude prior evaluations; reapproval cannot resurrect them, even with identical timestamps.",
+    "Legacy evaluations without approval binding remain stored but are counted separately and excluded from current means.",
+    "Task/account/matter resets clear scoring inputs; late replies cannot repopulate results or trigger a follow-up under a changed task.",
+    "No SQLite schema migration, real legal approval or provider configuration performed."
+  ],
+  "regression_proof": {
+    "scenario": "Approve benchmark, score answer, revoke, then reapprove the same benchmark.",
+    "baseline_old_score_included": 1,
+    "patched_old_score_included": 0,
+    "same_timestamp_new_review_regression": "passed"
+  },
+  "validation": {
+    "full_unittest": {"tests_run": 612, "passed": 611, "skipped": 1, "seconds": 75.708, "exit_code": 0},
+    "skip_reason": "Russian OCR language data not installed.",
+    "new_quality_ledger_tests": 9,
+    "new_quality_ui_scenarios": 6,
+    "all_ui_logic_scenarios": 33,
+    "http_checks": {"demo": 26, "workspace": 71, "recovery": 9, "total": 106},
+    "native_pdf_replay": {"sources": 7, "pages": 90, "passed": true},
+    "python_compilation": "passed",
+    "javascript_syntax": "passed",
+    "git_diff_check": "passed"
+  },
+  "limits": [
+    "Synthetic temporary accounts and approval records test mechanisms only; no real lawyer-accepted answer was added.",
+    "Run labels and answer provenance are human declarations, not proof of actual model execution.",
+    "Averages are per evaluation, not per unique matter; a common benchmark set does not by itself establish statistical superiority.",
+    "The approval hash is not a signature or protection from an operator with full database access.",
+    "Real model/search checks remain blocked by missing configuration; browser acceptance remains blocked by missing Chromium.",
+    "Primary source retries returned HTTP 503 in this execution environment; no new original or approved edition was obtained."
+  ],
+  "real_legal_answers_accepted": 0,
+  "real_editions_approved": 0,
+  "legal_acceptance": false,
+  "browser_acceptance": false,
+  "production_ready": false,
+  "main_modified": false
+}
