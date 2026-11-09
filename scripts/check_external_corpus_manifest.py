@@ -2,6 +2,7 @@
 """Fail-closed preflight for third-party legal corpus manifests. No downloads/execution."""
 import argparse
 import json
+import hashlib
 from pathlib import Path
 
 BLOCKED = ("ruslawod", "irlspbru/ruslawod", "irlcode/ruslawod")
@@ -20,6 +21,38 @@ def check(item):
     if str(item["license"]).lower() in ("unknown","unverified","cc by-nc 4.0","cc-by-nc-4.0"):
         return "license not cleared"
     return None
+def approved_files(manifest_path, paths, source_id):
+    """Validate every input file against an explicit, per-file SHA-256 manifest."""
+    entries=json.loads(Path(manifest_path).read_text(encoding="utf-8"))
+    if not isinstance(entries,list):
+        raise ValueError("manifest must be a list")
+    by_path={}
+    for item in entries:
+        if not isinstance(item,dict) or not isinstance(item.get("path"),str):
+            raise ValueError("each manifest entry needs path")
+        key=item["path"]
+        if key in by_path:
+            raise ValueError("duplicate manifest path: "+key)
+        by_path[key]=item
+    allowed=[]
+    for file in paths:
+        file=Path(file)
+        key=file.name
+        if key not in by_path:
+            raise ValueError("missing manifest entry: "+key)
+        item=by_path[key]
+        reason=check(item)
+        if reason: raise ValueError(key+": "+reason)
+        if item.get("source_id")!=source_id:
+            raise ValueError(key+": source_id mismatch")
+        digest=hashlib.file_digest(file.open("rb"),"sha256").hexdigest()
+        if digest.lower()!=item["sha256"].lower():
+            raise ValueError(key+": SHA-256 mismatch")
+        allowed.append(item)
+    if len(allowed)!=len(by_path):
+        raise ValueError("manifest contains files not in import batch")
+    return allowed
+
 def main():
     p=argparse.ArgumentParser()
     p.add_argument("manifest",type=Path)
