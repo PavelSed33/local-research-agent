@@ -13,3 +13,12 @@ class WorkspaceReportUiTests(unittest.TestCase):
                                 capture_output=True, text=True, timeout=15)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn('"browser_acceptance":false', result.stdout)
+
+    @unittest.skipUnless(shutil.which('node'), 'Node.js is unavailable')
+    def test_all_requests_reject_responses_from_previous_context(self):
+        root = Path(__file__).parent
+        result = subprocess.run(['node', 'scripts/test_workspace_context.cjs'], cwd=root,
+                                capture_output=True, text=True, timeout=15)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('"checks":9', result.stdout)
+        self.assertIn('"browser_acceptance":false', result.stdout)
