@@ -201,6 +201,18 @@ class ServicePilotHttpTests(unittest.TestCase):
         status, result = self.request('/workspace/ask', payload)
         self.assertEqual(status, 200); self.assertEqual(result['status'], 'needs_sources')
         self.assertFalse(result['model_called'])
+        self.assertTrue(result['report_saved'])
+        read_payload = {'matter_id': payload['matter_id'], 'report_id': result['report_id'],
+                        'markdown_sha256': result['markdown_sha256']}
+        read_schema = spec['paths']['/workspace/analysis/read']['post']['requestBody']['content']['application/json']['schema']
+        self.assertEqual(set(read_schema['required']), set(read_payload))
+        status, saved = self.request('/workspace/analysis/read', read_payload)
+        self.assertEqual(status, 200); self.assertEqual(saved['markdown'], result['markdown'])
+        self.assertTrue(saved['report_authenticity_verified']); self.assertFalse(saved['legal_acceptance'])
+        self.assertEqual(self.request('/workspace/analysis/read', {**read_payload, 'markdown': 'FORGED'})[0], 400)
+        self.assertEqual(self.request('/workspace/analysis/read', {**read_payload, 'markdown_sha256': 'f' * 64})[0], 409)
+        self.assertEqual(self.request('/workspace/analysis/read', read_payload, token=self.other['token'])[0], 403)
+        self.assertEqual(self.request('/workspace/evidence/read', {'artifact_id': result['report_id']})[0], 403)
         self.assertEqual(self.request('/workspace/ask', {**payload, 'facts': {}})[1]['status'], 'needs_facts')
         context = {'matter_id': payload['matter_id'], 'as_of': payload['as_of'], 'editions': [],
                    'documents': [{'document_id': row['document_id'], 'sha256': row['document_sha256']} for row in result['sources']]}
@@ -219,6 +231,8 @@ class ServicePilotHttpTests(unittest.TestCase):
             status, result = self.request('/workspace/ask', payload, token=self.other['token'])
         self.assertEqual(status, 403)
         self.assertNotIn('PRIVATE-', json.dumps(result))
+        with self.store.connect() as db:
+            self.assertEqual(db.execute("SELECT COUNT(*) FROM artifacts WHERE kind='analysis_report'").fetchone()[0], 0)
 
     def test_non_demo_http_worker_round_trip_with_synthetic_local_provider(self):
         from reviewed_evidence import ReviewedEvidence
@@ -264,5 +278,11 @@ class ServicePilotHttpTests(unittest.TestCase):
                 'documents': list({row['document_id']: {'document_id': row['document_id'], 'sha256': row['document_sha256']}
                                    for row in result['sources']}.values())}
             self.assertEqual(self.request('/workspace/analysis/validate', context)[0], 200)
+            read_payload = {'matter_id': matter, 'report_id': result['report_id'], 'markdown_sha256': result['markdown_sha256']}
+            read_status, stored = self.request('/workspace/analysis/read', read_payload)
+            self.assertEqual(read_status, 200); self.assertEqual(stored['markdown'], result['markdown'])
+            evidence.review(reviewer, edition, 'revoked', 'СИНТЕТИЧЕСКИЙ отзыв.',
+                            dict.fromkeys(['source_authenticity', 'completeness', 'temporal_applicability', 'legal_reasoning'], True))
+            self.assertEqual(self.request('/workspace/analysis/read', read_payload)[0], 409)
         finally:
             provider.shutdown(); provider.server_close(); thread.join(3)

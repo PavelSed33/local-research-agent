@@ -122,6 +122,15 @@ def run_acceptance():
                           'facts': {'both_businesses': True, 'paid_activity': True, 'mixed_contract': False, 'special_regime': False}}
             pilot = post('/workspace/ask', pilot_args)
             assert pilot['status'] == 'needs_sources' and pilot['model_called'] is False
+            assert pilot['report_saved'] is True
+            read_args = {'matter_id': matter, 'report_id': pilot['report_id'], 'markdown_sha256': pilot['markdown_sha256']}
+            stored_report = post('/workspace/analysis/read', read_args)
+            assert stored_report['markdown'] == pilot['markdown'] and stored_report['report_authenticity_verified'] is True
+            assert stored_report['legal_acceptance'] is False and stored_report['digital_signature'] is False
+            post('/workspace/analysis/read', {**read_args, 'markdown': 'FORGED CLIENT BYTES'}, expected=400)
+            post('/workspace/analysis/read', {**read_args, 'markdown_sha256': 'f' * 64}, expected=409)
+            post('/workspace/analysis/read', read_args, outsider['token'], 403)
+            post('/workspace/evidence/read', {'artifact_id': pilot['report_id']}, expected=403)
             assert post('/workspace/ask', {**pilot_args, 'facts': {}})['status'] == 'needs_facts'
             context = {'matter_id': matter, 'as_of': pilot_args['as_of'], 'editions': [],
                        'documents': list({row['document_id']: {'document_id': row['document_id'], 'sha256': row['document_sha256']}

@@ -66,7 +66,7 @@ MAX_QUESTION_CHARS = 12_000
 SESSION_MAX_ENTRIES = 10
 SESSION_MAX_COUNT = 1_000
 SERVICE_NAME = "legal-research-agent"
-API_VERSION = "1.26"
+API_VERSION = "1.27"
 SESSION_TTL_SECONDS = 3600
 SESSION_ANSWER_CHARS = 500
 SESSION_ID_PATTERN = re.compile(r"^[A-Za-z0-9-]{1,64}$")
@@ -536,6 +536,10 @@ def openapi_spec(*, require_auth: bool = True) -> dict[str, Any]:
         'type': 'array', 'maxItems': 3, 'items': {'type': 'object',
             'required': ['act_id', 'provision', 'artifact_id', 'sha256', 'review_sha256'],
             'properties': {key: {'type': 'string'} for key in ('act_id', 'provision', 'artifact_id', 'sha256', 'review_sha256')}}}
+    report_schema = spec['paths']['/workspace/analysis/read']['post']['requestBody']['content']['application/json']['schema']
+    report_schema['required'] = ['matter_id', 'report_id', 'markdown_sha256']
+    report_schema['properties']['markdown_sha256'] = {'type': 'string', 'pattern': '^[a-f0-9]{64}$'}
+    spec['paths']['/workspace/analysis/read']['post']['summary'] = 'Сохранённый сервером Markdown с повторной проверкой источников и доступа'
     spec['paths']['/documents/redline']['post']['requestBody']['content']['application/json']['schema']['required'] = ['filename', 'file_base64', 'replacements']
     spec['paths']['/documents/redline']['post']['summary'] = 'Явные замены в исходном DOCX с исправлениями Word'
     spec['paths']['/workspace/cases/report']['post']['summary'] = 'Отчёт по судебному делу и экспорт Markdown'
@@ -759,6 +763,9 @@ class LegalApiHandler(BaseHTTPRequestHandler):
                             self.server.workspace._access(db, principal, prepared['matter_id'])
                             from reviewed_evidence import ReviewedEvidence
                             ReviewedEvidence(self.server.workspace).assert_selection(db, principal, prepared['matter_id'], prepared.get('as_of'), prepared.get('selected_editions', []))
+                            if prepared.get('analysis_mode') == 'services_pilot':
+                                from analysis_reports import AnalysisReports
+                                result = AnalysisReports(self.server.workspace).save(db, principal, prepared, result)
                             self.server.workspace._audit(db, principal, 'matter_answered', prepared['matter_id'], prepared['matter_id'])
                         return result
                     result = self.server.jobs.execute(self._scoped_id(request_id),
