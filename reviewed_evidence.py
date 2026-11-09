@@ -64,6 +64,12 @@ class ReviewedEvidence:
         latest = db.execute('SELECT decision,reviewer_id,created_on,artifact_sha256 FROM reviews WHERE artifact_id=? ORDER BY id DESC LIMIT 1', (identity,)).fetchone()
         result['review'] = dict(latest) if latest else None
         result['review_status'] = latest['decision'] if latest and latest['artifact_sha256'] == result['sha256'] else 'draft'
+        if result['kind'] == 'decision':
+            revision = db.execute('SELECT root_artifact_id,previous_artifact_id FROM decision_revisions WHERE artifact_id=?', (identity,)).fetchone()
+            successor = db.execute('SELECT artifact_id FROM decision_revisions WHERE previous_artifact_id=?', (identity,)).fetchone()
+            result['version'] = {'root_artifact_id': revision['root_artifact_id'] if revision else identity,
+                                 'previous_artifact_id': revision['previous_artifact_id'] if revision else None,
+                                 'superseded_by': successor['artifact_id'] if successor else None}
         result.update(legal_acceptance=False, reviewer_qualification_verified=False)
         return result
 
@@ -131,6 +137,7 @@ class ReviewedEvidence:
             if not isinstance(value[field], list) or len(value[field]) > 20:
                 raise ValueError('Слишком много позиций или связей.')
         positions = []
+        seen_positions = set()
         for position in value['positions']:
             if (not isinstance(position, dict) or set(position) != {'side', 'citation', 'applicability_note'}
                     or not isinstance(position['side'], str) or position['side'] not in {'supporting', 'opposing', 'distinguishing'}):
@@ -138,17 +145,24 @@ class ReviewedEvidence:
             citation = self._quote(db, principal, matter, position['citation'])
             if citation['document_id'] != identity['document_id']:
                 raise ValueError('Позиция должна цитировать сам судебный акт.')
+            note = text(position['applicability_note'], 'applicability_note', 3000)
+            signature = (position['side'], citation['quote'], note)
+            if signature in seen_positions:
+                raise ValueError('Повторяющаяся позиция.')
+            seen_positions.add(signature)
             positions.append({'side': position['side'], 'citation': citation,
-                              'applicability_note': text(position['applicability_note'], 'applicability_note', 3000),
+                              'applicability_note': note,
                               'semantic_comparability_verified': False})
         value['positions'] = positions
         links = []
+        seen_links = set()
         for link in value['links']:
             if (not isinstance(link, dict) or set(link) != {'target_id', 'relation', 'citation'}
                     or not isinstance(link['relation'], str) or link['relation'] not in {'appeal', 'upheld', 'reversed', 'remanded'}):
                 raise ValueError('Некорректная связь инстанций.')
             target = self._artifact(db, principal, link['target_id'])
-            if (target['kind'] != 'decision' or target['matter_id'] != matter
+            if (target['kind'] != 'decision' or target.get('version', {}).get('superseded_by') or target['matter_id'] != matter
+                    or target['payload']['identity']['document_id'] == identity['document_id']
                     or target['payload']['case_number'] != value['case_number']
                     or target['payload']['decision_date'] > value['decision_date']):
                 raise ValueError('Связь должна относиться к более раннему акту того же дела.')
@@ -157,9 +171,38 @@ class ReviewedEvidence:
             if (citation['document_id'] != identity['document_id'] or value['case_number'] not in citation['quote']
                     or not date_quoted(target_date, citation['quote'])):
                 raise ValueError('Связь должна цитировать упоминание исходного акта в последующем.')
+            signature = (target['id'], link['relation'])
+            if signature in seen_links:
+                raise ValueError('Повторяющаяся связь.')
+            seen_links.add(signature)
             links.append({**link, 'citation': citation, 'literal_connection_checked': True, 'legal_effect_verified': False})
         value['links'] = links
         return value
+
+    def revise_decision(self, principal, identity, positions, links):
+        """Append an unreviewed version; the quoted act's identity cannot be changed."""
+        with self.store.connect(True) as db:
+            previous = self._artifact(db, principal, identity)
+            self.store._access(db, principal, previous['matter_id'], ('owner', 'editor'))
+            if previous['kind'] != 'decision':
+                raise ValueError('Новая версия поддерживается только для судебной карточки.')
+            if previous['version']['superseded_by']:
+                raise WorkspaceError(409, 'decision_version_changed', 'Карточка уже дополнена. Откройте её последнюю версию.')
+            payload = {key: previous['payload'][key] for key in ('case_number', 'court', 'decision_date', 'instance', 'full_text_declared')}
+            for key in ('identity', 'outcome'):
+                payload[key] = {field: previous['payload'][key][field] for field in ('document_id', 'quote')}
+            payload.update(positions=positions, links=links)
+            value = self._decision(db, principal, previous['matter_id'], payload)
+            if value == previous['payload']:
+                raise ValueError('Позиции и связи не изменились.')
+            raw = canonical(value); digest = hashlib.sha256(raw.encode()).hexdigest(); new_id = uuid.uuid4().hex
+            db.execute('INSERT INTO artifacts VALUES(?,?,?,?,?,?,?)',
+                       (new_id, previous['matter_id'], 'decision', raw, digest, principal, now()))
+            db.execute('INSERT INTO decision_revisions VALUES(?,?,?)',
+                       (new_id, identity, previous['version']['root_artifact_id']))
+            self.store._audit(db, principal, 'decision_revised', new_id, previous['matter_id'])
+        return {'artifact_id': new_id, 'previous_artifact_id': identity, 'sha256': digest,
+                'review_status': 'draft', 'independent_review_required': True, 'legal_acceptance': False}
 
     def _benchmark(self, db, principal, matter, payload):
         if set(payload) != {'question', 'as_of', 'expected_answer', 'required_risks', 'forbidden_claims', 'citations'}:
@@ -189,10 +232,12 @@ class ReviewedEvidence:
         result = []
         with self.store.connect() as db:
             self.store._access(db, principal, matter)
-            for identity in db.execute('SELECT id FROM artifacts WHERE matter_id=? ORDER BY created_on LIMIT 1000', (matter,)):
+            for identity in db.execute('SELECT a.id FROM artifacts a WHERE a.matter_id=? AND NOT EXISTS (SELECT 1 FROM decision_revisions r WHERE r.previous_artifact_id=a.id) ORDER BY a.created_on LIMIT 1000', (matter,)):
                 row = self._artifact(db, principal, identity[0])
                 result.append({'artifact_id': row['id'], 'kind': row['kind'], 'sha256': row['sha256'],
                               'created_by': row['created_by'], 'review_status': row['review_status'],
+                              'version': row.get('version'),
+                              'decision': {key: row['payload'][key] for key in ('case_number', 'court', 'decision_date', 'instance')} if row['kind'] == 'decision' else None,
                               'edition': {key: row['payload'][key] for key in ('act_id', 'provision', 'valid_from', 'valid_to')} if row['kind'] == 'edition' else None,
                               'label': (row['payload'].get('question') or row['payload'].get('case_number') or
                                         row['payload'].get('act_id', '') + ' / ' + row['payload'].get('provision', ''))[:200]})
@@ -212,6 +257,13 @@ class ReviewedEvidence:
             row = self._artifact(db, principal, identity)
             if reviewer['role'] != 'reviewer' or row['created_by'] == principal:
                 raise WorkspaceError(403, 'independent_reviewer_required', 'Нужен другой пользователь с ролью reviewer.')
+            if decision == 'approved' and row['kind'] == 'decision' and row['version']['superseded_by']:
+                raise WorkspaceError(409, 'decision_version_changed', 'Для одобрения откройте последнюю версию карточки.')
+            if decision == 'approved' and row['kind'] == 'decision':
+                for link in row['payload']['links']:
+                    target = self._artifact(db, principal, link['target_id'])
+                    if target['version']['superseded_by']:
+                        raise WorkspaceError(409, 'decision_target_changed', 'Связь ссылается на прежнюю версию другого акта. Обновите карточку и проверьте связь.')
             if decision == 'approved' and row['kind'] == 'edition':
                 document = self.store._document(db, principal, row['payload']['document_id'])
                 host = urlsplit(document['source_url']).hostname or ''
@@ -260,9 +312,19 @@ class ReviewedEvidence:
             self.store._access(db, principal, matter)
             rows = [self._artifact(db, principal, row[0]) for row in db.execute("SELECT id FROM artifacts WHERE matter_id=? AND kind='decision'", (matter,))]
             matching = [row for row in rows if row['payload']['case_number'] == case_number]
-            selected = sorted((row for row in matching if row['payload']['decision_date'] <= as_of), key=lambda row: row['payload']['decision_date'])
+            current = [row for row in matching if not row['version']['superseded_by']]
+            selected = sorted((row for row in current if row['payload']['decision_date'] <= as_of), key=lambda row: row['payload']['decision_date'])
+            relationships = []
+            for row in selected:
+                for link in row['payload']['links']:
+                    target = self._artifact(db, principal, link['target_id'])
+                    relationships.append({'from_id': row['id'], 'target_id': target['id'], 'relation': link['relation'],
+                        'citation': link['citation'], 'target_superseded_by': target['version']['superseded_by'],
+                        'source_review_status': row['review_status'], 'target_review_status': target['review_status'],
+                        'legal_effect_verified': False, 'requires_expert_review': True})
             self.store._audit(db, principal, 'case_timeline', matter, matter)
-        return {'decisions': selected, 'later_decisions_excluded': len(matching) - len(selected),
+        return {'decisions': selected, 'relationships': relationships, 'later_decisions_excluded': len(current) - len(selected),
+                'superseded_versions_excluded': len(matching) - len(current),
                 'complete_history': False, 'legal_acceptance': False, 'as_of': as_of}
 
     def score(self, principal, identity, answer, correctness, missed_risks, unsupported_claim_count, note):
