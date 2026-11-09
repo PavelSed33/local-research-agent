@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "checked_on": "2026-11-09",
+  "api_version": "1.27",
+  "base_commit": "665b7bbd500851da94fd2c9db5ce211698043c8c",
+  "scope": "Server-owned Markdown snapshots for the supervised services pilot",
+  "changes": [
+    "Save completed pilot reports in the existing artifacts table after current access, source-hash and edition-review checks, in the same transaction as audit.",
+    "POST /workspace/analysis/read returns stored bytes only after checking report ownership, payload/Markdown hashes, current matter access, source hashes and exact edition review records.",
+    "Client Markdown and extra download fields are rejected; UI downloads the server response rather than cached report text.",
+    "Generic evidence read/review routes cannot bypass report checks; report snapshots are excluded from the evidence review queue.",
+    "Snapshots survive restart and backup recovery without database schema changes; persistence is explained in the UI and data-flow guide."
+  ],
+  "validation": {
+    "unittest": {
+      "command": "python -m unittest discover -q",
+      "ran": 632,
+      "passed": 631,
+      "skipped": 1,
+      "failed": 0,
+      "skip_reason": "Russian OCR language data unavailable"
+    },
+    "new_report_tests": 13,
+    "http_checks": 111,
+    "node_vm_scenarios": 39,
+    "native_pdf_replay": {
+      "sources": 7,
+      "pages": 90
+    },
+    "python_compilation": "passed",
+    "javascript_syntax": "passed",
+    "git_diff_check": "passed",
+    "synthetic_non_demo_http_worker_round_trip": "passed; synthetic provider transport/structure only",
+    "backup_round_trip": "exact Markdown and review records preserved; restored tokens disabled; a pre-backup revocation still blocks report reads",
+    "baseline_client_tampering_reproduction": {
+      "baseline_downloaded_forged_client_bytes": true,
+      "patched_downloaded_forged_client_bytes": false,
+      "patched_downloaded_original_server_bytes": true
+    }
+  },
+  "files_sha256": {
+    "analysis_reports.py": "3032d4f6dccdc38eb7c925081d1b7dbf6c921c675ac4a33bf10094006e739367",
+    "api.py": "13c4020dc7843190a0249e03d78b34646503c062ed66a4a8e8d40f5d200bf37d",
+    "workspace_api.py": "80a44b6bd68899fe8d760e585f86e471c49d0da9f74be47c749798dc3b9e6419",
+    "reviewed_evidence.py": "6b4bbdd4c7fb8e3069fdb9572150721fdbb68060def62a801807c2694f908e52",
+    "web/workspace.js": "4de6e8349b935352a57424f74ec84d959d7c586f5443d340c41e91ef778472a4",
+    "web/workspace.html": "1c71fb8c54ca6023df881e8ed1187a2377c518f7f718219f370395eaf0aea79a",
+    "test_analysis_reports.py": "994e19b5648e8051e47669612dcf36ae126b853b853b1f98e64c4d8910697b03",
+    "scripts/test_services_pilot.cjs": "23c1e3a4182f07f7063bc46cf25596b2399324073fbc9ffa86697ba304204e76",
+    "scripts/workspace_acceptance.py": "18057cc8f5b68d2189a721d58c17099993eec442606d723abe6881f2bc7ae290"
+  },
+  "production_ready": false,
+  "legal_acceptance": false,
+  "digital_signature": false,
+  "new_real_legal_sources": 0,
+  "limitations": [
+    "Hash verification proves consistency with the server snapshot, not legal correctness or an independent digital signature.",
+    "Database administrators can replace bytes and recompute hashes; no protection against complete database compromise is claimed.",
+    "Snapshots have no automatic expiry and contain matter data; target-host retention and backup policy still require acceptance.",
+    "Restoring an older backup cannot recreate later access/review events; current authority must be checked before returning the deployment to service.",
+    "Real model/search configuration, Chromium browser acceptance, independent lawyer acceptance, source completeness and target deployment remain open."
+  ],
+  "readiness_report": "docs/SERVER_REPORT_READINESS_2026-11-09.json"
+}

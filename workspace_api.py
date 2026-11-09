@@ -14,6 +14,7 @@ FIELDS = {
     '/workspace/search': {'matter_id', 'query', 'limit'},
     '/workspace/ask': {'matter_id', 'question', 'demo', 'allow_cloud', 'as_of', 'editions', 'analysis_mode', 'contract_document_id', 'facts'},
     '/workspace/analysis/validate': {'matter_id', 'as_of', 'documents', 'editions'},
+    '/workspace/analysis/read': {'matter_id', 'report_id', 'markdown_sha256'},
     '/workspace/evidence/add': {'matter_id', 'kind', 'payload'},
     '/workspace/evidence/read': {'artifact_id'},
     '/workspace/evidence/review': {'artifact_id', 'decision', 'note', 'attestations'},
@@ -39,7 +40,7 @@ FIELDS = {
 def validate(path, payload):
     if not isinstance(payload, dict) or set(payload) - FIELDS[path]:
         raise ValueError('Неизвестные поля запроса рабочего пространства.')
-    for key in ('matter_id', 'user_id', 'document_id', 'artifact_id', 'task_id', 'previous_artifact_id'):
+    for key in ('matter_id', 'user_id', 'document_id', 'artifact_id', 'task_id', 'previous_artifact_id', 'report_id'):
         if key in payload:
             text(payload[key], key, 64)
 
@@ -52,6 +53,9 @@ def dispatch(store, principal, path, payload):
     validate(path, payload)
     evidence = ReviewedEvidence(store)
     p = payload
+    if path == '/workspace/analysis/read':
+        from analysis_reports import AnalysisReports
+        return AnalysisReports(store).read(principal, p.get('matter_id'), p.get('report_id'), p.get('markdown_sha256'))
     if path == '/workspace/me':
         with store.connect() as db:
             return store._user(db, principal)

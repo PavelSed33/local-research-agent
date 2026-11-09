@@ -232,6 +232,8 @@ class ReviewedEvidence:
     def get(self, principal, identity):
         with self.store.connect(True) as db:
             row = self._artifact(db, principal, identity)
+            if row['kind'] == 'analysis_report':
+                raise WorkspaceError(403, 'analysis_report_route_required', 'Сохранённый отчёт доступен через повторную проверку контекста.')
             self.store._audit(db, principal, 'evidence_read', identity, row['matter_id'])
             return row
 
@@ -239,7 +241,7 @@ class ReviewedEvidence:
         result = []
         with self.store.connect() as db:
             self.store._access(db, principal, matter)
-            for identity in db.execute('SELECT a.id FROM artifacts a WHERE a.matter_id=? AND NOT EXISTS (SELECT 1 FROM decision_revisions r WHERE r.previous_artifact_id=a.id) ORDER BY a.created_on LIMIT 1000', (matter,)):
+            for identity in db.execute("SELECT a.id FROM artifacts a WHERE a.matter_id=? AND a.kind IN ('edition','decision','benchmark') AND NOT EXISTS (SELECT 1 FROM decision_revisions r WHERE r.previous_artifact_id=a.id) ORDER BY a.created_on LIMIT 1000", (matter,)):
                 row = self._artifact(db, principal, identity[0])
                 result.append({'artifact_id': row['id'], 'kind': row['kind'], 'sha256': row['sha256'],
                               'created_by': row['created_by'], 'review_status': row['review_status'],
@@ -262,6 +264,8 @@ class ReviewedEvidence:
         with self.store.connect(True) as db:
             reviewer = self.store._user(db, principal)
             row = self._artifact(db, principal, identity)
+            if row['kind'] == 'analysis_report':
+                raise WorkspaceError(403, 'analysis_report_review_denied', 'Снимок отчёта не является материалом юридической приёмки.')
             if reviewer['role'] != 'reviewer' or row['created_by'] == principal:
                 raise WorkspaceError(403, 'independent_reviewer_required', 'Нужен другой пользователь с ролью reviewer.')
             if decision == 'approved' and row['kind'] == 'decision' and row['version']['superseded_by']:

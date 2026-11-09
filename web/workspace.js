@@ -166,11 +166,11 @@ w('import-services-tasks').addEventListener('click',()=>run(async()=>{const case
 w('download-pilot-analysis').addEventListener('click',()=>run(async()=>{
  if(!preparedPilot)throw Error('Сначала выполните разбор договора.');
  const report=preparedPilot,epoch=pilotReportEpoch;
- const documents=[...new Map(report.sources.map(source=>[source.document_id,{document_id:source.document_id,sha256:source.document_sha256}])).values()];
- try{await call('/workspace/analysis/validate',{matter_id:report.matter_id,as_of:report.as_of,documents,editions:report.selected_editions})}catch(error){clearPilotReport();throw error}
+ let saved;
+ try{saved=await call('/workspace/analysis/read',{matter_id:report.matter_id,report_id:report.report_id,markdown_sha256:report.markdown_sha256})}catch(error){clearPilotReport();throw error}
  if(epoch!==pilotReportEpoch||report.matter_id!==activeMatter)throw Error('Параметры изменились. Повторите анализ.');
- const url=URL.createObjectURL(new Blob([report.markdown],{type:'text/markdown;charset=utf-8'}));
- try{const a=document.createElement('a');a.href=url;a.download=report.filename;a.click()}finally{setTimeout(()=>URL.revokeObjectURL(url),1000)}
+ const url=URL.createObjectURL(new Blob([saved.markdown],{type:'text/markdown;charset=utf-8'}));
+ try{const a=document.createElement('a');a.href=url;a.download=saved.filename;a.click()}finally{setTimeout(()=>URL.revokeObjectURL(url),1000)}
 }));
 
 let scoreRiskInputs=[],scoreEpoch=0;
