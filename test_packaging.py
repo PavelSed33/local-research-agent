@@ -27,6 +27,7 @@ class DockerPackagingTests(unittest.TestCase):
                  'import sys; sys.path.insert(0, sys.argv[1]); '
                  'import api, legal_history, pravo_portal, pravo_ips; '
                  'from case_report import CaseReport; '
+                 'from docx_redline import redline_docx; '
                  'from workspace_store import WorkspaceStore; '
                  'store=WorkspaceStore(\"case-report.db\"); user=store.create_user(\"Packaging admin\",\"admin\")[\"user_id\"]; '
                  'matter=store.create_matter(user,\"Packaging case\")[\"matter_id\"]; '

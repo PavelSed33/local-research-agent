@@ -66,7 +66,7 @@ MAX_QUESTION_CHARS = 12_000
 SESSION_MAX_ENTRIES = 10
 SESSION_MAX_COUNT = 1_000
 SERVICE_NAME = "legal-research-agent"
-API_VERSION = "1.21"
+API_VERSION = "1.22"
 SESSION_TTL_SECONDS = 3600
 SESSION_ANSWER_CHARS = 500
 SESSION_ID_PATTERN = re.compile(r"^[A-Za-z0-9-]{1,64}$")
@@ -231,7 +231,7 @@ def health_payload() -> dict[str, Any]:
         "status": "ok",
         "service": SERVICE_NAME,
         "version": API_VERSION,
-        "endpoints": ["GET /health", "GET /runtime/readiness", "GET /openapi.json", "POST /ask", "POST /review", "POST /extract", "POST /extract/local", "POST /diff", "POST /sessions/delete", "POST /requests/cancel", "POST /review/legal", "POST /case-law/check", "POST /legal/coverage", "GET /privacy/options", "POST /privacy/check", "GET /review/options", "GET /legal/research/options", "POST /legal/research", "POST /legal/corpus", "GET /legal/skills/options", "POST /legal/skills/run", "GET /documents/capabilities", "POST /documents/parse", "POST /documents/export", "POST /documents/redact"] + ['POST ' + path for path in WORKSPACE_FIELDS],
+        "endpoints": ["GET /health", "GET /runtime/readiness", "GET /openapi.json", "POST /ask", "POST /review", "POST /extract", "POST /extract/local", "POST /diff", "POST /sessions/delete", "POST /requests/cancel", "POST /review/legal", "POST /case-law/check", "POST /legal/coverage", "GET /privacy/options", "POST /privacy/check", "GET /review/options", "GET /legal/research/options", "POST /legal/research", "POST /legal/corpus", "GET /legal/skills/options", "POST /legal/skills/run", "GET /documents/capabilities", "POST /documents/parse", "POST /documents/export", "POST /documents/redact", "POST /documents/redline"] + ['POST ' + path for path in WORKSPACE_FIELDS],
         "llm_configured": configuration['llm'],
         "tavily_configured": configuration['search'],
         "demo_available": True,
@@ -511,6 +511,7 @@ def openapi_spec(*, require_auth: bool = True) -> dict[str, Any]:
         'correctness': {'type': 'integer'}, 'unsupported_claim_count': {'type': 'integer'}}
     routes = {**WORKSPACE_FIELDS,
               '/documents/parse': {'filename', 'file_base64', 'ocr', 'ocr_language'},
+              '/documents/redline': {'filename', 'file_base64', 'replacements', 'author'},
               '/documents/redact': {'document', 'terms'}, '/documents/export': {'document', 'title', 'replacements'}}
     for route, fields in routes.items():
         spec['paths'][route] = {'post': {'summary': 'Рабочее пространство' if route in WORKSPACE_FIELDS else 'Локальная обработка документа',
@@ -522,6 +523,8 @@ def openapi_spec(*, require_auth: bool = True) -> dict[str, Any]:
                 [(200, 'Результат'), (400, 'Некорректный запрос'), (401, 'Нужен токен'),
                  (403, 'Нет доступа'), (409, 'Конфликт состояния'), (413, 'Превышен объём материалов'), (429, 'Лимит запросов'),
                  (500, 'Ошибка обработки'), (502, 'Ошибка модели'), (503, 'Рабочее пространство отключено'), (504, 'Истёк срок вычисления')]}}}
+    spec['paths']['/documents/redline']['post']['requestBody']['content']['application/json']['schema']['required'] = ['filename', 'file_base64', 'replacements']
+    spec['paths']['/documents/redline']['post']['summary'] = 'Явные замены в исходном DOCX с исправлениями Word'
     spec['paths']['/workspace/cases/report']['post']['summary'] = 'Отчёт по судебному делу и экспорт Markdown'
     spec['paths']['/workspace/cases/report']['post']['requestBody']['content']['application/json']['schema']['required'] = ['matter_id', 'case_number', 'as_of']
     spec['paths']['/documents/capabilities'] = {'get': {'summary': 'Наличие локальных PDF/OCR инструментов',
@@ -696,7 +699,7 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /sessions/delete."})
 
     def do_POST(self) -> None:
-        if self.path not in WORKSPACE_FIELDS and self.path not in ("/documents/parse", "/documents/redact", "/documents/export", "/ask", "/review", "/review/legal", "/case-law/check", "/extract", "/diff", "/sessions/delete", "/legal/coverage", "/privacy/check", "/legal/research", "/legal/corpus", "/requests/cancel", "/legal/skills/run", "/extract/local"):
+        if self.path not in WORKSPACE_FIELDS and self.path not in ("/documents/parse", "/documents/redact", "/documents/export", "/documents/redline", "/ask", "/review", "/review/legal", "/case-law/check", "/extract", "/diff", "/sessions/delete", "/legal/coverage", "/privacy/check", "/legal/research", "/legal/corpus", "/requests/cancel", "/legal/skills/run", "/extract/local"):
             self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /sessions/delete."})
             return
         if not self._authorized():
