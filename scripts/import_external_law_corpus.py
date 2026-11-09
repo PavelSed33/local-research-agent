@@ -4,6 +4,7 @@
 No network calls. Source texts are never represented as verified current editions.
 """
 import argparse
+from check_external_corpus_manifest import approved_files
 import datetime as dt
 import hashlib
 import json
@@ -54,6 +55,7 @@ def load(path):
 def main():
     p = argparse.ArgumentParser()
     p.add_argument('--input', required=True, type=pathlib.Path)
+    p.add_argument('--manifest', required=True, type=pathlib.Path)
     p.add_argument('--db', required=True, type=pathlib.Path)
     p.add_argument('--source-id', required=True)
     p.add_argument('--source-url', default=None)
@@ -69,6 +71,7 @@ def main():
     files = sorted(f for f in root.rglob('*') if f.is_file() and f.suffix.lower() in ('.xml','.json','.jsonl','.txt'))
     if len(files) > a.max_files:
         p.error(f'{len(files)} files exceed --max-files={a.max_files}; run in smaller batches')
+    approved_files(a.manifest, files, a.source_id)
     con = None
     if not a.dry_run:
         a.db.parent.mkdir(parents=True, exist_ok=True)
