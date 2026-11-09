@@ -197,11 +197,15 @@ def prepare_answer(store, principal, payload):
     requested = payload.get('editions', [])
     if not isinstance(requested, list) or len(requested) > 3 or (requested and as_of is None):
         raise ValueError('До трёх редакций; при выборе редакций обязательна дата as_of.')
-    context = store.search(principal, payload.get('matter_id'), question)
+    if mode == MODE:
+        from services_retrieval import retrieve
+        context = retrieve(store, principal, payload.get('matter_id'), question, as_of)
+    else:
+        context = store.search(principal, payload.get('matter_id'), question)
     sources, selected, seen = context['matches'], [], set()
     if mode == MODE:
         sources = [contract] + [row for row in sources if row['document_id'] != contract['document_id']]
-    excluded = 0
+    excluded = context.get('future_candidates_excluded', 0)
     if as_of:
         allowed = []
         for source in sources:
@@ -252,6 +256,7 @@ def prepare_answer(store, principal, payload):
         source['edition_references'] = [ref for ref in selected if ref['document_id'] == source['document_id']]
     return {'matter_id': payload.get('matter_id'), 'question': question,
             'analysis_mode': mode, 'pilot_scope': pilot_scope,
+            'retrieval': context.get('retrieval'),
             'contract_document_id': contract['document_id'] if mode == MODE else None,
             'sources': sources, 'selected_editions': selected, 'as_of': as_of, 'future_decision_fragments_excluded': excluded, 'demo': payload.get('demo', False),
             'allow_cloud': payload.get('allow_cloud', False)}

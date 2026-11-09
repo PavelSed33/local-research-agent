@@ -317,10 +317,12 @@ class WorkspaceStore:
             rows = db.execute('SELECT d.id,d.title,d.sha256,d.captured_on,d.created_on,EXISTS(SELECT 1 FROM originals o WHERE o.document_id=d.id) AS has_original FROM documents d WHERE d.matter_id=? ORDER BY d.created_on LIMIT 1000', (matter,))
             return {'documents': [{**dict(row), 'has_original': bool(row['has_original'])} for row in rows]}
 
-    def search(self, principal, matter, query, limit=8, *, document_ids=None):
+    def search(self, principal, matter, query, limit=8, *, document_ids=None, diverse_documents=False):
         query = text(query, 'query', 2000)
         if type(limit) is not int or not 1 <= limit <= 12:
             raise ValueError('limit должен быть от 1 до 12.')
+        if type(diverse_documents) is not bool:
+            raise ValueError('diverse_documents должен быть true или false.')
         if document_ids is not None and (not isinstance(document_ids, list) or not 1 <= len(document_ids) <= 32
                 or any(not isinstance(identity, str) or len(identity) > 64 for identity in document_ids)):
             raise ValueError('Некорректное ограничение списка документов.')
@@ -331,8 +333,17 @@ class WorkspaceStore:
         with self.connect(True) as db:
             self._access(db, principal, matter)
             restriction = ' AND document_id IN (' + ','.join('?' for _ in document_ids) + ')' if document_ids else ''
-            rows = db.execute('SELECT document_id,start,text,bm25(chunks) AS score FROM chunks WHERE chunks MATCH ? AND matter_id=?' + restriction + ' ORDER BY score LIMIT ?',
-                              (expression, matter, *(document_ids or []), limit))
+            candidate_limit = 96 if diverse_documents else limit
+            parameters = (expression, matter, *(document_ids or []))
+            select = 'SELECT document_id,start,text,bm25(chunks) AS score FROM chunks WHERE chunks MATCH ? AND matter_id=?' + restriction
+            if diverse_documents:
+                identities = db.execute('SELECT DISTINCT document_id FROM chunks WHERE chunks MATCH ? AND matter_id=?' + restriction +
+                                        ' ORDER BY document_id LIMIT ?', (*parameters, candidate_limit)).fetchall()
+                rows = [db.execute(select + ' AND document_id=? ORDER BY score,start LIMIT 1',
+                                   (*parameters, row['document_id'])).fetchone() for row in identities]
+                rows.sort(key=lambda row: (row['score'], row['document_id'], int(row['start'])))
+            else:
+                rows = db.execute(select + ' ORDER BY score, document_id, start LIMIT ?', (*parameters, candidate_limit)).fetchall()
             results = []
             for row in rows:
                 if len(row['text'].strip()) < 10:
@@ -356,7 +367,16 @@ class WorkspaceStore:
                                     'current_validity_verified': False,
                                     'history_complete': False}})
             self._audit(db, principal, 'matter_search', matter, matter)
+        if diverse_documents:
+            unique, duplicate, seen = [], [], set()
+            for row in results:
+                (duplicate if row['document_id'] in seen else unique).append(row)
+                seen.add(row['document_id'])
+            results = (unique + duplicate)[:limit]
+            for index, row in enumerate(results, 1):
+                row['source_id'] = index
         return {'matter_id': matter, 'matches': results, 'search_mode': 'local_fts5_prefix',
+                'diverse_documents': diverse_documents, 'candidate_limit_reached': len(rows) == candidate_limit,
                 'semantic_search': False, 'external_requests_attempted': False, 'verified': False}
 
     def audit(self, principal, matter=None, limit=100):

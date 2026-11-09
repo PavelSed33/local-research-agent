@@ -1,0 +1,49 @@
+{
+  "checked_on": "2026-11-09",
+  "api_version": "1.24",
+  "scope": "local_services_pilot_document_retrieval",
+  "prior_pr_head": "c43eb81821490238bb60db74c7ef249a874e547f",
+  "status": "technical_checks_passed",
+  "changes": [
+    "Opt-in services pilot broadens FTS5 retrieval with fixed related search terms; general analysis keeps its existing search mode.",
+    "At most two searches, each bounded to 96 matching document candidates and 12 returned fragments; reciprocal rank fusion weights the original query more strongly.",
+    "A best fragment per candidate document prevents one long document from occupying all candidate positions. Final fused context has at most eight fragments, preferring distinct documents.",
+    "Future judicial candidates are excluded before final context selection; excluded counts refer to observed candidates only.",
+    "Document/matter ACL, original text offsets and hashes remain enforced for every retrieved fragment.",
+    "Related terms, candidate cap and incomplete-search status are exposed to the model and report. Terms do not assert legal equivalence."
+  ],
+  "controlled_retrieval_results": {
+    "synthetic_queries": 12,
+    "target_found_with_original_fts_query": 0,
+    "target_found_with_related_terms": 12,
+    "scope": "deliberately_constructed_related_word_controls",
+    "independent_legal_validation": false,
+    "real_world_precision_measured": false,
+    "real_world_recall_measured": false
+  },
+  "validation": {
+    "full_unittest": {"tests_run": 602, "passed": 601, "skipped": 1, "seconds": 77.911, "exit_code": 0},
+    "skip_reason": "Russian OCR language data not installed.",
+    "retrieval_regression_tests": 8,
+    "targeted_pilot_retrieval_packaging_tests": {"tests_run": 24, "passed": 24},
+    "http_checks": {"demo": 26, "workspace": 61, "recovery": 9, "total": 96},
+    "ui_logic_scenarios": 27,
+    "native_pdf_replay": {"sources": 7, "pages": 90, "passed": true},
+    "python_compilation": "passed",
+    "javascript_syntax": "passed",
+    "git_diff_check": "passed"
+  },
+  "limits": [
+    "This is lexical/domain-term retrieval, not embedding-based semantic search.",
+    "Candidate caps can omit relevant documents; retrieval does not establish completeness or absence of risks.",
+    "The twelve controls test target discovery only, not overall precision or legal correctness.",
+    "Real model/search execution is blocked by missing configuration; browser acceptance is blocked by missing Chromium.",
+    "Independent lawyer approval, complete legal histories and full case chains remain open."
+  ],
+  "semantic_search": false,
+  "external_requests_attempted": false,
+  "legal_acceptance": false,
+  "browser_acceptance": false,
+  "production_ready": false,
+  "main_modified": false
+}
