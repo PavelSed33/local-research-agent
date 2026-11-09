@@ -9,9 +9,9 @@ import re
 import sqlite3
 from pathlib import Path
 
-ARTICLE=re.compile(r"(?im)^\\s*Статья\\s+(\\d+(?:\\.\\d+)?)\\s*(?:[.。:]|\\s|$)")
-CHAPTER=re.compile(r"(?im)^\\s*Глава\\s+(\\d+(?:\\.\\d+)?)\\s*(?:[.。:]|\\s|$)")
-PART=re.compile(r"(?im)^\\s*Часть\\s+((?:[IVXLC]+)|(?:\\d+)|(?:первая|вторая|третья|четвертая))\\s*(?:[.。:]|\\s|$)")
+ARTICLE=re.compile(r"(?im)^\s*Статья\s+(\d+(?:\.\d+)?)\s*(?:[.。:]|\s|$)")
+CHAPTER=re.compile(r"(?im)^\s*Глава\s+(\d+(?:\.\d+)?)\s*(?:[.。:]|\s|$)")
+PART=re.compile(r"(?im)^\s*Часть\s+((?:[IVXLC]+)|(?:\d+)|(?:первая|вторая|третья|четвертая))\s*(?:[.。:]|\s|$)")
 def extract(body):
     return {name:sorted(set(pattern.findall(body))) for name,pattern in
             (("articles",ARTICLE),("chapters",CHAPTER),("parts",PART))}
@@ -51,6 +51,6 @@ def main():
     args=p.parse_args()
     result=audit(args.db,args.reference)
     data=json.dumps(result,ensure_ascii=False,indent=2)
-    if args.output: Path(args.output).write_text(data+"\\n",encoding="utf-8")
+    if args.output: Path(args.output).write_text(data+"\n",encoding="utf-8")
     print(data)
 if __name__=="__main__":main()
