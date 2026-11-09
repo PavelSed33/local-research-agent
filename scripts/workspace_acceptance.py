@@ -122,6 +122,11 @@ def run_acceptance():
                           'facts': {'both_businesses': True, 'paid_activity': True, 'mixed_contract': False, 'special_regime': False}}
             pilot = post('/workspace/ask', pilot_args)
             assert pilot['status'] == 'needs_sources' and pilot['model_called'] is False
+            learning_args = {'matter_id': matter, 'question': 'Оплата', 'as_of': '2025-01-01'}
+            memory = post('/workspace/learning/preview', learning_args)
+            assert memory['used_count'] == 0 and memory['weights_updated'] is False
+            post('/workspace/learning/preview', learning_args, outsider['token'], 403)
+            post('/workspace/learning/preview', {**learning_args, 'learning_exclude_artifact_ids': 'bad'}, expected=400)
             assert pilot['report_saved'] is True
             read_args = {'matter_id': matter, 'report_id': pilot['report_id'], 'markdown_sha256': pilot['markdown_sha256']}
             stored_report = post('/workspace/analysis/read', read_args)

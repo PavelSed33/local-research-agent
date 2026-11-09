@@ -12,7 +12,8 @@ FIELDS = {
     '/workspace/documents/add': {'matter_id', 'title', 'document', 'source_url', 'captured_on', 'pages'},
     '/workspace/documents/list': {'matter_id'}, '/workspace/documents/read': {'document_id'},
     '/workspace/search': {'matter_id', 'query', 'limit'},
-    '/workspace/ask': {'matter_id', 'question', 'demo', 'allow_cloud', 'as_of', 'editions', 'analysis_mode', 'contract_document_id', 'facts'},
+    '/workspace/ask': {'matter_id', 'question', 'demo', 'allow_cloud', 'as_of', 'editions', 'analysis_mode', 'contract_document_id', 'facts', 'use_learning', 'learning_exclude_artifact_ids'},
+    '/workspace/learning/preview': {'matter_id', 'question', 'as_of', 'learning_exclude_artifact_ids'},
     '/workspace/analysis/validate': {'matter_id', 'as_of', 'documents', 'editions'},
     '/workspace/analysis/read': {'matter_id', 'report_id', 'markdown_sha256'},
     '/workspace/evidence/add': {'matter_id', 'kind', 'payload'},
@@ -53,6 +54,9 @@ def dispatch(store, principal, path, payload):
     validate(path, payload)
     evidence = ReviewedEvidence(store)
     p = payload
+    if path == '/workspace/learning/preview':
+        from learning_memory import LearningMemory
+        return LearningMemory(store).select(principal, p.get('matter_id'), p.get('question'), p.get('as_of'), p.get('learning_exclude_artifact_ids'))
     if path == '/workspace/analysis/read':
         from analysis_reports import AnalysisReports
         return AnalysisReports(store).read(principal, p.get('matter_id'), p.get('report_id'), p.get('markdown_sha256'))
@@ -182,7 +186,7 @@ def dispatch(store, principal, path, payload):
 def prepare_answer(store, principal, payload):
     validate('/workspace/ask', payload)
     question = text(payload.get('question'), 'question', 2000)
-    for key in ('demo', 'allow_cloud'):
+    for key in ('demo', 'allow_cloud', 'use_learning'):
         if key in payload and type(payload[key]) is not bool:
             raise ValueError(f'{key}: требуется true или false.')
     as_of = day(payload['as_of'], 'as_of') if 'as_of' in payload else None
@@ -192,6 +196,9 @@ def prepare_answer(store, principal, payload):
         raise ValueError('Неизвестный режим анализа дела.')
     if mode == 'general' and any(key in payload for key in ('contract_document_id', 'facts')):
         raise ValueError('Обстоятельства и выбранный договор доступны в режиме services_pilot.')
+    if mode != MODE and any(key in payload for key in ('use_learning', 'learning_exclude_artifact_ids')):
+        raise ValueError('Обучающая память доступна в пилоте услуг.')
+    learning = {'enabled': False, 'examples': [], 'references': [], 'used_count': 0, 'weights_updated': False}
     pilot_scope = None
     if mode == MODE:
         if as_of is None:
@@ -265,7 +272,12 @@ def prepare_answer(store, principal, payload):
         source['source_id'] = index
         source['edition_references'] = [ref for ref in selected if ref['document_id'] == source['document_id']
             and ('provision_start' not in ref or source['start'] < ref['provision_end'] and source['end'] > ref['provision_start'])]
-    return {'matter_id': payload.get('matter_id'), 'question': question,
+    if payload.get('use_learning'):
+        from learning_memory import LearningMemory
+        learning = LearningMemory(store).select(principal, payload.get('matter_id'), question, as_of, payload.get('learning_exclude_artifact_ids'))
+    elif 'learning_exclude_artifact_ids' in payload:
+        raise ValueError('Исключения опыта требуют use_learning=true.')
+    return {'matter_id': payload.get('matter_id'), 'question': question, 'learning_context': learning,
             'analysis_mode': mode, 'pilot_scope': pilot_scope,
             'retrieval': context.get('retrieval'),
             'contract_document_id': contract['document_id'] if mode == MODE else None,
