@@ -1,102 +1,20 @@
 {
   "schema_version": 1,
   "captured_on": "2026-11-08",
-  "groups": [
+  "groups": [],
+  "gaps": [
     {
-      "act_id": "pd152",
-      "file": "pd152.json",
-      "sha256": "95f9f1dfa951ab505719c1ab23fa75695d345fb64b23dfa588b502659e152f8b",
-      "article_extract_count": 21
-    },
-    {
-      "act_id": "gk1",
-      "file": "gk1.json",
-      "sha256": "ad5d6b240fd962c12ce4b9ff79c9867ddb83ab29c5270db415fff443283379ab",
-      "article_extract_count": 111
-    },
-    {
-      "act_id": "gk2",
-      "file": "gk2.json",
-      "sha256": "c3aa8ee868e117d3b4dbd61fbae33ad75f53e27721ea7f1fc48a384a5754907c",
-      "article_extract_count": 83
-    },
-    {
-      "act_id": "consumer",
-      "file": "consumer.json",
-      "sha256": "239cbd28c587983753b88c25b64ea7394ab40e70962f45b26ea03442752acd1f",
-      "article_extract_count": 32
-    },
-    {
-      "act_id": "tk",
-      "file": "tk.json",
-      "sha256": "945ea08fe7ae7e954ddc76a31fca846fe085d590c7cba0c7fcec0f7832929c89",
-      "article_extract_count": 74
-    },
-    {
-      "act_id": "gpk",
-      "file": "gpk.json",
-      "sha256": "ac1cedd942fdc8dbc690745a08124f6b6cba9b37408a314fe4f32dae09e2162e",
-      "article_extract_count": 40
-    },
-    {
-      "act_id": "apk",
-      "file": "apk.json",
-      "sha256": "4717f55c5f98cc1f0d879627ddfdd223acb101372b3dd43ae95a631338c3ee49",
-      "article_extract_count": 34
-    },
-    {
-      "act_id": "nk2",
-      "file": "nk2.json",
-      "sha256": "6866997f7a59fb5d057343a9217c53916f097c685c188fec69c58fb89d9c87a8",
-      "article_extract_count": 9
-    },
-    {
-      "act_id": "info149",
-      "file": "info149.json",
-      "sha256": "8a91595794c0c28120a51ac4f34a8a647f853252f473d861b1168b7992e2d029",
-      "article_extract_count": 7
-    },
-    {
-      "act_id": "esign63",
-      "file": "esign63.json",
-      "sha256": "3378cdab68fdf8a3b840dd79114c1a57089a4410216b670689be7dad514a6d37",
-      "article_extract_count": 13
-    },
-    {
-      "act_id": "koap",
-      "file": "koap.json",
-      "sha256": "8609238757fd560642ce0930a6e5424998b4729624c82972e2bc1cef84166aa4",
-      "article_extract_count": 11
-    },
-    {
-      "act_id": "pp1119",
-      "file": "pp1119.json",
-      "sha256": "b592997dee6e66c4399e1bae9004dfe0186ec927ca4bdc99fba867227fdb2321",
-      "article_extract_count": 1
-    },
-    {
-      "act_id": "fstec21",
-      "file": "fstec21.json",
-      "sha256": "c9aa1bf9318b3293ad76fd9056137e8a31e68a8e52ef3af9cfeba21898e43090",
-      "article_extract_count": 16
-    },
-    {
-      "act_id": "rkn178",
-      "file": "rkn178.json",
-      "sha256": "93af12fcced4ab662843e433684ecf81c4f4c1d8441f57300c44458c9ad90301",
-      "article_extract_count": 1
-    },
-    {
-      "act_id": "rkn179",
-      "file": "rkn179.json",
-      "sha256": "805eb9323ae5f178e35d0ac9ed77b07f3eb4443fdc70142d15f81b9ae49b9b07",
-      "article_extract_count": 1
+      "status": "quarantined_and_removed",
+      "reason": "Unverified provenance and possible third-party database licensing; commercial use disabled until independently sourced and legally reviewed",
+      "removed_article_extracts": 454,
+      "removed_groups": 15
     }
   ],
-  "gaps": [],
   "verified": false,
   "history_complete": false,
   "raw_response_archived": false,
   "original_publication": false,
-  "transformation": "NormativeHTML: document-page__content; editorial inserts excluded; whitespace normalized; table cells separated by tabs."
+  "transformation": "NormativeHTML: document-page__content; editorial inserts excluded; whitespace normalized; table cells separated by tabs.",
+  "commercial_use_allowed": false,
+  "quarantined_on": "2026-11-10"
 }
