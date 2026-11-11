@@ -181,6 +181,53 @@
       "retrieved_on": "2026-11-11",
       "copyright_status": "official_text_no_copyright",
       "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "obzor_vs_1_2025": {
+      "law_name": "Обзор судебной практики ВС РФ № 1 (2025)",
+      "description": "Утвержден Президиумом ВС РФ 25.04.2025",
+      "source": "vsrf.ru",
+      "source_url": "https://www.vsrf.ru/documents/all/34367",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "obzor_vs_2_2025": {
+      "law_name": "Обзор судебной практики ВС РФ № 2 (2025)",
+      "description": "Утвержден Президиумом ВС РФ 18.06.2025",
+      "source": "vsrf.ru",
+      "source_url": "https://www.vsrf.ru/documents/all/34521",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "obzor_vs_3_2025": {
+      "law_name": "Обзор судебной практики ВС РФ № 3 (2025)",
+      "description": "Утвержден Президиумом ВС РФ 08.10.2025",
+      "source": "vsrf.ru",
+      "source_url": "https://www.vsrf.ru/documents/all/34715",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "173fz": {
+      "law_name": "О валютном регулировании и валютном контроле",
+      "official_number": "173-ФЗ",
+      "official_date": "2003-12-10",
+      "source": "kremlin.ru",
+      "source_url": "http://www.kremlin.ru/acts/bank/20295",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "164fz": {
+      "law_name": "Основы законодательства Российской Федерации о нотариате",
+      "official_number": "164-ФЗ",
+      "official_date": "2011-11-08",
+      "source": "kremlin.ru",
+      "source_url": "http://www.kremlin.ru/acts/bank/8374",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
     }
   }
 }
