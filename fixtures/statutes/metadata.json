@@ -371,16 +371,16 @@
       "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
     },
     "obzor_vs_2_2026": {
-      "law_name": "Обзор ВС РФ № 2 (2026)",
-      "description": "Свежая практика",
+      "law_name": "Обзор судебной практики ВС РФ № 2 (2026)",
+      "description": "52 правовые позиции",
       "source": "vsrf.ru",
-      "source_url": "https://vsrf.ru/documents/reviews/",
+      "source_url": "https://www.vsrf.ru/documents/all/34521",
       "retrieved_on": "2026-11-11",
       "copyright_status": "official_text_no_copyright",
       "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
     },
     "obzor_vs_3_2026": {
-      "law_name": "Обзор ВС РФ № 3 (2026)",
+      "law_name": "Обзор судебной практики ВС РФ № 3 (2026)",
       "description": "Свежая практика",
       "source": "vsrf.ru",
       "source_url": "https://vsrf.ru/documents/reviews/",
@@ -434,6 +434,15 @@
       "official_date": "1997-03-19",
       "source": "kremlin.ru",
       "source_url": "http://www.kremlin.ru/acts/bank/10457",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "plenum_10_22_2010": {
+      "law_name": "Постановление Пленума ВС РФ и ВАС РФ № 10/22 от 29.04.2010",
+      "description": "О защите права собственности и других вещных прав",
+      "source": "vsrf.ru",
+      "source_url": "https://www.vsrf.ru/documents/all/8097",
       "retrieved_on": "2026-11-11",
       "copyright_status": "official_text_no_copyright",
       "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
