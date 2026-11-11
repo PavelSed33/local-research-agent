@@ -1,15 +1,15 @@
 {
   "statute_id": "164fz",
-  "title": "Основы законодательства Российской Федерации о нотариате",
+  "title": "164fz",
   "articles": {
     "article_1": {
       "number": "1",
-      "title": "Предмет регулирования",
-      "text": "Настоящие Основы регулируют деятельность нотариусов...",
+      "title": "Общие положения",
+      "text": "Текст документа...",
       "source": "kremlin.ru"
     }
   },
   "source": "kremlin.ru",
-  "url": "http://www.kremlin.ru/acts/bank/8374",
+  "url": "http://www.kremlin.ru/acts/bank/",
   "last_updated": "2026-11-11"
 }

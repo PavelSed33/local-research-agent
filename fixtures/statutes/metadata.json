@@ -210,7 +210,7 @@
       "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
     },
     "173fz": {
-      "law_name": "О валютном регулировании и валютном контроле",
+      "law_name": "О валютном регулировании",
       "official_number": "173-ФЗ",
       "official_date": "2003-12-10",
       "source": "kremlin.ru",
@@ -220,7 +220,7 @@
       "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
     },
     "164fz": {
-      "law_name": "Основы законодательства Российской Федерации о нотариате",
+      "law_name": "Основы законодательства о нотариате",
       "official_number": "164-ФЗ",
       "official_date": "2011-11-08",
       "source": "kremlin.ru",
@@ -257,7 +257,7 @@
       "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
     },
     "325fz": {
-      "law_name": "О таможенном регулировании в Российской Федерации",
+      "law_name": "О таможенном регулировании",
       "official_number": "325-ФЗ",
       "official_date": "2017-08-03",
       "source": "kremlin.ru",
@@ -267,7 +267,7 @@
       "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
     },
     "bk_rf": {
-      "law_name": "Бюджетный кодекс Российской Федерации",
+      "law_name": "Бюджетный кодекс РФ",
       "official_number": "145-ФЗ",
       "official_date": "1998-07-31",
       "source": "kremlin.ru",
@@ -277,7 +277,7 @@
       "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
     },
     "jk_rf": {
-      "law_name": "Жилищный кодекс Российской Федерации",
+      "law_name": "Жилищный кодекс РФ",
       "official_number": "188-ФЗ",
       "official_date": "2004-12-29",
       "source": "kremlin.ru",
@@ -287,7 +287,7 @@
       "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
     },
     "zk_rf": {
-      "law_name": "Земельный кодекс Российской Федерации",
+      "law_name": "Земельный кодекс РФ",
       "official_number": "136-ФЗ",
       "official_date": "2001-10-25",
       "source": "kremlin.ru",
@@ -297,7 +297,7 @@
       "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
     },
     "sk_rf": {
-      "law_name": "Семейный кодекс Российской Федерации",
+      "law_name": "Семейный кодекс РФ",
       "official_number": "223-ФЗ",
       "official_date": "1995-12-29",
       "source": "kremlin.ru",
@@ -307,11 +307,83 @@
       "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
     },
     "grk_rf": {
-      "law_name": "Градостроительный кодекс Российской Федерации",
+      "law_name": "Градостроительный кодекс РФ",
       "official_number": "190-ФЗ",
       "official_date": "2004-12-29",
       "source": "kremlin.ru",
       "source_url": "http://www.kremlin.ru/acts/bank/21916",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "plenum_25_2015": {
+      "law_name": "Постановление Пленума ВС РФ № 25 от 23.06.2015",
+      "description": "О применении ГК РФ части 1",
+      "source": "vsrf.ru",
+      "source_url": "https://www.vsrf.ru/documents/all/8435",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "plenum_49_2018": {
+      "law_name": "Постановление Пленума ВС РФ № 49 от 25.12.2018",
+      "description": "О заключении и толковании договора",
+      "source": "vsrf.ru",
+      "source_url": "https://www.vsrf.ru/documents/all/26273",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "plenum_17_2012": {
+      "law_name": "Постановление Пленума ВС РФ № 17 от 28.06.2012",
+      "description": "О защите прав потребителей",
+      "source": "vsrf.ru",
+      "source_url": "https://www.consultant.ru/document/cons_doc_LAW_131885/",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "plenum_7_2005": {
+      "law_name": "Постановление Пленума ВС РФ № 7 от 24.03.2005",
+      "description": "О защите прав собственности",
+      "source": "vsrf.ru",
+      "source_url": "https://www.vsrf.ru/Show_pdf.php?Id=10513",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "plenum_53_2017": {
+      "law_name": "Постановление Пленума ВС РФ № 53 от 21.12.2017",
+      "description": "О контролирующих лицах при банкротстве",
+      "source": "vsrf.ru",
+      "source_url": "https://www.vsrf.ru/documents/all/26273",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "plenum_48_2016": {
+      "law_name": "Постановление Пленума ВС РФ № 48 от 15.11.2016",
+      "description": "Об экономических преступлениях",
+      "source": "vsrf.ru",
+      "source_url": "https://www.vsrf.ru/Show_pdf.php?Id=11615",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "obzor_vs_2_2026": {
+      "law_name": "Обзор ВС РФ № 2 (2026)",
+      "description": "Свежая практика",
+      "source": "vsrf.ru",
+      "source_url": "https://vsrf.ru/documents/reviews/",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "obzor_vs_3_2026": {
+      "law_name": "Обзор ВС РФ № 3 (2026)",
+      "description": "Свежая практика",
+      "source": "vsrf.ru",
+      "source_url": "https://vsrf.ru/documents/reviews/",
       "retrieved_on": "2026-11-11",
       "copyright_status": "official_text_no_copyright",
       "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
