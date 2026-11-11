@@ -1,0 +1,67 @@
+{
+  "description": "Официальные тексты законов РФ, не охраняемые авторским правом (ст. 1259 ГК РФ)",
+  "retrieved_on": "2026-11-11",
+  "source": "kremlin.ru, vsrf.ru",
+  "copyright_notice": "Все тексты являются официальными документами и не охраняются авторским правом согласно п. 6 подп. 1 ст. 1259 ГК РФ",
+  "statutes": {
+    "gk_part1": {
+      "law_name": "Гражданский кодекс РФ (часть 1)",
+      "official_number": "51-ФЗ",
+      "official_date": "1994-11-30",
+      "source": "kremlin.ru",
+      "source_url": "http://www.kremlin.ru/acts/bank/7279",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "gk_part2": {
+      "law_name": "Гражданский кодекс РФ (часть 2)",
+      "official_number": "14-ФЗ",
+      "official_date": "1996-01-26",
+      "source": "kremlin.ru",
+      "source_url": "http://www.kremlin.ru/acts/bank/8804",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "uk_rf": {
+      "law_name": "Уголовный кодекс Российской Федерации",
+      "official_number": "63-ФЗ",
+      "official_date": "1996-06-13",
+      "source": "kremlin.ru",
+      "source_url": "http://www.kremlin.ru/acts/bank/6402",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "353fz": {
+      "law_name": "О потребительском кредите (займе)",
+      "official_number": "353-ФЗ",
+      "official_date": "2013-12-21",
+      "source": "kremlin.ru",
+      "source_url": "http://www.kremlin.ru/acts/bank/39648",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "apk_rf": {
+      "law_name": "Арбитражный процессуальный кодекс Российской Федерации",
+      "official_number": "95-ФЗ",
+      "official_date": "2002-07-24",
+      "source": "kremlin.ru",
+      "source_url": "http://www.kremlin.ru/acts/bank/18937",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "plenum_54_2016": {
+      "law_name": "Постановление Пленума ВС РФ № 54 от 22.11.2016",
+      "description": "О прекращении обязательств",
+      "source": "vsrf.ru",
+      "source_url": "https://www.vsrf.ru/documents/all/8524",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    }
+  }
+}
