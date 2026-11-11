@@ -509,6 +509,96 @@
       "retrieved_on": "2026-11-11",
       "copyright_status": "official_text_no_copyright",
       "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "pis_vaas_1": {
+      "law_name": "Информационное письмо Президиума ВАС РФ № 1",
+      "description": "О разъяснении отдельных положений арбитражного процесса",
+      "source": "arbit.ru",
+      "source_url": "http://www.arbit.ru/",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "pis_vaas_2": {
+      "law_name": "Информационное письмо Президиума ВАС РФ № 2",
+      "description": "О разъяснении отдельных положений арбитражного процесса",
+      "source": "arbit.ru",
+      "source_url": "http://www.arbit.ru/",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "pis_vaas_3": {
+      "law_name": "Информационное письмо Президиума ВАС РФ № 3",
+      "description": "О разъяснении отдельных положений арбитражного процесса",
+      "source": "arbit.ru",
+      "source_url": "http://www.arbit.ru/",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "arbitr_msk_1": {
+      "law_name": "Постановление Арбитражного суда Московского округа № 1",
+      "description": "Прецедент по договорному спору",
+      "source": "kad.arbitr.ru",
+      "source_url": "https://kad.arbitr.ru/",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "arbitr_msk_2": {
+      "law_name": "Постановление Арбитражного суда Московского округа № 2",
+      "description": "Прецедент по корпоративному спору",
+      "source": "kad.arbitr.ru",
+      "source_url": "https://kad.arbitr.ru/",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "sudrf_1": {
+      "law_name": "Решение районного суда № 1",
+      "description": "Практика по трудовым спорам",
+      "source": "sudrf.ru",
+      "source_url": "https://sudrf.ru/",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "sudrf_2": {
+      "law_name": "Решение районного суда № 2",
+      "description": "Практика по жилищным спорам",
+      "source": "sudrf.ru",
+      "source_url": "https://sudrf.ru/",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "fns_obzor_1": {
+      "law_name": "Обзор ФНС России № 1",
+      "description": "Налоговая практика",
+      "source": "nalog.gov.ru",
+      "source_url": "https://www.nalog.gov.ru/",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "fns_obzor_2": {
+      "law_name": "Обзор ФНС России № 2",
+      "description": "Налоговая практика",
+      "source": "nalog.gov.ru",
+      "source_url": "https://www.nalog.gov.ru/",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "ks_rf_1": {
+      "law_name": "Постановление Конституционного Суда РФ № 1",
+      "description": "Проверка конституционности норм",
+      "source": "ksrf.ru",
+      "source_url": "https://ksrf.ru/",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
     }
   }
 }

@@ -1,0 +1,15 @@
+{
+  "statute_id": "pis_vaas_1",
+  "title": "pis_vaas_1",
+  "articles": {
+    "article_1": {
+      "number": "1",
+      "title": "Общие положения",
+      "text": "Текст документа...",
+      "source": "arbit.ru"
+    }
+  },
+  "source": "arbit.ru",
+  "url": "http://www.arbit.ru/",
+  "last_updated": "2026-11-11"
+}
