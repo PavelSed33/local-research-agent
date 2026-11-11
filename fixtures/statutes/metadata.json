@@ -62,6 +62,26 @@
       "retrieved_on": "2026-11-11",
       "copyright_status": "official_text_no_copyright",
       "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "gpk_rf": {
+      "law_name": "Гражданский процессуальный кодекс Российской Федерации",
+      "official_number": "138-ФЗ",
+      "official_date": "2002-11-14",
+      "source": "kremlin.ru",
+      "source_url": "http://www.kremlin.ru/acts/bank/18936",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "218fz": {
+      "law_name": "О банках и банковской деятельности в Российской Федерации",
+      "official_number": "218-ФЗ",
+      "official_date": "2013-07-23",
+      "source": "kremlin.ru",
+      "source_url": "http://www.kremlin.ru/acts/bank/17274",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
     }
   }
 }
