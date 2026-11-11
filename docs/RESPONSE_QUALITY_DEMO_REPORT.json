@@ -1,0 +1,54 @@
+{
+  "scope": "offline_supplied_response_snapshot_checks",
+  "total": 1,
+  "dataset_synthetic": true,
+  "technical_counts": {
+    "passed": 0,
+    "failed": 0,
+    "blocked": 1
+  },
+  "technical_status": "blocked",
+  "model_execution_verified": false,
+  "source_authenticity_verified": false,
+  "legal_acceptance": false,
+  "lawyer_reviewed": false,
+  "legal_evaluation_status": "requires_independent_human_review",
+  "results": [
+    {
+      "id": "api-demo-export",
+      "kind": "ask",
+      "technical_status": "blocked",
+      "checks": [
+        {
+          "code": "no_trust_promotion",
+          "status": "passed",
+          "issue_count": 0
+        },
+        {
+          "code": "verification_state",
+          "status": "passed",
+          "issue_count": 0
+        },
+        {
+          "code": "non_demo_response",
+          "status": "blocked",
+          "issue_count": 0
+        },
+        {
+          "code": "source_material_integrity",
+          "status": "passed",
+          "issue_count": 0
+        },
+        {
+          "code": "report_structure_and_citation_identity",
+          "status": "passed",
+          "issue_count": 0
+        }
+      ],
+      "benchmark_id": null,
+      "benchmark_status": "not_linked",
+      "manual_legal_review_required": true,
+      "legal_acceptance": false
+    }
+  ]
+}

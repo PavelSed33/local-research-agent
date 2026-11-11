@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-11-09",
+  "policy": "discovery_only_not_verified_for_import",
+  "sources": [
+    {"id":"official-consolidated","url":"https://pravo.gov.ru/","type":"official_consolidated_acts","scope":"federal_codes_and_laws","status":"discovered","edition_verified":false},
+    {"id":"official-publication","url":"https://publication.pravo.gov.ru/search","type":"official_publications","scope":"amending_laws","status":"discovered","edition_verified":false},
+    {"id":"minjust-federal","url":"https://pravo.minjust.ru/","type":"federal_law_database","scope":"federal_legislation","status":"discovered","edition_verified":false},
+    {"id":"minjust-gk","url":"https://minjust.gov.ru/ru/pages/grazhdanskij-kodeks/","type":"civil_code_index","scope":"civil_code_four_parts","status":"discovered","edition_verified":false},
+    {"id":"fns-nk-historical","url":"https://www.nalog.gov.ru/html/nk.htm","type":"historical_tax_code_text","scope":"tax_code","status":"historical_only_do_not_import_as_current","edition_verified":false},
+    {"id":"sfr-nk1","url":"https://sfr.gov.ru/order/temporary_disability/federal_laws/~11103","type":"tax_code_reference","scope":"tax_code_part_1","status":"discovered_requires_edition_review","edition_verified":false}
+  ],
+  "priority_documents": [
+    "Налоговый кодекс РФ, часть первая",
+    "Налоговый кодекс РФ, часть вторая",
+    "Трудовой кодекс РФ",
+    "Арбитражный процессуальный кодекс РФ",
+    "Гражданский процессуальный кодекс РФ",
+    "Кодекс РФ об административных правонарушениях",
+    "Кодекс административного судопроизводства РФ",
+    "Жилищный кодекс РФ",
+    "Земельный кодекс РФ",
+    "Семейный кодекс РФ",
+    "Федеральный закон № 14-ФЗ об ООО",
+    "Федеральный закон № 127-ФЗ о банкротстве",
+    "Федеральный закон № 152-ФЗ о персональных данных",
+    "Федеральный закон № 44-ФЗ о контрактной системе",
+    "Федеральный закон № 223-ФЗ о закупках",
+    "Федеральный закон № 135-ФЗ о защите конкуренции"
+  ],
+  "warning":"URLs are discovery references only; no full texts were downloaded, imported or verified by this manifest."
+}

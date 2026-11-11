@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "attempts": [
+    {
+      "signed_date": "2020-12-30",
+      "act_number": "519-ФЗ",
+      "requested_publication_id": "0001202012300044",
+      "attempted_at": "2026-11-08T06:39:12.410553+00:00",
+      "status": "retrieval_failed",
+      "error": "Портал правовой информации вернул HTTP 503.",
+      "verified": false,
+      "coverage_verified": false
+    },
+    {
+      "signed_date": "2025-06-24",
+      "act_number": "156-ФЗ",
+      "requested_publication_id": "0001202506240021",
+      "attempted_at": "2026-11-08T06:39:01.468178+00:00",
+      "status": "retrieval_failed",
+      "error": "Портал правовой информации вернул HTTP 503.",
+      "verified": false,
+      "coverage_verified": false
+    }
+  ],
+  "original_texts_retrieved": 0,
+  "limitation": "Failed attempts only; no original publication bodies obtained."
+}

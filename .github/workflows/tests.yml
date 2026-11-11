@@ -1,0 +1,80 @@
+name: Tests
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+permissions:
+  contents: read
+
+jobs:
+  unittest:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Compile source
+        run: python -m compileall -q .
+      - name: Run unit tests
+        run: python -m unittest discover -v
+      - name: Synthetic evaluation (not legal acceptance)
+        run: python evaluation.py
+      - name: Saved response snapshot checks (synthetic examples, not legal acceptance)
+        run: python scripts/evaluate_answers.py fixtures/response_quality_examples.json
+      - name: Check local capture hashes and quote spans (not legal acceptance)
+        run: python legal_evidence.py
+      - name: Validate statutory corpus and research references (not legal acceptance)
+        run: python scripts/validate_legal_data.py
+
+  docker-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t legal-agent:test .
+      - name: Start API
+        run: docker run -d --name legal-agent-test -p 127.0.0.1:18080:8080 -e API_TOKEN=ci-smoke-token legal-agent:test
+      - name: Verify health and demo research
+        run: |
+          python - <<'PY'
+          import json, time, urllib.request
+          for attempt in range(30):
+              try:
+                  with urllib.request.urlopen('http://127.0.0.1:18080/health', timeout=2) as response:
+                      assert json.load(response)['status'] == 'ok'
+                  break
+              except OSError:
+                  if attempt == 29:
+                      raise
+                  time.sleep(1)
+          request = urllib.request.Request(
+              'http://127.0.0.1:18080/ask',
+              data=json.dumps({'question': 'Тест', 'demo': True, 'as_of': '2023-03-01'}).encode(),
+              headers={'Content-Type': 'application/json', 'Authorization': 'Bearer ci-smoke-token'})
+          with urllib.request.urlopen(request, timeout=30) as response:
+              payload = json.load(response)
+          assert payload['demo'] is True
+          assert payload['as_of'] == '2023-03-01'
+          assert payload['answer']
+          PY
+      - name: Demo acceptance suite
+        env:
+          API_TOKEN: ci-smoke-token
+        run: python scripts/smoke.py --base-url http://127.0.0.1:18080
+      - name: Container logs
+        if: always()
+        run: docker logs legal-agent-test
+      - name: Stop container
+        if: always()
+        run: docker rm -f legal-agent-test
+

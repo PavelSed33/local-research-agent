@@ -1,0 +1,12 @@
+[
+  {
+    "source_url": "https://github.com/shodenis/Russian-Law-MCP",
+    "license": "Apache-2.0 (code only)",
+    "provenance": [
+      "unknown database sources",
+      "RusLawOD mentioned in build pipeline"
+    ],
+    "sha256": "",
+    "approved_for_import": false
+  }
+]

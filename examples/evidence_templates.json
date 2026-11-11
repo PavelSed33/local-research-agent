@@ -1,0 +1,42 @@
+{
+  "description": "Шаблоны API. Замените ссылки и поля реальными проверяемыми данными; это не юридические эталоны.",
+  "templates": [
+    {
+      "kind": "edition",
+      "payload": {
+        "act_id": "REPLACE_ACT_ID",
+        "provision": "REPLACE_PROVISION",
+        "document_id": "REPLACE_DOCUMENT_ID",
+        "valid_from": "2025-01-01",
+        "valid_to": null,
+        "full_text_declared": false,
+        "period_evidence": [{"document_id": "REPLACE_PERIOD_SOURCE_ID", "quote": "REPLACE_WITH_EXACT_DATE_AND_TRANSITION_QUOTE"}]
+      }
+    },
+    {
+      "kind": "decision",
+      "payload": {
+        "case_number": "REPLACE_CASE_NUMBER",
+        "court": "REPLACE_COURT",
+        "decision_date": "2025-01-01",
+        "instance": "REPLACE_INSTANCE_LABEL",
+        "identity": {"document_id": "REPLACE_DOCUMENT_ID", "quote": "REPLACE_WITH_COMMON_IDENTITY_QUOTE"},
+        "outcome": {"document_id": "REPLACE_DOCUMENT_ID", "quote": "REPLACE_WITH_OUTCOME_QUOTE"},
+        "full_text_declared": false,
+        "positions": [{"side": "supporting", "citation": {"document_id": "REPLACE_DOCUMENT_ID", "quote": "REPLACE_WITH_EXACT_POSITION_QUOTE"}, "applicability_note": "REPLACE_WITH_FACTUAL_COMPARISON"}],
+        "links": []
+      }
+    },
+    {
+      "kind": "benchmark",
+      "payload": {
+        "question": "REPLACE_WITH_LEGAL_QUESTION",
+        "as_of": "2025-01-01",
+        "expected_answer": "REPLACE_WITH_EXPERT_DRAFT_ANSWER",
+        "required_risks": [],
+        "forbidden_claims": [],
+        "citations": [{"document_id": "REPLACE_SOURCE_ID", "quote": "REPLACE_WITH_EXACT_SOURCE_QUOTE"}]
+      }
+    }
+  ]
+}
