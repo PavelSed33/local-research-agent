@@ -681,3 +681,5 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
+from statute_corpus import get_statute_text, search_statutes
