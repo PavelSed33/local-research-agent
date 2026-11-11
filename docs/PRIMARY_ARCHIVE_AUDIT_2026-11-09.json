@@ -1,0 +1,49 @@
+{
+  "api_version": "1.16",
+  "checked_on": "2026-11-09",
+  "scope": "primary court document archive, catalog, repeat import and temporal context",
+  "unit_tests": {"run": 507, "failed": 0, "skipped": 0, "status": "passed"},
+  "legacy_http_acceptance": {"checks": 26, "status": "passed"},
+  "workspace_http_acceptance": {"checks": 23, "status": "passed", "includes_expected_denials": true},
+  "archive": {
+    "sources": 3,
+    "pdf_bytes": 889813,
+    "pages": 59,
+    "extracted_text_characters": 163520,
+    "native_pdf_replay": "passed_for_all_three_sources",
+    "text_and_page_map_replay": "matches_archived_extractions",
+    "documents": [
+      {"id": "vsrf-plenum-49-2018", "signed_on": "2018-12-25", "number": "49", "pages": 16},
+      {"id": "vsrf-plenum-7-2016", "signed_on": "2016-03-24", "number": "7", "pages": 25},
+      {"id": "vsrf-plenum-54-2016", "signed_on": "2016-11-22", "number": "54", "pages": 18}
+    ],
+    "amendment_mentions": [{"source_id": "vsrf-plenum-7-2016", "signed_on": "2017-02-07", "number": "6", "status": "literal_header_mention_only", "amending_document_archived": false}]
+  },
+  "fixes_and_checks": [
+    "Bounded archive reads and manifest schema validation; duplicate IDs, traversal, symlinks, malformed hashes and unofficial URL hosts rejected",
+    "Original and extracted-text SHA-256, PDF signature, first-page date/number/identity terms and full page-map coverage checked",
+    "Archive metadata cannot promote current legal validity, completeness or lawyer review",
+    "Typed sanitized HTTP 503 for server-owned archive failures without breaking health or ordinary matter documents",
+    "Idempotent source import scoped to matter; eight concurrent retries create one document/original/index",
+    "Rights and original byte hash rechecked before reuse; write access still required",
+    "Malformed nested evidence IDs produce validation errors rather than SQLite binding exceptions",
+    "Capture dates and archival edition labels reach retrieved context and model prompts; explicit warnings shown in answers"
+  ],
+  "python_compilation": "passed",
+  "javascript_syntax": "passed",
+  "git_diff_whitespace": "passed",
+  "browser_acceptance": {"status": "blocked", "reason": "chromium_missing"},
+  "real_llm_search_acceptance": false,
+  "docker_execution_tested": false,
+  "approved_real_editions_added": 0,
+  "approved_real_benchmarks_added": 0,
+  "statutory_extract_count": 454,
+  "legal_acceptance": false,
+  "limitations": [
+    "Archived Plenum explanations do not complete the primary legislative corpus or its revision histories",
+    "A quoted amendment mention is not a verified complete chain of amendments",
+    "Byte/text/metadata checks do not establish current legal applicability or correctness of legal conclusions",
+    "Prompt constraints and mock tests do not prove real model resistance or semantic accuracy",
+    "Independent legal review and live deployment acceptance remain open"
+  ]
+}

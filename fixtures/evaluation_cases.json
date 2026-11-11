@@ -1,0 +1,344 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "lawyer_reviewed": false,
+  "reviewer": null,
+  "limitation": "Technical scenarios only. Add official sources and a named legal reviewer before legal acceptance.",
+  "cases": [
+    {
+      "id": "before-change",
+      "kind": "period",
+      "input": {
+        "timeline": {
+          "provision_id": "Условный акт:ст.1:ч.2",
+          "periods": [
+            {
+              "valid_from": "2020-01-01",
+              "valid_to": "2023-02-28"
+            },
+            {
+              "valid_from": "2023-03-01",
+              "valid_to": null
+            }
+          ]
+        },
+        "as_of": "2023-02-28"
+      },
+      "expected": {
+        "status": "candidate_period_unverified",
+        "valid_from": "2020-01-01"
+      }
+    },
+    {
+      "id": "on-change",
+      "kind": "period",
+      "input": {
+        "timeline": {
+          "provision_id": "Условный акт:ст.1:ч.2",
+          "periods": [
+            {
+              "valid_from": "2020-01-01",
+              "valid_to": "2023-02-28"
+            },
+            {
+              "valid_from": "2023-03-01",
+              "valid_to": null
+            }
+          ]
+        },
+        "as_of": "2023-03-01"
+      },
+      "expected": {
+        "status": "candidate_period_unverified",
+        "valid_from": "2023-03-01"
+      }
+    },
+    {
+      "id": "after-change",
+      "kind": "period",
+      "input": {
+        "timeline": {
+          "provision_id": "Условный акт:ст.1:ч.2",
+          "periods": [
+            {
+              "valid_from": "2020-01-01",
+              "valid_to": "2023-02-28"
+            },
+            {
+              "valid_from": "2023-03-01",
+              "valid_to": null
+            }
+          ]
+        },
+        "as_of": "2023-03-02"
+      },
+      "expected": {
+        "status": "candidate_period_unverified",
+        "valid_from": "2023-03-01"
+      }
+    },
+    {
+      "id": "before-known-history",
+      "kind": "period",
+      "input": {
+        "timeline": {
+          "provision_id": "Условный акт:ст.1:ч.2",
+          "periods": [
+            {
+              "valid_from": "2020-01-01",
+              "valid_to": "2023-02-28"
+            },
+            {
+              "valid_from": "2023-03-01",
+              "valid_to": null
+            }
+          ]
+        },
+        "as_of": "2019-12-31"
+      },
+      "expected": {
+        "status": "date_outside_known_periods",
+        "valid_from": null
+      }
+    },
+    {
+      "id": "missing-history",
+      "kind": "period",
+      "input": {
+        "timeline": {},
+        "as_of": "2023-03-01"
+      },
+      "expected": {
+        "status": "no_period_evidence",
+        "valid_from": null
+      }
+    },
+    {
+      "id": "impossible-date",
+      "kind": "period",
+      "input": {
+        "timeline": {
+          "provision_id": "Условный акт:ст.1:ч.2",
+          "periods": [
+            {
+              "valid_from": "2020-01-01",
+              "valid_to": "2023-02-28"
+            },
+            {
+              "valid_from": "2023-03-01",
+              "valid_to": null
+            }
+          ]
+        },
+        "as_of": "2023-02-29"
+      },
+      "expected": {
+        "error": "ValueError"
+      }
+    },
+    {
+      "id": "consumer-unknown",
+      "kind": "scope",
+      "input": {
+        "profile": "consumer",
+        "facts": {}
+      },
+      "expected": {
+        "status": "needs_facts"
+      }
+    },
+    {
+      "id": "consumer-business-use",
+      "kind": "scope",
+      "input": {
+        "profile": "consumer",
+        "facts": {
+          "personal_use": false
+        }
+      },
+      "expected": {
+        "status": "scope_mismatch"
+      }
+    },
+    {
+      "id": "consumer-candidate",
+      "kind": "scope",
+      "input": {
+        "profile": "consumer",
+        "facts": {
+          "personal_use": true,
+          "customer_is_individual": true,
+          "seller_is_business": true
+        }
+      },
+      "expected": {
+        "status": "candidate_scope"
+      }
+    },
+    {
+      "id": "employment-unknown",
+      "kind": "scope",
+      "input": {
+        "profile": "employment",
+        "facts": {}
+      },
+      "expected": {
+        "status": "needs_facts"
+      }
+    },
+    {
+      "id": "employment-candidate",
+      "kind": "scope",
+      "input": {
+        "profile": "employment",
+        "facts": {
+          "employment_relationship": true
+        }
+      },
+      "expected": {
+        "status": "candidate_scope"
+      }
+    },
+    {
+      "id": "business-candidate",
+      "kind": "scope",
+      "input": {
+        "profile": "business",
+        "facts": {
+          "both_businesses": true
+        }
+      },
+      "expected": {
+        "status": "candidate_scope"
+      }
+    },
+    {
+      "id": "court-literal",
+      "kind": "court",
+      "input": {
+        "sources": [
+          {
+            "title": "Условный источник",
+            "url": "https://example.org/case",
+            "text": "Условный суд 01.03.2023 дело А00-123/2023. Технический пример.",
+            "query": "test"
+          }
+        ],
+        "records": [
+          {
+            "source_id": 1,
+            "court": "Условный суд",
+            "case_number": "А00-123/2023",
+            "decision_date": "2023-03-01",
+            "quote": "Условный суд 01.03.2023 дело А00-123/2023. Технический пример."
+          }
+        ]
+      },
+      "expected": {
+        "accepted": 1
+      }
+    },
+    {
+      "id": "court-invented-number",
+      "kind": "court",
+      "input": {
+        "sources": [
+          {
+            "title": "Условный источник",
+            "url": "https://example.org/case",
+            "text": "Условный суд 01.03.2023 дело А00-123/2023. Технический пример.",
+            "query": "test"
+          }
+        ],
+        "records": [
+          {
+            "source_id": 1,
+            "court": "Условный суд",
+            "case_number": "А00-999/2023",
+            "decision_date": "2023-03-01",
+            "quote": "Условный суд 01.03.2023 дело А00-123/2023. Технический пример."
+          }
+        ]
+      },
+      "expected": {
+        "accepted": 0
+      }
+    },
+    {
+      "id": "literal-contract-and-law",
+      "kind": "legal_quote",
+      "input": {
+        "document": "Срок поставки составляет десять дней после оплаты.",
+        "sources": [
+          {
+            "title": "Условная норма",
+            "url": "https://example.org/law",
+            "text": "Статья 1. Условная норма для проверки цитат.",
+            "query": "test"
+          }
+        ],
+        "result": {
+          "summary": "Черновик",
+          "risks": [
+            {
+              "category": "сроки и пролонгация",
+              "severity": "low",
+              "quote": "Срок поставки составляет десять дней после оплаты.",
+              "comment": "Проверить срок",
+              "recommendation": "Уточнить срок",
+              "legal_basis": [
+                {
+                  "source_id": 1,
+                  "provision": "Статья 1",
+                  "quote": "Статья 1. Условная норма для проверки цитат."
+                }
+              ]
+            }
+          ],
+          "missing_clauses": []
+        }
+      },
+      "expected": {
+        "valid": true
+      }
+    },
+    {
+      "id": "invented-law-quote",
+      "kind": "legal_quote",
+      "input": {
+        "document": "Срок поставки составляет десять дней после оплаты.",
+        "sources": [
+          {
+            "title": "Условная норма",
+            "url": "https://example.org/law",
+            "text": "Статья 1. Условная норма для проверки цитат.",
+            "query": "test"
+          }
+        ],
+        "result": {
+          "summary": "Черновик",
+          "risks": [
+            {
+              "category": "сроки и пролонгация",
+              "severity": "low",
+              "quote": "Срок поставки составляет десять дней после оплаты.",
+              "comment": "Проверить срок",
+              "recommendation": "Уточнить срок",
+              "legal_basis": [
+                {
+                  "source_id": 1,
+                  "provision": "Статья 1",
+                  "quote": "Выдуманная норма законодательства"
+                }
+              ]
+            }
+          ],
+          "missing_clauses": []
+        }
+      },
+      "expected": {
+        "valid": false
+      }
+    }
+  ]
+}

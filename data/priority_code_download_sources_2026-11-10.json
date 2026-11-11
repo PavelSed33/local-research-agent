@@ -1,0 +1,26 @@
+{
+  "checked_at": "2026-11-10",
+  "status": "download_blocked_dns",
+  "verified_import": false,
+  "documents": [
+    {
+      "id": "KOAP_RF",
+      "law": "195-ФЗ от 30.12.2001",
+      "official_download_page": "https://minjust.gov.ru/ru/documents/7614/",
+      "official_file_format": "docx",
+      "edition_candidate": "04.08.2026; изменения, вступившие в силу с 03.11.2026",
+      "edition_reference": "https://www.consultant.ru/document/cons_doc_LAW_34661/",
+      "file_downloaded": false
+    },
+    {
+      "id": "KTM_RF",
+      "law": "81-ФЗ от 30.04.1999",
+      "official_download_page": "https://mchs.gov.ru/dokumenty/806",
+      "official_file_format": "docx",
+      "edition_candidate": "31.07.2025; отдельно поправки 302-ФЗ от 04.08.2026 со вступлением отдельных положений в силу 01.09.2027",
+      "edition_reference": "https://base.garant.ru/12115482/",
+      "file_downloaded": false
+    }
+  ],
+  "note": "Official pages have download links but actual binary files were not fetched; no SHA256 and no full-text import. Do not mark verified."
+}

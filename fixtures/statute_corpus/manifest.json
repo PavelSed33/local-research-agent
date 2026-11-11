@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "captured_on": "2026-11-08",
+  "groups": [],
+  "gaps": [
+    {
+      "status": "quarantined_and_removed",
+      "reason": "Unverified provenance and possible third-party database licensing; commercial use disabled until independently sourced and legally reviewed",
+      "removed_article_extracts": 454,
+      "removed_groups": 15
+    }
+  ],
+  "verified": false,
+  "history_complete": false,
+  "raw_response_archived": false,
+  "original_publication": false,
+  "transformation": "NormativeHTML: document-page__content; editorial inserts excluded; whitespace normalized; table cells separated by tabs.",
+  "commercial_use_allowed": false,
+  "quarantined_on": "2026-11-10"
+}

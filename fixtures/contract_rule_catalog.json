@@ -1,0 +1,467 @@
+{
+  "schema_version": 1,
+  "researched_on": "2026-11-07",
+  "lawyer_reviewed": false,
+  "verified": false,
+  "sources": [
+    {
+      "id": "vas-supply-12632-2012",
+      "url": "https://arbitr.ru/materials/49398?path=/arxiv/post_pres/",
+      "kind": "official_court_decision",
+      "source_date": "2012-02-14",
+      "access": "web_text_observed",
+      "context": "Дело о поставке и расходах на тару; не универсальное правило для всех несогласованных условий.",
+      "date_role": "decision_date"
+    },
+    {
+      "id": "vas-lease-14736-2011",
+      "url": "https://arbitr.ru/materials/36916?path=/arxiv/post_pres/",
+      "kind": "official_court_decision",
+      "source_date": "2011-04-26",
+      "access": "web_text_observed",
+      "context": "Спор об аренде речных судов; учитывать исполнение и специальный режим объекта.",
+      "date_role": "decision_date"
+    },
+    {
+      "id": "vas-work-676-2012",
+      "url": "https://arbitr.ru/materials/57936?path=/arxiv/post_pres/",
+      "kind": "official_court_decision",
+      "source_date": "2012-05-22",
+      "access": "web_text_observed",
+      "context": "Государственный контракт на работы; ставку неустойки из этого дела нельзя переносить на иные договоры.",
+      "date_role": "decision_date"
+    },
+    {
+      "id": "rpn-135-2022",
+      "url": "https://zpp.rospotrebnadzor.ru/npa/federal/389825",
+      "kind": "government_reproduction_of_amending_act",
+      "source_date": "2022-05-01",
+      "access": "web_text_observed",
+      "context": "Текст 135-ФЗ с новой статьёй 16 и переходными положениями. Не подтверждает отсутствие последующих поправок.",
+      "date_role": "act_signing_date_not_page_timestamp"
+    },
+    {
+      "id": "rpn-consumer-2019",
+      "url": "https://zpp.rospotrebnadzor.ru/npa/federal/192115",
+      "kind": "government_consolidated_copy",
+      "source_date": "2019-12-12",
+      "access": "web_text_observed",
+      "visible_edition": "2019-07-18",
+      "context": "Историческая редакция закона; не выдавать за актуальную на дату запроса.",
+      "date_role": "page_publication_date"
+    },
+    {
+      "id": "rpn-service-costs-2021",
+      "url": "https://zpp.rospotrebnadzor.ru/news/federal/247899",
+      "kind": "official_authority_explanation",
+      "source_date": "2021-11-29",
+      "access": "web_text_observed",
+      "context": "Разъяснение на примере потребительской услуги; не переносить все сроки и санкции конкретного дела.",
+      "date_role": "page_publication_date"
+    },
+    {
+      "id": "rostrud-tk-2023",
+      "url": "https://git15.rostrud.gov.ru/upload/iblock/449/trudovoy-kodeks-rossiyskoy-federatsii-ot-30.12.2001-_-197_fz.pdf",
+      "kind": "government_consolidated_copy",
+      "source_date": "2023-09-01",
+      "access": "search_index_only_body_403",
+      "visible_edition": "2023-08-04",
+      "context": "Виден поисковый фрагмент статьи 57; PDF не получен. Нужен текст и проверка более поздних изменений.",
+      "date_role": "visible_edition_as_of_not_publication_timestamp"
+    },
+    {
+      "id": "rostrud-checklist-2022",
+      "url": "https://git22.rostrud.gov.ru/upload/iblock/c32/prikaz-rostruda-ot-01.02.2022-_-20.pdf",
+      "kind": "official_inspection_checklist",
+      "source_date": "2022-02-01",
+      "access": "search_index_only",
+      "context": "В поиске видны вопросы 19–21 о дополнении трудового договора; действующая редакция приказа не удостоверена.",
+      "date_role": "act_signing_date_not_page_timestamp"
+    },
+    {
+      "id": "rpn-consumer-addons-2025",
+      "url": "https://zpp.rospotrebnadzor.ru/info/stat/559609",
+      "kind": "official_authority_explanation",
+      "source_date": "2025-09-05",
+      "date_role": "page_publication_date",
+      "access": "web_text_observed",
+      "context": "Разъяснение связывает 69-ФЗ от 07.04.2025 с запретом автоматического согласия на платные опции с 01.09.2025. Оригинал акта не получен."
+    },
+    {
+      "id": "vsrf-obligations-54-2016",
+      "url": "https://www.vsrf.ru/documents/all/8524",
+      "kind": "supreme_court_plenum",
+      "source_date": "2016-11-22",
+      "date_role": "decision_date_not_statute_effective_date",
+      "access": "web_text_observed",
+      "context": "Пункты 10–16 и 18–19: отказ, уведомление, плата и полномочия при принятии исполнения. Не оригинальный текст статей ГК; история редакций не проверена."
+    }
+  ],
+  "rules": [
+    {
+      "id": "civil-subject",
+      "profiles": [
+        "business",
+        "consumer"
+      ],
+      "contract_types": [
+        "general",
+        "supply",
+        "lease",
+        "services",
+        "work"
+      ],
+      "law_reference": "ГК РФ, статья 432",
+      "source_ids": [
+        "vas-supply-12632-2012"
+      ],
+      "questions": [
+        "Определён ли предмет с учётом приложений и согласования сторон?"
+      ],
+      "caution": "Не делать вывода о незаключённости только по отсутствию слов в основном тексте.",
+      "verified": false
+    },
+    {
+      "id": "supply-scope",
+      "profiles": [
+        "business"
+      ],
+      "contract_types": [
+        "supply"
+      ],
+      "law_reference": "ГК РФ, статьи 432 и 506",
+      "source_ids": [
+        "vas-supply-12632-2012"
+      ],
+      "questions": [
+        "Какие условия стороны специально согласовывали и что исполнили?"
+      ],
+      "caution": "Оценивать конкретное спорное условие, а не объявлять любой пробел существенным.",
+      "verified": false
+    },
+    {
+      "id": "lease-object",
+      "profiles": [
+        "business",
+        "consumer"
+      ],
+      "contract_types": [
+        "lease"
+      ],
+      "law_reference": "ГК РФ, пункт 3 статьи 607",
+      "source_ids": [
+        "vas-lease-14736-2011"
+      ],
+      "questions": [
+        "Позволяют ли договор, приложения и исполнение установить объект?"
+      ],
+      "caution": "Учитывать вид имущества; не переносить вывод о регистрации речных судов на недвижимость.",
+      "verified": false
+    },
+    {
+      "id": "work-dates",
+      "profiles": [
+        "business",
+        "consumer"
+      ],
+      "contract_types": [
+        "work"
+      ],
+      "law_reference": "ГК РФ, статья 708",
+      "source_ids": [
+        "vas-work-676-2012"
+      ],
+      "questions": [
+        "Как определены начало, окончание и этапы работ?"
+      ],
+      "caution": "Не переносить из старого государственного контракта ставку неустойки на обычный подряд.",
+      "verified": false
+    },
+    {
+      "id": "services-withdrawal",
+      "profiles": [
+        "business",
+        "consumer"
+      ],
+      "contract_types": [
+        "services"
+      ],
+      "law_reference": "ГК РФ, пункт 1 статьи 782",
+      "source_ids": [
+        "rpn-service-costs-2021"
+      ],
+      "questions": [
+        "Как описаны отказ и расходы исполнителя?"
+      ],
+      "caution": "Для предпринимательских отношений отдельно проверить допустимые соглашения и специальные нормы.",
+      "verified": false
+    },
+    {
+      "id": "consumer-withdrawal",
+      "profiles": [
+        "consumer"
+      ],
+      "contract_types": [
+        "services",
+        "work"
+      ],
+      "law_reference": "Закон № 2300-1, статья 32",
+      "source_ids": [
+        "rpn-consumer-2019",
+        "rpn-service-costs-2021"
+      ],
+      "questions": [
+        "Какие фактические расходы подтверждены при отказе?"
+      ],
+      "caution": "Не обещать полный возврат без проверки исполнения и расходов; источник закона исторический.",
+      "verified": false
+    },
+    {
+      "id": "consumer-exit-fee",
+      "profiles": [
+        "consumer"
+      ],
+      "contract_types": [
+        "services",
+        "work"
+      ],
+      "law_reference": "Закон № 2300-1, статья 16",
+      "source_ids": [
+        "rpn-135-2022"
+      ],
+      "questions": [
+        "Не препятствует ли штраф реализации права на отказ?"
+      ],
+      "caution": "Отличать штраф от относящихся к договору расходов; проверить последующую редакцию.",
+      "verified": false,
+      "not_before": "2022-09-01",
+      "not_before_basis": "135-ФЗ, статья 2, часть 1; ведомственная копия",
+      "transition": {
+        "act": "135-ФЗ от 01.05.2022",
+        "provision": "статья 2, часть 2",
+        "previous_contracts": true,
+        "scope": "перечень недопустимых условий; оценивать отношения и дату ситуации",
+        "source_id": "rpn-135-2022",
+        "verified": false
+      }
+    },
+    {
+      "id": "consumer-addons",
+      "profiles": [
+        "consumer"
+      ],
+      "contract_types": [
+        "general",
+        "supply",
+        "lease",
+        "services",
+        "work"
+      ],
+      "law_reference": "Закон № 2300-1, статья 16",
+      "source_ids": [
+        "rpn-135-2022"
+      ],
+      "questions": [
+        "Не навязаны ли дополнительные платные опции?"
+      ],
+      "caution": "Проверить согласие и исключения закона; позднейшие поправки не исследованы полностью.",
+      "verified": false,
+      "not_before": "2022-09-01",
+      "not_before_basis": "135-ФЗ, статья 2, часть 1; ведомственная копия",
+      "transition": {
+        "act": "135-ФЗ от 01.05.2022",
+        "provision": "статья 2, часть 2",
+        "previous_contracts": true,
+        "scope": "перечень недопустимых условий; оценивать отношения и дату ситуации",
+        "source_id": "rpn-135-2022",
+        "verified": false
+      }
+    },
+    {
+      "id": "consumer-forum",
+      "profiles": [
+        "consumer"
+      ],
+      "contract_types": [
+        "general",
+        "supply",
+        "lease",
+        "services",
+        "work"
+      ],
+      "law_reference": "Закон № 2300-1, статья 16",
+      "source_ids": [
+        "rpn-135-2022"
+      ],
+      "questions": [
+        "Не ограничен ли договором законный выбор подсудности?"
+      ],
+      "caution": "Учитывать вид требования и специальные процессуальные правила.",
+      "verified": false,
+      "not_before": "2022-09-01",
+      "not_before_basis": "135-ФЗ, статья 2, часть 1; ведомственная копия",
+      "transition": {
+        "act": "135-ФЗ от 01.05.2022",
+        "provision": "статья 2, часть 2",
+        "previous_contracts": true,
+        "scope": "перечень недопустимых условий; оценивать отношения и дату ситуации",
+        "source_id": "rpn-135-2022",
+        "verified": false
+      }
+    },
+    {
+      "id": "employment-conditions",
+      "profiles": [
+        "employment"
+      ],
+      "contract_types": [
+        "general"
+      ],
+      "law_reference": "ТК РФ, часть 2 статьи 57",
+      "source_ids": [
+        "rostrud-tk-2023"
+      ],
+      "questions": [
+        "Указаны ли место работы, функция, начало и оплата?"
+      ],
+      "caution": "Это неполный перечень. Источник доступен только в поисковом фрагменте; актуальная норма не подтверждена.",
+      "verified": false
+    },
+    {
+      "id": "employment-completion",
+      "profiles": [
+        "employment"
+      ],
+      "contract_types": [
+        "general"
+      ],
+      "law_reference": "ТК РФ, часть 3 статьи 57",
+      "source_ids": [
+        "rostrud-tk-2023",
+        "rostrud-checklist-2022"
+      ],
+      "questions": [
+        "Как дополнить недостающие сведения и условия?"
+      ],
+      "caution": "Отсутствие условия не приравнивать автоматически к незаключённости; проверить действующую редакцию.",
+      "verified": false
+    },
+    {
+      "id": "consumer-preset-consent-2025",
+      "profiles": [
+        "consumer"
+      ],
+      "contract_types": [
+        "general",
+        "supply",
+        "lease",
+        "services",
+        "work"
+      ],
+      "law_reference": "Закон № 2300-1, статья 16; поправка 69-ФЗ от 07.04.2025",
+      "source_ids": [
+        "rpn-consumer-addons-2025"
+      ],
+      "questions": [
+        "Не подставлено ли согласие на платную опцию автоматически?"
+      ],
+      "caution": "Сверить фактический способ согласия и действующую норму; разъяснение не заменяет первичный акт.",
+      "not_before": "2025-09-01",
+      "not_before_basis": "Дата названа в ведомственном разъяснении; первичный акт не получен.",
+      "verified": false
+    },
+    {
+      "id": "civil-unilateral-change",
+      "profiles": [
+        "business",
+        "consumer"
+      ],
+      "contract_types": [
+        "general",
+        "supply",
+        "lease",
+        "services",
+        "work"
+      ],
+      "law_reference": "ГК РФ, статья 310; Пленум ВС РФ № 54, пункты 10–12",
+      "source_ids": [
+        "vsrf-obligations-54-2016"
+      ],
+      "questions": [
+        "Кто вправе менять условия или отказаться: каков статус сторон, источник права и специальный режим договора?"
+      ],
+      "caution": "Не считать любое договорное право предпринимателя допустимым; проверить ограничения и специальные правила публичного договора.",
+      "verified": false
+    },
+    {
+      "id": "civil-refusal-notice",
+      "profiles": [
+        "business",
+        "consumer"
+      ],
+      "contract_types": [
+        "general",
+        "supply",
+        "lease",
+        "services",
+        "work"
+      ],
+      "law_reference": "ГК РФ, статья 450.1; Пленум ВС РФ № 54, пункты 13–14",
+      "source_ids": [
+        "vsrf-obligations-54-2016"
+      ],
+      "questions": [
+        "Предусмотрено ли право на отказ, как направлено уведомление и когда оно доставлено?"
+      ],
+      "caution": "Не считать дату отправки универсальной датой прекращения; проверить договор, специальные нормы и добросовестность.",
+      "verified": false
+    },
+    {
+      "id": "civil-refusal-payment",
+      "profiles": [
+        "business",
+        "consumer"
+      ],
+      "contract_types": [
+        "general",
+        "supply",
+        "lease",
+        "services",
+        "work"
+      ],
+      "law_reference": "ГК РФ, статьи 310 и 422; Пленум ВС РФ № 54, пункты 15–16",
+      "source_ids": [
+        "vsrf-obligations-54-2016"
+      ],
+      "questions": [
+        "Связана ли плата с допустимым договорным отказом или с отказом, предоставленным императивной нормой?"
+      ],
+      "caution": "Не приравнивать плату за правомерный отказ к неустойке; проверить нарушение другой стороны и специальные ограничения.",
+      "verified": false
+    },
+    {
+      "id": "civil-payee-authority",
+      "profiles": [
+        "business",
+        "consumer"
+      ],
+      "contract_types": [
+        "general",
+        "supply",
+        "lease",
+        "services",
+        "work"
+      ],
+      "law_reference": "ГК РФ, статьи 182 и 185; Пленум ВС РФ № 54, пункты 18–19",
+      "source_ids": [
+        "vsrf-obligations-54-2016"
+      ],
+      "questions": [
+        "Кто принимает исполнение и чем подтверждены полномочия получателя?"
+      ],
+      "caution": "Не требовать нотариальную доверенность во всех случаях; отдельно проверить полномочия при заключении, а не только при принятии исполнения.",
+      "verified": false
+    }
+  ],
+  "limitation": "Research checklist only. Sources are not archived original current statute bodies. No rule establishes a violation, completeness or legal applicability."
+}

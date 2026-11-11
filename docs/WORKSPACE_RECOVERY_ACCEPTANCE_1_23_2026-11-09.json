@@ -1,0 +1,215 @@
+{
+  "checked_on": "2026-11-09",
+  "api_version": "1.23",
+  "base_remote_commit": "083eeff4405ce90a8c3f3de5c03b7e7974fd0cd1",
+  "unit_tests": {
+    "passed": 565,
+    "skipped": 0
+  },
+  "workspace_http": {
+    "status": "passed",
+    "api_version": "1.23",
+    "http_checks": 54,
+    "scope": "temporary_synthetic_workspace_http",
+    "external_providers_tested": false,
+    "browser_acceptance": false,
+    "legal_acceptance": false,
+    "credentials_in_report": false
+  },
+  "legacy_http": {
+    "api_version": "1.23",
+    "mode": "demo",
+    "status": "passed",
+    "checked_on": "2026-11-09",
+    "checks": [
+      {
+        "id": "local_demo_workflows",
+        "status": "passed",
+        "passed_http_checks": 26
+      }
+    ],
+    "configuration": {
+      "missing": [
+        "LLM_API_KEY",
+        "LLM_MODEL",
+        "TAVILY_API_KEY"
+      ],
+      "invalid_endpoints": [],
+      "documents_permitted_by_configuration": false
+    },
+    "external_requests_attempted": false,
+    "live_acceptance_passed": false,
+    "legal_acceptance": false,
+    "browser_acceptance": false,
+    "scope": "technical_http_acceptance_with_synthetic_inputs",
+    "deadline_seconds": 600
+  },
+  "recovery_http": {
+    "status": "passed",
+    "api_version": "1.23",
+    "http_checks": 9,
+    "scope": "temporary_synthetic_backup_restore_http",
+    "old_credentials_rejected": true,
+    "reissued_credentials_work": true,
+    "viewer_and_outsider_acl_preserved": true,
+    "search_and_audit_valid": true,
+    "source_database_unchanged": true,
+    "restore_used_new_file": true,
+    "tokens_disabled_on_restore": 2,
+    "encrypted": false,
+    "credentials_in_report": false,
+    "external_providers_tested": false,
+    "browser_acceptance": false,
+    "legal_acceptance": false
+  },
+  "archive": {
+    "status": "passed",
+    "sources": 7,
+    "total_pages": 90,
+    "total_characters": 230761,
+    "native_pdf_replay": true,
+    "external_requests_attempted": false,
+    "legal_acceptance": false,
+    "results": [
+      {
+        "id": "vsrf-plenum-49-2018",
+        "pdf_bytes": 294211,
+        "pages": 16,
+        "text_characters": 43290,
+        "integrity_checked": true,
+        "identity_checked": true,
+        "legal_acceptance": false,
+        "pdf_page_count_matches": true,
+        "text_replay_matches": true,
+        "page_map_replay_matches": true,
+        "status": "passed"
+      },
+      {
+        "id": "vsrf-plenum-7-2016",
+        "pdf_bytes": 362180,
+        "pages": 25,
+        "text_characters": 69678,
+        "integrity_checked": true,
+        "identity_checked": true,
+        "legal_acceptance": false,
+        "pdf_page_count_matches": true,
+        "text_replay_matches": true,
+        "page_map_replay_matches": true,
+        "status": "passed"
+      },
+      {
+        "id": "vsrf-plenum-54-2016",
+        "pdf_bytes": 233422,
+        "pages": 18,
+        "text_characters": 50552,
+        "integrity_checked": true,
+        "identity_checked": true,
+        "legal_acceptance": false,
+        "pdf_page_count_matches": true,
+        "text_replay_matches": true,
+        "page_map_replay_matches": true,
+        "status": "passed"
+      },
+      {
+        "id": "vsrf-decision-2446026",
+        "pdf_bytes": 97934,
+        "pages": 10,
+        "text_characters": 22602,
+        "integrity_checked": true,
+        "identity_checked": true,
+        "legal_acceptance": false,
+        "pdf_page_count_matches": true,
+        "text_replay_matches": true,
+        "page_map_replay_matches": true,
+        "status": "passed"
+      },
+      {
+        "id": "vsrf-decision-2485538",
+        "pdf_bytes": 86620,
+        "pages": 8,
+        "text_characters": 16621,
+        "integrity_checked": true,
+        "identity_checked": true,
+        "legal_acceptance": false,
+        "pdf_page_count_matches": true,
+        "text_replay_matches": true,
+        "page_map_replay_matches": true,
+        "status": "passed"
+      },
+      {
+        "id": "vsrf-decision-2332384",
+        "pdf_bytes": 86026,
+        "pages": 7,
+        "text_characters": 16413,
+        "integrity_checked": true,
+        "identity_checked": true,
+        "legal_acceptance": false,
+        "pdf_page_count_matches": true,
+        "text_replay_matches": true,
+        "page_map_replay_matches": true,
+        "status": "passed"
+      },
+      {
+        "id": "vsrf-decision-1718280",
+        "pdf_bytes": 75766,
+        "pages": 6,
+        "text_characters": 11605,
+        "integrity_checked": true,
+        "identity_checked": true,
+        "legal_acceptance": false,
+        "pdf_page_count_matches": true,
+        "text_replay_matches": true,
+        "page_map_replay_matches": true,
+        "status": "passed"
+      }
+    ]
+  },
+  "ui_logic": {
+    "status": "passed",
+    "scope": "node_vm_workspace_report",
+    "checks": 12,
+    "browser_acceptance": false
+  },
+  "browser": {
+    "scope": "synthetic_demo_browser_acceptance",
+    "browser_acceptance": false,
+    "external_providers_tested": false,
+    "legal_acceptance": false,
+    "status": "blocked",
+    "reason": "chromium_missing"
+  },
+  "additional_backup_edge_regressions": {
+    "passed": 11,
+    "scope": "corruption_unsafe_schema_compressed_stream_failure_publish_failure"
+  },
+  "javascript_syntax": "passed",
+  "python_compile": "passed",
+  "production_database_backup_performed": false,
+  "production_restore_performed": false,
+  "encryption": false,
+  "legal_acceptance": false,
+  "docker_execution": "not_tested_binary_missing",
+  "live_provider_execution": "not_tested",
+  "credentials_in_report": false,
+  "verified_behaviors": [
+    "online_wal_snapshot",
+    "schema_and_foreign_key_checks",
+    "document_original_artifact_task_and_evaluation_hashes",
+    "literal_quotes_and_page_maps",
+    "search_index_coverage",
+    "revision_roots_and_audit_chain",
+    "expected_snapshot_digest_required_for_restore",
+    "private_destination_permissions",
+    "restore_to_new_file_without_overwrite",
+    "old_credentials_disabled",
+    "local_recovery_marked_in_audit",
+    "viewer_outsider_acl_after_restart",
+    "failed_verify_does_not_initialize_database",
+    "copy_limits_and_fsync_failure_cleanup"
+  ],
+  "limits": {
+    "max_database_bytes": 268435456,
+    "max_archive_bytes": 314572800,
+    "sqlite_budget_seconds": 30
+  }
+}

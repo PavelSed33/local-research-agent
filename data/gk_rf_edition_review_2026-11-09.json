@@ -1,0 +1,41 @@
+{
+  "as_of": "2026-11-09",
+  "status": "source_references_only_no_full_texts_imported",
+  "official_portal": "https://www.pravo.gov.ru/",
+  "official_catalog": "https://minjust.gov.ru/ru/pages/grazhdanskij-kodeks/",
+  "parts": [
+    {
+      "part": 1,
+      "law_number": "51-ФЗ",
+      "date": "1994-11-30",
+      "candidate_amendment": "167-ФЗ от 10.06.2026",
+      "candidate_effective_from": "2026-06-10",
+      "verification": "requires_official_consolidated_text_and_transitional_review"
+    },
+    {
+      "part": 2,
+      "law_number": "14-ФЗ",
+      "date": "1996-01-26",
+      "verification": "requires_official_consolidated_text_and_transitional_review"
+    },
+    {
+      "part": 3,
+      "law_number": "146-ФЗ",
+      "date": "2001-11-26",
+      "verification": "requires_official_consolidated_text_and_transitional_review"
+    },
+    {
+      "part": 4,
+      "law_number": "230-ФЗ",
+      "date": "2006-12-18",
+      "future_amendment": "296-ФЗ от 04.08.2026",
+      "future_effective_from": "2027-01-01",
+      "verification": "future_amendment_must_not_be_treated_as_effective_on_2026-11-09"
+    }
+  ],
+  "warnings": [
+    "Дата поправки не равна дате вступления в силу всех положений.",
+    "Для юридического подтверждения требуется оригинальный официальный текст и переходные положения.",
+    "Нет скачанных полных текстов, проверенных хешей или утверждённых редакций."
+  ]
+}
