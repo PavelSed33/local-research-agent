@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "status": "draft_synthetic_split",
+  "lawyer_reviewed": false,
+  "approved_legal_answers": 0,
+  "control_case_ids": [
+    "SERV-P02",
+    "SERV-P03",
+    "SERV-P08",
+    "SERV-P10",
+    "SERV-P12",
+    "SERV-P14",
+    "SERV-P21",
+    "SERV-P22",
+    "SERV-P24",
+    "SERV-P25"
+  ],
+  "training_case_ids": [
+    "SERV-P01",
+    "SERV-P04",
+    "SERV-P05",
+    "SERV-P06",
+    "SERV-P07",
+    "SERV-P09",
+    "SERV-P11",
+    "SERV-P13",
+    "SERV-P15",
+    "SERV-P16",
+    "SERV-P17",
+    "SERV-P18",
+    "SERV-P19",
+    "SERV-P20",
+    "SERV-P23"
+  ],
+  "limitation": "Synthetic partition only. Expert answers and independent approval are required; no real quality improvement is established."
+}

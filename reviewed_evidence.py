@@ -61,7 +61,7 @@ class ReviewedEvidence:
         if hashlib.sha256(result['payload'].encode()).hexdigest() != result['sha256']:
             raise WorkspaceError(503, 'evidence_integrity', 'Нарушена целостность материала.')
         result['payload'] = json.loads(result['payload'])
-        latest = db.execute('SELECT decision,reviewer_id,created_on,artifact_sha256 FROM reviews WHERE artifact_id=? ORDER BY id DESC LIMIT 1', (identity,)).fetchone()
+        latest = db.execute('SELECT id,decision,reviewer_id,created_on,artifact_sha256 FROM reviews WHERE artifact_id=? ORDER BY id DESC LIMIT 1', (identity,)).fetchone()
         result['review'] = dict(latest) if latest else None
         result['review_status'] = latest['decision'] if latest and latest['artifact_sha256'] == result['sha256'] else 'draft'
         if result['kind'] == 'decision':
@@ -92,7 +92,7 @@ class ReviewedEvidence:
 
     def _edition(self, db, principal, matter, payload):
         required = {'act_id', 'provision', 'document_id', 'valid_from', 'valid_to', 'period_evidence', 'full_text_declared'}
-        if set(payload) != required or payload['full_text_declared'] is not True:
+        if not required <= payload.keys() or set(payload) - required - {'provision_quote'} or payload['full_text_declared'] is not True:
             raise ValueError('Редакция требует реквизиты, интервал, источники периода и full_text_declared=true.')
         value = dict(payload)
         value['act_id'] = text(value['act_id'], 'act_id', 100)
@@ -114,6 +114,13 @@ class ReviewedEvidence:
                 raise ValueError('Дата границы периода отсутствует в представленных цитатах.')
         value.update(document_sha256=document['sha256'], source_url=document['source_url'],
                      captured_on=document['captured_on'], completeness_verified=False)
+        if 'provision_quote' in value:
+            quote = text(value.pop('provision_quote'), 'provision_quote', 10000, 10)
+            start = document['text'].find(quote)
+            if start < 0 or document['text'].find(quote, start + 1) >= 0:
+                raise ValueError('Текст нормы должен встречаться в документе ровно один раз; расширьте цитату для однозначной привязки.')
+            value['provision_evidence'] = self._quote(db, principal, matter,
+                {'document_id': document['id'], 'quote': quote})
         return value
 
     def _decision(self, db, principal, matter, payload):
@@ -225,6 +232,8 @@ class ReviewedEvidence:
     def get(self, principal, identity):
         with self.store.connect(True) as db:
             row = self._artifact(db, principal, identity)
+            if row['kind'] == 'analysis_report':
+                raise WorkspaceError(403, 'analysis_report_route_required', 'Сохранённый отчёт доступен через повторную проверку контекста.')
             self.store._audit(db, principal, 'evidence_read', identity, row['matter_id'])
             return row
 
@@ -232,7 +241,7 @@ class ReviewedEvidence:
         result = []
         with self.store.connect() as db:
             self.store._access(db, principal, matter)
-            for identity in db.execute('SELECT a.id FROM artifacts a WHERE a.matter_id=? AND NOT EXISTS (SELECT 1 FROM decision_revisions r WHERE r.previous_artifact_id=a.id) ORDER BY a.created_on LIMIT 1000', (matter,)):
+            for identity in db.execute("SELECT a.id FROM artifacts a WHERE a.matter_id=? AND a.kind IN ('edition','decision','benchmark') AND NOT EXISTS (SELECT 1 FROM decision_revisions r WHERE r.previous_artifact_id=a.id) ORDER BY a.created_on LIMIT 1000", (matter,)):
                 row = self._artifact(db, principal, identity[0])
                 result.append({'artifact_id': row['id'], 'kind': row['kind'], 'sha256': row['sha256'],
                               'created_by': row['created_by'], 'review_status': row['review_status'],
@@ -255,6 +264,10 @@ class ReviewedEvidence:
         with self.store.connect(True) as db:
             reviewer = self.store._user(db, principal)
             row = self._artifact(db, principal, identity)
+            if row['kind'] == 'analysis_report':
+                raise WorkspaceError(403, 'analysis_report_review_denied', 'Снимок отчёта не является материалом юридической приёмки.')
+            if row['kind'] not in {'benchmark', 'edition', 'decision'}:
+                raise WorkspaceError(403, 'material_review_denied', 'Этот тип записи не является материалом юридической приёмки.')
             if reviewer['role'] != 'reviewer' or row['created_by'] == principal:
                 raise WorkspaceError(403, 'independent_reviewer_required', 'Нужен другой пользователь с ролью reviewer.')
             if decision == 'approved' and row['kind'] == 'decision' and row['version']['superseded_by']:
@@ -327,9 +340,10 @@ class ReviewedEvidence:
                 'superseded_versions_excluded': len(matching) - len(current),
                 'complete_history': False, 'legal_acceptance': False, 'as_of': as_of}
 
-    def score(self, principal, identity, answer, correctness, missed_risks, unsupported_claim_count, note):
+    def score(self, principal, identity, answer, correctness, missed_risks, unsupported_claim_count, note, run_label='untagged'):
         answer = text(answer, 'answer', 200000)
         note = text(note, 'note', 5000)
+        run_label = text(run_label, 'run_label', 80)
         if type(correctness) is not int or not 0 <= correctness <= 4 or type(unsupported_claim_count) is not int or not 0 <= unsupported_claim_count <= 1000:
             raise ValueError('correctness: 0–4; unsupported_claim_count: 0–1000, целые числа.')
         with self.store.connect(True) as db:
@@ -341,7 +355,8 @@ class ReviewedEvidence:
                     or len(set(missed_risks)) != len(missed_risks)):
                 raise ValueError('missed_risks — неповторяющиеся индексы рисков эталона.')
             scores = {'correctness': correctness, 'missed_risks': missed_risks,
-                      'required_risk_count': len(required), 'unsupported_claim_count': unsupported_claim_count, 'note': note}
+                      'required_risk_count': len(required), 'unsupported_claim_count': unsupported_claim_count, 'note': note,
+                      'run_label': run_label, 'benchmark_review_sha256': hashlib.sha256(canonical(row['review']).encode()).hexdigest()}
             evaluation_id = uuid.uuid4().hex
             response_hash = hashlib.sha256(answer.encode()).hexdigest()
             if db.execute('SELECT 1 FROM evaluations WHERE artifact_id=? AND response_sha256=? AND reviewer_id=?', (identity, response_hash, principal)).fetchone():
@@ -349,22 +364,39 @@ class ReviewedEvidence:
             db.execute('INSERT INTO evaluations VALUES(?,?,?,?,?,?,?)', (evaluation_id, identity,
                        response_hash, answer, canonical(scores), principal, now()))
             self.store._audit(db, principal, 'answer_scored', evaluation_id, row['matter_id'])
-        return {'evaluation_id': evaluation_id, 'scores': scores, 'human_scoring_recorded': True, 'legal_acceptance': False}
+        return {'evaluation_id': evaluation_id, 'scores': scores, 'response_sha256': response_hash,
+                'human_scoring_recorded': True, 'legal_acceptance': False}
 
     def metrics(self, principal, matter):
-        excluded = 0
+        excluded, unbound = 0, 0
         with self.store.connect() as db:
             self.store._access(db, principal, matter)
-            scores = []
-            for row in db.execute('SELECT e.scores,a.id FROM evaluations e JOIN artifacts a ON e.artifact_id=a.id WHERE a.matter_id=?', (matter,)):
-                if self._artifact(db, principal, row['id'])['review_status'] == 'approved':
-                    scores.append(json.loads(row['scores']))
-                else:
+            rows = []
+            for row in db.execute('SELECT e.scores,e.response_sha256,a.id FROM evaluations e JOIN artifacts a ON e.artifact_id=a.id WHERE a.matter_id=?', (matter,)):
+                artifact = self._artifact(db, principal, row['id'])
+                score = json.loads(row['scores'])
+                binding = score.get('benchmark_review_sha256')
+                if not binding:
+                    unbound += 1
+                elif artifact['review_status'] != 'approved' or binding != hashlib.sha256(canonical(artifact['review']).encode()).hexdigest():
                     excluded += 1
-        required = sum(row['required_risk_count'] for row in scores)
-        return {'human_evaluations': len(scores),
-                'excluded_due_to_review_change': excluded,
-                'mean_correctness_0_to_4': sum(row['correctness'] for row in scores) / len(scores) if scores else None,
-                'missed_required_risk_fraction': sum(len(row['missed_risks']) for row in scores) / required if required else None,
-                'unsupported_claim_count': sum(row['unsupported_claim_count'] for row in scores),
-                'status': 'human_scores_recorded' if scores else 'no_human_evaluations', 'legal_acceptance': False}
+                else:
+                    rows.append({**score, 'artifact_id': row['id'], 'response_sha256': row['response_sha256']})
+        def summarize(values):
+            required = sum(row['required_risk_count'] for row in values)
+            return {'human_evaluations': len(values), 'distinct_benchmarks': len({row['artifact_id'] for row in values}),
+                    'distinct_responses': len({row['response_sha256'] for row in values}),
+                    'mean_correctness_0_to_4': sum(row['correctness'] for row in values) / len(values) if values else None,
+                    'missed_required_risk_fraction': sum(len(row['missed_risks']) for row in values) / required if required else None,
+                    'unsupported_claim_count': sum(row['unsupported_claim_count'] for row in values)}
+        labels = sorted({row.get('run_label', 'untagged') for row in rows})
+        groups = {label: [row for row in rows if row.get('run_label', 'untagged') == label] for label in labels}
+        shared = set.intersection(*[{row['artifact_id'] for row in groups[label]} for label in labels]) if len(labels) > 1 else set()
+        return {**summarize(rows), 'excluded_due_to_review_change': excluded,
+                'excluded_without_review_binding': unbound,
+                'by_run_label': [{'run_label': label, **summarize(groups[label])} for label in labels],
+                'shared_benchmark_count': len(shared),
+                'shared_benchmark_comparison': [{'run_label': label, **summarize([row for row in groups[label] if row['artifact_id'] in shared])} for label in labels] if shared else [],
+                'status': 'human_scores_recorded' if rows else 'no_human_evaluations',
+                'reviewer_qualification_verified': False, 'legal_acceptance': False,
+                'limitation': 'Оценки вводит человек; привязка ответа к реальному запуску модели и квалификация экспертов автоматически не подтверждены. Метрики усредняются по оценкам, а не по уникальным делам. Сравнивайте версии на общих эталонах; разные наборы задач не доказывают превосходства версии.'}

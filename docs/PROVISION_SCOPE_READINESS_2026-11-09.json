@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "api_version": "1.26",
+  "checked_on": "2026-11-09",
+  "scope": "isolated_supervised_pilot_technical_checks",
+  "status": "blocked",
+  "local_checks_passed": true,
+  "automated_checks_passed": false,
+  "production_ready": false,
+  "legal_acceptance": false,
+  "browser_acceptance": false,
+  "live_acceptance_passed": false,
+  "external_requests_attempted": false,
+  "configuration": {
+    "missing_configuration": [
+      "LLM_API_KEY",
+      "LLM_MODEL",
+      "TAVILY_API_KEY"
+    ],
+    "invalid_endpoint_configuration": [],
+    "document_transfer_permitted_by_configuration": false,
+    "provider_configuration": {
+      "llm": false,
+      "search": false
+    }
+  },
+  "checks": [
+    {
+      "id": "data",
+      "status": "passed",
+      "statutory_extracts": 454,
+      "draft_synthetic_cases": 90,
+      "services_pilot_tasks": 25
+    },
+    {
+      "id": "archive",
+      "status": "passed",
+      "sources": 7,
+      "pages": 90,
+      "native_pdf_replay": true
+    },
+    {
+      "id": "demo",
+      "status": "passed",
+      "live_acceptance_passed": false,
+      "external_requests_attempted": false,
+      "http_checks": 26,
+      "checks_passed": 1,
+      "checks_blocked": 0,
+      "checks_failed": 0
+    },
+    {
+      "id": "workspace",
+      "status": "passed",
+      "http_checks": 71,
+      "temporary_synthetic_accounts_and_db": true
+    },
+    {
+      "id": "recovery",
+      "status": "passed",
+      "http_checks": 9,
+      "temporary_synthetic_accounts_and_db": true
+    },
+    {
+      "id": "ui_logic",
+      "status": "passed",
+      "scenarios": 38,
+      "browser_acceptance": false
+    },
+    {
+      "id": "browser",
+      "status": "blocked",
+      "browser_acceptance": false,
+      "reason": "chromium_missing"
+    },
+    {
+      "id": "live",
+      "status": "blocked",
+      "reason": "live_not_requested",
+      "external_requests_attempted": false,
+      "live_acceptance_passed": false
+    }
+  ],
+  "manual_gates": [
+    {
+      "id": "lawyer_acceptance",
+      "status": "unverified",
+      "required": "Independent lawyer approval of real tasks, source editions and pilot scope."
+    },
+    {
+      "id": "target_deployment",
+      "status": "unverified",
+      "required": "Verify target host, access, retention, backup schedule and recovery."
+    }
+  ],
+  "limitations": [
+    "No legal approval or target deployment approval is inferred from technical tests.",
+    "Browser smoke covers the demo UI; workspace logic checks are Node VM tests.",
+    "Only synthetic accounts/documents and temporary databases are used.",
+    "Existing production databases are not opened or modified.",
+    "Docker is not required for direct Python deployment and is not tested here."
+  ]
+}

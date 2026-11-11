@@ -1,0 +1,24 @@
+{
+  "checked_on": "2026-11-09",
+  "scope": "bounded_retry_of_primary_source_retrieval",
+  "originals_added": 0,
+  "approved_editions_added": 0,
+  "attempts": [
+    {"url":"https://pravo.gov.ru/proxy/ips/?docbody=&nd=102039056","requested_resource":"Candidate consolidated Civil Code part II","http_status":503,"body_archived":false,"identity_verified":false},
+    {"url":"https://publication.pravo.gov.ru/Document/View/0001202506240021","requested_resource":"Previously recorded candidate publication of 156-FZ","http_status":503,"body_archived":false,"identity_verified":false},
+    {"url":"https://vsrf.ru/stor_pdf.php?id=2332384","requested_resource":"Previously archived Supreme Court decision","http_status":503,"body_archived":false,"identity_verified":false},
+    {"url":"https://vsrf.ru/lk/practice/stor_pdf_ec/2332384","requested_resource":"Alternate official URL discovered for the same Supreme Court decision","http_status":503,"body_archived":false,"identity_verified":false}
+  ],
+  "lower_court_discovery": {
+    "case_number":"А40-255028/2022",
+    "domains_searched":["msk.arbitr.ru","kad.arbitr.ru"],
+    "new_original_found":false,
+    "limitation":"Empty search results do not establish that the original is absent or unavailable through other official routes."
+  },
+  "limitations":[
+    "Statuses reflect this execution environment, not a general outage of the official websites.",
+    "Search snippets and rendered text are not archived original bytes.",
+    "No source received a completeness, current-validity or legal-acceptance promotion."
+  ],
+  "legal_acceptance":false
+}

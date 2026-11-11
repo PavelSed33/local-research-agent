@@ -117,6 +117,60 @@ def run_acceptance():
             post('/workspace/benchmarks/draft', draft, other['token'], 403)
             post('/workspace/ask', {'matter_id': matter, 'question': 'Оплата', 'demo': True,
                  'as_of': '2025-01-01', 'editions': [{'act_id': 'not-imported', 'provision': '1'}]}, expected=409)
+            pilot_args = {'matter_id': matter, 'question': 'Оплата', 'analysis_mode': 'services_pilot',
+                          'contract_document_id': document, 'as_of': '2025-01-01', 'demo': False,
+                          'facts': {'both_businesses': True, 'paid_activity': True, 'mixed_contract': False, 'special_regime': False}}
+            pilot = post('/workspace/ask', pilot_args)
+            assert pilot['status'] == 'needs_sources' and pilot['model_called'] is False
+            learning_args = {'matter_id': matter, 'question': 'Оплата', 'as_of': '2025-01-01'}
+            memory = post('/workspace/learning/preview', learning_args)
+            assert memory['used_count'] == 0 and memory['weights_updated'] is False
+            assert post('/workspace/quality/sets/list', {'matter_id': matter})['sets'] == []
+            post('/workspace/quality/sets/create', {'matter_id': matter, 'title': 'Пустой контроль', 'benchmark_ids': []}, expected=400)
+            post('/workspace/quality/sets/list', {'matter_id': matter}, outsider['token'], 403)
+            post('/workspace/quality/compare', {'matter_id': matter, 'set_id': 'missing', 'baseline_label': 'v1', 'candidate_label': 'v2'}, expected=403)
+            post('/workspace/learning/preview', learning_args, outsider['token'], 403)
+            post('/workspace/learning/preview', {**learning_args, 'learning_exclude_artifact_ids': 'bad'}, expected=400)
+            assert pilot['report_saved'] is True
+            read_args = {'matter_id': matter, 'report_id': pilot['report_id'], 'markdown_sha256': pilot['markdown_sha256']}
+            stored_report = post('/workspace/analysis/read', read_args)
+            assert stored_report['markdown'] == pilot['markdown'] and stored_report['report_authenticity_verified'] is True
+            assert stored_report['legal_acceptance'] is False and stored_report['digital_signature'] is False
+            post('/workspace/analysis/read', {**read_args, 'markdown': 'FORGED CLIENT BYTES'}, expected=400)
+            post('/workspace/analysis/read', {**read_args, 'markdown_sha256': 'f' * 64}, expected=409)
+            post('/workspace/analysis/read', read_args, outsider['token'], 403)
+            post('/workspace/evidence/read', {'artifact_id': pilot['report_id']}, expected=403)
+            assert post('/workspace/ask', {**pilot_args, 'facts': {}})['status'] == 'needs_facts'
+            context = {'matter_id': matter, 'as_of': pilot_args['as_of'], 'editions': [],
+                       'documents': list({row['document_id']: {'document_id': row['document_id'], 'sha256': row['document_sha256']}
+                                          for row in pilot['sources']}.values())}
+            assert post('/workspace/analysis/validate', context)['context_current'] is True
+            post('/workspace/ask', pilot_args, outsider['token'], 403)
+            assert post('/workspace/benchmarks/import', {'matter_id': matter,
+                'case_ids': [f'SERV-P{index:02}' for index in range(1, 26)]})['created'] == 25
+            pilot_tasks = post('/workspace/benchmarks/list', {'matter_id': matter})
+            assert pilot_tasks['total'] == 115 and pilot_tasks['reviews_recorded'] == 0
+            pilot_task = next(row for row in pilot_tasks['tasks'] if row['case_id'] == 'SERV-P01')
+            assert post('/workspace/benchmarks/read', {'task_id': pilot_task['task_id']})['source_case']['approved_legal_answer'] is None
+            reviewer = post('/workspace/users/create', {'name': 'СИНТЕТИЧЕСКИЙ эксперт оценок', 'role': 'reviewer'})
+            post('/workspace/members/set', {'matter_id': matter, 'user_id': reviewer['user_id'], 'role': 'viewer'})
+            review_args = {'artifact_id': saved['artifact_id'], 'decision': 'approved',
+                           'note': 'СИНТЕТИЧЕСКАЯ проверка механизма, не юридическая приёмка.',
+                           'attestations': dict.fromkeys(['source_authenticity','completeness','temporal_applicability','legal_reasoning'], True)}
+            post('/workspace/evidence/review', review_args, reviewer['token'])
+            score_args = {'artifact_id': saved['artifact_id'], 'answer': 'Учебный ответ первой версии.',
+                          'correctness': 2, 'missed_risks': [0], 'unsupported_claim_count': 1,
+                          'note': 'СИНТЕТИЧЕСКАЯ оценка, не проверка права.', 'run_label': 'synthetic-v1'}
+            post('/workspace/evaluations/record', score_args, reviewer['token'])
+            post('/workspace/evaluations/record', {**score_args,'answer':'Учебный ответ второй версии.',
+                'correctness':4,'missed_risks':[],'unsupported_claim_count':0,'run_label':'synthetic-v2'}, reviewer['token'])
+            quality = post('/workspace/evaluations/metrics', {'matter_id': matter})
+            assert quality['shared_benchmark_count'] == 1 and len(quality['shared_benchmark_comparison']) == 2
+            post('/workspace/evaluations/record', score_args, other['token'], 403)
+            post('/workspace/evidence/review', {**review_args, 'decision':'revoked'}, reviewer['token'])
+            post('/workspace/evidence/review', review_args, reviewer['token'])
+            quality = post('/workspace/evaluations/metrics', {'matter_id': matter})
+            assert quality['human_evaluations'] == 0 and quality['excluded_due_to_review_change'] == 2
             post('/workspace/audit', {'matter_id': matter})
             assert store.verify_audit()
         finally:

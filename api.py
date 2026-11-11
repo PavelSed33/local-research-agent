@@ -66,7 +66,7 @@ MAX_QUESTION_CHARS = 12_000
 SESSION_MAX_ENTRIES = 10
 SESSION_MAX_COUNT = 1_000
 SERVICE_NAME = "legal-research-agent"
-API_VERSION = "1.23"
+API_VERSION = "1.29"
 SESSION_TTL_SECONDS = 3600
 SESSION_ANSWER_CHARS = 500
 SESSION_ID_PATTERN = re.compile(r"^[A-Za-z0-9-]{1,64}$")
@@ -494,6 +494,15 @@ def openapi_spec(*, require_auth: bool = True) -> dict[str, Any]:
         if 'post' in path:
             path['post']['security'] = [{'ApiToken': []}] if require_auth else []
     properties = {
+        'run_label': {'type': 'string', 'minLength': 1, 'maxLength': 80, 'default': 'untagged'},
+        'analysis_mode': {'type': 'string', 'enum': ['general', 'services_pilot'], 'default': 'general'},
+        'contract_document_id': {'type': 'string', 'maxLength': 64},
+        'facts': {'type': 'object', 'additionalProperties': False, 'properties': {
+            key: {'type': 'boolean', 'nullable': True} for key in
+            ('both_businesses', 'paid_activity', 'mixed_contract', 'special_regime')}},
+        'documents': {'type': 'array', 'minItems': 1, 'maxItems': 12, 'items': {
+            'type': 'object', 'additionalProperties': False, 'required': ['document_id', 'sha256'],
+            'properties': {'document_id': {'type': 'string'}, 'sha256': {'type': 'string', 'pattern': '^[a-f0-9]{64}$'}}}},
         'as_of': {'type': 'string', 'format': 'date'},
         'positions': {'type': 'array', 'maxItems': 20, 'items': {'type': 'object'}},
         'links': {'type': 'array', 'maxItems': 20, 'items': {'type': 'object'}},
@@ -506,6 +515,8 @@ def openapi_spec(*, require_auth: bool = True) -> dict[str, Any]:
         'ocr_language': {'type': 'string'}, 'document': {'type': 'string'}, 'terms': {'type': 'array', 'items': {'type': 'string'}},
         'replacements': {'type': 'array', 'items': {'type': 'object'}}, 'title': {'type': 'string'},
         'demo': {'type': 'boolean'}, 'allow_cloud': {'type': 'boolean'}, 'limit': {'type': 'integer'},
+        'use_learning': {'type': 'boolean'}, 'learning_exclude_artifact_ids': {'type': 'array', 'maxItems': 100, 'items': {'type': 'string'}},
+        'benchmark_ids': {'type': 'array', 'maxItems': 100, 'items': {'type': 'string'}}, 'same_answer_declared': {'type': 'boolean'},
         'payload': {'type': 'object'}, 'attestations': {'type': 'object'}, 'pages': {'type': 'array', 'items': {'type': 'object'}},
         'missed_risks': {'type': 'array', 'items': {'type': 'integer'}},
         'correctness': {'type': 'integer'}, 'unsupported_claim_count': {'type': 'integer'}}
@@ -523,6 +534,21 @@ def openapi_spec(*, require_auth: bool = True) -> dict[str, Any]:
                 [(200, 'Результат'), (400, 'Некорректный запрос'), (401, 'Нужен токен'),
                  (403, 'Нет доступа'), (409, 'Конфликт состояния'), (413, 'Превышен объём материалов'), (429, 'Лимит запросов'),
                  (500, 'Ошибка обработки'), (502, 'Ошибка модели'), (503, 'Рабочее пространство отключено'), (504, 'Истёк срок вычисления')]}}}
+    spec['paths']['/workspace/analysis/validate']['post']['requestBody']['content']['application/json']['schema']['properties']['editions'] = {
+        'type': 'array', 'maxItems': 3, 'items': {'type': 'object',
+            'required': ['act_id', 'provision', 'artifact_id', 'sha256', 'review_sha256'],
+            'properties': {key: {'type': 'string'} for key in ('act_id', 'provision', 'artifact_id', 'sha256', 'review_sha256')}}}
+    report_schema = spec['paths']['/workspace/analysis/read']['post']['requestBody']['content']['application/json']['schema']
+    report_schema['required'] = ['matter_id', 'report_id', 'markdown_sha256']
+    report_schema['properties']['markdown_sha256'] = {'type': 'string', 'pattern': '^[a-f0-9]{64}$'}
+    for route, fields in {
+        '/workspace/quality/sets/create': ['matter_id', 'title', 'benchmark_ids'],
+        '/workspace/quality/sets/list': ['matter_id'],
+        '/workspace/quality/compare': ['matter_id', 'set_id', 'baseline_label', 'candidate_label'],
+        '/workspace/quality/runs/register': ['matter_id', 'set_id', 'evaluation_id', 'run_label', 'same_answer_declared'],
+    }.items():
+        spec['paths'][route]['post']['requestBody']['content']['application/json']['schema']['required'] = fields
+    spec['paths']['/workspace/analysis/read']['post']['summary'] = 'Сохранённый сервером Markdown с повторной проверкой источников и доступа'
     spec['paths']['/documents/redline']['post']['requestBody']['content']['application/json']['schema']['required'] = ['filename', 'file_base64', 'replacements']
     spec['paths']['/documents/redline']['post']['summary'] = 'Явные замены в исходном DOCX с исправлениями Word'
     spec['paths']['/workspace/cases/report']['post']['summary'] = 'Отчёт по судебному делу и экспорт Markdown'
@@ -746,6 +772,9 @@ class LegalApiHandler(BaseHTTPRequestHandler):
                             self.server.workspace._access(db, principal, prepared['matter_id'])
                             from reviewed_evidence import ReviewedEvidence
                             ReviewedEvidence(self.server.workspace).assert_selection(db, principal, prepared['matter_id'], prepared.get('as_of'), prepared.get('selected_editions', []))
+                            if prepared.get('analysis_mode') == 'services_pilot':
+                                from analysis_reports import AnalysisReports
+                                result = AnalysisReports(self.server.workspace).save(db, principal, prepared, result)
                             self.server.workspace._audit(db, principal, 'matter_answered', prepared['matter_id'], prepared['matter_id'])
                         return result
                     result = self.server.jobs.execute(self._scoped_id(request_id),

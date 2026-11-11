@@ -12,7 +12,14 @@ FIELDS = {
     '/workspace/documents/add': {'matter_id', 'title', 'document', 'source_url', 'captured_on', 'pages'},
     '/workspace/documents/list': {'matter_id'}, '/workspace/documents/read': {'document_id'},
     '/workspace/search': {'matter_id', 'query', 'limit'},
-    '/workspace/ask': {'matter_id', 'question', 'demo', 'allow_cloud', 'as_of', 'editions'},
+    '/workspace/ask': {'matter_id', 'question', 'demo', 'allow_cloud', 'as_of', 'editions', 'analysis_mode', 'contract_document_id', 'facts', 'use_learning', 'learning_exclude_artifact_ids'},
+    '/workspace/learning/preview': {'matter_id', 'question', 'as_of', 'learning_exclude_artifact_ids'},
+    '/workspace/quality/sets/create': {'matter_id', 'title', 'benchmark_ids'},
+    '/workspace/quality/sets/list': {'matter_id'},
+    '/workspace/quality/compare': {'matter_id', 'set_id', 'baseline_label', 'candidate_label'},
+    '/workspace/quality/runs/register': {'matter_id', 'set_id', 'evaluation_id', 'run_label', 'same_answer_declared'},
+    '/workspace/analysis/validate': {'matter_id', 'as_of', 'documents', 'editions'},
+    '/workspace/analysis/read': {'matter_id', 'report_id', 'markdown_sha256'},
     '/workspace/evidence/add': {'matter_id', 'kind', 'payload'},
     '/workspace/evidence/read': {'artifact_id'},
     '/workspace/evidence/review': {'artifact_id', 'decision', 'note', 'attestations'},
@@ -20,7 +27,7 @@ FIELDS = {
     '/workspace/cases/timeline': {'matter_id', 'case_number', 'as_of'},
     '/workspace/cases/report': {'matter_id', 'case_number', 'as_of'},
     '/workspace/cases/revise': {'artifact_id', 'positions', 'links'},
-    '/workspace/evaluations/record': {'artifact_id', 'answer', 'correctness', 'missed_risks', 'unsupported_claim_count', 'note'},
+    '/workspace/evaluations/record': {'artifact_id', 'answer', 'correctness', 'missed_risks', 'unsupported_claim_count', 'note', 'run_label'},
     '/workspace/evaluations/metrics': {'matter_id'}, '/workspace/audit': {'matter_id', 'limit'},
     '/workspace/sources/import': {'matter_id', 'source_id'},
     '/workspace/sources/decision-draft': {'matter_id', 'source_id'},
@@ -38,7 +45,7 @@ FIELDS = {
 def validate(path, payload):
     if not isinstance(payload, dict) or set(payload) - FIELDS[path]:
         raise ValueError('Неизвестные поля запроса рабочего пространства.')
-    for key in ('matter_id', 'user_id', 'document_id', 'artifact_id', 'task_id', 'previous_artifact_id'):
+    for key in ('matter_id', 'user_id', 'document_id', 'artifact_id', 'task_id', 'previous_artifact_id', 'report_id'):
         if key in payload:
             text(payload[key], key, 64)
 
@@ -51,9 +58,28 @@ def dispatch(store, principal, path, payload):
     validate(path, payload)
     evidence = ReviewedEvidence(store)
     p = payload
+    if path.startswith('/workspace/quality/'):
+        from control_evaluation import ControlEvaluation
+        quality = ControlEvaluation(store)
+        if path.endswith('/create'):
+            return quality.create(principal, p.get('matter_id'), p.get('title'), p.get('benchmark_ids'))
+        if path.endswith('/list'):
+            return quality.listing(principal, p.get('matter_id'))
+        if path.endswith('/register'):
+            return quality.register_same_answer(principal, p.get('matter_id'), p.get('set_id'), p.get('evaluation_id'), p.get('run_label'), p.get('same_answer_declared'))
+        return quality.compare(principal, p.get('matter_id'), p.get('set_id'), p.get('baseline_label'), p.get('candidate_label'))
+    if path == '/workspace/learning/preview':
+        from learning_memory import LearningMemory
+        return LearningMemory(store).select(principal, p.get('matter_id'), p.get('question'), p.get('as_of'), p.get('learning_exclude_artifact_ids'))
+    if path == '/workspace/analysis/read':
+        from analysis_reports import AnalysisReports
+        return AnalysisReports(store).read(principal, p.get('matter_id'), p.get('report_id'), p.get('markdown_sha256'))
     if path == '/workspace/me':
         with store.connect() as db:
             return store._user(db, principal)
+    if path == '/workspace/analysis/validate':
+        from service_pilot import validate_context
+        return validate_context(store, principal, p)
     if path.startswith('/workspace/benchmarks/'):
         from benchmark_tasks import BenchmarkTasks
         tasks = BenchmarkTasks(store)
@@ -163,7 +189,7 @@ def dispatch(store, principal, path, payload):
     if path == '/workspace/cases/timeline':
         return evidence.timeline(principal, p.get('matter_id'), p.get('case_number'), p.get('as_of'))
     if path == '/workspace/evaluations/record':
-        return evidence.score(principal, p.get('artifact_id'), p.get('answer'), p.get('correctness'), p.get('missed_risks'), p.get('unsupported_claim_count'), p.get('note'))
+        return evidence.score(principal, p.get('artifact_id'), p.get('answer'), p.get('correctness'), p.get('missed_risks'), p.get('unsupported_claim_count'), p.get('note'), p.get('run_label', 'untagged'))
     if path == '/workspace/evaluations/metrics':
         return evidence.metrics(principal, p.get('matter_id'))
     if path == '/workspace/audit':
@@ -174,16 +200,37 @@ def dispatch(store, principal, path, payload):
 def prepare_answer(store, principal, payload):
     validate('/workspace/ask', payload)
     question = text(payload.get('question'), 'question', 2000)
-    for key in ('demo', 'allow_cloud'):
+    for key in ('demo', 'allow_cloud', 'use_learning'):
         if key in payload and type(payload[key]) is not bool:
             raise ValueError(f'{key}: требуется true или false.')
     as_of = day(payload['as_of'], 'as_of') if 'as_of' in payload else None
+    from service_pilot import MODE, scope, contract_source
+    mode = payload.get('analysis_mode', 'general')
+    if not isinstance(mode, str) or mode not in ('general', MODE):
+        raise ValueError('Неизвестный режим анализа дела.')
+    if mode == 'general' and any(key in payload for key in ('contract_document_id', 'facts')):
+        raise ValueError('Обстоятельства и выбранный договор доступны в режиме services_pilot.')
+    if mode != MODE and any(key in payload for key in ('use_learning', 'learning_exclude_artifact_ids')):
+        raise ValueError('Обучающая память доступна в пилоте услуг.')
+    learning = {'enabled': False, 'examples': [], 'references': [], 'used_count': 0, 'weights_updated': False}
+    pilot_scope = None
+    if mode == MODE:
+        if as_of is None:
+            raise ValueError('Для пилота обязательна дата ситуации.')
+        pilot_scope = scope(payload.get('facts', {}))
+        contract = contract_source(store, principal, payload.get('matter_id'), payload.get('contract_document_id'))
     requested = payload.get('editions', [])
     if not isinstance(requested, list) or len(requested) > 3 or (requested and as_of is None):
         raise ValueError('До трёх редакций; при выборе редакций обязательна дата as_of.')
-    context = store.search(principal, payload.get('matter_id'), question)
+    if mode == MODE:
+        from services_retrieval import retrieve
+        context = retrieve(store, principal, payload.get('matter_id'), question, as_of)
+    else:
+        context = store.search(principal, payload.get('matter_id'), question)
     sources, selected, seen = context['matches'], [], set()
-    excluded = 0
+    if mode == MODE:
+        sources = [contract] + [row for row in sources if row['document_id'] != contract['document_id']]
+    excluded = context.get('future_candidates_excluded', 0)
     if as_of:
         allowed = []
         for source in sources:
@@ -205,17 +252,25 @@ def prepare_answer(store, principal, payload):
         row = result['edition']
         if row is None:
             raise WorkspaceError(409, 'reviewed_edition_required', 'Для указанной нормы нет единственной одобренной редакции на дату ситуации.')
+        provision = row['payload'].get('provision_evidence')
+        if mode == MODE and not provision:
+            raise WorkspaceError(409, 'edition_provision_required', 'Для пилота нужна редакция с точной цитатой нормы (provision_quote) и новой независимой проверкой.')
         reference = {'artifact_id': row['id'], 'sha256': row['sha256'], 'act_id': key[0], 'provision': key[1],
                      'document_id': row['payload']['document_id'], 'valid_from': row['payload']['valid_from'],
                      'valid_to': row['payload']['valid_to'], 'review_sha256': hashlib.sha256(canonical(row['review']).encode()).hexdigest(),
                      'reviewer_id': row['review']['reviewer_id'], 'review_status': 'approved', 'legal_acceptance': False}
+        if provision:
+            reference.update(provision_start=provision['start'], provision_end=provision['end'])
         selected.append(reference)
-        matches = store.search(principal, payload.get('matter_id'), question, 1, document_ids=[reference['document_id']])['matches']
+        if mode == MODE and reference['document_id'] == contract['document_id']:
+            raise ValueError('Договор и источник редакции нормы должны быть разными документами.')
+        matches = [] if provision else store.search(principal, payload.get('matter_id'), question, 1, document_ids=[reference['document_id']])['matches']
         if not matches:
             document = store.document(principal, reference['document_id'])
+            begin, end = (provision['start'], provision['end']) if provision else (0, min(1200, len(document['text'])))
             matches = [{'document_id': document['id'], 'document_sha256': document['sha256'], 'title': document['title'],
-                        'text': document['text'][:1200], 'start': 0, 'end': min(1200, len(document['text'])),
-                        'pages': [page['page'] for page in document['pages'] if page['start'] < 1200], 'verified': False,
+                        'text': document['text'][begin:end], 'start': begin, 'end': end,
+                        'pages': [page['page'] for page in document['pages'] if page['start'] < end and page['end'] > begin], 'verified': False,
                         'source_context': {'origin': document['provenance'].get('origin', 'unspecified'),
                             'captured_on': document['captured_on'], 'edition_label': document['provenance'].get('edition_label'),
                             'signed_on': document['provenance'].get('signed_on'),
@@ -225,11 +280,20 @@ def prepare_answer(store, principal, payload):
         for match in matches:
             if as_of and match.get('source_context', {}).get('decision_date') and match['source_context']['decision_date'] > as_of:
                 raise WorkspaceError(409, 'future_decision_selected', 'Выбранный источник судебного акта принят позднее даты ситуации.')
-            if not any(item['document_id'] == match['document_id'] and item['start'] == match['start'] for item in sources):
+            if not any(item['document_id'] == match['document_id'] and item['start'] == match['start'] and item['end'] == match['end'] for item in sources):
                 sources.append(match)
     for index, source in enumerate(sources, 1):
         source['source_id'] = index
-        source['edition_references'] = [ref for ref in selected if ref['document_id'] == source['document_id']]
-    return {'matter_id': payload.get('matter_id'), 'question': question,
+        source['edition_references'] = [ref for ref in selected if ref['document_id'] == source['document_id']
+            and ('provision_start' not in ref or source['start'] < ref['provision_end'] and source['end'] > ref['provision_start'])]
+    if payload.get('use_learning'):
+        from learning_memory import LearningMemory
+        learning = LearningMemory(store).select(principal, payload.get('matter_id'), question, as_of, payload.get('learning_exclude_artifact_ids'))
+    elif 'learning_exclude_artifact_ids' in payload:
+        raise ValueError('Исключения опыта требуют use_learning=true.')
+    return {'matter_id': payload.get('matter_id'), 'question': question, 'learning_context': learning,
+            'analysis_mode': mode, 'pilot_scope': pilot_scope,
+            'retrieval': context.get('retrieval'),
+            'contract_document_id': contract['document_id'] if mode == MODE else None,
             'sources': sources, 'selected_editions': selected, 'as_of': as_of, 'future_decision_fragments_excluded': excluded, 'demo': payload.get('demo', False),
             'allow_cloud': payload.get('allow_cloud', False)}
