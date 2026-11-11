@@ -132,6 +132,55 @@
       "retrieved_on": "2026-11-11",
       "copyright_status": "official_text_no_copyright",
       "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "plenum_6_2016": {
+      "law_name": "Постановление Пленума ВС РФ № 6 от 28.06.2016",
+      "description": "О толковании ГК РФ части 2 (договоры)",
+      "source": "vsrf.ru",
+      "source_url": "https://www.vsrf.ru/documents/all/26274",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "upk_rf": {
+      "law_name": "Уголовно-процессуальный кодекс Российской Федерации",
+      "official_number": "73-ФЗ",
+      "official_date": "2001-05-31",
+      "source": "kremlin.ru",
+      "source_url": "http://www.kremlin.ru/acts/bank/17705",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "102fz": {
+      "law_name": "Об основах нотариата в Российской Федерации",
+      "official_number": "102-ФЗ",
+      "official_date": "2001-02-08",
+      "source": "kremlin.ru",
+      "source_url": "http://www.kremlin.ru/acts/bank/8374",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "79fz": {
+      "law_name": "О государственной гражданской службе Российской Федерации",
+      "official_number": "79-ФЗ",
+      "official_date": "2004-07-27",
+      "source": "kremlin.ru",
+      "source_url": "http://www.kremlin.ru/acts/bank/20058",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "480fz": {
+      "law_name": "Об арбитраже (третейском разбирательстве) в Российской Федерации",
+      "official_number": "480-ФЗ",
+      "official_date": "2016-12-29",
+      "source": "kremlin.ru",
+      "source_url": "http://www.kremlin.ru/acts/bank/39331",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
     }
   }
 }
