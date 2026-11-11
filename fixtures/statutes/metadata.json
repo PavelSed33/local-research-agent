@@ -381,9 +381,9 @@
     },
     "obzor_vs_3_2026": {
       "law_name": "Обзор судебной практики ВС РФ № 3 (2026)",
-      "description": "Свежая практика",
+      "description": "50+ правовых позиций",
       "source": "vsrf.ru",
-      "source_url": "https://vsrf.ru/documents/reviews/",
+      "source_url": "https://www.vsrf.ru/documents/all/37961",
       "retrieved_on": "2026-11-11",
       "copyright_status": "official_text_no_copyright",
       "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
@@ -443,6 +443,24 @@
       "description": "О защите права собственности и других вещных прав",
       "source": "vsrf.ru",
       "source_url": "https://www.vsrf.ru/documents/all/8097",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "obzor_vs_4_2026": {
+      "law_name": "Обзор судебной практики ВС РФ № 4 (2026)",
+      "description": "Свежая практика",
+      "source": "vsrf.ru",
+      "source_url": "https://vsrf.ru/documents/reviews/",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "tamozhenny_kodeks_eaes": {
+      "law_name": "Таможенный кодекс ЕАЭС",
+      "official_date": "2017-04-11",
+      "source": "kremlin.ru",
+      "source_url": "http://www.kremlin.ru/acts/bank/41978",
       "retrieved_on": "2026-11-11",
       "copyright_status": "official_text_no_copyright",
       "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
