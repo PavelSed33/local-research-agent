@@ -228,6 +228,93 @@
       "retrieved_on": "2026-11-11",
       "copyright_status": "official_text_no_copyright",
       "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "plenum_58_2015": {
+      "law_name": "Постановление Пленума ВС РФ № 58 от 22.12.2015",
+      "description": "О практике назначения судами уголовного наказания",
+      "source": "vsrf.ru",
+      "source_url": "https://www.vsrf.ru/documents/all/8470",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "plenum_59_2015": {
+      "law_name": "Постановление Пленума ВС РФ № 59 от 23.06.2015",
+      "description": "О применении судами норм международного частного права",
+      "source": "vsrf.ru",
+      "source_url": "https://www.vsrf.ru/documents/all/26273",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "obzor_vs_1_2026": {
+      "law_name": "Обзор судебной практики ВС РФ № 1 (2026)",
+      "description": "Утвержден Президиумом ВС РФ 25.03.2026",
+      "source": "vsrf.ru",
+      "source_url": "https://vsrf.ru/documents/reviews/35663/",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "325fz": {
+      "law_name": "О таможенном регулировании в Российской Федерации",
+      "official_number": "325-ФЗ",
+      "official_date": "2017-08-03",
+      "source": "kremlin.ru",
+      "source_url": "http://www.kremlin.ru/acts/bank/41978",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "bk_rf": {
+      "law_name": "Бюджетный кодекс Российской Федерации",
+      "official_number": "145-ФЗ",
+      "official_date": "1998-07-31",
+      "source": "kremlin.ru",
+      "source_url": "http://www.kremlin.ru/acts/bank/13773",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "jk_rf": {
+      "law_name": "Жилищный кодекс Российской Федерации",
+      "official_number": "188-ФЗ",
+      "official_date": "2004-12-29",
+      "source": "kremlin.ru",
+      "source_url": "http://www.kremlin.ru/acts/bank/21918",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "zk_rf": {
+      "law_name": "Земельный кодекс Российской Федерации",
+      "official_number": "136-ФЗ",
+      "official_date": "2001-10-25",
+      "source": "kremlin.ru",
+      "source_url": "http://www.kremlin.ru/acts/bank/33773",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "sk_rf": {
+      "law_name": "Семейный кодекс Российской Федерации",
+      "official_number": "223-ФЗ",
+      "official_date": "1995-12-29",
+      "source": "kremlin.ru",
+      "source_url": "http://www.kremlin.ru/acts/bank/8671",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "grk_rf": {
+      "law_name": "Градостроительный кодекс Российской Федерации",
+      "official_number": "190-ФЗ",
+      "official_date": "2004-12-29",
+      "source": "kremlin.ru",
+      "source_url": "http://www.kremlin.ru/acts/bank/21916",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
     }
   }
 }
