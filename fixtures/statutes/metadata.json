@@ -135,7 +135,7 @@
     },
     "plenum_6_2016": {
       "law_name": "Постановление Пленума ВС РФ № 6 от 28.06.2016",
-      "description": "О толковании ГК РФ части 2 (договоры)",
+      "description": "О толковании ГК РФ части 2",
       "source": "vsrf.ru",
       "source_url": "https://www.vsrf.ru/documents/all/26274",
       "retrieved_on": "2026-11-11",
@@ -183,8 +183,8 @@
       "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
     },
     "obzor_vs_1_2025": {
-      "law_name": "Обзор судебной практики ВС РФ № 1 (2025)",
-      "description": "Утвержден Президиумом ВС РФ 25.04.2025",
+      "law_name": "Обзор ВС РФ № 1 (2025)",
+      "description": "Практика 2025",
       "source": "vsrf.ru",
       "source_url": "https://www.vsrf.ru/documents/all/34367",
       "retrieved_on": "2026-11-11",
@@ -192,8 +192,8 @@
       "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
     },
     "obzor_vs_2_2025": {
-      "law_name": "Обзор судебной практики ВС РФ № 2 (2025)",
-      "description": "Утвержден Президиумом ВС РФ 18.06.2025",
+      "law_name": "Обзор ВС РФ № 2 (2025)",
+      "description": "Практика 2025",
       "source": "vsrf.ru",
       "source_url": "https://www.vsrf.ru/documents/all/34521",
       "retrieved_on": "2026-11-11",
@@ -201,8 +201,8 @@
       "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
     },
     "obzor_vs_3_2025": {
-      "law_name": "Обзор судебной практики ВС РФ № 3 (2025)",
-      "description": "Утвержден Президиумом ВС РФ 08.10.2025",
+      "law_name": "Обзор ВС РФ № 3 (2025)",
+      "description": "Практика 2025",
       "source": "vsrf.ru",
       "source_url": "https://www.vsrf.ru/documents/all/34715",
       "retrieved_on": "2026-11-11",
@@ -231,7 +231,7 @@
     },
     "plenum_58_2015": {
       "law_name": "Постановление Пленума ВС РФ № 58 от 22.12.2015",
-      "description": "О практике назначения судами уголовного наказания",
+      "description": "О назначении уголовного наказания",
       "source": "vsrf.ru",
       "source_url": "https://www.vsrf.ru/documents/all/8470",
       "retrieved_on": "2026-11-11",
@@ -240,7 +240,7 @@
     },
     "plenum_59_2015": {
       "law_name": "Постановление Пленума ВС РФ № 59 от 23.06.2015",
-      "description": "О применении судами норм международного частного права",
+      "description": "О международном частном праве",
       "source": "vsrf.ru",
       "source_url": "https://www.vsrf.ru/documents/all/26273",
       "retrieved_on": "2026-11-11",
@@ -461,6 +461,51 @@
       "official_date": "2017-04-11",
       "source": "kremlin.ru",
       "source_url": "http://www.kremlin.ru/acts/bank/41978",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "obzor_vs_4_2025": {
+      "law_name": "Обзор ВС РФ № 4 (2025)",
+      "description": "Практика 2025",
+      "source": "vsrf.ru",
+      "source_url": "https://vsrf.ru/documents/reviews/",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "obzor_vs_1_2024": {
+      "law_name": "Обзор ВС РФ № 1 (2024)",
+      "description": "Практика 2024",
+      "source": "vsrf.ru",
+      "source_url": "https://vsrf.ru/documents/reviews/",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "obzor_vs_2_2024": {
+      "law_name": "Обзор ВС РФ № 2 (2024)",
+      "description": "Практика 2024",
+      "source": "vsrf.ru",
+      "source_url": "https://vsrf.ru/documents/reviews/",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "obzor_vs_3_2024": {
+      "law_name": "Обзор ВС РФ № 3 (2024)",
+      "description": "Практика 2024",
+      "source": "vsrf.ru",
+      "source_url": "https://vsrf.ru/documents/reviews/",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "obzor_vs_4_2024": {
+      "law_name": "Обзор ВС РФ № 4 (2024)",
+      "description": "Практика 2024",
+      "source": "vsrf.ru",
+      "source_url": "https://vsrf.ru/documents/reviews/",
       "retrieved_on": "2026-11-11",
       "copyright_status": "official_text_no_copyright",
       "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"

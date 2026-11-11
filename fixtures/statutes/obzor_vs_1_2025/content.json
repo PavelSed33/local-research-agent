@@ -1,22 +1,15 @@
 {
   "statute_id": "obzor_vs_1_2025",
-  "title": "Обзор судебной практики Верховного Суда РФ № 1 (2025)",
-  "description": "Утвержден Президиумом ВС РФ 25.04.2025",
+  "title": "obzor_vs_1_2025",
   "articles": {
-    "point_1": {
+    "article_1": {
       "number": "1",
-      "title": "О защите прав потребителей",
-      "text": "Президиум Верховного Суда РФ рассмотрел дело о защите прав потребителя...",
-      "source": "vsrf.ru"
-    },
-    "point_2": {
-      "number": "2",
-      "title": "О договорных отношениях",
-      "text": "Судебная коллегия по экономическим спорам рассмотрела дело о расторжении договора...",
-      "source": "vsrf.ru"
+      "title": "Общие положения",
+      "text": "Текст документа...",
+      "source": "kremlin.ru"
     }
   },
-  "source": "vsrf.ru",
-  "url": "https://www.vsrf.ru/documents/all/34367",
+  "source": "kremlin.ru",
+  "url": "http://www.kremlin.ru/acts/bank/",
   "last_updated": "2026-11-11"
 }

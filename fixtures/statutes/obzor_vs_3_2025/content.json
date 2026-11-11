@@ -1,22 +1,15 @@
 {
   "statute_id": "obzor_vs_3_2025",
-  "title": "Обзор судебной практики Верховного Суда РФ № 3 (2025)",
-  "description": "Утвержден Президиумом ВС РФ 08.10.2025",
+  "title": "obzor_vs_3_2025",
   "articles": {
-    "point_1": {
+    "article_1": {
       "number": "1",
-      "title": "О трудовых спорах",
-      "text": "Президиум Верховного Суда РФ рассмотрел дело о трудовом споре...",
-      "source": "vsrf.ru"
-    },
-    "point_2": {
-      "number": "2",
-      "title": "О наследственных делах",
-      "text": "Судебная коллегия по гражданским делам рассмотрела дело о наследстве...",
-      "source": "vsrf.ru"
+      "title": "Общие положения",
+      "text": "Текст документа...",
+      "source": "kremlin.ru"
     }
   },
-  "source": "vsrf.ru",
-  "url": "https://www.vsrf.ru/documents/all/34715",
+  "source": "kremlin.ru",
+  "url": "http://www.kremlin.ru/acts/bank/",
   "last_updated": "2026-11-11"
 }
