@@ -599,6 +599,126 @@
       "retrieved_on": "2026-11-11",
       "copyright_status": "official_text_no_copyright",
       "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "44fz": {
+      "law_name": "О контрактной системе в сфере закупок",
+      "official_number": "44-ФЗ",
+      "official_date": "2013-04-05",
+      "source": "kremlin.ru",
+      "source_url": "http://www.kremlin.ru/acts/bank/37056",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "63fz": {
+      "law_name": "Об электронной подписи",
+      "official_number": "63-ФЗ",
+      "official_date": "2011-04-06",
+      "source": "kremlin.ru",
+      "source_url": "http://www.kremlin.ru/acts/bank/32938",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "115fz": {
+      "law_name": "О противодействии легализации доходов",
+      "official_number": "115-ФЗ",
+      "official_date": "2001-08-07",
+      "source": "kremlin.ru",
+      "source_url": "http://www.kremlin.ru/acts/bank/8375",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "127fz": {
+      "law_name": "О несостоятельности (банкротстве)",
+      "official_number": "127-ФЗ",
+      "official_date": "2002-10-26",
+      "source": "kremlin.ru",
+      "source_url": "http://www.kremlin.ru/acts/bank/18779",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "135fz": {
+      "law_name": "О защите конкуренции",
+      "official_number": "135-ФЗ",
+      "official_date": "2006-07-26",
+      "source": "kremlin.ru",
+      "source_url": "http://www.kremlin.ru/acts/bank/23843",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "152fz": {
+      "law_name": "О персональных данных",
+      "official_number": "152-ФЗ",
+      "official_date": "2006-07-27",
+      "source": "kremlin.ru",
+      "source_url": "http://www.kremlin.ru/acts/bank/24154",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "208fz": {
+      "law_name": "Об акционерных обществах",
+      "official_number": "208-ФЗ",
+      "official_date": "1995-12-26",
+      "source": "kremlin.ru",
+      "source_url": "http://www.kremlin.ru/acts/bank/8653",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "223fz": {
+      "law_name": "О закупках отдельных видов юридических лиц",
+      "official_number": "223-ФЗ",
+      "official_date": "2011-07-18",
+      "source": "kremlin.ru",
+      "source_url": "http://www.kremlin.ru/acts/bank/33622",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "229fz": {
+      "law_name": "Об исполнительном производстве",
+      "official_number": "229-ФЗ",
+      "official_date": "2007-10-02",
+      "source": "kremlin.ru",
+      "source_url": "http://www.kremlin.ru/acts/bank/26272",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "2300_1": {
+      "law_name": "О защите прав потребителей",
+      "official_number": "2300-1",
+      "official_date": "1992-02-07",
+      "source": "kremlin.ru",
+      "source_url": "http://www.kremlin.ru/acts/bank/694",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "402fz": {
+      "law_name": "О бухгалтерском учете",
+      "official_number": "402-ФЗ",
+      "official_date": "2011-12-06",
+      "source": "kremlin.ru",
+      "source_url": "http://www.kremlin.ru/acts/bank/34440",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
+    },
+    "14fz": {
+      "law_name": "Об обществах с ограниченной ответственностью",
+      "official_number": "14-ФЗ",
+      "official_date": "1998-02-08",
+      "source": "kremlin.ru",
+      "source_url": "http://www.kremlin.ru/acts/bank/11994",
+      "retrieved_on": "2026-11-11",
+      "copyright_status": "official_text_no_copyright",
+      "legal_basis": "Ст. 1259 ГК РФ, п. 6, подп. 1"
     }
   }
 }
