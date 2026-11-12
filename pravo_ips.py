@@ -19,6 +19,7 @@ from html.parser import HTMLParser
 from typing import Any
 
 from agent import AgentError, Source
+from source_admission import classify_source, SourceAdmissionError
 
 BASE_URL = "https://pravo.gov.ru"
 MAX_RESPONSE_BYTES = 2 * 1024 * 1024
@@ -104,6 +105,10 @@ class PravoIpsBank:
     def _get(self, params: dict[str, Any]) -> str:
         query = urllib.parse.urlencode(params)
         url = f"{BASE_URL}/proxy/ips/?{query}"
+        try:
+            classify_source(url)
+        except SourceAdmissionError as exc:
+            raise AgentError(f"Источник не прошёл проверку происхождения: {exc}") from exc
         request = urllib.request.Request(
             url,
             headers={"Accept": "text/html", "User-Agent": "LocalResearchAgent/1.0 (read-only legal bank client)"},
