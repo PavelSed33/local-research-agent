@@ -23,6 +23,8 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Block accidentally committed licensed documents
+        run: python scripts/check_copyright_hygiene.py
       - name: Compile source
         run: python -m compileall -q .
       - name: Run unit tests
