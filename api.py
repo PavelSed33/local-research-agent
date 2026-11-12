@@ -63,6 +63,7 @@ MAX_BODY_BYTES = 8 * 1024 * 1024
 SERVICE_NAME = "legal-research-agent"
 API_VERSION = "1.5"
 SESSION_TTL_SECONDS = 3600
+SESSION_MAX_COUNT = 1000
 SESSION_MAX_ENTRIES = 10
 SESSION_ANSWER_CHARS = 500
 SESSION_ID_PATTERN = re.compile(r"^[A-Za-z0-9-]{1,64}$")
@@ -101,7 +102,7 @@ class SessionStore:
         now = time.time()
         with self._lock:
             self._purge_expired(now)
-            if session_id not in self._sessions and len(self._sessions) >= 1000:
+            if session_id not in self._sessions and len(self._sessions) >= SESSION_MAX_COUNT:
                 oldest = min(self._sessions, key=lambda sid: self._sessions[sid]["updated"])
                 del self._sessions[oldest]
             session = self._sessions.setdefault(session_id, {"updated": now, "entries": []})
