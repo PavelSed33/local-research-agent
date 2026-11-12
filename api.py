@@ -94,6 +94,9 @@ class SessionStore:
         now = time.time()
         with self._lock:
             self._purge_expired(now)
+            if session_id not in self._sessions and len(self._sessions) >= 1000:
+                oldest = min(self._sessions, key=lambda sid: self._sessions[sid]["updated"])
+                del self._sessions[oldest]
             session = self._sessions.setdefault(session_id, {"updated": now, "entries": []})
             session["updated"] = now
             session["entries"].append({"question": question.strip(), "answer": answer[:SESSION_ANSWER_CHARS]})
