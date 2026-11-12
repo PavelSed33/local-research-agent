@@ -257,7 +257,9 @@ class TavilySearch:
             url = str(item.get("url", "")).strip()
             if not url.startswith(("https://", "http://")):
                 continue
-            if classify_source_authority(url) not in {"official_legal_portal", "official_court", "government_legal_reproduction", "official_legal_explanation"}:\n                continue\n            text = str(item.get("content") or "").strip()
+            if classify_source_authority(url) not in {"official_legal_portal", "official_court", "government_legal_reproduction", "official_legal_explanation"}:
+                continue
+            text = str(item.get("content") or "").strip()
             if not text:
                 continue
             sources.append(
