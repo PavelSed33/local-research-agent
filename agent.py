@@ -84,7 +84,7 @@ def validate_service_url(url: str) -> None:
             local = ipaddress.ip_address(host).is_loopback
         except ValueError:
             pass
-    if (not host or parsed.username or parsed.password or parsed.fragment
+    if (not host or parsed.username is not None or parsed.password is not None or parsed.fragment
             or parsed.scheme not in {"https", "http"}
             or (parsed.scheme == "http" and not local)):
         raise AgentError("Внешний сервис требует HTTPS без логина, пароля и фрагмента в URL; HTTP разрешён только для loopback.")
