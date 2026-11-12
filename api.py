@@ -585,6 +585,10 @@ class LegalApiHandler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def _read_payload(self) -> dict[str, Any]:
+        if self.headers.get("Transfer-Encoding") is not None:
+            raise RequestValidationError("Transfer-Encoding не поддерживается: используйте Content-Length.")
+        if len(self.headers.get_all("Content-Length", [])) != 1:
+            raise RequestValidationError("Требуется один заголовок Content-Length.")
         raw_length = self.headers.get("Content-Length")
         try:
             length = int(raw_length or 0)
