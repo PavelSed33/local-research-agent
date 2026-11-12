@@ -25,7 +25,7 @@ def audit_objects() -> list[tuple[str, str]]:
     seen: set[str] = set()
     # Git's rev-list --objects output is newline separated, even with -z on
     # versions where -z is ignored. File names may be unusual; preserve bytes.
-    for record in listing.replace(b"\\0", b"\\n").splitlines():
+    for record in listing.replace(bytes([0]), bytes([10])).splitlines():
         if b" " not in record:
             continue
         oid, raw_name = record.split(b" ", 1)
