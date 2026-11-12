@@ -3,3 +3,12 @@ __pycache__/
 *.pyc
 результаты/
 мои_исследования/
+
+# Do not accidentally commit licensed documents or client case files
+*.pdf
+*.docx
+*.zip
+legal_uploads/
+legal_corpus/
+case_files/
+downloads/
