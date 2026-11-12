@@ -191,7 +191,7 @@ def parse_int_field(payload: dict[str, Any], field: str, default: int, minimum: 
     return value
 
 
-def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore | None = None, persist_results: bool = False) -> dict[str, Any]:
+def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore | None = None, persist_results: bool = False, session_context_override: str = "") -> dict[str, Any]:
     """Выполняет полный цикл агента и возвращает структурированный ответ."""
     question = payload.get("question", "")
     if not isinstance(question, str) or not question.strip():
@@ -214,7 +214,7 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
         raise RequestValidationError("Неизвестный или истёкший session_id.")
     if sessions and session_id is None:
         session_id = secrets.token_hex(24)
-    context, session_identity = sessions.begin(session_id) if sessions and session_id else ("", None)
+    context, session_identity = sessions.begin(session_id) if sessions and session_id else (session_context_override, None)
 
     if not isinstance(persist_results, bool):
         raise RequestValidationError("persist_results должен быть логическим значением.")
