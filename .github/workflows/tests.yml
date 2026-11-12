@@ -64,7 +64,7 @@ jobs:
           with urllib.request.urlopen(request, timeout=30) as response:
               payload = json.load(response)
           assert payload['demo'] is True
-          assert payload['as_of'] == '2023-03-01'
+          assert payload['sources'] == []
           assert payload['answer']
           PY
       - name: Demo acceptance suite
