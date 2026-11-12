@@ -649,6 +649,9 @@ class LegalApiHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Cache-Control", "no-store")
         self.send_header("X-Content-Type-Options", "nosniff")
+        request_id = getattr(self, "_request_id", None)
+        if request_id is not None:
+            self.send_header("X-Request-ID", request_id)
         self.send_header("Content-Length", str(len(body)))
         if self.close_connection:
             self.send_header("Connection", "close")
@@ -728,6 +731,7 @@ class LegalApiHandler(BaseHTTPRequestHandler):
                 result = handle_ask(payload, Path(self.server.output_dir), self.server.sessions)
             elif self.path in ("/review", "/extract", "/diff"):
                 request_id = self.headers.get("X-Request-ID") or uuid.uuid4().hex
+                self._request_id = request_id
                 result = self.server.jobs.execute(request_id, {"path": self.path, "payload": payload})
             elif self.path == "/penalty":
                 result = handle_penalty(payload)
