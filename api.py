@@ -728,7 +728,33 @@ class LegalApiHandler(BaseHTTPRequestHandler):
                     raise RequestValidationError("Некорректный session_id.")
                 result = {"deleted": self.server.sessions.delete(session_id)}
             elif self.path == "/ask":
-                result = handle_ask(payload, Path(self.server.output_dir), self.server.sessions)
+                # Validate and bind the session in the parent process; workers never
+                # receive access to the session store.
+                question = payload.get("question")
+                if not isinstance(question, str) or not question.strip() or len(question) > 8000:
+                    raise RequestValidationError("Некорректное поле question.")
+                session_id = payload.get("session_id")
+                if session_id is not None:
+                    if not isinstance(session_id, str) or not SESSION_ID_PATTERN.fullmatch(session_id):
+                        raise RequestValidationError("Некорректный session_id.")
+                    if not self.server.sessions.exists(session_id):
+                        raise RequestValidationError("Неизвестный или истёкший session_id.")
+                else:
+                    session_id = secrets.token_hex(24)
+                context, identity = self.server.sessions.begin(session_id)
+                worker_payload = {**payload}
+                worker_payload.pop("session_id", None)
+                request_id = self.headers.get("X-Request-ID") or uuid.uuid4().hex
+                self._request_id = request_id
+                def publish(reply):
+                    self.server.sessions.remember(session_id, question, reply["answer"], expected_session=identity)
+                    reply["session_id"] = session_id
+                    return reply
+                result = self.server.jobs.execute(
+                    request_id,
+                    {"path": "/ask", "payload": worker_payload, "context": context},
+                    commit=publish,
+                )
             elif self.path in ("/review", "/extract", "/diff"):
                 request_id = self.headers.get("X-Request-ID") or uuid.uuid4().hex
                 self._request_id = request_id
