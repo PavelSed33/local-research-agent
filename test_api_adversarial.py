@@ -39,6 +39,20 @@ class AdversarialApiTests(unittest.TestCase):
         except urllib.error.HTTPError as error:
             return error.code, json.load(error)
 
+    def test_invalid_research_does_not_allocate_sessions_or_jobs(self):
+        invalid = [
+            {"question": "Тест", "demo": "yes"},
+            {"question": "Тест", "queries": 0},
+            {"question": "Тест", "sources": 11},
+            {"question": "Тест", "as_of": "2026-02-30"},
+        ]
+        for payload in invalid:
+            with self.subTest(payload=payload):
+                status, _ = self.post(payload)
+                self.assertEqual(status, 400)
+                self.assertFalse(self.server.sessions._sessions)
+                self.assertFalse(self.server.jobs.active)
+
     def test_authentication_matrix(self):
         for token in (None, "", "incorrect", "test-secret-extra"):
             with self.subTest(token=token):
