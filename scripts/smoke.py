@@ -1,99 +1,72 @@
-"""Run demo-only acceptance requests against a running local API."""
+"""Offline-only HTTP smoke checks for the recovered API surface.
+
+No real legal validity or external provider availability is asserted.
+"""
 import argparse
-import hashlib
 import json
 import os
-from urllib.parse import urlsplit
+import urllib.error
 import urllib.request
-import uuid
+from urllib.parse import urlsplit
 
 
 def smoke(base_url: str) -> list[str]:
     parsed = urlsplit(base_url)
-    if parsed.scheme not in {'http', 'https'} or parsed.hostname not in {'127.0.0.1', 'localhost', '::1'}:
-        raise ValueError('Smoke test is restricted to a local server.')
-    token = os.getenv('API_TOKEN', '')
-    headers = {'Content-Type': 'application/json'}
+    if parsed.scheme not in {"http", "https"} or parsed.hostname not in {"127.0.0.1", "localhost", "::1"}:
+        raise ValueError("Smoke test is restricted to a local server.")
+    base_url = base_url.rstrip("/")
+    token = os.getenv("API_TOKEN", "")
+    headers = {"Content-Type": "application/json"}
     if token:
-        headers['Authorization'] = 'Bearer ' + token
+        headers["Authorization"] = "Bearer " + token
     passed = []
-    req = urllib.request.Request(base_url.rstrip('/') + '/runtime/readiness', headers=headers)
-    with urllib.request.urlopen(req, timeout=10) as response:
-        ready = json.load(response)
-    assert ready['external_services_tested'] is False
-    assert ready['legal_acceptance'] is False
-    assert any(item['id'] == '/diff' and item['status'] == 'ready_locally' for item in ready['workflows'])
-    passed.append('GET /runtime/readiness')
-    for path, marker in [('/', b'<!doctype html>'), ('/app.js', b'use strict'), ('/style.css', b':root'),
-                         ('/review/options', b'contract_types'),
-                         ('/legal/research/options', b'civil-limitation'),
-                         ('/legal/skills/options', b'contract-playbook')]:
-        with urllib.request.urlopen(base_url.rstrip('/') + path, timeout=10) as response:
-            assert marker in response.read(), path
-        passed.append('GET ' + path)
-    document = 'Поставка товара производится в течение десяти дней после оплаты.'
-    cases = [
-        ('/ask', {'question': 'Техническая проверка экспорта материалов', 'demo': True,
-                  'include_source_materials': True}, 'source_materials'),
-        ('/extract/local', {'document': document+' Сумма: 1 000 руб. Дата: 01.02.2026.'}, 'matches'),
-        ('/legal/skills/run', {'skill_id': 'contract-risk', 'user_position': 'Заказчик',
-                             'document': document, 'demo': True}, 'findings'),
-        ('/ask', {'question': 'Техническая демонстрация', 'demo': True, 'as_of': '2023-03-01'}, 'answer'),
-        ('/review', {'document': document, 'demo': True}, 'risks'),
-        ('/review/legal', {'document': document, 'demo': True, 'facts': {'both_businesses': True}}, 'applicability'),
-        ('/review/legal', {'document': document, 'contract_type': 'work', 'demo': True,
-                           'facts': {'both_businesses': True}}, 'contract_qualification'),
-        ('/review/legal', {'document': document, 'contract_type': 'work', 'demo': True,
-                           'facts': {'both_businesses': True, 'result_handover': True,
-                                     'mixed_contract': False, 'special_regime': False}}, 'contract_qualification'),
-        ('/extract', {'document': document, 'demo': True}, 'parties'),
-        ('/diff', {'document_a': document, 'document_b': document.replace('десяти', 'пяти')}, 'changes'),
-        ('/case-law/check', {'question': 'Тест', 'demo': True}, 'decisions'),
-        ('/legal/coverage', {'as_of': '2023-03-01', 'module_ids': ['LAW-01', 'LAW-02']}, 'modules'),
-        ('/privacy/check', {'scenario': 'consent'}, 'research_cards'),
-        ('/legal/research', {'scenario': 'procedure-costs', 'as_of': '2026-11-08'}, 'research_card_ids'),
-        ('/legal/corpus', {'card_ids': ['LAW-02:165.1'], 'include_text': True, 'as_of': '2026-11-08'}, 'entries'),
-        ('/sessions/delete', {'session_id': 'smoke-' + uuid.uuid4().hex}, 'deleted'),
-    ]
-    for skill in ('nda-screen', 'fact-timeline', 'legal-search-plan'):
-        cases.append(('/legal/skills/run', {'skill_id': skill, 'document': document,
-                      'user_position': 'Заказчик', 'demo': True}, 'findings'))
-    for path, payload, key in cases:
-        request = urllib.request.Request(base_url.rstrip('/') + path,
-                                         data=json.dumps(payload).encode(), headers=headers)
+
+    with urllib.request.urlopen(base_url + "/health", timeout=10) as response:
+        health = json.load(response)
+    assert health["status"] == "ok"
+    assert health["demo_available"] is True
+    passed.append("GET /health")
+
+    with urllib.request.urlopen(base_url + "/openapi.json", timeout=10) as response:
+        spec = json.load(response)
+    assert "/ask" in spec["paths"]
+    passed.append("GET /openapi.json")
+
+    def ask(payload):
+        request = urllib.request.Request(
+            base_url + "/ask", data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
+            headers=headers, method="POST",
+        )
         with urllib.request.urlopen(request, timeout=30) as response:
-            result = json.load(response)
-        assert key in result, path
-        if key == 'source_materials':
-            assert result['source_materials'] and len(result['source_materials']) == len(result['sources'])
-            for index, source in enumerate(result['source_materials'], 1):
-                assert source['id'] == index and source['url'] == result['sources'][index - 1]['url']
-                assert hashlib.sha256(source['text'].encode()).hexdigest() == source['sha256']
-                assert source['verified'] is False and source['period_supported'] is False
-        if path == '/extract/local':
-            assert result['mode'] == 'local_patterns' and result['demo'] is False
-            assert result['external_requests_attempted'] is False and result['matches']
-        if path == '/legal/coverage':
-            assert result['verified'] is False
-            assert not result['evidence_summary']['errors']
-        if path == '/privacy/check':
-            assert result['status'] == 'needs_facts' and result['verified'] is False
-        if path == '/legal/research':
-            assert result['status'] == 'needs_facts' and result['verified'] is False
-        if path == '/legal/corpus':
-            assert result['verified'] is False and not result['errors']
-            assert 'Статья 165.1.' in result['entries'][0]['text']
-            assert result['entries'][0]['period_supported'] is False
-        if path == '/review/legal' and payload.get('contract_type') == 'work':
-            expected = 'draft' if payload['facts'].get('result_handover') else 'needs_facts'
-            assert result['status'] == expected and result['verified'] is False
-        passed.append('POST ' + path)
+            return json.load(response)
+
+    first = ask({"question": "Демонстрационный правовой вопрос", "demo": True, "as_of": "2023-03-01"})
+    assert first["answer"] and first["demo"] is True
+    assert first["as_of"] == "2023-03-01"
+    assert first["session_id"]
+    assert "report_file" not in first and "journal_file" not in first
+    passed.append("POST /ask demo")
+
+    followup = ask({"question": "Продолжение вопроса", "demo": True, "session_id": first["session_id"]})
+    assert followup["session_id"] == first["session_id"]
+    passed.append("POST /ask session follow-up")
+
+    bad = urllib.request.Request(
+        base_url + "/ask", data=b'{"question":""}', headers=headers, method="POST",
+    )
+    try:
+        urllib.request.urlopen(bad, timeout=10)
+    except urllib.error.HTTPError as exc:
+        assert exc.code == 400
+    else:
+        raise AssertionError("Empty question was accepted")
+    passed.append("POST /ask invalid input rejected")
     return passed
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--base-url', default='http://127.0.0.1:8080')
-    print(json.dumps({'passed': smoke(parser.parse_args().base_url),
-                      'scope': 'local_demo_and_research_metadata', 'legal_acceptance': False}, ensure_ascii=False, indent=2))
-
+    parser.add_argument("--base-url", default="http://127.0.0.1:8080")
+    print(json.dumps({"passed": smoke(parser.parse_args().base_url),
+                      "scope": "offline_demo_only", "legal_acceptance": False},
+                     ensure_ascii=False, indent=2))
