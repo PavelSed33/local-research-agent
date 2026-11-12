@@ -1,4 +1,5 @@
 import io
+from email.message import Message
 import json
 import socket
 import tempfile
@@ -71,9 +72,34 @@ class HttpConnectionSafetyTests(ApiTestCase):
 class HttpBodyValidationTests(unittest.TestCase):
     def test_truncated_body_is_rejected(self):
         handler = object.__new__(LegalApiHandler)
-        handler.headers = {"Content-Length": "20"}
+        handler.headers = Message()
+        handler.headers["Content-Length"] = "20"
         handler.rfile = io.BytesIO(b'{"question":"hi"}')
         with self.assertRaisesRegex(RequestValidationError, "не полностью"):
+            handler._read_payload()
+
+
+class HttpFramingSafetyTests(unittest.TestCase):
+    def make_handler(self, headers):
+        handler = object.__new__(LegalApiHandler)
+        handler.headers = Message()
+        for key, value in headers:
+            handler.headers[key] = value
+        handler.rfile = io.BytesIO(b'{"question":"hi"}')
+        return handler
+
+    def test_duplicate_content_length_is_rejected(self):
+        handler = self.make_handler([
+            ("Content-Length", "17"), ("Content-Length", "17")
+        ])
+        with self.assertRaisesRegex(RequestValidationError, "один заголовок"):
+            handler._read_payload()
+
+    def test_transfer_encoding_is_rejected(self):
+        handler = self.make_handler([
+            ("Transfer-Encoding", "chunked"), ("Content-Length", "17")
+        ])
+        with self.assertRaisesRegex(RequestValidationError, "Transfer-Encoding"):
             handler._read_payload()
 
 
