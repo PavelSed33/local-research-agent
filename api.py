@@ -259,7 +259,7 @@ def openapi_spec() -> dict[str, Any]:
                                         "question": {"type": "string"},
                                         "queries": {"type": "integer", "minimum": 1, "maximum": 5, "default": 3},
                                         "sources": {"type": "integer", "minimum": 1, "maximum": 10, "default": 6},
-                                        "session_id": {"type": "string", "pattern": "^[A-Za-z0-9-]{1,64}$"},
+                                        "session_id": {"type": "string", "pattern": "^[A-Za-z0-9-]{1,64}$", "description": "Необязательный секретный идентификатор существующей сессии. При первом запросе не передавайте: сервер выдаст случайный session_id в ответе. Неизвестный или истёкший ID возвращает HTTP 400."},
                                         "demo": {"type": "boolean", "default": False},
                                     },
                                 }
