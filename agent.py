@@ -997,6 +997,8 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
     checked_on = current_check_date()
     legal_as_of = validate_as_of(as_of) or checked_on
     original_topic = topic
+    if not demo and os.getenv("ENABLE_UNREVIEWED_STATUTE_CORPUS", "").lower() == "true":
+        raise AgentError("Непроверенный локальный корпус законодательства отключён до аудита происхождения и лицензий.")
     if as_of is not None:
         topic = (f"{topic}\nДата правовой ситуации: {legal_as_of}. "
                  "Определи применимую норму на эту дату; отличай её от даты проверки. "
@@ -1033,8 +1035,6 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
     log("[2/8] Ищу нормы и читаю источники…")
     per_query = max(2, min(5, source_limit))
     found, errors = search_queries(search, queries, per_query, verbose=verbose)
-    if not demo and os.getenv("ENABLE_UNREVIEWED_STATUTE_CORPUS", "").lower() == "true":
-        raise AgentError("Непроверенный локальный корпус законодательства отключён до аудита происхождения и лицензий.")
     sources = deduplicate(found, source_limit)
     if not sources:
         details = "\n".join(errors)
