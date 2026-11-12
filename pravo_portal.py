@@ -21,6 +21,11 @@ from agent import AgentError, Source
 from source_admission import classify_source, SourceAdmissionError
 
 
+class _RejectRedirects(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, request, fp, code, msg, headers, newurl):
+        raise AgentError("HTTP redirect blocked for official legal source.")
+
+
 MAX_RESPONSE_BYTES = 2 * 1024 * 1024
 DEFAULT_BASE_URL = "https://publication.pravo.gov.ru"
 
@@ -147,7 +152,7 @@ class PravoPortalSearch:
             method="GET",
         )
         try:
-            with urllib.request.urlopen(request, timeout=self.timeout) as response:
+            with urllib.request.build_opener(_RejectRedirects()).open(request, timeout=self.timeout) as response:
                 raw = response.read(MAX_RESPONSE_BYTES + 1)
         except urllib.error.HTTPError as exc:
             raise AgentError(f"Портал правовой информации вернул HTTP {exc.code}.") from exc
