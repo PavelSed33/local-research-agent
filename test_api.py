@@ -42,6 +42,18 @@ class ApiTestCase(unittest.TestCase):
         return http_request(self.port, method, path, payload, token)
 
 
+class ServerBindingSecurityTests(unittest.TestCase):
+    def test_external_binding_requires_token(self):
+        with tempfile.TemporaryDirectory() as directory:
+            with self.assertRaisesRegex(ValueError, "API_TOKEN"):
+                create_server("0.0.0.0", 0, Path(directory), "")
+
+    def test_localhost_without_token_is_allowed(self):
+        with tempfile.TemporaryDirectory() as directory:
+            server = create_server("127.0.0.1", 0, Path(directory), "")
+            server.server_close()
+
+
 class HealthEndpointTests(ApiTestCase):
     def test_health_returns_status(self):
         status, payload = self.request("GET", "/health")
