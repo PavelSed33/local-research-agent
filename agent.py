@@ -16,6 +16,8 @@ from dataclasses import asdict, dataclass
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Protocol
+
+from source_admission import classify_source, SourceAdmissionError
 from urllib.parse import urlsplit
 
 try:
@@ -233,6 +235,13 @@ class TavilySearch:
             ).split(",")
             if item.strip()
         ]
+        if not self.domains:
+            raise AgentError("Список LEGAL_SEARCH_DOMAINS не может быть пустым.")
+        for domain in self.domains:
+            try:
+                classify_source(f"https://{domain}/")
+            except SourceAdmissionError as exc:
+                raise AgentError(f"Недопустимый поисковый домен: {domain}") from exc
         if not self.api_key:
             raise AgentError("Задайте TAVILY_API_KEY в файле .env.")
 
@@ -257,7 +266,9 @@ class TavilySearch:
             url = str(item.get("url", "")).strip()
             if not url.startswith(("https://", "http://")):
                 continue
-            if classify_source_authority(url) not in {"official_legal_portal", "official_court", "government_legal_reproduction", "official_legal_explanation"}:
+            try:
+                classify_source(url)
+            except SourceAdmissionError:
                 continue
             text = str(item.get("content") or "").strip()
             if not text:
