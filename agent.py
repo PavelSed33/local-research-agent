@@ -1019,7 +1019,7 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
         court_domains = [
             item.strip()
             for item in os.getenv(
-                "COURT_SEARCH_DOMAINS", "kad.arbitr.ru,vsrf.ru,sudact.ru"
+                "COURT_SEARCH_DOMAINS", "kad.arbitr.ru,vsrf.ru"
             ).split(",")
             if item.strip()
         ]
