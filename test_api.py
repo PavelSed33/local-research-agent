@@ -45,6 +45,19 @@ class ApiTestCase(unittest.TestCase):
         return http_request(self.port, method, path, payload, token)
 
 
+class ResponseSecurityHeadersTests(ApiTestCase):
+    def test_sensitive_api_response_is_not_cacheable(self):
+        request = urllib.request.Request(
+            f"http://127.0.0.1:{self.port}/ask",
+            data=json.dumps({"question": "Тест", "demo": True}).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with urllib.request.urlopen(request, timeout=30) as response:
+            self.assertEqual(response.headers.get("Cache-Control"), "no-store")
+            self.assertEqual(response.headers.get("X-Content-Type-Options"), "nosniff")
+
+
 class HttpConnectionSafetyTests(ApiTestCase):
     def test_invalid_json_closes_keepalive_connection(self):
         body = b'not-json'
