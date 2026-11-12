@@ -570,6 +570,16 @@ class SessionTests(ApiTestCase):
         self.assertEqual(status, 400)
         self.assertIn("session_id", payload["error"])
 
+    def test_expired_session_cannot_be_reused(self):
+        _, first = self.request("POST", "/ask", {"question": "Первый вопрос", "demo": True})
+        session_id = first["session_id"]
+        self.server.sessions.ttl_seconds = -1
+        status, payload = self.request("POST", "/ask", {
+            "question": "Продолжение", "session_id": session_id, "demo": True
+        })
+        self.assertEqual(status, 400)
+        self.assertIn("session_id", payload["error"])
+
     def test_two_new_sessions_are_distinct(self):
         _, first = self.request("POST", "/ask", {"question": "Дело А", "demo": True})
         _, second = self.request("POST", "/ask", {"question": "Дело Б", "demo": True})
