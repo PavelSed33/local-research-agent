@@ -114,6 +114,13 @@ class AskEndpointTests(ApiTestCase):
         self.assertEqual(status, 400)
         self.assertIn("as_of", payload["error"])
 
+    def test_demo_string_is_not_accepted(self):
+        status, payload = self.request(
+            "POST", "/ask", {"question": "Вопрос", "demo": "false"}
+        )
+        self.assertEqual(status, 400)
+        self.assertIn("demo", payload["error"])
+
     def test_missing_question_returns_400(self):
         status, payload = self.request("POST", "/ask", {"demo": True})
         self.assertEqual(status, 400)
