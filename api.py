@@ -758,12 +758,30 @@ class LegalApiHandler(BaseHTTPRequestHandler):
                 worker_payload.pop("session_id", None)
                 self._request_id = request_id
                 def publish(reply):
+                    # Commit staged files only after successful, non-cancelled work.
+                    # The worker writes exclusively inside its disposable job directory.
+                    if getattr(self.server, "persist_results", False):
+                        import shutil
+                        from pathlib import Path
+                        report = Path(reply["report_file"])
+                        journal = Path(reply["journal_file"])
+                        staging = report.parent
+                        if not report.is_file() or not journal.is_file() or journal.parent != staging:
+                            raise RuntimeError("Некорректные файлы отчёта рабочего процесса.")
+                        destination = self.server.output_dir / staging.name
+                        self.server.output_dir.mkdir(parents=True, exist_ok=True)
+                        if destination.exists():
+                            raise RuntimeError("Каталог отчёта уже существует.")
+                        shutil.copytree(staging, destination)
+                        reply["report_file"] = str(destination / report.name)
+                        reply["journal_file"] = str(destination / journal.name)
                     self.server.sessions.remember(session_id, question, reply["answer"], expected_session=identity)
                     reply["session_id"] = session_id
                     return reply
                 result = self.server.jobs.execute(
                     request_id,
-                    {"path": "/ask", "payload": worker_payload, "context": context},
+                    {"path": "/ask", "payload": worker_payload, "context": context,
+                     "persist_results": getattr(self.server, "persist_results", False)},
                     commit=publish,
                 )
             elif self.path in ("/review", "/extract", "/diff", "/extract/local", "/legal/skills/run"):
