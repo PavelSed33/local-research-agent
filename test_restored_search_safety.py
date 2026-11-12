@@ -25,6 +25,12 @@ class RestoredSearchSafetyTests(unittest.TestCase):
             client = TavilySearch(domains=["publication.pravo.gov.ru"])
         self.assertEqual(client.domains, ["publication.pravo.gov.ru"])
 
+    def test_default_court_domains_pass_admission(self):
+        from source_admission import classify_source
+        for domain in ("kad.arbitr.ru", "vsrf.ru"):
+            with self.subTest(domain=domain):
+                self.assertEqual(classify_source(f"https://{domain}/").category, "official_court")
+
     def test_search_filters_unapproved_results(self):
         payload = {"results": [
             {"url": "https://publication.pravo.gov.ru/a", "title": "Official", "content": "Public metadata"},
