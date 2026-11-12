@@ -13,7 +13,9 @@ ENV API_HOST=0.0.0.0 \
 # API_TOKEN обязателен при запуске контейнера на 0.0.0.0.
 # LLM_API_KEY, LLM_MODEL, LLM_BASE_URL и TAVILY_API_KEY
 # передаются при запуске контейнера через -e или --env-file.
-RUN mkdir -p /data/results
+RUN mkdir -p /data/results \
+    && python -m compileall -q /app \
+    && python -c "import api; import agent; import pravo_portal; import pravo_ips; import source_admission"
 VOLUME ["/data"]
 
 EXPOSE 8080
