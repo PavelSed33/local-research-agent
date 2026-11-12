@@ -98,15 +98,47 @@ class SessionStore:
             self._purge_expired(now)
             return session_id in self._sessions
 
-    def remember(self, session_id: str, question: str, answer: str) -> None:
+    def begin(self, session_id: str) -> tuple[str, str]:
+        """Return prior context and a generation token for a safe in-flight update."""
+        now = time.time()
+        with self._lock:
+            self._purge_expired(now)
+            if session_id not in self._sessions:
+                if len(self._sessions) >= SESSION_MAX_COUNT:
+                    oldest = min(self._sessions, key=lambda sid: self._sessions[sid]["updated"])
+                    del self._sessions[oldest]
+                self._sessions[session_id] = {
+                    "updated": now, "entries": [], "identity": secrets.token_hex(16),
+                }
+            session = self._sessions[session_id]
+            session.setdefault("identity", secrets.token_hex(16))
+            entries = list(session["entries"])
+            identity = session["identity"]
+        context = "\\n---\\n".join(
+            f"Вопрос: {item['question']}\\nКраткий ответ: {item['answer']}" for item in entries
+        )
+        return context, identity
+
+    def delete(self, session_id: str) -> bool:
+        """Delete a session; any in-flight generation token becomes invalid."""
+        now = time.time()
+        with self._lock:
+            self._purge_expired(now)
+            return self._sessions.pop(session_id, None) is not None
+
+    def remember(self, session_id: str, question: str, answer: str, expected_session: str | None = None) -> None:
         """Запоминает пару вопрос/ответ (ответ усечённо) в сессии."""
         now = time.time()
         with self._lock:
             self._purge_expired(now)
+            if expected_session is not None:
+                current = self._sessions.get(session_id)
+                if current is None or current.get("identity") != expected_session:
+                    return
             if session_id not in self._sessions and len(self._sessions) >= SESSION_MAX_COUNT:
                 oldest = min(self._sessions, key=lambda sid: self._sessions[sid]["updated"])
                 del self._sessions[oldest]
-            session = self._sessions.setdefault(session_id, {"updated": now, "entries": []})
+            session = self._sessions.setdefault(session_id, {"updated": now, "entries": [], "identity": secrets.token_hex(16)})
             session["updated"] = now
             session["entries"].append({"question": question.strip(), "answer": answer[:SESSION_ANSWER_CHARS]})
             del session["entries"][:-SESSION_MAX_ENTRIES]
