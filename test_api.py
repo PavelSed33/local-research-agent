@@ -100,6 +100,20 @@ class AskEndpointTests(ApiTestCase):
         self.assertTrue(payload["checked_on"])
         self.assertTrue(payload["demo"])
 
+    def test_as_of_is_preserved_in_demo_response(self):
+        status, payload = self.request(
+            "POST", "/ask", {"question": "Норма на дату", "demo": True, "as_of": "2023-03-01"}
+        )
+        self.assertEqual(status, 200)
+        self.assertEqual(payload["as_of"], "2023-03-01")
+
+    def test_invalid_as_of_returns_400(self):
+        status, payload = self.request(
+            "POST", "/ask", {"question": "Норма", "demo": True, "as_of": "2023-02-30"}
+        )
+        self.assertEqual(status, 400)
+        self.assertIn("as_of", payload["error"])
+
     def test_missing_question_returns_400(self):
         status, payload = self.request("POST", "/ask", {"demo": True})
         self.assertEqual(status, 400)
