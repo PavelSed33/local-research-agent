@@ -741,6 +741,15 @@ class LegalApiHandler(BaseHTTPRequestHandler):
                         raise RequestValidationError("Неизвестный или истёкший session_id.")
                 else:
                     session_id = secrets.token_hex(24)
+                # Validate all cheap fields before allocating a session or worker.
+                parse_int_field(payload, "queries", 3, 1, 5)
+                parse_int_field(payload, "sources", 6, 1, 10)
+                if type(payload.get("demo", False)) is not bool:
+                    raise RequestValidationError("Поле demo должно быть true или false.")
+                try:
+                    validate_as_of(payload.get("as_of"))
+                except ValueError as exc:
+                    raise RequestValidationError(str(exc)) from exc
                 context, identity = self.server.sessions.begin(session_id)
                 worker_payload = {**payload}
                 worker_payload.pop("session_id", None)
