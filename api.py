@@ -788,7 +788,16 @@ def create_server(
     if not loopback and not api_token.strip():
         raise ValueError("API_TOKEN обязателен при доступе к API за пределами localhost.")
     jobs = RequestJobs(timeout_seconds=request_timeout_seconds)
-    server = ThreadingHTTPServer((host, port), LegalApiHandler)
+    class ManagedLegalServer(ThreadingHTTPServer):
+        daemon_threads = True
+
+        def server_close(self):
+            try:
+                self.jobs.close()
+            finally:
+                super().server_close()
+
+    server = ManagedLegalServer((host, port), LegalApiHandler)
     server.jobs = jobs
     server.output_dir = Path(output_dir)
     server.api_token = api_token.strip()
