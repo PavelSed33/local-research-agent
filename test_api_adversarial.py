@@ -53,6 +53,21 @@ class AdversarialApiTests(unittest.TestCase):
                 self.assertFalse(self.server.sessions._sessions)
                 self.assertFalse(self.server.jobs.active)
 
+    def test_invalid_request_id_does_not_create_session(self):
+        request = urllib.request.Request(
+            f"http://127.0.0.1:{self.port}/ask",
+            data=json.dumps({"question": "Тест", "demo": True}).encode("utf-8"),
+            headers={"Content-Type": "application/json",
+                     "Authorization": "Bearer test-secret",
+                     "X-Request-ID": "../bad"},
+            method="POST",
+        )
+        with self.assertRaises(urllib.error.HTTPError) as caught:
+            urllib.request.urlopen(request, timeout=10)
+        self.assertEqual(caught.exception.code, 400)
+        self.assertFalse(self.server.sessions._sessions)
+        self.assertFalse(self.server.jobs.active)
+
     def test_authentication_matrix(self):
         for token in (None, "", "incorrect", "test-secret-extra"):
             with self.subTest(token=token):
