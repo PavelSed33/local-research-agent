@@ -1,3 +1,4 @@
+import io
 import json
 import tempfile
 import threading
@@ -7,7 +8,7 @@ import urllib.request
 from pathlib import Path
 
 from agent import LEGAL_DISCLAIMER
-from api import SessionStore, create_server
+from api import LegalApiHandler, RequestValidationError, SessionStore, create_server
 
 
 def http_request(port, method, path, payload=None, token=None):
@@ -40,6 +41,15 @@ class ApiTestCase(unittest.TestCase):
 
     def request(self, method, path, payload=None, token=None):
         return http_request(self.port, method, path, payload, token)
+
+
+class HttpBodyValidationTests(unittest.TestCase):
+    def test_truncated_body_is_rejected(self):
+        handler = object.__new__(LegalApiHandler)
+        handler.headers = {"Content-Length": "20"}
+        handler.rfile = io.BytesIO(b'{"question":"hi"}')
+        with self.assertRaisesRegex(RequestValidationError, "не полностью"):
+            handler._read_payload()
 
 
 class SessionCapacityTests(unittest.TestCase):
