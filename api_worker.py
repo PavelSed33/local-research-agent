@@ -12,6 +12,8 @@ def execute(envelope):
     from review import handle_review
     from extract import handle_extract
     from redline import handle_diff
+    from api import handle_ask
+    from pathlib import Path
 
     handlers = {
         '/review': handle_review,
@@ -20,7 +22,10 @@ def execute(envelope):
     }
     try:
         with contextlib.redirect_stdout(sys.stderr):
-            result = handlers[envelope['path']](envelope['payload'])
+            if envelope['path'] == '/ask':
+                result = handle_ask(envelope['payload'], Path(envelope['output_dir']), persist_results=False)
+            else:
+                result = handlers[envelope['path']](envelope['payload'])
         return {'status': 200, 'result': result}
     except (ValueError, TypeError) as exc:
         return {'status': 400, 'code': 'invalid_request', 'error': str(exc)}
