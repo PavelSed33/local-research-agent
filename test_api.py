@@ -119,6 +119,15 @@ class AskEndpointTests(ApiTestCase):
         self.assertTrue(payload["checked_on"])
         self.assertTrue(payload["demo"])
 
+    def test_response_does_not_leak_server_file_paths(self):
+        status, payload = self.request(
+            "POST", "/ask", {"question": "Тест путей", "demo": True}
+        )
+        self.assertEqual(status, 200)
+        self.assertNotIn("report_file", payload)
+        self.assertNotIn("journal_file", payload)
+        self.assertNotIn(self.directory.name, json.dumps(payload, ensure_ascii=False))
+
     def test_as_of_is_preserved_in_demo_response(self):
         status, payload = self.request(
             "POST", "/ask", {"question": "Норма на дату", "demo": True, "as_of": "2023-03-01"}
