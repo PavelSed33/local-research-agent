@@ -128,6 +128,13 @@ class AskEndpointTests(ApiTestCase):
         self.assertNotIn("journal_file", payload)
         self.assertNotIn(self.directory.name, json.dumps(payload, ensure_ascii=False))
 
+    def test_oversized_question_is_rejected_before_research(self):
+        status, payload = self.request(
+            "POST", "/ask", {"question": "А" * 8001, "demo": True}
+        )
+        self.assertEqual(status, 400)
+        self.assertIn("8000", payload["error"])
+
     def test_as_of_is_preserved_in_demo_response(self):
         status, payload = self.request(
             "POST", "/ask", {"question": "Норма на дату", "demo": True, "as_of": "2023-03-01"}
