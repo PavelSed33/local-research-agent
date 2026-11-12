@@ -17,7 +17,7 @@ RESTRICTED_PATH_PARTS = {"legal_uploads", "legal_corpus", "case_files", "downloa
 PROPRIETARY_MARKERS = re.compile(
     r"(?i)(?:©|copyright|все права защищены)\s*"
     r"(?:ооо\s*)?(?:консультант\s*плюс|consultantplus|гарант|garant)"
-    r"|(?:консультант\s*плюс|consultantplus|гарант|garant)\s*"
+    r"|(?:консультант\s*плюс|consultantplus|гарант|garant)[\s—–:,-]*"
     r"(?:©|copyright|все права защищены)"
 )
 
