@@ -274,9 +274,6 @@ class CourtStageDegradationTests(unittest.TestCase):
         self.assertTrue(journal["report_validated"])
 
 
-if __name__ == "__main__":
-    unittest.main()
-
 
 class ProvenanceSecurityTests(unittest.TestCase):
     def test_official_portal_requires_exact_host(self):
@@ -309,3 +306,5 @@ class UnreviewedCorpusSafetyTests(unittest.TestCase):
             with tempfile.TemporaryDirectory() as directory:
                 with self.assertRaisesRegex(AgentError, "корпус"):
                     run("Тест", 1, 2, Path(directory), demo=False)
+if __name__ == "__main__":
+    unittest.main()
