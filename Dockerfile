@@ -10,7 +10,8 @@ ENV API_HOST=0.0.0.0 \
     API_PORT=8080 \
     API_OUTPUT_DIR=/data/results
 
-# LLM_API_KEY, LLM_MODEL, LLM_BASE_URL, TAVILY_API_KEY и API_TOKEN
+# API_TOKEN обязателен при запуске контейнера на 0.0.0.0.
+# LLM_API_KEY, LLM_MODEL, LLM_BASE_URL и TAVILY_API_KEY
 # передаются при запуске контейнера через -e или --env-file.
 RUN mkdir -p /data/results
 VOLUME ["/data"]
