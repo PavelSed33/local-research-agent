@@ -541,32 +541,39 @@ class ScoringEndpointTests(ApiTestCase):
 
 
 class SessionTests(ApiTestCase):
-    def test_ask_with_session_id_returns_it(self):
-        status, payload = self.request(
-            "POST", "/ask", {"question": "Первый вопрос", "session_id": "дело-1".encode().hex()[:20], "demo": True}
-        )
+    def test_new_session_receives_unpredictable_id(self):
+        status, payload = self.request("POST", "/ask", {"question": "Первый вопрос", "demo": True})
         self.assertEqual(status, 200)
-        self.assertIsNotNone(payload["session_id"])
+        self.assertRegex(payload["session_id"], r"^[a-f0-9]{48}$")
 
     def test_second_request_in_session_succeeds(self):
-        session_id = "case-42"
-        status, _ = self.request("POST", "/ask", {"question": "Первый вопрос", "session_id": session_id, "demo": True})
+        status, first = self.request("POST", "/ask", {"question": "Первый вопрос", "demo": True})
         self.assertEqual(status, 200)
-        status, payload = self.request("POST", "/ask", {"question": "А что с неустойкой?", "session_id": session_id, "demo": True})
+        session_id = first["session_id"]
+        status, payload = self.request("POST", "/ask", {
+            "question": "А что с неустойкой?", "session_id": session_id, "demo": True
+        })
         self.assertEqual(status, 200)
         self.assertEqual(payload["session_id"], session_id)
 
-    def test_invalid_session_id_returns_400(self):
-        status, payload = self.request(
-            "POST", "/ask", {"question": "Вопрос", "session_id": "плохой id!", "demo": True}
-        )
+    def test_unknown_session_id_is_rejected(self):
+        status, payload = self.request("POST", "/ask", {
+            "question": "Чужое дело", "session_id": "case-42", "demo": True
+        })
         self.assertEqual(status, 400)
         self.assertIn("session_id", payload["error"])
 
-    def test_ask_without_session_id_returns_null(self):
-        status, payload = self.request("POST", "/ask", {"question": "Вопрос", "demo": True})
-        self.assertEqual(status, 200)
-        self.assertIsNone(payload["session_id"])
+    def test_invalid_session_id_returns_400(self):
+        status, payload = self.request("POST", "/ask", {
+            "question": "Вопрос", "session_id": "плохой id!", "demo": True
+        })
+        self.assertEqual(status, 400)
+        self.assertIn("session_id", payload["error"])
+
+    def test_two_new_sessions_are_distinct(self):
+        _, first = self.request("POST", "/ask", {"question": "Дело А", "demo": True})
+        _, second = self.request("POST", "/ask", {"question": "Дело Б", "demo": True})
+        self.assertNotEqual(first["session_id"], second["session_id"])
 
 
 class SessionStoreTests(unittest.TestCase):
