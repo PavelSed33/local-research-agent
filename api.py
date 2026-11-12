@@ -670,6 +670,13 @@ def create_server(
     output_dir: Path | str = Path("результаты"),
     api_token: str = "",
 ) -> ThreadingHTTPServer:
+    import ipaddress
+    try:
+        loopback = host.lower() == "localhost" or ipaddress.ip_address(host).is_loopback
+    except ValueError:
+        loopback = False
+    if not loopback and not api_token.strip():
+        raise ValueError("API_TOKEN обязателен при доступе к API за пределами localhost.")
     server = ThreadingHTTPServer((host, port), LegalApiHandler)
     server.output_dir = Path(output_dir)
     server.api_token = api_token.strip()
