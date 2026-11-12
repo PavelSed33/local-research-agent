@@ -1,5 +1,6 @@
 import io
 import json
+import socket
 import tempfile
 import threading
 import unittest
@@ -41,6 +42,30 @@ class ApiTestCase(unittest.TestCase):
 
     def request(self, method, path, payload=None, token=None):
         return http_request(self.port, method, path, payload, token)
+
+
+class HttpConnectionSafetyTests(ApiTestCase):
+    def test_invalid_json_closes_keepalive_connection(self):
+        body = b'not-json'
+        request = (
+            b"POST /ask HTTP/1.1\\r\\n"
+            b"Host: 127.0.0.1\\r\\n"
+            b"Connection: keep-alive\\r\\n"
+            b"Content-Type: application/json\\r\\n"
+            + f"Content-Length: {len(body)}\\r\\n".encode("ascii")
+            + b"\\r\\n" + body
+        )
+        with socket.create_connection(("127.0.0.1", self.port), timeout=5) as connection:
+            connection.settimeout(5)
+            connection.sendall(request)
+            response = b""
+            while True:
+                chunk = connection.recv(65536)
+                if not chunk:
+                    break
+                response += chunk
+        self.assertIn(b" 400 ", response)
+        self.assertIn(b"Connection: close", response)
 
 
 class HttpBodyValidationTests(unittest.TestCase):
