@@ -62,12 +62,12 @@ class HttpConnectionSafetyTests(ApiTestCase):
     def test_invalid_json_closes_keepalive_connection(self):
         body = b'not-json'
         request = (
-            b"POST /ask HTTP/1.1\\r\\n"
-            b"Host: 127.0.0.1\\r\\n"
-            b"Connection: keep-alive\\r\\n"
-            b"Content-Type: application/json\\r\\n"
-            + f"Content-Length: {len(body)}\\r\\n".encode("ascii")
-            + b"\\r\\n" + body
+            b"POST /ask HTTP/1.1\r\n"
+            b"Host: 127.0.0.1\r\n"
+            b"Connection: keep-alive\r\n"
+            b"Content-Type: application/json\r\n"
+            + f"Content-Length: {len(body)}\r\n".encode("ascii")
+            + b"\r\n" + body
         )
         with socket.create_connection(("127.0.0.1", self.port), timeout=5) as connection:
             connection.settimeout(5)
