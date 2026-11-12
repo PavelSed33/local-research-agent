@@ -340,23 +340,26 @@ def deduplicate(sources: list[Source], limit: int) -> list[Source]:
 
 
 def classify_source_authority(url: str) -> str:
-    """Classify source provenance; this is not a legal-validity determination."""
+    """Classify source provenance using exact trusted hosts, not lookalike suffixes."""
     try:
-        host = (urlsplit(url).hostname or "").lower().rstrip(".")
+        parsed = urlsplit(str(url))
+        host = (parsed.hostname or "").lower().rstrip(".")
     except ValueError:
         return "unclassified"
-    if host == "pravo.gov.ru" or host.endswith(".pravo.gov.ru"):
+    if host in {"pravo.gov.ru", "www.pravo.gov.ru", "publication.pravo.gov.ru"}:
         return "official_legal_portal"
-    if host == "mintrud.gov.ru" or (host == "zpp.rospotrebnadzor.ru" and urlsplit(url).path.startswith("/npa/")):
-        return "government_legal_reproduction"
-    if host == "epp.genproc.gov.ru" or host == "rostrud.gov.ru" or host.endswith(".rostrud.gov.ru") or (host == "zpp.rospotrebnadzor.ru" and urlsplit(url).path.startswith("/news/")):
-        return "official_legal_explanation"
-    if host == "arbitr.ru" or host == "vsrf.ru" or host.endswith(".vsrf.ru") or host == "kad.arbitr.ru" or host.endswith(".arbitr.ru") or host.endswith(".sudrf.ru"):
+    if host in {"arbitr.ru", "www.arbitr.ru", "kad.arbitr.ru", "vsrf.ru", "www.vsrf.ru"} or host.endswith(".sudrf.ru"):
         return "official_court"
-    if host == "sudact.ru" or host.endswith(".sudact.ru"):
+    if host in {"sudact.ru", "www.sudact.ru"}:
         return "case_law_aggregator"
-    if host == "consultant.ru" or host.endswith(".consultant.ru") or host == "garant.ru" or host.endswith(".garant.ru"):
+    if host in {"consultant.ru", "www.consultant.ru", "garant.ru", "www.garant.ru"}:
         return "secondary_legal_reference"
+    if host == "zpp.rospotrebnadzor.ru":
+        return "government_legal_reproduction" if parsed.path.startswith("/npa/") else "official_legal_explanation"
+    if host in {"epp.genproc.gov.ru", "rostrud.gov.ru", "www.rostrud.gov.ru"}:
+        return "official_legal_explanation"
+    if host.endswith(".gov.ru"):
+        return "government_legal_reproduction"
     return "unclassified"
 
 
