@@ -42,6 +42,16 @@ class ApiTestCase(unittest.TestCase):
         return http_request(self.port, method, path, payload, token)
 
 
+class SessionCapacityTests(unittest.TestCase):
+    def test_session_cache_evicts_oldest_at_capacity(self):
+        store = SessionStore()
+        for index in range(1001):
+            store.remember(f"session-{index}", "question", "answer")
+        self.assertLessEqual(len(store._sessions), 1000)
+        self.assertNotIn("session-0", store._sessions)
+        self.assertIn("session-1000", store._sessions)
+
+
 class ApiImportSafetyTests(unittest.TestCase):
     def test_api_does_not_expose_unaudited_statute_routes(self):
         import api
