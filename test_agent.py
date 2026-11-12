@@ -3,7 +3,7 @@ import os
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from agent import (
     AgentError,
@@ -178,7 +178,7 @@ class IterativeResearchTests(unittest.TestCase):
     def test_additional_research_and_mandatory_update_check(self):
         model = IterativeModel()
         search = IterativeSearch()
-        with patch("agent.OpenAICompatibleModel", return_value=model), patch("agent.TavilySearch", return_value=search), patch("pravo_portal.PravoPortalSearch", return_value=search), patch("pravo_ips.PravoIpsBank") as ips_mock:
+        with patch("agent.OpenAICompatibleModel", return_value=model), patch("agent.TavilySearch", return_value=search), patch("pravo_portal.PravoPortalSearch", return_value=search), patch("pravo_ips.PravoIpsBank", return_value=Mock(search=Mock(return_value=[]))):
             with tempfile.TemporaryDirectory() as directory:
                 _, run_path = run("Вопрос", 1, 6, Path(directory))
                 journal = json.loads(run_path.read_text(encoding="utf-8"))
