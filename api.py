@@ -660,6 +660,10 @@ class LegalApiHandler(BaseHTTPRequestHandler):
                 result = handle_scoring(payload)
             else:
                 result = handle_diff(payload)
+        except TimeoutError:
+            self.close_connection = True
+            self._send_json(408, {"error": "Истекло время ожидания данных запроса."})
+            status = 408
         except ValueError as exc:
             self._send_json(400, {"error": str(exc)})
             status = 400
