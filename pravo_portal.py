@@ -18,6 +18,7 @@ from datetime import date
 from typing import Any
 
 from agent import AgentError, Source
+from source_admission import classify_source, SourceAdmissionError
 
 
 MAX_RESPONSE_BYTES = 2 * 1024 * 1024
@@ -133,6 +134,10 @@ class PravoPortalSearch:
             doseq=True,
         )
         url = f"{self.base_url}{path}" + (f"?{query}" if query else "")
+        try:
+            classify_source(url)
+        except SourceAdmissionError as exc:
+            raise AgentError(f"Источник не прошёл проверку происхождения: {exc}") from exc
         request = urllib.request.Request(
             url,
             headers={
