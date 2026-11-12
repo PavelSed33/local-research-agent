@@ -569,6 +569,11 @@ class LegalApiHandler(BaseHTTPRequestHandler):
     server_version = f"{SERVICE_NAME}/{API_VERSION}"
     protocol_version = "HTTP/1.1"
 
+    def setup(self) -> None:
+        super().setup()
+        # Do not let incomplete HTTP bodies occupy a worker indefinitely.
+        self.connection.settimeout(30)
+
     def _send_json(self, status: int, payload: dict[str, Any]) -> None:
         body = json.dumps(payload, ensure_ascii=False, indent=2).encode("utf-8")
         self.send_response(status)
