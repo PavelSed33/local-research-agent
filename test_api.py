@@ -42,6 +42,13 @@ class ApiTestCase(unittest.TestCase):
         return http_request(self.port, method, path, payload, token)
 
 
+class ApiImportSafetyTests(unittest.TestCase):
+    def test_api_does_not_expose_unaudited_statute_routes(self):
+        import api
+        self.assertFalse(hasattr(api, "statutes_get"))
+        self.assertFalse(hasattr(api, "statutes_list"))
+
+
 class ServerBindingSecurityTests(unittest.TestCase):
     def test_external_binding_requires_token(self):
         with tempfile.TemporaryDirectory() as directory:
