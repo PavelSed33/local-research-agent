@@ -229,7 +229,7 @@ class TavilySearch:
         self.domains = domains if domains is not None else [
             item.strip()
             for item in os.getenv(
-                "LEGAL_SEARCH_DOMAINS", "pravo.gov.ru,www.consultant.ru,www.garant.ru"
+                "LEGAL_SEARCH_DOMAINS", "pravo.gov.ru,publication.pravo.gov.ru"
             ).split(",")
             if item.strip()
         ]
@@ -244,7 +244,7 @@ class TavilySearch:
                 "search_depth": "basic",
                 "max_results": limit,
                 "include_answer": False,
-                "include_raw_content": "text",
+                "include_raw_content": False,
                 "include_domains": self.domains,
             },
             {"Authorization": f"Bearer {self.api_key}"},
@@ -257,7 +257,7 @@ class TavilySearch:
             url = str(item.get("url", "")).strip()
             if not url.startswith(("https://", "http://")):
                 continue
-            text = str(item.get("raw_content") or item.get("content") or "").strip()
+            if classify_source_authority(url) not in {"official_legal_portal", "official_court", "government_legal_reproduction", "official_legal_explanation"}:\n                continue\n            text = str(item.get("content") or "").strip()
             if not text:
                 continue
             sources.append(
