@@ -5,7 +5,6 @@ WORKDIR /app
 # Сторонних зависимостей нет: только стандартная библиотека Python.
 COPY *.py ./
 COPY scripts/ ./scripts/
-COPY fixtures/ ./fixtures/
 
 ENV API_HOST=0.0.0.0 \
     API_PORT=8080 \
