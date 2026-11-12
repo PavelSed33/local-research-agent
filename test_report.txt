@@ -1,0 +1,1578 @@
+.....................127.0.0.1 - - [12/Nov/2026 12:00:01] "POST /ask HTTP/1.1" 200 -
+.127.0.0.1 - - [12/Nov/2026 12:00:02] "POST /ask HTTP/1.1" 400 -
+.127.0.0.1 - - [12/Nov/2026 12:00:02] "POST /ask HTTP/1.1" 400 -
+.127.0.0.1 - - [12/Nov/2026 12:00:03] "POST /ask HTTP/1.1" 400 -
+.127.0.0.1 - - [12/Nov/2026 12:00:03] "POST /check HTTP/1.1" 400 -
+.127.0.0.1 - - [12/Nov/2026 12:00:04] "POST /check HTTP/1.1" 200 -
+.127.0.0.1 - - [12/Nov/2026 12:00:04] "POST /check HTTP/1.1" 400 -
+.127.0.0.1 - - [12/Nov/2026 12:00:05] "POST /diff HTTP/1.1" 200 -
+.127.0.0.1 - - [12/Nov/2026 12:00:05] "POST /diff HTTP/1.1" 400 -
+.127.0.0.1 - - [12/Nov/2026 12:00:06] "POST /draft HTTP/1.1" 200 -
+.127.0.0.1 - - [12/Nov/2026 12:00:06] "POST /draft HTTP/1.1" 400 -
+.127.0.0.1 - - [12/Nov/2026 12:00:07] "POST /draft HTTP/1.1" 400 -
+.127.0.0.1 - - [12/Nov/2026 12:00:07] "POST /duty HTTP/1.1" 200 -
+.127.0.0.1 - - [12/Nov/2026 12:00:08] "POST /duty HTTP/1.1" 200 -
+.127.0.0.1 - - [12/Nov/2026 12:00:08] "POST /duty HTTP/1.1" 200 -
+.127.0.0.1 - - [12/Nov/2026 12:00:09] "POST /duty HTTP/1.1" 200 -
+.127.0.0.1 - - [12/Nov/2026 12:00:09] "POST /duty HTTP/1.1" 400 -
+.127.0.0.1 - - [12/Nov/2026 12:00:10] "POST /export HTTP/1.1" 200 -
+.127.0.0.1 - - [12/Nov/2026 12:00:10] "POST /export HTTP/1.1" 400 -
+.127.0.0.1 - - [12/Nov/2026 12:00:11] "POST /extract HTTP/1.1" 200 -
+.127.0.0.1 - - [12/Nov/2026 12:00:11] "POST /extract HTTP/1.1" 400 -
+.127.0.0.1 - - [12/Nov/2026 12:00:12] "GET /health HTTP/1.1" 200 -
+.127.0.0.1 - - [12/Nov/2026 12:00:12] "GET /openapi.json HTTP/1.1" 200 -
+.127.0.0.1 - - [12/Nov/2026 12:00:13] "GET /unknown HTTP/1.1" 404 -
+.127.0.0.1 - - [12/Nov/2026 12:00:13] "POST /duty HTTP/1.1" 400 -
+127.0.0.1 - - [12/Nov/2026 12:00:13] "GET /health HTTP/1.1" 200 -
+.127.0.0.1 - - [12/Nov/2026 12:00:14] "POST /duty HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:00:14] "POST /duty HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:00:14] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [12/Nov/2026 12:00:14] "GET /health HTTP/1.1" 200 -
+.127.0.0.1 - - [12/Nov/2026 12:00:14] "POST /penalty HTTP/1.1" 200 -
+.127.0.0.1 - - [12/Nov/2026 12:00:15] "POST /penalty HTTP/1.1" 200 -
+.127.0.0.1 - - [12/Nov/2026 12:00:15] "POST /penalty HTTP/1.1" 400 -
+.127.0.0.1 - - [12/Nov/2026 12:00:16] "POST /protocol HTTP/1.1" 200 -
+.127.0.0.1 - - [12/Nov/2026 12:00:16] "POST /protocol HTTP/1.1" 400 -
+.127.0.0.1 - - [12/Nov/2026 12:00:17] "POST /review HTTP/1.1" 200 -
+.127.0.0.1 - - [12/Nov/2026 12:00:17] "POST /review HTTP/1.1" 400 -
+.127.0.0.1 - - [12/Nov/2026 12:00:18] "POST /scoring HTTP/1.1" 200 -
+.127.0.0.1 - - [12/Nov/2026 12:00:18] "POST /scoring HTTP/1.1" 400 -
+....127.0.0.1 - - [12/Nov/2026 12:00:19] "POST /ask HTTP/1.1" 200 -
+.127.0.0.1 - - [12/Nov/2026 12:00:19] "POST /ask HTTP/1.1" 200 -
+.127.0.0.1 - - [12/Nov/2026 12:00:20] "POST /ask HTTP/1.1" 400 -
+.127.0.0.1 - - [12/Nov/2026 12:00:20] "POST /ask HTTP/1.1" 200 -
+[1/8] Планирую правовое исследование…
+      Запросы: Вопрос
+[2/8] Ищу нормы и читаю источники…
+      Выбрано источников: 1
+[3/8] Оцениваю полноту правовых материалов…
+      Нужна ещё одна норма.
+      Дополнительный поиск 1/2: второй
+      Выбрано источников: 2
+      Норм достаточно.
+[4/8] Обязательно проверяю последние изменения…
+      Проверочных запросов: 2; источников всего: 4
+[5/8] Ищу судебную практику…
+      Этап пропущен: Модель не вернула ожидаемый JSON.
+[6/8] Готовлю и проверяю правовой ответ…
+      Структура и ссылки прошли проверку.
+[7/8] Самопроверка ответа…
+      Этап пропущен: Модель не вернула ожидаемый JSON.
+[8/8] Сохраняю результаты…
+[1/8] Планирую правовое исследование…
+      Запросы: Тестовый правовой вопрос; Тестовый правовой вопрос: нормы права; Тестовый правовой вопрос: последние изменения
+[2/8] Ищу нормы и читаю источники…
+      Выбрано источников: 2
+[3/8] Оцениваю полноту правовых материалов…
+      Демонстрационные правовые материалы получены.
+[4/8] Обязательно проверяю последние изменения…
+      Проверочных запросов: 2; источников всего: 2
+[5/8] Ищу судебную практику…
+      Запросов по практике: 2; источников всего: 2
+[6/8] Готовлю и проверяю правовой ответ…
+      Структура и ссылки прошли проверку.
+[7/8] Самопроверка ответа…
+      Противоречий не найдено.
+[8/8] Сохраняю результаты…
+[1/8] Планирую правовое исследование…
+      Запросы: Вопрос
+[2/8] Ищу нормы и читаю источники…
+      Выбрано источников: 1
+[3/8] Оцениваю полноту правовых материалов…
+      Нужна ещё одна норма.
+      Дополнительный поиск 1/2: второй
+      Выбрано источников: 2
+      Норм достаточно.
+[4/8] Обязательно проверяю последние изменения…
+      Проверочных запросов: 2; источников всего: 4
+[5/8] Ищу судебную практику…
+      Запросов по практике: 2; источников всего: 6
+[6/8] Готовлю и проверяю правовой ответ…
+      Структура и ссылки прошли проверку.
+[7/8] Самопроверка ответа…
+      Этап пропущен: Модель не вернула ожидаемый JSON.
+[8/8] Сохраняю результаты…
+[1/8] Планирую правовое исследование…
+      Запросы: Тестовый правовой вопрос; Тестовый правовой вопрос: нормы права; Тестовый правовой вопрос: последние изменения
+[2/8] Ищу нормы и читаю источники…
+      Выбрано источников: 2
+[3/8] Оцениваю полноту правовых материалов…
+      Демонстрационные правовые материалы получены.
+[4/8] Обязательно проверяю последние изменения…
+      Проверочных запросов: 2; источников всего: 2
+[5/8] Ищу судебную практику…
+      Запросов по практике: 2; источников всего: 2
+[6/8] Готовлю и проверяю правовой ответ…
+      Структура и ссылки прошли проверку.
+[7/8] Самопроверка ответа…
+      Противоречий не найдено.
+[8/8] Сохраняю результаты…
+[1/8] Планирую правовое исследование…
+      Запросы: Первый вопрос; Первый вопрос: нормы права; Первый вопрос: последние изменения
+[2/8] Ищу нормы и читаю источники…
+      Выбрано источников: 2
+[3/8] Оцениваю полноту правовых материалов…
+      Демонстрационные правовые материалы получены.
+[4/8] Обязательно проверяю последние изменения…
+      Проверочных запросов: 2; источников всего: 2
+[5/8] Ищу судебную практику…
+      Запросов по практике: 2; источников всего: 2
+[6/8] Готовлю и проверяю правовой ответ…
+      Структура и ссылки прошли проверку.
+[7/8] Самопроверка ответа…
+      Противоречий не найдено.
+[8/8] Сохраняю результаты…
+[1/8] Планирую правовое исследование…
+      Запросы: Вопрос; Вопрос: нормы права; Вопрос: последние изменения
+[2/8] Ищу нормы и читаю источники…
+      Выбрано источников: 2
+[3/8] Оцениваю полноту правовых материалов…
+      Демонстрационные правовые материалы получены.
+[4/8] Обязательно проверяю последние изменения…
+      Проверочных запросов: 2; источников всего: 2
+[5/8] Ищу судебную практику…
+      Запросов по практике: 2; источников всего: 2
+[6/8] Готовлю и проверяю правовой ответ…
+      Структура и ссылки прошли проверку.
+[7/8] Самопроверка ответа…
+      Противоречий не найдено.
+[8/8] Сохраняю результаты…
+[1/8] Планирую правовое исследование…
+      Запросы: Первый вопрос; Первый вопрос: нормы права; Первый вопрос: последние изменения
+[2/8] Ищу нормы и читаю источники…
+      Выбрано источников: 2
+[3/8] Оцениваю полноту правовых материалов…
+      Демонстрационные правовые материалы получены.
+[4/8] Обязательно проверяю последние изменения…
+      Проверочных запросов: 2; источников всего: 2
+[5/8] Ищу судебную практику…
+      Запросов по практике: 2; источников всего: 2
+[6/8] Готовлю и проверяю правовой ответ…
+      Структура и ссылки прошли проверку.
+[7/8] Самопроверка ответа…
+      Противоречий не найдено.
+[8/8] Сохраняю результаты…
+[1/8] Планирую правовое исследование…
+      Запросы: А что с неустойкой?; А что с неустойкой?: нормы права; А что с неустойкой?: последние изменения
+[2/8] Ищу нормы и читаю источники…
+127.0.0.1 - - [12/Nov/2026 12:00:20] "POST /ask HTTP/1.1" 200 -
+.127.0.0.1 - - [12/Nov/2026 12:00:21] "POST /timeline HTTP/1.1" 200 -
+.127.0.0.1 - - [12/Nov/2026 12:00:21] "POST /timeline HTTP/1.1" 400 -
+.127.0.0.1 - - [12/Nov/2026 12:00:22] "POST /ask HTTP/1.1" 401 -
+.127.0.0.1 - - [12/Nov/2026 12:00:23] "POST /ask HTTP/1.1" 200 -
+.127.0.0.1 - - [12/Nov/2026 12:00:23] "POST /triage HTTP/1.1" 200 -
+.127.0.0.1 - - [12/Nov/2026 12:00:24] "POST /triage HTTP/1.1" 200 -
+.127.0.0.1 - - [12/Nov/2026 12:00:24] "POST /triage HTTP/1.1" 400 -
+.127.0.0.1 - - [12/Nov/2026 12:00:25] "POST /ask HTTP/1.1" 200 -
+EEEEEEE......EEEE...EE...................EEEE...................EFEFFFEE....................................EE.............................EEEEEEEEEEEE........................E........EE.......................E.................EEEEEEEEEEEEEE..........EE.............127.0.0.1 - - [12/Nov/2026 12:00:28] "POST /sessions/delete HTTP/1.1" 404 -
+F127.0.0.1 - - [12/Nov/2026 12:00:29] "POST /sessions/delete HTTP/1.1" 404 -
+F127.0.0.1 - - [12/Nov/2026 12:00:29] "POST /sessions/delete HTTP/1.1" 404 -
+E127.0.0.1 - - [12/Nov/2026 12:00:30] "POST /sessions/delete HTTP/1.1" 404 -
+FEEEEEE........................................E/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/subprocess.py:1052: ResourceWarning: subprocess 42754 is still running
+  _warn("subprocess %s is still running" % self.pid,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+127.0.0.1 - - [12/Nov/2026 12:00:30] "GET /runtime/readiness HTTP/1.1" 404 -
+E/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/subprocess.py:765: ResourceWarning: unclosed file <_io.TextIOWrapper name=17 encoding='UTF-8'>
+  _cleanup()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/subprocess.py:765: ResourceWarning: unclosed file <_io.TextIOWrapper name=19 encoding='UTF-8'>
+  _cleanup()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.EEE/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/subprocess.py:1052: ResourceWarning: subprocess 42757 is still running
+  _warn("subprocess %s is still running" % self.pid,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+E/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/subprocess.py:1052: ResourceWarning: subprocess 42758 is still running
+  _warn("subprocess %s is still running" % self.pid,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+E
+======================================================================
+ERROR: test_default_http_mode_does_not_retain_research (test_api_privacy.ApiPrivacyTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_api_privacy.py", line 30, in test_default_http_mode_does_not_retain_research
+    self.assertFalse(result['results_persisted'])
+KeyError: 'results_persisted'
+
+======================================================================
+ERROR: test_explicit_persistence_keeps_files_without_logging_question (test_api_privacy.ApiPrivacyTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_api_privacy.py", line 54, in test_explicit_persistence_keeps_files_without_logging_question
+    result = handle_ask({'question': 'PRIVATE-MARKER', 'demo': True}, Path(directory), persist_results=True)
+TypeError: handle_ask() got an unexpected keyword argument 'persist_results'
+
+======================================================================
+ERROR: test_temporary_files_are_removed_on_failure (test_api_privacy.ApiPrivacyTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_api_privacy.py", line 48, in test_temporary_files_are_removed_on_failure
+    handle_ask({'question': 'test'}, Path('.'), persist_results=False)
+TypeError: handle_ask() got an unexpected keyword argument 'persist_results'
+
+======================================================================
+ERROR: test_upstream_error_body_is_not_exposed (test_api_privacy.ApiPrivacyTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_api_privacy.py", line 61, in test_upstream_error_body_is_not_exposed
+    with patch('agent.open_json_request', side_effect=error), self.assertRaises(AgentError) as caught:
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1405, in __enter__
+    original, local = self.get_original()
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1378, in get_original
+    raise AttributeError(
+AttributeError: <module 'agent' from '/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/agent.py'> does not have the attribute 'open_json_request'
+
+======================================================================
+ERROR: test_default_is_date_of_check (test_as_of.SituationDateTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_as_of.py", line 31, in test_default_is_date_of_check
+    with tempfile.TemporaryDirectory() as directory, patch.object(
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1405, in __enter__
+    original, local = self.get_original()
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1378, in get_original
+    raise AttributeError(
+AttributeError: <module 'agent' from '/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/agent.py'> does not have the attribute 'current_check_date'
+
+======================================================================
+ERROR: test_explicit_date_survives_api_journal_and_report (test_as_of.SituationDateTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_as_of.py", line 20, in test_explicit_date_survives_api_journal_and_report
+    with tempfile.TemporaryDirectory() as directory, patch.object(
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1405, in __enter__
+    original, local = self.get_original()
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1378, in get_original
+    raise AttributeError(
+AttributeError: <module 'agent' from '/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/agent.py'> does not have the attribute 'current_check_date'
+
+======================================================================
+ERROR: test_ips_and_report_receive_situation_date (test_as_of.SituationDateTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_as_of.py", line 46, in test_ips_and_report_receive_situation_date
+    agent.run('Тест', 1, 2, Path(directory), as_of='2023-03-01')
+TypeError: run() got an unexpected keyword argument 'as_of'
+
+======================================================================
+ERROR: test_audit_fixes (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_audit_fixes
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_audit_fixes.py", line 13, in <module>
+    from agent import Source, current_check_date, deduplicate_queries, extract_json, find_unconfirmed_articles, reflect_on_report, classify_source_authority
+ImportError: cannot import name 'current_check_date' from 'agent' (/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/agent.py)
+
+
+======================================================================
+ERROR: test_audit_regressions (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_audit_regressions
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_audit_regressions.py", line 12, in <module>
+    from review import review_contract, handle_review, MAX_DOCUMENT_CHARS
+ImportError: cannot import name 'MAX_DOCUMENT_CHARS' from 'review' (/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/review.py)
+
+
+======================================================================
+ERROR: test_backup_acceptance (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_backup_acceptance
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_backup_acceptance.py", line 2, in <module>
+    from scripts.backup_acceptance import run_acceptance
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/scripts/backup_acceptance.py", line 13, in <module>
+    from workspace_store import WorkspaceStore
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/workspace_store.py", line 14, in <module>
+    from doctext import document_fingerprint, resolve_document
+ImportError: cannot import name 'document_fingerprint' from 'doctext' (/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/doctext.py)
+
+
+======================================================================
+ERROR: test_benchmark_tasks (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_benchmark_tasks
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_benchmark_tasks.py", line 7, in <module>
+    from benchmark_tasks import BenchmarkTasks, BenchmarkTemplateError, load_templates
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/benchmark_tasks.py", line 8, in <module>
+    from reviewed_evidence import ReviewedEvidence, day
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/reviewed_evidence.py", line 9, in <module>
+    from workspace_store import WorkspaceError, canonical, now, text
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/workspace_store.py", line 14, in <module>
+    from doctext import document_fingerprint, resolve_document
+ImportError: cannot import name 'document_fingerprint' from 'doctext' (/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/doctext.py)
+
+
+======================================================================
+ERROR: test_case_details (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_case_details
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_case_details.py", line 7, in <module>
+    from case_law import handle_case_law, validate_decisions
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/case_law.py", line 9, in <module>
+    from agent import (LEGAL_DISCLAIMER, OpenAICompatibleModel, Source,
+ImportError: cannot import name 'current_check_date' from 'agent' (/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/agent.py)
+
+
+======================================================================
+ERROR: test_case_report (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_case_report
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_case_report.py", line 7, in <module>
+    import test_reviewed_evidence as evidence_tests
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_reviewed_evidence.py", line 3, in <module>
+    from reviewed_evidence import ReviewedEvidence
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/reviewed_evidence.py", line 9, in <module>
+    from workspace_store import WorkspaceError, canonical, now, text
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/workspace_store.py", line 14, in <module>
+    from doctext import document_fingerprint, resolve_document
+ImportError: cannot import name 'document_fingerprint' from 'doctext' (/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/doctext.py)
+
+
+======================================================================
+ERROR: test_consumer_evidence (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_consumer_evidence
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_consumer_evidence.py", line 10, in <module>
+    from legal_evidence import DEFAULT_CORPUS, cached_contract_sources, evidence_report
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/legal_evidence.py", line 7, in <module>
+    from agent import Source, validate_as_of, current_check_date
+ImportError: cannot import name 'validate_as_of' from 'agent' (/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/agent.py)
+
+
+======================================================================
+ERROR: test_contract_scope (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_contract_scope
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_contract_scope.py", line 10, in <module>
+    from contract_scope import contract_qualification
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/contract_scope.py", line 2, in <module>
+    from legal_catalog import CONTRACT_TYPES
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/legal_catalog.py", line 5, in <module>
+    from agent import validate_as_of
+ImportError: cannot import name 'validate_as_of' from 'agent' (/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/agent.py)
+
+
+======================================================================
+ERROR: test_data_audit (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_data_audit
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_data_audit.py", line 7, in <module>
+    from data_audit import ROOT, audit_data, audit_repository
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/data_audit.py", line 8, in <module>
+    from statute_corpus import corpus_report
+ImportError: cannot import name 'corpus_report' from 'statute_corpus' (/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/statute_corpus.py)
+
+
+======================================================================
+ERROR: test_decision_revisions (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_decision_revisions
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_decision_revisions.py", line 6, in <module>
+    import test_reviewed_evidence as evidence_tests
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_reviewed_evidence.py", line 3, in <module>
+    from reviewed_evidence import ReviewedEvidence
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/reviewed_evidence.py", line 9, in <module>
+    from workspace_store import WorkspaceError, canonical, now, text
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/workspace_store.py", line 14, in <module>
+    from doctext import document_fingerprint, resolve_document
+ImportError: cannot import name 'document_fingerprint' from 'doctext' (/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/doctext.py)
+
+
+======================================================================
+ERROR: test_document_hardening (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_document_hardening
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_document_hardening.py", line 7, in <module>
+    from doctext import (extract_docx_text, read_document_file, resolve_document,
+ImportError: cannot import name 'document_fingerprint' from 'doctext' (/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/doctext.py)
+
+
+======================================================================
+ERROR: test_http_logs_omit_query_strings_and_malformed_request_lines (test_document_privacy.DocumentPrivacyTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_document_privacy.py", line 82, in test_http_logs_omit_query_strings_and_malformed_request_lines
+    while connection.recv(8192):
+socket.timeout: timed out
+
+======================================================================
+ERROR: test_document_tools (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_document_tools
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_document_tools.py", line 13, in <module>
+    from document_tools import capabilities, export_docx, parse_file, redact
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/document_tools.py", line 17, in <module>
+    from doctext import MAX_INPUT_FILE_BYTES, read_document_file, document_fingerprint
+ImportError: cannot import name 'MAX_INPUT_FILE_BYTES' from 'doctext' (/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/doctext.py)
+
+
+======================================================================
+ERROR: test_docx_redline (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_docx_redline
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_docx_redline.py", line 9, in <module>
+    from document_tools import export_docx
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/document_tools.py", line 17, in <module>
+    from doctext import MAX_INPUT_FILE_BYTES, read_document_file, document_fingerprint
+ImportError: cannot import name 'MAX_INPUT_FILE_BYTES' from 'doctext' (/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/doctext.py)
+
+
+======================================================================
+ERROR: test_edition_research (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_edition_research
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_edition_research.py", line 3, in <module>
+    import test_reviewed_evidence as evidence_tests
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_reviewed_evidence.py", line 3, in <module>
+    from reviewed_evidence import ReviewedEvidence
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/reviewed_evidence.py", line 9, in <module>
+    from workspace_store import WorkspaceError, canonical, now, text
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/workspace_store.py", line 14, in <module>
+    from doctext import document_fingerprint, resolve_document
+ImportError: cannot import name 'document_fingerprint' from 'doctext' (/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/doctext.py)
+
+
+======================================================================
+ERROR: test_evidence_status (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_evidence_status
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_evidence_status.py", line 5, in <module>
+    from agent import evidence_summary
+ImportError: cannot import name 'evidence_summary' from 'agent' (/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/agent.py)
+
+
+======================================================================
+ERROR: test_inventory_report (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_inventory_report
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_inventory_report.py", line 8, in <module>
+    from inventory_report import build_inventory_report
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/inventory_report.py", line 9, in <module>
+    from agent import validate_as_of
+ImportError: cannot import name 'validate_as_of' from 'agent' (/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/agent.py)
+
+
+======================================================================
+ERROR: test_legal_catalog (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_legal_catalog
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_legal_catalog.py", line 6, in <module>
+    from agent import AgentError, classify_source_authority
+ImportError: cannot import name 'classify_source_authority' from 'agent' (/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/agent.py)
+
+
+======================================================================
+ERROR: test_legal_evidence (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_legal_evidence
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_legal_evidence.py", line 10, in <module>
+    from legal_coverage import coverage_report
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/legal_coverage.py", line 5, in <module>
+    from agent import current_check_date, validate_as_of
+ImportError: cannot import name 'current_check_date' from 'agent' (/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/agent.py)
+
+
+======================================================================
+ERROR: test_legal_p0 (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_legal_p0
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_legal_p0.py", line 14, in <module>
+    from legal_catalog import review_checklist
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/legal_catalog.py", line 5, in <module>
+    from agent import validate_as_of
+ImportError: cannot import name 'validate_as_of' from 'agent' (/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/agent.py)
+
+
+======================================================================
+ERROR: test_legal_research (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_legal_research
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_legal_research.py", line 13, in <module>
+    from legal_catalog import review_checklist
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/legal_catalog.py", line 5, in <module>
+    from agent import validate_as_of
+ImportError: cannot import name 'validate_as_of' from 'agent' (/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/agent.py)
+
+
+======================================================================
+ERROR: test_legal_skills (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_legal_skills
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_legal_skills.py", line 12, in <module>
+    from legal_skills import ROOT, SkillRegistryError, handle_skill, load_skills, skill_options
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/legal_skills.py", line 7, in <module>
+    from agent import (AgentError, LEGAL_DISCLAIMER, OpenAICompatibleModel, TavilySearch,
+ImportError: cannot import name 'current_check_date' from 'agent' (/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/agent.py)
+
+
+======================================================================
+ERROR: test_legal_workflows (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_legal_workflows
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_legal_workflows.py", line 6, in <module>
+    from case_law import handle_case_law, validate_decisions
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/case_law.py", line 9, in <module>
+    from agent import (LEGAL_DISCLAIMER, OpenAICompatibleModel, Source,
+ImportError: cannot import name 'current_check_date' from 'agent' (/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/agent.py)
+
+
+======================================================================
+ERROR: test_live_acceptance (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_live_acceptance
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_live_acceptance.py", line 12, in <module>
+    from scripts.acceptance import _finish, _worker, run_acceptance, initialize_environment
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/scripts/acceptance.py", line 20, in <module>
+    from agent import OpenAICompatibleModel, TavilySearch, extract_json, load_dotenv, current_check_date
+ImportError: cannot import name 'current_check_date' from 'agent' (/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/agent.py)
+
+
+======================================================================
+ERROR: test_local_extract (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_local_extract
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_local_extract.py", line 16, in <module>
+    from local_extract import handle_local_extract
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/local_extract.py", line 6, in <module>
+    from agent import LEGAL_DISCLAIMER, current_check_date
+ImportError: cannot import name 'current_check_date' from 'agent' (/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/agent.py)
+
+
+======================================================================
+ERROR: test_matter_research (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_matter_research
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_matter_research.py", line 6, in <module>
+    from matter_research import answer
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/matter_research.py", line 8, in <module>
+    from doctext import ensure_document_transfer_allowed
+ImportError: cannot import name 'ensure_document_transfer_allowed' from 'doctext' (/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/doctext.py)
+
+
+======================================================================
+ERROR: test_outbound_security (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_outbound_security
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_outbound_security.py", line 7, in <module>
+    from agent import AgentError, post_json, validate_service_url
+ImportError: cannot import name 'validate_service_url' from 'agent' (/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/agent.py)
+
+
+======================================================================
+ERROR: test_shipped_files_support_demo_and_real_mode_imports (test_packaging.DockerPackagingTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_packaging.py", line 25, in test_shipped_files_support_demo_and_real_mode_imports
+    result = subprocess.run(
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/subprocess.py", line 505, in run
+    with Popen(*popenargs, **kwargs) as process:
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/subprocess.py", line 951, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/subprocess.py", line 1821, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: 'python'
+
+======================================================================
+ERROR: test_api_returns_selection_for_requested_date (test_period_selection.PeriodSelectionTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_period_selection.py", line 55, in test_api_returns_selection_for_requested_date
+    self.assertEqual(result['provision_period']['as_of'], '2023-03-01')
+KeyError: 'provision_period'
+
+======================================================================
+ERROR: test_preflight (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_preflight
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_preflight.py", line 5, in <module>
+    from preflight import inspect_runtime
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/preflight.py", line 8, in <module>
+    from agent import AgentError, load_dotenv, validate_service_url
+ImportError: cannot import name 'validate_service_url' from 'agent' (/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/agent.py)
+
+
+======================================================================
+ERROR: test_primary_archive (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_primary_archive
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_primary_archive.py", line 10, in <module>
+    from workspace_api import dispatch, prepare_answer
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/workspace_api.py", line 5, in <module>
+    from reviewed_evidence import ReviewedEvidence, day
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/reviewed_evidence.py", line 9, in <module>
+    from workspace_store import WorkspaceError, canonical, now, text
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/workspace_store.py", line 14, in <module>
+    from doctext import document_fingerprint, resolve_document
+ImportError: cannot import name 'document_fingerprint' from 'doctext' (/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/doctext.py)
+
+
+======================================================================
+ERROR: test_readiness (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_readiness
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_readiness.py", line 12, in <module>
+    from preflight import inspect_configuration, inspect_runtime
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/preflight.py", line 8, in <module>
+    from agent import AgentError, load_dotenv, validate_service_url
+ImportError: cannot import name 'validate_service_url' from 'agent' (/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/agent.py)
+
+
+======================================================================
+ERROR: test_acceptance_deadline_also_stops_its_api_child_process (test_request_jobs.AcceptanceProcessTreeTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 257, in test_acceptance_deadline_also_stops_its_api_child_process
+    from scripts.acceptance import _run_isolated
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/scripts/acceptance.py", line 20, in <module>
+    from agent import OpenAICompatibleModel, TavilySearch, extract_json, load_dotenv, current_check_date
+ImportError: cannot import name 'current_check_date' from 'agent' (/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/agent.py)
+
+======================================================================
+ERROR: test_bad_worker_protocol_is_500_and_cleans_temporary_files (test_request_jobs.RequestControlTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 56, in setUp
+    self.server = create_server('127.0.0.1', 0, self.directory.name, 'test-token', request_timeout_seconds=4)
+TypeError: create_server() got an unexpected keyword argument 'request_timeout_seconds'
+
+======================================================================
+ERROR: test_cancel_stalled_work_requires_auth_and_no_late_result_is_published (test_request_jobs.RequestControlTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 56, in setUp
+    self.server = create_server('127.0.0.1', 0, self.directory.name, 'test-token', request_timeout_seconds=4)
+TypeError: create_server() got an unexpected keyword argument 'request_timeout_seconds'
+
+======================================================================
+ERROR: test_cancelled_research_cannot_repopulate_deleted_session_or_keep_reports (test_request_jobs.RequestControlTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 56, in setUp
+    self.server = create_server('127.0.0.1', 0, self.directory.name, 'test-token', request_timeout_seconds=4)
+TypeError: create_server() got an unexpected keyword argument 'request_timeout_seconds'
+
+======================================================================
+ERROR: test_capacity_configuration_and_request_id_types_are_bounded (test_request_jobs.RequestControlTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 56, in setUp
+    self.server = create_server('127.0.0.1', 0, self.directory.name, 'test-token', request_timeout_seconds=4)
+TypeError: create_server() got an unexpected keyword argument 'request_timeout_seconds'
+
+======================================================================
+ERROR: test_capacity_keeps_control_handler_available (test_request_jobs.RequestControlTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 56, in setUp
+    self.server = create_server('127.0.0.1', 0, self.directory.name, 'test-token', request_timeout_seconds=4)
+TypeError: create_server() got an unexpected keyword argument 'request_timeout_seconds'
+
+======================================================================
+ERROR: test_deadline_kills_blocked_provider_work_and_next_request_succeeds (test_request_jobs.RequestControlTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 56, in setUp
+    self.server = create_server('127.0.0.1', 0, self.directory.name, 'test-token', request_timeout_seconds=4)
+TypeError: create_server() got an unexpected keyword argument 'request_timeout_seconds'
+
+======================================================================
+ERROR: test_early_cancel_and_duplicate_ids_do_not_execute_again (test_request_jobs.RequestControlTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 56, in setUp
+    self.server = create_server('127.0.0.1', 0, self.directory.name, 'test-token', request_timeout_seconds=4)
+TypeError: create_server() got an unexpected keyword argument 'request_timeout_seconds'
+
+======================================================================
+ERROR: test_persistence_is_published_only_after_success (test_request_jobs.RequestControlTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 56, in setUp
+    self.server = create_server('127.0.0.1', 0, self.directory.name, 'test-token', request_timeout_seconds=4)
+TypeError: create_server() got an unexpected keyword argument 'request_timeout_seconds'
+
+======================================================================
+ERROR: test_shutdown_cancels_and_reaps_inflight_work (test_request_jobs.RequestControlTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 56, in setUp
+    self.server = create_server('127.0.0.1', 0, self.directory.name, 'test-token', request_timeout_seconds=4)
+TypeError: create_server() got an unexpected keyword argument 'request_timeout_seconds'
+
+======================================================================
+ERROR: test_skill_work_is_cancellable_and_does_not_persist_document (test_request_jobs.RequestControlTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 56, in setUp
+    self.server = create_server('127.0.0.1', 0, self.directory.name, 'test-token', request_timeout_seconds=4)
+TypeError: create_server() got an unexpected keyword argument 'request_timeout_seconds'
+
+======================================================================
+ERROR: test_timeout_configuration_is_bounded (test_request_jobs.RequestControlTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 56, in setUp
+    self.server = create_server('127.0.0.1', 0, self.directory.name, 'test-token', request_timeout_seconds=4)
+TypeError: create_server() got an unexpected keyword argument 'request_timeout_seconds'
+
+======================================================================
+ERROR: test_twelve_parallel_local_jobs_have_isolated_results_and_cleaned_files (test_request_jobs.RequestControlTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 56, in setUp
+    self.server = create_server('127.0.0.1', 0, self.directory.name, 'test-token', request_timeout_seconds=4)
+TypeError: create_server() got an unexpected keyword argument 'request_timeout_seconds'
+
+======================================================================
+ERROR: test_response_quality (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_response_quality
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_response_quality.py", line 14, in <module>
+    from response_quality import ROOT, evaluate_responses, evaluate_control_suite, read_dataset
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/response_quality.py", line 7, in <module>
+    from agent import Source, validate_as_of, validate_report
+ImportError: cannot import name 'validate_as_of' from 'agent' (/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/agent.py)
+
+
+======================================================================
+ERROR: test_review_timing (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_review_timing
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_review_timing.py", line 5, in <module>
+    from legal_catalog import review_checklist, review_timing
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/legal_catalog.py", line 5, in <module>
+    from agent import validate_as_of
+ImportError: cannot import name 'validate_as_of' from 'agent' (/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/agent.py)
+
+
+======================================================================
+ERROR: test_reviewed_evidence (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_reviewed_evidence
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_reviewed_evidence.py", line 3, in <module>
+    from reviewed_evidence import ReviewedEvidence
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/reviewed_evidence.py", line 9, in <module>
+    from workspace_store import WorkspaceError, canonical, now, text
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/workspace_store.py", line 14, in <module>
+    from doctext import document_fingerprint, resolve_document
+ImportError: cannot import name 'document_fingerprint' from 'doctext' (/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/doctext.py)
+
+
+======================================================================
+ERROR: test_next_research_receives_no_deleted_context (test_session_delete.DeleteEndpointTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_session_delete.py", line 68, in test_next_research_receives_no_deleted_context
+    with patch.object(self.server.jobs, 'execute', wraps=self.server.jobs.execute) as execute:
+AttributeError: 'ThreadingHTTPServer' object has no attribute 'jobs'
+
+======================================================================
+ERROR: test_delete_preserves_other_sessions_and_is_idempotent (test_session_delete.SessionDeletionTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_session_delete.py", line 14, in test_delete_preserves_other_sessions_and_is_idempotent
+    self.assertTrue(store.delete('a'))
+AttributeError: 'SessionStore' object has no attribute 'delete'
+
+======================================================================
+ERROR: test_expired_session_does_not_accept_stale_request (test_session_delete.SessionDeletionTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_session_delete.py", line 34, in test_expired_session_does_not_accept_stale_request
+    _, identity = store.begin('a')
+AttributeError: 'SessionStore' object has no attribute 'begin'
+
+======================================================================
+ERROR: test_inflight_update_cannot_restore_deleted_or_recreated_session (test_session_delete.SessionDeletionTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_session_delete.py", line 21, in test_inflight_update_cannot_restore_deleted_or_recreated_session
+    _, old_identity = store.begin('a')
+AttributeError: 'SessionStore' object has no attribute 'begin'
+
+======================================================================
+ERROR: test_skill_service_health (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_skill_service_health
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_skill_service_health.py", line 10, in <module>
+    from legal_skills import SkillRegistryError
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/legal_skills.py", line 7, in <module>
+    from agent import (AgentError, LEGAL_DISCLAIMER, OpenAICompatibleModel, TavilySearch,
+ImportError: cannot import name 'current_check_date' from 'agent' (/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/agent.py)
+
+
+======================================================================
+ERROR: test_source_evidence_registry (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_source_evidence_registry
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_source_evidence_registry.py", line 4, in <module>
+    from agent import classify_source_authority, source_authority_label
+ImportError: cannot import name 'classify_source_authority' from 'agent' (/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/agent.py)
+
+
+======================================================================
+ERROR: test_statute_corpus (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_statute_corpus
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_statute_corpus.py", line 9, in <module>
+    from scripts.import_statutes import NormativeHTML, import_corpus
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/scripts/import_statutes.py", line 17, in <module>
+    from statute_corpus import _url, corpus_report
+ImportError: cannot import name '_url' from 'statute_corpus' (/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/statute_corpus.py)
+
+
+======================================================================
+ERROR: test_document_input_encoding_and_binary_transport_without_browser (test_workbench.WorkbenchAcceptanceTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_workbench.py", line 19, in test_document_input_encoding_and_binary_transport_without_browser
+    result = subprocess.run(['node', str(root / 'scripts/test_document_input.cjs')],
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/subprocess.py", line 505, in run
+    with Popen(*popenargs, **kwargs) as process:
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1093, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1097, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1158, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 50, in track
+    process = spawn(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1093, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1097, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1158, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 50, in track
+    process = spawn(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1093, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1097, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1158, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 50, in track
+    process = spawn(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1093, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1097, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1158, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 50, in track
+    process = spawn(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1093, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1097, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1158, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 50, in track
+    process = spawn(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1093, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1097, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1158, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 50, in track
+    process = spawn(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1093, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1097, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1158, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 50, in track
+    process = spawn(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1093, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1097, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1158, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 50, in track
+    process = spawn(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1093, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1097, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1158, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 50, in track
+    process = spawn(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1093, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1097, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1158, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 50, in track
+    process = spawn(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1093, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1097, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1158, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 50, in track
+    process = spawn(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1093, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1097, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1158, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 51, in track
+    self.children.append((process, Path(kwargs['env']['TMPDIR'])))
+KeyError: 'env'
+
+======================================================================
+ERROR: test_local_demo_workflows_and_assets (test_workbench.WorkbenchAcceptanceTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_workbench.py", line 31, in test_local_demo_workflows_and_assets
+    self.assertEqual(len(smoke(base)), 26)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/scripts/smoke.py", line 21, in smoke
+    with urllib.request.urlopen(req, timeout=10) as response:
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/urllib/request.py", line 214, in urlopen
+    return opener.open(url, data, timeout)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/urllib/request.py", line 523, in open
+    response = meth(req, response)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/urllib/request.py", line 632, in http_response
+    response = self.parent.error(
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/urllib/request.py", line 561, in error
+    return self._call_chain(*args)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/urllib/request.py", line 494, in _call_chain
+    result = func(*args)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/urllib/request.py", line 641, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 404: Not Found
+
+======================================================================
+ERROR: test_workspace_backup (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_workspace_backup
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_workspace_backup.py", line 14, in <module>
+    import test_workspace_store as store_tests
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_workspace_store.py", line 8, in <module>
+    from workspace_store import WorkspaceStore, WorkspaceError
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/workspace_store.py", line 14, in <module>
+    from doctext import document_fingerprint, resolve_document
+ImportError: cannot import name 'document_fingerprint' from 'doctext' (/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/doctext.py)
+
+
+======================================================================
+ERROR: test_workspace_http (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_workspace_http
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_workspace_http.py", line 12, in <module>
+    from workspace_api import namespace
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/workspace_api.py", line 5, in <module>
+    from reviewed_evidence import ReviewedEvidence, day
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/reviewed_evidence.py", line 9, in <module>
+    from workspace_store import WorkspaceError, canonical, now, text
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/workspace_store.py", line 14, in <module>
+    from doctext import document_fingerprint, resolve_document
+ImportError: cannot import name 'document_fingerprint' from 'doctext' (/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/doctext.py)
+
+
+======================================================================
+ERROR: test_all_requests_reject_responses_from_previous_context (test_workspace_report_ui.WorkspaceReportUiTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_workspace_report_ui.py", line 20, in test_all_requests_reject_responses_from_previous_context
+    result = subprocess.run(['node', 'scripts/test_workspace_context.cjs'], cwd=root,
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/subprocess.py", line 505, in run
+    with Popen(*popenargs, **kwargs) as process:
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1093, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1097, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1158, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 50, in track
+    process = spawn(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1093, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1097, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1158, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 50, in track
+    process = spawn(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1093, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1097, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1158, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 50, in track
+    process = spawn(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1093, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1097, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1158, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 50, in track
+    process = spawn(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1093, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1097, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1158, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 50, in track
+    process = spawn(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1093, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1097, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1158, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 50, in track
+    process = spawn(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1093, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1097, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1158, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 50, in track
+    process = spawn(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1093, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1097, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1158, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 50, in track
+    process = spawn(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1093, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1097, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1158, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 50, in track
+    process = spawn(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1093, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1097, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1158, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 50, in track
+    process = spawn(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1093, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1097, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1158, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 50, in track
+    process = spawn(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1093, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1097, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1158, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 51, in track
+    self.children.append((process, Path(kwargs['env']['TMPDIR'])))
+KeyError: 'env'
+
+======================================================================
+ERROR: test_preview_download_and_privacy_resets (test_workspace_report_ui.WorkspaceReportUiTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_workspace_report_ui.py", line 12, in test_preview_download_and_privacy_resets
+    result = subprocess.run(['node', 'scripts/test_workspace_report.cjs'], cwd=root,
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/subprocess.py", line 505, in run
+    with Popen(*popenargs, **kwargs) as process:
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1093, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1097, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1158, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 50, in track
+    process = spawn(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1093, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1097, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1158, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 50, in track
+    process = spawn(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1093, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1097, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1158, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 50, in track
+    process = spawn(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1093, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1097, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1158, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 50, in track
+    process = spawn(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1093, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1097, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1158, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 50, in track
+    process = spawn(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1093, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1097, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1158, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 50, in track
+    process = spawn(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1093, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1097, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1158, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 50, in track
+    process = spawn(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1093, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1097, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1158, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 50, in track
+    process = spawn(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1093, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1097, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1158, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 50, in track
+    process = spawn(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1093, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1097, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1158, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 50, in track
+    process = spawn(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1093, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1097, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1158, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 50, in track
+    process = spawn(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1093, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1097, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1158, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_request_jobs.py", line 51, in track
+    self.children.append((process, Path(kwargs['env']['TMPDIR'])))
+KeyError: 'env'
+
+======================================================================
+ERROR: test_workspace_store (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_workspace_store
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_workspace_store.py", line 8, in <module>
+    from workspace_store import WorkspaceStore, WorkspaceError
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/workspace_store.py", line 14, in <module>
+    from doctext import document_fingerprint, resolve_document
+ImportError: cannot import name 'document_fingerprint' from 'doctext' (/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/doctext.py)
+
+
+======================================================================
+FAIL: test_invalid_dates_are_rejected_before_research (test_as_of.SituationDateTests) (value='2023-02-29')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_as_of.py", line 17, in test_invalid_dates_are_rejected_before_research
+    run.assert_not_called()
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 868, in assert_not_called
+    raise AssertionError(msg)
+AssertionError: Expected 'run' to not have been called. Called 1 times.
+Calls: [call(topic='Тест', query_count=3, source_limit=6, output_dir=PosixPath('запрос-20261112-090025-04c98c24'), demo=False, session_context=''),
+ call().__iter__()].
+
+======================================================================
+FAIL: test_invalid_dates_are_rejected_before_research (test_as_of.SituationDateTests) (value='20240101')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_as_of.py", line 17, in test_invalid_dates_are_rejected_before_research
+    run.assert_not_called()
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 868, in assert_not_called
+    raise AssertionError(msg)
+AssertionError: Expected 'run' to not have been called. Called 1 times.
+Calls: [call(topic='Тест', query_count=3, source_limit=6, output_dir=PosixPath('запрос-20261112-090025-471ad936'), demo=False, session_context=''),
+ call().__iter__()].
+
+======================================================================
+FAIL: test_invalid_dates_are_rejected_before_research (test_as_of.SituationDateTests) (value='2024-1-01')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_as_of.py", line 17, in test_invalid_dates_are_rejected_before_research
+    run.assert_not_called()
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 868, in assert_not_called
+    raise AssertionError(msg)
+AssertionError: Expected 'run' to not have been called. Called 1 times.
+Calls: [call(topic='Тест', query_count=3, source_limit=6, output_dir=PosixPath('запрос-20261112-090025-c37c23a1'), demo=False, session_context=''),
+ call().__iter__()].
+
+======================================================================
+FAIL: test_invalid_dates_are_rejected_before_research (test_as_of.SituationDateTests) (value='')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_as_of.py", line 17, in test_invalid_dates_are_rejected_before_research
+    run.assert_not_called()
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 868, in assert_not_called
+    raise AssertionError(msg)
+AssertionError: Expected 'run' to not have been called. Called 1 times.
+Calls: [call(topic='Тест', query_count=3, source_limit=6, output_dir=PosixPath('запрос-20261112-090025-61aad5ae'), demo=False, session_context=''),
+ call().__iter__()].
+
+======================================================================
+FAIL: test_invalid_dates_are_rejected_before_research (test_as_of.SituationDateTests) (value=2024)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_as_of.py", line 17, in test_invalid_dates_are_rejected_before_research
+    run.assert_not_called()
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 868, in assert_not_called
+    raise AssertionError(msg)
+AssertionError: Expected 'run' to not have been called. Called 1 times.
+Calls: [call(topic='Тест', query_count=3, source_limit=6, output_dir=PosixPath('запрос-20261112-090025-f8bea3ae'), demo=False, session_context=''),
+ call().__iter__()].
+
+======================================================================
+FAIL: test_invalid_dates_are_rejected_before_research (test_as_of.SituationDateTests) (value=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_as_of.py", line 17, in test_invalid_dates_are_rejected_before_research
+    run.assert_not_called()
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 868, in assert_not_called
+    raise AssertionError(msg)
+AssertionError: Expected 'run' to not have been called. Called 1 times.
+Calls: [call(topic='Тест', query_count=3, source_limit=6, output_dir=PosixPath('запрос-20261112-090025-98299489'), demo=False, session_context=''),
+ call().__iter__()].
+
+======================================================================
+FAIL: test_document_commands_are_untrusted_and_cannot_promote_runtime_flags (test_document_privacy.DocumentPrivacyTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_document_privacy.py", line 38, in test_document_commands_are_untrusted_and_cannot_promote_runtime_flags
+    self.assertIn('недоверенные данные', system)
+AssertionError: 'недоверенные данные' not found in 'Ты юрист-аналитик, проверяющий договор по праву РФ. Анализируй только переданный текст договора. Верни только JSON без пояснений со структурой: {"summary": "общий вывод в 2-3 предложениях", "risks": [{"category": "категория риска", "severity": "high|medium|low", "quote": "точная цитата из договора", "comment": "в чём риск", "recommendation": "что изменить"}], "missing_clauses": ["отсутствующее существенное условие"]}. Проверь категории: предмет и существенные условия; цена и порядок расчётов; сроки и пролонгация; ответственность и штрафы; односторонние права; изменение и расторжение; подсудность и споры; скрытые комиссии и доплаты. Цитаты приводи дословно из текста договора, не сокращай и не перефразируй. Не выдумывай риски и условия, которых нет в тексте. Если категория не вызывает замечаний, не включай её. Не выдавай результат за индивидуальную юридическую консультацию.'
+
+======================================================================
+FAIL: test_invalid_report_links_do_not_echo_private_url_in_error (test_document_privacy.DocumentPrivacyTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_document_privacy.py", line 68, in test_invalid_report_links_do_not_echo_private_url_in_error
+    self.assertNotIn('PRIVATE-', str(caught.exception))
+AssertionError: 'PRIVATE-' unexpectedly found in "Отчёт не прошёл проверку после исправления: Отсутствует или пуст раздел «Краткий ответ». Отсутствует или пуст раздел «Правовое основание». Отсутствует или пуст раздел «Актуальность и изменения». Отсутствует или пуст раздел «Как применить к ситуации». Отсутствует или пуст раздел «Ограничения». Есть ссылки, которых нет в материалах: ['https://example.org/PRIVATE-DOCUMENT']."
+
+======================================================================
+FAIL: test_repeated_invalid_identifier_does_not_echo_value_in_error (test_document_privacy.DocumentPrivacyTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_document_privacy.py", line 60, in test_repeated_invalid_identifier_does_not_echo_value_in_error
+    self.assertNotIn('PRIVATE-', str(caught.exception))
+AssertionError: 'PRIVATE-' unexpectedly found in 'Извлечение реквизитов не прошло контроль после исправления: parties №1: ИНН «PRIVATE-IDENTIFIER» не похож на ИНН.'
+
+======================================================================
+FAIL: test_repeated_invalid_review_does_not_echo_model_text_in_error (test_document_privacy.DocumentPrivacyTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_document_privacy.py", line 50, in test_repeated_invalid_review_does_not_echo_model_text_in_error
+    review_contract(FixedModel(result), DOCUMENT)
+AssertionError: AgentError not raised
+
+======================================================================
+FAIL: test_authenticated_delete_removes_history (test_session_delete.DeleteEndpointTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_session_delete.py", line 46, in test_authenticated_delete_removes_history
+    self.assertEqual(status, 200)
+AssertionError: 404 != 200
+
+======================================================================
+FAIL: test_invalid_id_does_not_delete (test_session_delete.DeleteEndpointTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_session_delete.py", line 62, in test_invalid_id_does_not_delete
+    self.assertEqual(status, 400)
+AssertionError: 404 != 400
+
+======================================================================
+FAIL: test_unauthorized_delete_has_no_effect (test_session_delete.DeleteEndpointTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pavel/Documents/kimi/tasks/2026-11-06/11-15-26-c346c822/local-research-agent/test_session_delete.py", line 55, in test_unauthorized_delete_has_no_effect
+    self.assertEqual(status, 401)
+AssertionError: 404 != 401
+
+----------------------------------------------------------------------
+Ran 395 tests in 30.503s
+
+FAILED (failures=13, errors=69)
+      Выбрано источников: 2
+[3/8] Оцениваю полноту правовых материалов…
+      Демонстрационные правовые материалы получены.
+[4/8] Обязательно проверяю последние изменения…
+      Проверочных запросов: 2; источников всего: 2
+[5/8] Ищу судебную практику…
+      Запросов по практике: 2; источников всего: 2
+[6/8] Готовлю и проверяю правовой ответ…
+      Структура и ссылки прошли проверку.
+[7/8] Самопроверка ответа…
+      Противоречий не найдено.
+[8/8] Сохраняю результаты…
+[1/8] Планирую правовое исследование…
+      Запросы: Вопрос; Вопрос: нормы права; Вопрос: последние изменения
+[2/8] Ищу нормы и читаю источники…
+      Выбрано источников: 2
+[3/8] Оцениваю полноту правовых материалов…
+      Демонстрационные правовые материалы получены.
+[4/8] Обязательно проверяю последние изменения…
+      Проверочных запросов: 2; источников всего: 2
+[5/8] Ищу судебную практику…
+      Запросов по практике: 2; источников всего: 2
+[6/8] Готовлю и проверяю правовой ответ…
+      Структура и ссылки прошли проверку.
+[7/8] Самопроверка ответа…
+      Противоречий не найдено.
+[8/8] Сохраняю результаты…
+[1/8] Планирую правовое исследование…
+      Запросы: PRIVATE-MARKER; PRIVATE-MARKER: нормы права; PRIVATE-MARKER: последние изменения
+[2/8] Ищу нормы и читаю источники…
+      Выбрано источников: 2
+[3/8] Оцениваю полноту правовых материалов…
+      Демонстрационные правовые материалы получены.
+[4/8] Обязательно проверяю последние изменения…
+      Проверочных запросов: 2; источников всего: 2
+[5/8] Ищу судебную практику…
+      Запросов по практике: 2; источников всего: 2
+[6/8] Готовлю и проверяю правовой ответ…
+      Структура и ссылки прошли проверку.
+[7/8] Самопроверка ответа…
+      Противоречий не найдено.
+[8/8] Сохраняю результаты…
+[1/8] Планирую правовое исследование…
+      Запросы: Тест; Тест: нормы права; Тест: последние изменения
+[2/8] Ищу нормы и читаю источники…
+      Выбрано источников: 2
+[3/8] Оцениваю полноту правовых материалов…
+      Демонстрационные правовые материалы получены.
+[4/8] Обязательно проверяю последние изменения…
+      Проверочных запросов: 2; источников всего: 2
+[5/8] Ищу судебную практику…
+      Запросов по практике: 2; источников всего: 2
+[6/8] Готовлю и проверяю правовой ответ…
+      Структура и ссылки прошли проверку.
+[7/8] Самопроверка ответа…
+      Противоречий не найдено.
+[8/8] Сохраняю результаты…
