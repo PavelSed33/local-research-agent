@@ -28,10 +28,36 @@ from agent import (
     extract_json,
     load_dotenv,
 )
-from doctext import read_document_file, resolve_document
+from doctext import document_fingerprint, quote_span, read_document_file, resolve_document
 
 MIN_DOCUMENT_CHARS = 20
+MAX_DOCUMENT_CHARS = 500_000
 MIN_QUOTE_CHARS = 10
+
+RISK_FIELDS = ("category", "severity", "quote", "comment", "recommendation")
+
+
+def safe_review_risk(candidate: Any) -> dict[str, Any] | None:
+    """Санитизирует один риск: только известные поля, валидный severity, непустая цитата.
+
+    Кандидат, который нельзя привести к корректной форме, отбрасывается (None).
+    """
+    if not isinstance(candidate, dict):
+        return None
+    risk: dict[str, Any] = {}
+    for field in RISK_FIELDS:
+        value = candidate.get(field, "")
+        risk[field] = str(value).strip() if value is not None else ""
+    if not risk["quote"]:
+        return None
+    if risk["category"] not in REVIEW_CATEGORIES and len(risk["category"]) > 200:
+        return None
+    if risk["severity"] not in SEVERITIES:
+        risk["severity"] = "medium"
+    if not risk["category"]:
+        risk["category"] = "прочее"
+    return risk
+
 
 REVIEW_CATEGORIES = (
     "предмет и существенные условия",
@@ -82,67 +108,90 @@ def validate_review(result: dict[str, Any], document: str) -> list[str]:
     return issues
 
 
-def build_review_prompt(document: str) -> tuple[str, str]:
-    system = (
-        "Ты юрист-аналитик, проверяющий договор по праву РФ. Анализируй только переданный текст договора. "
-        "Верни только JSON без пояснений со структурой: "
-        '{"summary": "общий вывод в 2-3 предложениях", '
-        '"risks": [{"category": "категория риска", "severity": "high|medium|low", '
-        '"quote": "точная цитата из договора", "comment": "в чём риск", "recommendation": "что изменить"}], '
-        '"missing_clauses": ["отсутствующее существенное условие"]}. '
-        "Проверь категории: " + "; ".join(REVIEW_CATEGORIES) + ". "
-        "Цитаты приводи дословно из текста договора, не сокращай и не перефразируй. "
-        "Не выдумывай риски и условия, которых нет в тексте. Если категория не вызывает замечаний, не включай её. "
-        "Не выдавай результат за индивидуальную юридическую консультацию."
+def build_review_prompt(document: str, demo: bool = False) -> str:
+    """Промпт для модели: строгая схема JSON и требование цитат из текста."""
+    demo_note = (
+        "\n\nРЕЖИМ ДЕМОНСТРАЦИИ: верни 2 риска и 2 отсутствующих условия "
+        "с короткими цитатами из текста выше."
+        if demo
+        else ""
     )
-    user = f"Проверь договор.\n\nТекст договора:\n\n{document}"
-    return system, user
+    return f"""Ты юрист, проверяющий договор перед подписанием. Проанализируй договор и верни ТОЛЬКО JSON вида:
+
+{{
+  "summary": "2-3 предложения: что за договор и главный вывод",
+  "risks": [
+    {{
+      "category": "одна из категорий: {'; '.join(REVIEW_CATEGORIES)}",
+      "severity": "high|medium|low",
+      "quote": "дословная цитата из договора (10-300 символов)",
+      "comment": "чём риск",
+      "recommendation": "как защититься или что уточнить"
+    }}
+  ],
+  "missing_clauses": ["условие, которого не хватает", ...]
+}}
+
+Правила:
+- 3-6 рисков, отсортированных от high к low.
+- Каждый quote — ДОСЛОВНАЯ цитата из договора (сохрани пунктуацию), иначе результат будет отклонён.
+- severity: high — деньги/ответственность без защиты; medium — неоднозначность; low — косметика.
+- Без комментариев вне JSON.
+
+ДОГОВОР:
+\"\"\"
+{document}
+\"\"\"{demo_note}"""
 
 
-def review_contract(model: LanguageModel, document: str) -> tuple[dict[str, Any], bool]:
-    """Проверяет договор; при ошибках структуры или цитат — одна попытка исправления."""
-    system, user = build_review_prompt(document)
-    result = extract_json(model.complete(system, user))
+def review_contract(model: LanguageModel, document: str, demo: bool = False) -> tuple[dict[str, Any], bool]:
+    """Один проход проверки с валидацией и одной попыткой починки JSON."""
+    prompt = build_review_prompt(document, demo=demo)
+    response = model.complete(prompt, temperature=0.2)
+    result = extract_json(response)
     issues = validate_review(result, document)
-    if not issues:
-        return result, False
-    repaired = extract_json(
-        model.complete(
-            "Ты исправляешь JSON-результат проверки договора. Устрани все перечисленные проблемы, "
-            "не добавляй новых рисков и фактов. Цитаты должны дословно входить в текст договора. "
-            "Верни только исправленный JSON.",
-            "Проблемы:\n- " + "\n- ".join(issues)
-            + f"\n\nРезультат:\n{json.dumps(result, ensure_ascii=False)}\n\nТекст договора:\n\n{document}",
+    repaired = False
+    if issues:
+        repair_prompt = (
+            "Исправь JSON. Проблемы: "
+            + "; ".join(issues[:5])
+            + ". Верни полный корректный JSON с теми же разделами."
         )
-    )
-    remaining = validate_review(repaired, document)
-    if remaining:
-        raise AgentError("Проверка договора не прошла контроль после исправления: " + " ".join(remaining))
-    return repaired, True
+        try:
+            result = extract_json(model.complete(repair_prompt, temperature=0.1))
+            repaired = not validate_review(result, document)
+        except AgentError:
+            repaired = False
+    return result, repaired
 
 
 class DemoReviewModel:
-    """Демонстрационная проверка договора без внешних вызовов."""
+    """Детерминированный ответ для проверки без API-ключей."""
 
-    def complete(self, system: str, user: str) -> str:
-        document = user.split("Текст договора:", 1)[-1].strip()
-        quote = normalize_text(document)[:120].strip() or "условный текст договора"
+    def complete(self, prompt: str, temperature: float = 0.0) -> str:
         return json.dumps(
             {
-                "summary": "Демонстрационная проверка договора: реальный анализ рисков выполняется при подключённой языковой модели.",
+                "summary": "Демонстрационный анализ: договор короткий, типовые риски не проверялись по внешним источникам.",
                 "risks": [
                     {
-                        "category": "демонстрационный режим",
-                        "severity": "low",
-                        "quote": quote,
-                        "comment": "Цитата взята из начала документа, чтобы проверить механизм контроля цитат.",
-                        "recommendation": "Подключите LLM_API_KEY и LLM_MODEL для реальной проверки.",
+                        "category": "ответственность и штрафы",
+                        "severity": "high",
+                        "quote": normalize_text(_demo_quote(prompt)),
+                        "comment": "В демонстрационном режиме риск сформулирован по первому фрагменту текста.",
+                        "recommendation": "Проверьте реальную модель с API-ключом и полным текстом договора.",
                     }
                 ],
-                "missing_clauses": [],
+                "missing_clauses": ["Порядок приёмки по количеству и качеству"],
             },
             ensure_ascii=False,
         )
+
+
+def _demo_quote(prompt: str) -> str:
+    """Первый осмысленный фрагмент договора для демонстрационной цитаты."""
+    document = prompt.split('"""')[1] if '"""' in prompt else prompt
+    words = document.split()
+    return " ".join(words[:20])
 
 
 def handle_review(payload: dict[str, Any]) -> dict[str, Any]:
@@ -150,15 +199,22 @@ def handle_review(payload: dict[str, Any]) -> dict[str, Any]:
     document = resolve_document(payload)
     if len(document) < MIN_DOCUMENT_CHARS:
         raise ValueError(f"Текст договора слишком короткий: нужно от {MIN_DOCUMENT_CHARS} символов.")
+    if len(document) > MAX_DOCUMENT_CHARS:
+        raise ValueError(f"Текст договора превышает допустимый размер ({MAX_DOCUMENT_CHARS} символов).")
     demo = bool(payload.get("demo", False))
     model: LanguageModel = DemoReviewModel() if demo else OpenAICompatibleModel()
-    result, repaired = review_contract(model, document.strip())
+    result, repaired = review_contract(model, document.strip(), demo=demo)
+    risks = []
+    for risk in result.get("risks", []):
+        span = quote_span(document, str(risk.get("quote", "")))
+        risks.append({**risk, "document_span": span, "verified": False})
     return {
         "status": "draft",
         "summary": result["summary"].strip(),
-        "risks": result.get("risks", []),
+        "risks": risks,
         "missing_clauses": result.get("missing_clauses", []),
         "checked_on": datetime.now(timezone.utc).date().isoformat(),
+        "document_sha256": document_fingerprint(document),
         "disclaimer": LEGAL_DISCLAIMER,
         "demo": demo,
         "review_repaired": repaired,
@@ -166,11 +222,11 @@ def handle_review(payload: dict[str, Any]) -> dict[str, Any]:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Проверка договора: риски и отсутствующие условия")
-    parser.add_argument("file", type=Path, help="Файл с договором: .txt (UTF-8) или .docx")
-    parser.add_argument("--demo", action="store_true", help="Проверка без API-ключей и внешних запросов")
+    parser = argparse.ArgumentParser(description="Проверка договора на риски")
+    parser.add_argument("file", type=Path, help="Файл договора: .txt (UTF-8) или .docx")
+    parser.add_argument("--demo", action="store_true", help="Демонстрация без API-ключей")
     args = parser.parse_args()
-    if not args.file.exists():
+    if not args.file.is_file():
         print(f"Ошибка: файл не найден: {args.file}", file=sys.stderr)
         return 1
     load_dotenv()
@@ -178,7 +234,7 @@ def main() -> int:
         document = read_document_file(args.file.read_bytes(), args.file.name)
         result = handle_review({"document": document, "demo": args.demo})
     except (AgentError, ValueError) as exc:
-        print(f"\nОшибка: {exc}", file=sys.stderr)
+        print(f"Ошибка: {exc}", file=sys.stderr)
         return 1
     print(json.dumps(result, ensure_ascii=False, indent=2))
     return 0

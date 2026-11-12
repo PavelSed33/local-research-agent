@@ -8,10 +8,12 @@ import json
 import os
 import re
 import sys
+import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from dataclasses import asdict, dataclass
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any, Protocol
 
@@ -60,23 +62,88 @@ def load_dotenv(path: Path = Path(".env")) -> None:
         os.environ.setdefault(key.strip(), value)
 
 
-def post_json(url: str, payload: dict[str, Any], headers: dict[str, str], timeout: int = 90) -> dict[str, Any]:
+LOCAL_HOSTS = {"127.0.0.1", "localhost", "::1"}
+
+
+def validate_service_url(url: str) -> str:
+    """Проверяет URL внешнего сервиса до любого сетевого обращения.
+
+    Разрешены только https:// и локальные http:// (127.0.0.1, localhost, [::1]).
+    Запрещены учётные данные в URL, фрагменты и не-http схемы.
+    """
+    if not isinstance(url, str) or not url.strip():
+        raise AgentError("URL сервиса должен быть непустой строкой.")
+    try:
+        parsed = urllib.parse.urlsplit(url.strip())
+    except ValueError as exc:
+        raise AgentError(f"Некорректный URL сервиса: {exc}.") from exc
+    host = (parsed.hostname or "").lower()
+    if parsed.scheme == "https":
+        pass
+    elif parsed.scheme == "http" and host in LOCAL_HOSTS:
+        pass
+    else:
+        raise AgentError(
+            "Разрешены только https:// и локальный http:// (127.0.0.1, localhost, [::1])."
+        )
+    if parsed.username is not None or parsed.password is not None:
+        raise AgentError("Учётные данные в URL запрещены: используйте заголовки.")
+    if parsed.fragment:
+        raise AgentError("Фрагменты (#...) в URL сервиса запрещены.")
+    return url.strip()
+
+
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    """Перенаправления не выполняются: credentials и тело документа не уходят третьим лицам."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):  # noqa: D102
+        return None
+
+
+_OPENER = urllib.request.build_opener(_NoRedirect())
+
+
+def open_json_request(request: urllib.request.Request, timeout: int):
+    """Выполняет запрос без следования перенаправлениям; возвращает объект ответа."""
+    try:
+        return _OPENER.open(request, timeout=timeout)
+    except urllib.error.HTTPError as exc:
+        if 300 <= exc.code < 400:
+            raise AgentError(
+                f"Перенаправление отклонено (HTTP {exc.code}): повторите запрос по итоговому адресу."
+            ) from exc
+        body = exc.read().decode("utf-8", errors="replace")[:500]
+        raise AgentError(f"Сервис вернул HTTP {exc.code}: {body}") from exc
+    except urllib.error.URLError as exc:
+        raise AgentError(f"Не удалось подключиться к сервису: {exc.reason}") from exc
+
+
+def post_json(url: str, payload: dict[str, Any], headers: dict[str, str], timeout: int = 90, attempts: int = 3) -> dict[str, Any]:
+    url = validate_service_url(url)
     request = urllib.request.Request(
         url,
         data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
         headers={"Content-Type": "application/json", **headers},
         method="POST",
     )
-    try:
-        with urllib.request.urlopen(request, timeout=timeout) as response:
-            return json.loads(response.read().decode("utf-8"))
-    except urllib.error.HTTPError as exc:
-        body = exc.read().decode("utf-8", errors="replace")[:500]
-        raise AgentError(f"Сервис вернул HTTP {exc.code}: {body}") from exc
-    except urllib.error.URLError as exc:
-        raise AgentError(f"Не удалось подключиться к сервису: {exc.reason}") from exc
-    except json.JSONDecodeError as exc:
-        raise AgentError("Сервис вернул некорректный JSON.") from exc
+    for attempt in range(attempts):
+        try:
+            response = open_json_request(request, timeout)
+            raw = response.read()
+        except TimeoutError:
+            if attempt < attempts - 1:
+                time.sleep(min(0.25 * (2 ** attempt), 2.0))
+                continue
+            raise AgentError("Сервис не ответил вовремя: превышен таймаут ожидания.") from None
+        except AgentError:
+            raise
+        except Exception as exc:
+            raise AgentError("Сбой сетевого обращения к сервису.") from exc
+        try:
+            return json.loads(raw.decode("utf-8"))
+        except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+            raise AgentError("Сервис вернул некорректный JSON.") from exc
+    raise AgentError("Сервис не ответил вовремя: превышен таймаут ожидания.")
 
 
 def extract_json(text: str) -> dict[str, Any]:
@@ -98,588 +165,136 @@ def extract_json(text: str) -> dict[str, Any]:
     return value
 
 
-class OpenAICompatibleModel:
-    """Клиент для API со схемой POST /chat/completions."""
-
-    def __init__(self) -> None:
-        self.api_key = os.getenv("LLM_API_KEY", "").strip()
-        self.model = os.getenv("LLM_MODEL", "").strip()
-        self.base_url = os.getenv("LLM_BASE_URL", "https://api.openai.com/v1").rstrip("/")
-        if not self.api_key or not self.model:
-            raise AgentError("Задайте LLM_API_KEY и LLM_MODEL в файле .env.")
-
-    def complete(self, system: str, user: str) -> str:
-        data = post_json(
-            f"{self.base_url}/chat/completions",
-            {
-                "model": self.model,
-                "temperature": 0.2,
-                "messages": [
-                    {"role": "system", "content": system},
-                    {"role": "user", "content": user},
-                ],
-            },
-            {"Authorization": f"Bearer {self.api_key}"},
-        )
-        try:
-            content = data["choices"][0]["message"]["content"]
-        except (KeyError, IndexError, TypeError) as exc:
-            raise AgentError("Ответ модели имеет неподдерживаемый формат.") from exc
-        if not isinstance(content, str) or not content.strip():
-            raise AgentError("Модель вернула пустой ответ.")
-        return content.strip()
+def current_check_date() -> str:
+    """Сегодняшняя дата проверки в формате ГГГГ-ММ-ДД."""
+    return datetime.now(timezone.utc).date().isoformat()
 
 
-class TavilySearch:
-    def __init__(self, domains: list[str] | None = None) -> None:
-        self.api_key = os.getenv("TAVILY_API_KEY", "").strip()
-        self.url = os.getenv("TAVILY_API_URL", "https://api.tavily.com/search")
-        self.domains = domains if domains is not None else [
-            item.strip()
-            for item in os.getenv(
-                "LEGAL_SEARCH_DOMAINS", "pravo.gov.ru,www.consultant.ru,www.garant.ru"
-            ).split(",")
-            if item.strip()
-        ]
-        if not self.api_key:
-            raise AgentError("Задайте TAVILY_API_KEY в файле .env.")
+AS_OF_PATTERN = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+def validate_as_of(value: Any) -> str | None:
+    """Нормализует ситуационную дату; None, если значение некорректно.
 
-    def search(self, query: str, limit: int) -> list[Source]:
-        data = post_json(
-            self.url,
-            {
-                "query": query,
-                "search_depth": "basic",
-                "max_results": limit,
-                "include_answer": False,
-                "include_raw_content": "text",
-                "include_domains": self.domains,
-            },
-            {"Authorization": f"Bearer {self.api_key}"},
-            timeout=60,
-        )
-        sources: list[Source] = []
-        for item in data.get("results", []):
-            if not isinstance(item, dict):
-                continue
-            url = str(item.get("url", "")).strip()
-            if not url.startswith(("https://", "http://")):
-                continue
-            text = str(item.get("raw_content") or item.get("content") or "").strip()
-            if not text:
-                continue
-            sources.append(
-                Source(
-                    title=str(item.get("title") or url).strip(),
-                    url=url,
-                    text=text,
-                    query=query,
-                )
-            )
-        return sources
-
-
-class DemoModel:
-    def complete(self, system: str, user: str) -> str:
-        if "legal_update_queries" in system:
-            return json.dumps(
-                {"queries": ["условная проверка последних изменений"], "notes": "Демонстрационная проверка изменений."},
-                ensure_ascii=False,
-            )
-        if "court_queries" in system:
-            return json.dumps(
-                {"court_queries": ["условный поиск судебной практики"], "notes": "Демонстрационный поиск практики."},
-                ensure_ascii=False,
-            )
-        if "additional_queries" in system:
-            return json.dumps(
-                {"sufficient": True, "additional_queries": [], "reason": "Демонстрационные правовые материалы получены."},
-                ensure_ascii=False,
-            )
-        if "consistent" in system:
-            return json.dumps(
-                {"consistent": True, "issues": []},
-                ensure_ascii=False,
-            )
-        if "queries" in system:
-            topic = user.split("Вопрос:", 1)[-1].splitlines()[0].strip()
-            return json.dumps({"queries": [topic, f"{topic}: нормы права", f"{topic}: последние изменения"]}, ensure_ascii=False)
-        return (
-            "## Краткий ответ\n\n"
-            "Демонстрационный запуск проверяет цикл юридического помощника; реальный правовой вывод здесь не формируется [1].\n\n"
-            "## Правовое основание\n\n"
-            "В рабочем режиме агент должен указать точные нормы только при наличии их текста в источниках [1][2].\n\n"
-            "## Актуальность и изменения\n\n"
-            "Перед ответом выполняется отдельный поиск последних изменений; в демонстрации используются условные данные [1].\n\n"
-            "## Как применить к ситуации\n\n"
-            "Для реального ответа необходимо подключить модель и поисковый API, затем проверить нормы по ссылкам.\n\n"
-            "## Ограничения\n\n"
-            "Демонстрационные источники условны. Это не юридическая консультация."
-        )
-
-
-class DemoSearch:
-    def search(self, query: str, limit: int) -> list[Source]:
-        return [
-            Source(
-                title="Условный источник: устройство агента",
-                url="https://example.org/demo-agent",
-                text="Условный текст для проверки цикла: агент планирует поиск, собирает источники и создаёт отчёт.",
-                query=query,
-            ),
-            Source(
-                title="Условный источник: качество отчёта",
-                url="https://example.org/demo-report",
-                text="Условный текст для проверки ссылок: важные утверждения должны сопровождаться ссылками на источники.",
-                query=query,
-            ),
-        ][:limit]
-
-
-def deduplicate(sources: list[Source], limit: int) -> list[Source]:
-    unique: dict[str, Source] = {}
-    for source in sources:
-        key = source.url.split("#", 1)[0].rstrip("/")
-        if key not in unique:
-            unique[key] = source
-        if len(unique) >= limit:
-            break
-    return list(unique.values())
-
-
-def format_materials(sources: list[Source]) -> str:
-    materials = []
-    for index, source in enumerate(sources, start=1):
-        materials.append(
-            f"[{index}] {source.title}\nURL: {source.url}\nТекст:\n{source.text[:9000]}"
-        )
-    return "\n\n---\n\n".join(materials)
-
-
-def plan_queries(model: LanguageModel, topic: str, count: int) -> list[str]:
-    response = model.complete(
-        "Ты планируешь правовое исследование по законодательству РФ. Верни только JSON с ключом queries: "
-        "список разнообразных запросов для поиска действующих норм, точных статей и официальных текстов. "
-        "Не добавляй пояснений. Не полагайся на память модели о содержании законов.",
-        f"Вопрос: {topic}\nКоличество поисковых запросов: {count}",
-    )
-    raw_queries = extract_json(response).get("queries", [])
-    queries = [str(item).strip() for item in raw_queries if str(item).strip()]
-    if not queries:
-        raise AgentError("Не удалось составить поисковые запросы.")
-    return list(dict.fromkeys([topic, *queries]))[:count]
-
-
-def assess_sources(model: LanguageModel, topic: str, sources: list[Source]) -> tuple[bool, list[str], str]:
-    response = model.complete(
-        "Ты оцениваешь полноту исследования. Верни только JSON с полями: sufficient (boolean), "
-        "additional_queries (список до 3 новых запросов), reason (краткое обоснование). "
-        "Материалов достаточно, если они содержат применимые нормы, точные реквизиты и позволяют ответить на вопрос. "
-        "Отдельно учитывай, нужны ли подзаконные акты или судебная практика. Если данных достаточно, additional_queries пуст. "
-        "Не выдумывай нормы и факты.",
-        f"Тема: {topic}\n\nМатериалы:\n\n{format_materials(sources)}",
-    )
-    data = extract_json(response)
-    sufficient = data.get("sufficient")
-    if not isinstance(sufficient, bool):
-        raise AgentError("Оценка полноты исследования имеет неверный формат.")
-    raw_queries = data.get("additional_queries", [])
-    if not isinstance(raw_queries, list):
-        raise AgentError("Дополнительные запросы имеют неверный формат.")
-    queries = [str(item).strip() for item in raw_queries if str(item).strip()]
-    return sufficient, list(dict.fromkeys(queries))[:3], str(data.get("reason", "")).strip()
-
-
-def plan_legal_update_check(model: LanguageModel, question: str, sources: list[Source], checked_on: str) -> tuple[list[str], str]:
-    """Всегда готовит отдельный поиск поправок и новых редакций."""
-    response = model.complete(
-        "Ты проверяешь актуальность правовых норм РФ. Верни только JSON с полями legal_update_queries "
-        "(список от 1 до 3 запросов) и notes. Запросы должны искать последние изменения, новые редакции, "
-        "даты вступления в силу и признание норм утратившими силу. Не утверждай, что норма действует, без источника.",
-        f"Вопрос: {question}\nДата проверки: {checked_on}\n\nМатериалы:\n\n{format_materials(sources)}",
-    )
-    data = extract_json(response)
-    raw_queries = data.get("legal_update_queries", data.get("queries", []))
-    if not isinstance(raw_queries, list):
-        raise AgentError("Запросы для проверки изменений имеют неверный формат.")
-    queries = [str(item).strip() for item in raw_queries if str(item).strip()]
-    fallback = f"{question} последние изменения действующая редакция {checked_on[:4]}"
-    return list(dict.fromkeys([*queries, fallback]))[:3], str(data.get("notes", "")).strip()
-
-
-def plan_court_practice_check(model: LanguageModel, question: str, checked_on: str) -> tuple[list[str], str]:
-    """Готовит отдельный поиск судебной практики по вопросу."""
-    response = model.complete(
-        "Ты подбираешь судебную практику РФ. Верни только JSON с полями court_queries "
-        "(список от 1 до 3 запросов) и notes. Запросы должны искать решения арбитражных судов и "
-        "судов общей юрисдикции, позиции Верховного Суда РФ и обзоры практики по теме вопроса. "
-        "Не выдумывай номера дел и не утверждай, что практика единообразна, без источника.",
-        f"Вопрос: {question}\nДата проверки: {checked_on}",
-    )
-    data = extract_json(response)
-    raw_queries = data.get("court_queries", data.get("queries", []))
-    if not isinstance(raw_queries, list):
-        raise AgentError("Запросы для поиска судебной практики имеют неверный формат.")
-    queries = [str(item).strip() for item in raw_queries if str(item).strip()]
-    fallback = f"{question} судебная практика {checked_on[:4]}"
-    return list(dict.fromkeys([*queries, fallback]))[:3], str(data.get("notes", "")).strip()
-
-
-def build_report(model: LanguageModel, topic: str, sources: list[Source], session_context: str = "") -> str:
-    context_block = (
-        "\n\nКонтекст предыдущих вопросов этой сессии (учитывай, если вопрос продолжает их):\n" + session_context
-        if session_context
-        else ""
-    )
-    return model.complete(
-        "Ты юридический помощник по законодательству РФ. Пиши по-русски простыми словами. "
-        "Используй только переданные материалы и никогда не называй статью, номер или редакцию без подтверждения в источнике. "
-        "Каждое правовое утверждение сопровождай ссылкой [N]. Отдельно укажи, какие изменения проверены и что подтвердить не удалось. "
-        "Не выдавай ответ за индивидуальную юридическую консультацию. Не добавляй раздел источников. "
-        "Используй разделы: Краткий ответ, Правовое основание, Актуальность и изменения, Как применить к ситуации, Ограничения.",
-        f"Правовой вопрос: {topic}{context_block}\n\nМатериалы:\n\n{format_materials(sources)}",
-    )
-
-
-def section_text(report: str, section: str) -> str:
-    match = re.search(
-        rf"^##\s+{re.escape(section)}\s*$\n(.*?)(?=^##\s+|\Z)",
-        report,
-        flags=re.MULTILINE | re.DOTALL,
-    )
-    return match.group(1).strip() if match else ""
-
-
-ARTICLE_PATTERN = re.compile(r"(?:статья|статье|статьи|ст\.)\s*(\d+(?:\.\d+)?)", re.IGNORECASE)
-
-
-def find_unconfirmed_articles(report: str, sources: list[Source]) -> list[str]:
-    """Находит статьи, упомянутые в ответе, но отсутствующие в текстах источников."""
-    mentioned = set(ARTICLE_PATTERN.findall(report))
-    if not mentioned:
-        return []
-    corpus = "\n".join(source.text for source in sources)
-    missing = []
-    for number in sorted(mentioned):
-        if not re.search(rf"ст[^\d]{{0,10}}{re.escape(number)}(?!\d)", corpus, re.IGNORECASE):
-            missing.append(number)
-    return missing
-
-
-def validate_report(report: str, sources: list[Source]) -> list[str]:
-    """Проверяет структуру, наличие цитат и допустимость ссылок."""
-    issues: list[str] = []
-    for section in REQUIRED_SECTIONS:
-        if not section_text(report, section):
-            issues.append(f"Отсутствует или пуст раздел «{section}».")
-    for section in CITATION_SECTIONS:
-        text = section_text(report, section)
-        if text and not re.search(r"\[\d+\]", text):
-            issues.append(f"В разделе «{section}» нет ссылки на источник.")
-    citations = {int(value) for value in re.findall(r"\[(\d+)\]", report)}
-    invalid = sorted(number for number in citations if not 1 <= number <= len(sources))
-    if invalid:
-        issues.append(f"Есть ссылки на несуществующие источники: {invalid}.")
-    allowed_urls = {source.url for source in sources}
-    external_links = set(re.findall(r"\[[^\]]+\]\((https?://[^)]+)\)", report))
-    unknown_links = sorted(external_links - allowed_urls)
-    if unknown_links:
-        issues.append(f"Есть ссылки, которых нет в материалах: {unknown_links}.")
-    missing_articles = find_unconfirmed_articles(report, sources)
-    if missing_articles:
-        issues.append(f"Упомянуты статьи, которых нет в источниках: {missing_articles}.")
-    return issues
-
-
-def build_validated_report(model: LanguageModel, topic: str, sources: list[Source], session_context: str = "") -> tuple[str, bool]:
-    """Создаёт отчёт и при необходимости выполняет одно исправление."""
-    report = build_report(model, topic, sources, session_context)
-    issues = validate_report(report, sources)
-    if not issues:
-        return report, False
-    repaired = model.complete(
-        "Ты исправляешь исследовательский отчёт. Используй только переданные материалы, не добавляй новых фактов. "
-        "Устрани все перечисленные проблемы, сохрани русский язык и формат Markdown. "
-        "Не добавляй итоговый раздел источников. Верни только исправленный отчёт.",
-        f"Тема: {topic}\n\nПроблемы:\n- " + "\n- ".join(issues)
-        + f"\n\nОтчёт:\n{report}\n\nМатериалы:\n\n{format_materials(sources)}",
-    )
-    remaining = validate_report(repaired, sources)
-    if remaining:
-        raise AgentError("Отчёт не прошёл проверку после исправления: " + " ".join(remaining))
-    return repaired, True
-
-
-def reflect_on_report(model: LanguageModel, topic: str, report: str, sources: list[Source]) -> tuple[str, dict[str, Any]]:
-    """Самопроверка готового ответа: модель ищет противоречия и неподтверждённые выводы.
-
-    Этап вспомогательный: при сбое самой самопроверки исходный ответ сохраняется,
-    а запись в журнале помечается performed=False (как этап судебной практики).
+    Принимается только строгий формат ГГГГ-ММ-ДД с реальной календарной датой.
     """
-    response = extract_json(
-        model.complete(
-            "Ты проверяешь готовый юридический ответ по законодательству РФ. Ищи только реальные проблемы: "
-            "противоречия между разделами, выводы, которые не следуют из правовых оснований, "
-            "утверждения без ссылки на источник там, где она нужна. "
-            'Верни только JSON: {"consistent": true|false, "issues": ["краткое описание проблемы"]}. '
-            "Если проблем нет, верни пустой список issues и consistent=true. Не придумывай проблемы.",
-            f"Вопрос: {topic}\n\nОтвет:\n{report}\n\nМатериалы:\n\n{format_materials(sources)}",
-        )
-    )
-    issues = [str(issue).strip() for issue in response.get("issues", []) if str(issue).strip()]
-    consistent = bool(response.get("consistent", not issues)) and not issues
-    journal: dict[str, Any] = {"performed": True, "consistent": consistent, "issues": issues, "repaired": False}
-    if consistent:
-        return report, journal
-    repaired = model.complete(
-        "Ты исправляешь юридический ответ по замечаниям самопроверки. Используй только переданные материалы, "
-        "не добавляй новых фактов. Устрани перечисленные противоречия, сохрани русский язык, формат Markdown "
-        "и обязательные разделы. Не добавляй итоговый раздел источников. Верни только исправленный ответ.",
-        f"Вопрос: {topic}\n\nЗамечания:\n- " + "\n- ".join(issues)
-        + f"\n\nОтвет:\n{report}\n\nМатериалы:\n\n{format_materials(sources)}",
-    )
-    validation = validate_report(repaired, sources)
-    if validation:
-        raise AgentError("Ответ после самопроверки не прошёл структурную проверку: " + " ".join(validation))
-    journal["repaired"] = True
-    return repaired, journal
+    if not isinstance(value, str):
+        return None
+    value = value.strip()
+    if not AS_OF_PATTERN.match(value):
+        return None
+    try:
+        return date.fromisoformat(value).isoformat()
+    except ValueError:
+        return None
 
 
-def search_queries(search: SearchProvider, queries: list[str], per_query: int) -> tuple[list[Source], list[str]]:
-    found: list[Source] = []
-    errors: list[str] = []
-    for query in queries:
-        try:
-            found.extend(search.search(query, per_query))
-        except AgentError as exc:
-            errors.append(f"{query}: {exc}")
-            print(f"      Предупреждение: {exc}", file=sys.stderr)
-    return found, errors
+SOURCE_AUTHORITY_CLASSES = {
+    "official_legal_portal": "Официальный портал правовой информации",
+    "official_court": "Официальный сайт суда",
+    "case_law_aggregator": "Агрегатор судебной практики",
+    "secondary_legal_reference": "Справочная правовая система (не официальный текст)",
+    "government_legal_reproduction": "Опубликовано на сайте органа власти (не исходная публикация)",
+    "official_legal_explanation": "Официальное разъяснение",
+    "unclassified": "Источник без классификации",
+}
+
+_AUTHORITY_EXACT_HOSTS = {
+    "pravo.gov.ru": "official_legal_portal",
+    "www.pravo.gov.ru": "official_legal_portal",
+    "publication.pravo.gov.ru": "official_legal_portal",
+    "kad.arbitr.ru": "official_court",
+    "arbitr.ru": "official_court",
+    "www.arbitr.ru": "official_court",
+    "vsrf.ru": "official_court",
+    "sudact.ru": "case_law_aggregator",
+    "consultant.ru": "secondary_legal_reference",
+    "www.consultant.ru": "secondary_legal_reference",
+    "garant.ru": "secondary_legal_reference",
+    "www.garant.ru": "secondary_legal_reference",
+}
 
 
-def save_results(
-    output_dir: Path,
-    topic: str,
-    queries: list[str],
-    sources: list[Source],
-    report: str,
-    demo: bool,
-    research_log: list[dict[str, Any]],
-    report_repaired: bool,
-    update_check: dict[str, Any],
-    court_check: dict[str, Any],
-    reflection: dict[str, Any],
-    checked_on: str,
-) -> tuple[Path, Path]:
-    output_dir.mkdir(parents=True, exist_ok=True)
-    stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
-    report_path = output_dir / f"ответ-{stamp}.md"
-    run_path = output_dir / f"журнал-{stamp}.json"
-    source_list = "\n".join(f"{i}. [{s.title}]({s.url})" for i, s in enumerate(sources, start=1))
-    warning = "\n> **Демонстрационный режим:** источники и факты условны.\n" if demo else ""
-    report_path.write_text(
-        f"# {topic}\n\n**Дата проверки изменений:** {checked_on}\n\n> {LEGAL_DISCLAIMER}\n{warning}\n{report.strip()}\n\n## Источники\n\n{source_list}\n",
-        encoding="utf-8",
-    )
-    run_path.write_text(
-        json.dumps(
-            {
-                "created_at": datetime.now(timezone.utc).isoformat(),
-                "topic": topic,
-                "demo": demo,
-                "queries": queries,
-                "sources": [asdict(source) for source in sources],
-                "research_rounds": research_log,
-                "report_validated": True,
-                "report_repaired": report_repaired,
-                "legal_update_check": update_check,
-                "court_practice_check": court_check,
-                "self_reflection": reflection,
-                "checked_on": checked_on,
-                "report_file": report_path.name,
-            },
-            ensure_ascii=False,
-            indent=2,
-        ),
-        encoding="utf-8",
-    )
-    return report_path, run_path
+def classify_source_authority(url: str) -> str:
+    """Классифицирует источник по хосту; lookalike-домены не получают гос. статус."""
+    try:
+        parsed = urllib.parse.urlsplit(str(url))
+    except ValueError:
+        return "unclassified"
+    host = (parsed.hostname or "").lower()
+    if not host:
+        return "unclassified"
+    if host in _AUTHORITY_EXACT_HOSTS:
+        return _AUTHORITY_EXACT_HOSTS[host]
+    if host == "zpp.rospotrebnadzor.ru":
+        return "government_legal_reproduction" if parsed.path.startswith("/npa") else "official_legal_explanation"
+    if host == "epp.genproc.gov.ru":
+        return "official_legal_explanation"
+    if host.endswith(".gov.ru"):
+        return "government_legal_reproduction"
+    return "unclassified"
 
 
-def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo: bool = False, session_context: str = "") -> tuple[Path, Path]:
-    checked_on = datetime.now(timezone.utc).date().isoformat()
+def source_authority_label(url: str) -> str:
+    """Человекочитаемая метка класса источника."""
+    return SOURCE_AUTHORITY_CLASSES[classify_source_authority(url)]
+
+
+def deduplicate_queries(queries: list[Any]) -> list[str]:
+    """Убирает дубликаты без учёта регистра и краевых пробелов, сохраняя порядок."""
+    seen: set[str] = set()
+    unique: list[str] = []
+    for item in queries:
+        query = str(item).strip()
+        if not query:
+            continue
+        key = query.casefold()
+        if key not in seen:
+            seen.add(key)
+            unique.append(query)
+    return unique
+
+
+def _status_from_check(check: dict[str, Any]) -> str:
+    if check.get("performed"):
+        return "evidence_found_unverified"
+    if check.get("attempted"):
+        return "unavailable" if check.get("errors") else "no_evidence"
+    return "not_attempted"
+
+
+def evidence_summary(update_check: dict[str, Any], court_check: dict[str, Any], demo: bool) -> dict[str, Any]:
+    """Сводный статус доказательной базы: найденное свидетельство никогда не считается верификацией."""
     if demo:
-        model: LanguageModel = DemoModel()
-        search: SearchProvider = DemoSearch()
-        court_search: SearchProvider = DemoSearch()
+        return {
+            "status": "demo",
+            "verified": False,
+            "amendments": {"status": "demo", "verified": False},
+            "official_publications": {"status": "demo"},
+            "court_practice": {"status": "demo"},
+        }
+    update_check = update_check if isinstance(update_check, dict) else {}
+    court_check = court_check if isinstance(court_check, dict) else {}
+    update_errors = [str(error) for error in update_check.get("errors", []) if str(error).strip()]
+    court_errors = [str(error) for error in court_check.get("errors", []) if str(error).strip()]
+    portal = update_check.get("official_portal") if isinstance(update_check.get("official_portal"), dict) else {}
+    portal_records = portal.get("records") or portal.get("found") or portal.get("sources")
+    if portal_records:
+        portal_status = "evidence_found_unverified"
+    elif portal.get("performed") or portal.get("attempted"):
+        portal_status = "unavailable" if portal.get("errors") else "no_evidence"
     else:
-        model = OpenAICompatibleModel()
-        search = TavilySearch()
-        court_domains = [
-            item.strip()
-            for item in os.getenv(
-                "COURT_SEARCH_DOMAINS", "kad.arbitr.ru,vsrf.ru,sudact.ru"
-            ).split(",")
-            if item.strip()
-        ]
-        court_search = TavilySearch(domains=court_domains)
-
-    print("[1/8] Планирую правовое исследование…")
-    queries = plan_queries(model, topic, query_count)
-    executed_queries = set(queries)
-    print("      Запросы: " + "; ".join(queries))
-
-    print("[2/8] Ищу нормы и читаю источники…")
-    per_query = max(2, min(5, source_limit))
-    found, errors = search_queries(search, queries, per_query)
-    sources = deduplicate(found, source_limit)
-    if not sources:
-        details = "\n".join(errors)
-        raise AgentError("Не найдено пригодных источников." + (f"\n{details}" if details else ""))
-    print(f"      Выбрано источников: {len(sources)}")
-
-    print("[3/8] Оцениваю полноту правовых материалов…")
-    research_log: list[dict[str, Any]] = []
-    additional_round = 0
-    while True:
-        sufficient, additional_queries, reason = assess_sources(model, topic, sources)
-        research_log.append(
-            {
-                "round": additional_round,
-                "sufficient": sufficient,
-                "reason": reason,
-                "additional_queries": additional_queries,
-                "source_count": len(sources),
-                "errors": errors,
-            }
-        )
-        print(f"      {reason or ('Материалов достаточно.' if sufficient else 'Требуются дополнительные источники.')}")
-        new_queries = [query for query in additional_queries if query not in executed_queries]
-        if sufficient or additional_round >= 2 or len(sources) >= source_limit or not new_queries:
-            if not sufficient and additional_round >= 2:
-                print("      Достигнут лимит дополнительного поиска; продолжаю с доступными материалами.")
-            break
-        additional_round += 1
-        queries.extend(new_queries)
-        executed_queries.update(new_queries)
-        print(f"      Дополнительный поиск {additional_round}/2: " + "; ".join(new_queries))
-        found, errors = search_queries(search, new_queries, per_query)
-        sources = deduplicate([*sources, *found], source_limit)
-        print(f"      Выбрано источников: {len(sources)}")
-
-    print("[4/8] Обязательно проверяю последние изменения…")
-    update_queries, update_notes = plan_legal_update_check(model, topic, sources, checked_on)
-    new_update_queries = [query for query in update_queries if query not in executed_queries]
-    if not new_update_queries:
-        new_update_queries = [f"{topic} изменения действующая редакция {checked_on[:4]}"]
-    queries.extend(new_update_queries)
-    executed_queries.update(new_update_queries)
-    update_found, update_errors = search_queries(search, new_update_queries, per_query)
-    sources = deduplicate([*sources, *update_found], source_limit)
-    update_check = {
-        "performed": True,
-        "queries": new_update_queries,
-        "notes": update_notes,
-        "new_sources_found": len(update_found),
-        "errors": update_errors,
+        portal_status = "not_attempted"
+    return {
+        "status": "unverified",
+        "verified": False,
+        "amendments": {
+            "status": _status_from_check(update_check),
+            "verified": False,
+            "error_count": len(update_errors),
+        },
+        "official_publications": {"status": portal_status, "verified": False},
+        "court_practice": {
+            "status": _status_from_check(court_check),
+            "verified": False,
+            "error_count": len(court_errors),
+        },
     }
-    print(f"      Проверочных запросов: {len(new_update_queries)}; источников всего: {len(sources)}")
-
-    print("[5/8] Ищу судебную практику…")
-    try:
-        court_queries, court_notes = plan_court_practice_check(model, topic, checked_on)
-    except AgentError as exc:
-        # Практика — вспомогательный этап: его сбой не отменяет ответ.
-        court_check = {
-            "performed": False,
-            "queries": [],
-            "notes": "",
-            "new_sources_found": 0,
-            "errors": [str(exc)],
-        }
-        print(f"      Этап пропущен: {exc}")
-    else:
-        new_court_queries = [query for query in court_queries if query not in executed_queries]
-        if not new_court_queries:
-            new_court_queries = [f"{topic} судебная практика {checked_on[:4]}"]
-        queries.extend(new_court_queries)
-        executed_queries.update(new_court_queries)
-        court_found, court_errors = search_queries(court_search, new_court_queries, per_query)
-        sources = deduplicate([*sources, *court_found], source_limit)
-        court_check = {
-            "performed": True,
-            "queries": new_court_queries,
-            "notes": court_notes,
-            "new_sources_found": len(court_found),
-            "errors": court_errors,
-        }
-        print(f"      Запросов по практике: {len(new_court_queries)}; источников всего: {len(sources)}")
-
-    print("[6/8] Готовлю и проверяю правовой ответ…")
-    report, report_repaired = build_validated_report(model, topic, sources, session_context)
-    if report_repaired:
-        print("      Отчёт исправлен после автоматической проверки.")
-    else:
-        print("      Структура и ссылки прошли проверку.")
-
-    print("[7/8] Самопроверка ответа…")
-    try:
-        report, reflection = reflect_on_report(model, topic, report, sources)
-    except AgentError as exc:
-        # Самопроверка — вспомогательный этап: её сбой не отменяет ответ.
-        reflection = {"performed": False, "consistent": None, "issues": [], "repaired": False, "errors": [str(exc)]}
-        print(f"      Этап пропущен: {exc}")
-    else:
-        if reflection["repaired"]:
-            print(f"      Найдено замечаний: {len(reflection['issues'])}; ответ исправлен.")
-        else:
-            print("      Противоречий не найдено.")
-
-    print("[8/8] Сохраняю результаты…")
-    return save_results(
-        output_dir, topic, queries, sources, report, demo, research_log, report_repaired, update_check, court_check, reflection, checked_on
-    )
-
-
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Локальный ИИ-помощник по законодательству РФ")
-    parser.add_argument("topic", help="Правовой вопрос в кавычках")
-    parser.add_argument("--queries", type=int, default=3, help="Число первоначальных поисковых запросов, 1–5")
-    parser.add_argument("--sources", type=int, default=6, help="Максимум источников, 1–10")
-    parser.add_argument("--output-dir", type=Path, default=Path("результаты"), help="Папка результатов")
-    parser.add_argument("--demo", action="store_true", help="Проверка без API-ключей и внешних запросов")
-    args = parser.parse_args()
-    if not args.topic.strip():
-        parser.error("Тема не должна быть пустой.")
-    if not 1 <= args.queries <= 5:
-        parser.error("--queries должен быть от 1 до 5.")
-    if not 1 <= args.sources <= 10:
-        parser.error("--sources должен быть от 1 до 10.")
-    return args
-
-
-def main() -> int:
-    load_dotenv()
-    args = parse_args()
-    try:
-        report_path, run_path = run(
-            topic=args.topic.strip(),
-            query_count=args.queries,
-            source_limit=args.sources,
-            output_dir=args.output_dir,
-            demo=args.demo,
-        )
-    except AgentError as exc:
-        print(f"\nОшибка: {exc}", file=sys.stderr)
-        return 1
-    except KeyboardInterrupt:
-        print("\nВыполнение остановлено пользователем.", file=sys.stderr)
-        return 130
-    print(f"\nГотово.\nОтчёт: {report_path}\nЖурнал: {run_path}")
-    return 0
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())
-
-from statute_corpus import get_statute_text, search_statutes
