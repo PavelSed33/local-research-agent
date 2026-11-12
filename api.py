@@ -35,6 +35,7 @@ import os
 import re
 import secrets
 import sys
+import tempfile
 import threading
 import time
 import uuid
@@ -157,7 +158,7 @@ def parse_int_field(payload: dict[str, Any], field: str, default: int, minimum: 
     return value
 
 
-def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore | None = None) -> dict[str, Any]:
+def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore | None = None, persist_results: bool = False) -> dict[str, Any]:
     """Выполняет полный цикл агента и возвращает структурированный ответ."""
     question = payload.get("question", "")
     if not isinstance(question, str) or not question.strip():
@@ -182,20 +183,36 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
         session_id = secrets.token_hex(24)
     context = sessions.context(session_id) if sessions and session_id else ""
 
-    # Отдельная папка на запрос: имена файлов внутри не пересекаются.
-    stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
-    request_dir = output_dir / f"запрос-{stamp}-{uuid.uuid4().hex[:8]}"
-    report_path, journal_path = run(
-        topic=question.strip(),
-        query_count=query_count,
-        source_limit=source_limit,
-        output_dir=request_dir,
-        demo=demo,
-        session_context=context,
-        as_of=as_of,
-    )
-    answer = report_path.read_text(encoding="utf-8")
-    journal = json.loads(journal_path.read_text(encoding="utf-8"))
+    if not isinstance(persist_results, bool):
+        raise RequestValidationError("persist_results должен быть логическим значением.")
+    # По умолчанию данные дела удаляются сразу после формирования ответа.
+    # Явное сохранение допускается только для доверенного локального вызова.
+    def execute(request_dir: Path) -> tuple[str, dict[str, Any], Path, Path]:
+        report_path, journal_path = run(
+            topic=question.strip(),
+            query_count=query_count,
+            source_limit=source_limit,
+            output_dir=request_dir,
+            demo=demo,
+            session_context=context,
+            as_of=as_of,
+        )
+        return (
+            report_path.read_text(encoding="utf-8"),
+            json.loads(journal_path.read_text(encoding="utf-8")),
+            report_path,
+            journal_path,
+        )
+
+    if persist_results:
+        stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+        request_dir = output_dir / f"запрос-{stamp}-{uuid.uuid4().hex[:8]}"
+        answer, journal, report_path, journal_path = execute(request_dir)
+    else:
+        with tempfile.TemporaryDirectory(prefix="legal-agent-ask-") as temporary:
+            answer, journal, _, _ = execute(Path(temporary))
+        report_path = journal_path = None
+
     if sessions and session_id:
         sessions.remember(session_id, question, answer)
     return {
@@ -209,6 +226,9 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
         "disclaimer": LEGAL_DISCLAIMER,
         "demo": journal["demo"],
         "session_id": session_id,
+        "results_persisted": persist_results,
+        "report_file": str(report_path) if report_path else None,
+        "journal_file": str(journal_path) if journal_path else None,
     }
 
 
