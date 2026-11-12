@@ -245,7 +245,7 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
         answer, journal, report_path, journal_path = execute(request_dir)
     else:
         with tempfile.TemporaryDirectory(prefix="legal-agent-ask-") as temporary:
-            answer, journal, _, _ = execute(Path(temporary))
+            answer, journal, _, _ = execute(Path(temporary) / "report")
         report_path = journal_path = None
 
     if sessions and session_id:
@@ -842,6 +842,7 @@ def create_server(
     output_dir: Path | str = Path("результаты"),
     api_token: str = "",
     request_timeout_seconds: float = 300,
+    persist_results: bool = False,
 ) -> ThreadingHTTPServer:
     import ipaddress
     try:
@@ -862,6 +863,10 @@ def create_server(
 
     server = ManagedLegalServer((host, port), LegalApiHandler)
     server.jobs = jobs
+    if type(persist_results) is not bool:
+        server.server_close()
+        raise ValueError("persist_results должен быть логическим значением.")
+    server.persist_results = persist_results
     server.output_dir = Path(output_dir)
     server.api_token = api_token.strip()
     server.sessions = SessionStore()
