@@ -52,6 +52,15 @@ def smoke(base_url: str) -> list[str]:
     assert followup["session_id"] == first["session_id"]
     passed.append("POST /ask session follow-up")
 
+    delete = urllib.request.Request(
+        base_url + "/sessions/delete",
+        data=json.dumps({"session_id": first["session_id"]}).encode("utf-8"),
+        headers=headers, method="POST",
+    )
+    with urllib.request.urlopen(delete, timeout=10) as response:
+        assert json.load(response)["deleted"] is True
+    passed.append("POST /sessions/delete")
+
     bad = urllib.request.Request(
         base_url + "/ask", data=b'{"question":""}', headers=headers, method="POST",
     )
