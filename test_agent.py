@@ -275,3 +275,15 @@ class CourtStageDegradationTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ProvenanceSecurityTests(unittest.TestCase):
+    def test_official_portal_requires_exact_host(self):
+        from agent import classify_source_authority
+        self.assertEqual(classify_source_authority("https://publication.pravo.gov.ru/Document/View/123"), "official_legal_portal")
+        self.assertEqual(classify_source_authority("https://publication.pravo.gov.ru.evil.example/"), "unclassified")
+
+    def test_consultant_is_not_official_portal(self):
+        from agent import classify_source_authority
+        self.assertEqual(classify_source_authority("https://www.consultant.ru/document/"), "secondary_legal_reference")
+
