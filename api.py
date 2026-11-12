@@ -41,7 +41,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
 
-from agent import LEGAL_DISCLAIMER, AgentError, load_dotenv
+from agent import LEGAL_DISCLAIMER, AgentError, load_dotenм
 from check import handle_check
 from draft import handle_draft
 from duty import handle_duty
