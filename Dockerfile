@@ -3,7 +3,9 @@ FROM python:3.12-slim
 WORKDIR /app
 
 # Сторонних зависимостей нет: только стандартная библиотека Python.
-COPY agent.py api.py review.py extract.py doctext.py registry.py redline.py penalty.py check.py timeline.py draft.py triage.py duty.py export.py protocol.py scoring.py audit.py ./
+COPY *.py ./
+COPY scripts/ ./scripts/
+COPY fixtures/ ./fixtures/
 
 ENV API_HOST=0.0.0.0 \
     API_PORT=8080 \
