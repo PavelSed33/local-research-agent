@@ -19,10 +19,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Fetch full history for copyright inventory
+        run: git fetch --unshallow --tags || git fetch --all --tags
+      - name: Audit historical legal document paths (review-only)
+        run: python scripts/audit_git_history.py
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Block accidentally committed licensed documents
+        run: python scripts/check_copyright_hygiene.py
       - name: Compile source
         run: python -m compileall -q .
       - name: Run unit tests
