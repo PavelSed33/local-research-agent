@@ -49,6 +49,9 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build image
         run: docker build -t legal-agent:test .
+      - name: Assert no unreviewed legal fixtures in image
+        run: |
+          docker run --rm --entrypoint python legal-agent:test -c "import os; assert not os.path.exists('/app/fixtures'), 'Unreviewed legal fixtures were packaged'"
       - name: Start API
         run: docker run -d --name legal-agent-test -p 127.0.0.1:18080:8080 -e API_TOKEN=ci-smoke-token legal-agent:test
       - name: Verify health and demo research
