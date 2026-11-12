@@ -1033,12 +1033,8 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
     log("[2/8] Ищу нормы и читаю источники…")
     per_query = max(2, min(5, source_limit))
     found, errors = search_queries(search, queries, per_query, verbose=verbose)
-    if not demo:
-        from statute_corpus import search_statutory_sources
-        local_statutes = search_statutory_sources(original_topic, legal_as_of, min(2, source_limit))
-        if local_statutes:
-            keep = max(1, source_limit - len(local_statutes)) if found else 0
-            found = [*found[:keep], *local_statutes, *found[keep:]]
+    if not demo and os.getenv("ENABLE_UNREVIEWED_STATUTE_CORPUS", "").lower() == "true":
+        raise AgentError("Непроверенный локальный корпус законодательства отключён до аудита происхождения и лицензий.")
     sources = deduplicate(found, source_limit)
     if not sources:
         details = "\n".join(errors)
