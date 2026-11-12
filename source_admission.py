@@ -46,6 +46,8 @@ def classify_source(url: str) -> SourceDecision:
         raise SourceAdmissionError("Only canonical HTTPS source URLs are allowed.")
     if host in PROPRIETARY_HOSTS:
         raise SourceAdmissionError("Commercial legal reference content is not admitted without a separate license.")
+    if parsed.path.startswith("//") or "\\" in parsed.path:
+        raise SourceAdmissionError("Ambiguous URL path is not allowed.")
     if host in OFFICIAL_HOSTS:
         return SourceDecision(url, "official_legal_publication", "metadata_and_short_excerpts")
     if host in OFFICIAL_COURT_HOSTS or host.endswith(".sudrf.ru"):
