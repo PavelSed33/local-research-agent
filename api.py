@@ -29,6 +29,7 @@
 
 from __future__ import annotations
 
+import hmac
 import json
 import os
 import re
@@ -587,7 +588,7 @@ class LegalApiHandler(BaseHTTPRequestHandler):
         token = getattr(self.server, "api_token", "")
         if not token:
             return True
-        return self.headers.get("Authorization", "") == f"Bearer {token}"
+        return hmac.compare_digest(self.headers.get("Authorization", ""), f"Bearer {token}")
 
     def do_GET(self) -> None:
         started = time.perf_counter()
