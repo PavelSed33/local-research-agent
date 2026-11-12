@@ -12,6 +12,8 @@ def execute(envelope):
     from review import handle_review
     from extract import handle_extract
     from redline import handle_diff
+    from local_extract import handle_local_extract
+    from legal_skills import handle_skill, SkillRegistryError
     from api import handle_ask
     from pathlib import Path
 
@@ -19,6 +21,8 @@ def execute(envelope):
         '/review': handle_review,
         '/extract': handle_extract,
         '/diff': handle_diff,
+        '/extract/local': handle_local_extract,
+        '/legal/skills/run': handle_skill,
     }
     try:
         with contextlib.redirect_stdout(sys.stderr):
@@ -28,6 +32,8 @@ def execute(envelope):
             else:
                 result = handlers[envelope['path']](envelope['payload'])
         return {'status': 200, 'result': result}
+    except SkillRegistryError:
+        return {'status': 503, 'code': 'skill_registry_unavailable', 'error': 'Реестр навыков недоступен.'}
     except (ValueError, TypeError) as exc:
         return {'status': 400, 'code': 'invalid_request', 'error': str(exc)}
     except AgentError:
