@@ -192,8 +192,6 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
         "disclaimer": LEGAL_DISCLAIMER,
         "demo": journal["demo"],
         "session_id": session_id,
-        "report_file": str(report_path),
-        "journal_file": str(journal_path),
     }
 
 
