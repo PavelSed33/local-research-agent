@@ -20,7 +20,7 @@
 
 Запуск: python api.py
 Настройки через переменные окружения:
-  API_HOST, API_PORT, API_OUTPUT_DIR, API_TOKEN (необязательный Bearer-токен),
+  API_HOST, API_PORT, API_OUTPUT_DIR, API_TOKEN (обязателен вне localhost),
   плюс LLM_* и TAVILY_* из agent.py.
 
 Сервер использует только стандартную библиотеку Python. Юридическая логика
