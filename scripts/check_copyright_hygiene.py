@@ -15,9 +15,9 @@ BINARY_EXTENSIONS = {".pdf", ".doc", ".docx", ".rtf", ".zip", ".rar", ".7z", ".e
 RESTRICTED_PATH_PARTS = {"legal_uploads", "legal_corpus", "case_files", "downloads"}
 # A brand mention is not evidence of infringement. Flag only explicit ownership notices.
 PROPRIETARY_MARKERS = re.compile(
-    r"(?i)(?:©|copyright|все права защищены)\\s*"
-    r"(?:ооо\\s*)?(?:консультант\\s*плюс|consultantplus|гарант|garant)"
-    r"|(?:консультант\\s*плюс|consultantplus|гарант|garant)\\s*"
+    r"(?i)(?:©|copyright|все права защищены)\s*"
+    r"(?:ооо\s*)?(?:консультант\s*плюс|consultantplus|гарант|garant)"
+    r"|(?:консультант\s*плюс|consultantplus|гарант|garant)\s*"
     r"(?:©|copyright|все права защищены)"
 )
 
