@@ -33,6 +33,7 @@ import hmac
 import json
 import os
 import re
+import secrets
 import sys
 import threading
 import time
@@ -176,6 +177,8 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
         raise RequestValidationError(str(exc)) from exc
     if sessions and session_id and not sessions.exists(session_id):
         raise RequestValidationError("Неизвестный или истёкший session_id.")
+    if sessions and session_id is None:
+        session_id = secrets.token_hex(24)
     context = sessions.context(session_id) if sessions and session_id else ""
 
     # Отдельная папка на запрос: имена файлов внутри не пересекаются.
