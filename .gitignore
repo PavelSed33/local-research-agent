@@ -3,3 +3,12 @@ __pycache__/
 *.pyc
 результаты/
 мои_исследования/
+
+# Locally collected legal materials and private case files
+*.pdf
+*.docx
+*.zip
+legal_uploads/
+legal_corpus/
+case_files/
+downloads/
