@@ -733,8 +733,10 @@ class LegalApiHandler(BaseHTTPRequestHandler):
                 # Validate and bind the session in the parent process; workers never
                 # receive access to the session store.
                 question = payload.get("question")
-                if not isinstance(question, str) or not question.strip() or len(question) > 8000:
+                if not isinstance(question, str) or not question.strip():
                     raise RequestValidationError("Некорректное поле question.")
+                if len(question) > 8000:
+                    raise RequestValidationError("Поле question не должно превышать 8000 символов.")
                 session_id = payload.get("session_id")
                 if session_id is not None:
                     if not isinstance(session_id, str) or not SESSION_ID_PATTERN.fullmatch(session_id):
@@ -781,6 +783,9 @@ class LegalApiHandler(BaseHTTPRequestHandler):
                         reply["journal_file"] = str(destination / journal.name)
                     self.server.sessions.remember(session_id, question, reply["answer"], expected_session=identity)
                     reply["session_id"] = session_id
+                    if not reply.get("results_persisted"):
+                        reply.pop("report_file", None)
+                        reply.pop("journal_file", None)
                     return reply
                 result = self.server.jobs.execute(
                     request_id,
