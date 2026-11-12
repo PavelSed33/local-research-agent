@@ -151,6 +151,8 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
     question = payload.get("question", "")
     if not isinstance(question, str) or not question.strip():
         raise RequestValidationError("Поле «question» обязательно и не должно быть пустым.")
+    if len(question) > 8000:
+        raise RequestValidationError("Поле «question» не должно превышать 8000 символов.")
     session_id = payload.get("session_id")
     if session_id is not None and (not isinstance(session_id, str) or not SESSION_ID_PATTERN.match(session_id)):
         raise RequestValidationError("Поле «session_id» должно быть строкой из 1–64 символов: латиница, цифры, дефис.")
