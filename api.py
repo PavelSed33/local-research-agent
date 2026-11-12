@@ -665,6 +665,8 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             self._send_json(408, {"error": "Истекло время ожидания данных запроса."})
             status = 408
         except ValueError as exc:
+            # Rejecting a body before consuming it must not permit HTTP request smuggling.
+            self.close_connection = True
             self._send_json(400, {"error": str(exc)})
             status = 400
         except AgentError as exc:
