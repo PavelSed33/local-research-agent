@@ -114,8 +114,8 @@ class SessionStore:
             session.setdefault("identity", secrets.token_hex(16))
             entries = list(session["entries"])
             identity = session["identity"]
-        context = "\\n---\\n".join(
-            f"Вопрос: {item['question']}\\nКраткий ответ: {item['answer']}" for item in entries
+        context = "\n---\n".join(
+            f"Вопрос: {item['question']}\nКраткий ответ: {item['answer']}" for item in entries
         )
         return context, identity
 
