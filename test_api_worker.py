@@ -7,7 +7,7 @@ from api_worker import execute
 
 class WorkerDispatchTests(unittest.TestCase):
     def test_local_extract_dispatch(self):
-        payload = {"document": "Договор. Цена 123 USD."}
+        payload = {"document": "Договор поставки. " + "Стороны согласовали условия договора. " * 8 + "Цена 123 USD."}
         result = execute({"path": "/extract/local", "payload": payload})
         self.assertEqual(result["status"], 200)
         self.assertIn("matches", result["result"])
