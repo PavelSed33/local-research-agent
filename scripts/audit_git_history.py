@@ -18,14 +18,14 @@ NAME_MARKERS = ("consultantplus", "consultant", "консультант", "garan
 
 def audit_objects() -> list[tuple[str, str]]:
     listing = subprocess.run(
-        ["git", "rev-list", "--objects", "--all", "-z"],
+        ["git", "rev-list", "--objects", "--all"],
         check=True, capture_output=True,
     ).stdout
     findings: list[tuple[str, str]] = []
     seen: set[str] = set()
-    # Git's rev-list --objects output is newline separated, even with -z on
-    # versions where -z is ignored. File names may be unusual; preserve bytes.
-    for record in listing.replace(bytes([0]), bytes([10])).splitlines():
+    # Git rev-list emits newline-delimited records; unusual filenames need
+    # separate manual inspection if they contain line breaks.
+    for record in listing.splitlines():
         if b" " not in record:
             continue
         oid, raw_name = record.split(b" ", 1)
