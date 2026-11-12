@@ -152,7 +152,7 @@ def handle_legal_review(payload: dict[str, Any]) -> dict[str, Any]:
         sources.extend(source for source in cached if source.url not in urls)
     sources = [Source(s.title[:500], s.url[:2000], s.text[:12000], s.query) for s in sources[:5]]
     model = DemoReviewModel() if demo else OpenAICompatibleModel()
-    system, _ = build_review_prompt(document)
+    system = build_review_prompt(document)
     system += (
         ' Каждый риск дополнительно содержит legal_basis: [{"source_id":1,"provision":"дословное обозначение нормы",'
         '"quote":"дословная цитата нормы вместе с её обозначением"}]. Используй только источники ниже. '
