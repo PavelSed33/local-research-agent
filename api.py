@@ -213,7 +213,7 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
         raise RequestValidationError("Неизвестный или истёкший session_id.")
     if sessions and session_id is None:
         session_id = secrets.token_hex(24)
-    context = sessions.context(session_id) if sessions and session_id else ""
+    context, session_identity = sessions.begin(session_id) if sessions and session_id else ("", None)
 
     if not isinstance(persist_results, bool):
         raise RequestValidationError("persist_results должен быть логическим значением.")
@@ -246,7 +246,7 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
         report_path = journal_path = None
 
     if sessions and session_id:
-        sessions.remember(session_id, question, answer)
+        sessions.remember(session_id, question, answer, expected_session=session_identity)
     return {
         "answer": answer,
         "sources": [
@@ -698,7 +698,7 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /penalty, POST /check, POST /timeline, POST /draft, POST /triage, POST /duty, POST /export, POST /protocol, POST /scoring."})
 
     def do_POST(self) -> None:
-        if self.path not in ("/ask", "/review", "/extract", "/diff", "/penalty", "/check", "/timeline", "/draft", "/triage", "/duty", "/export", "/protocol", "/scoring"):
+        if self.path not in ("/ask", "/review", "/extract", "/diff", "/penalty", "/check", "/timeline", "/draft", "/triage", "/duty", "/export", "/protocol", "/scoring", "/sessions/delete"):
             self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /penalty, POST /check, POST /timeline, POST /draft, POST /triage, POST /duty, POST /export, POST /protocol, POST /scoring."})
             return
         if not self._authorized():
@@ -711,7 +711,12 @@ class LegalApiHandler(BaseHTTPRequestHandler):
         started = time.perf_counter()
         try:
             payload = self._read_payload()
-            if self.path == "/ask":
+            if self.path == "/sessions/delete":
+                session_id = payload.get("session_id")
+                if not isinstance(session_id, str) or not SESSION_ID_PATTERN.fullmatch(session_id):
+                    raise RequestValidationError("Некорректный session_id.")
+                result = {"deleted": self.server.sessions.delete(session_id)}
+            elif self.path == "/ask":
                 result = handle_ask(payload, Path(self.server.output_dir), self.server.sessions)
             elif self.path == "/review":
                 result = handle_review(payload)
