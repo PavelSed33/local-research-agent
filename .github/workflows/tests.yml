@@ -5,6 +5,7 @@ on:
     branches: ["**"]
   pull_request:
     branches: ["**"]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -20,7 +21,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Fetch full history for copyright inventory
-        run: git fetch --unshallow --tags || git fetch --all --tags
+        run: git fetch --no-tags origin '+refs/heads/*:refs/remotes/origin/*' && git fetch origin --tags
       - name: Audit historical legal document paths (review-only)
         run: python scripts/audit_git_history.py
       - name: Set up Python
