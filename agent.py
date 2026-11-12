@@ -337,7 +337,7 @@ def run(
         "Для реального ответа требуется восстановленный поиск по официальным источникам.\\n\\n"
         "## Ограничения\\n"
         f"{LEGAL_DISCLAIMER}\\n"
-    ).replace("\\\\n", "\\n")
+    )
     report.write_text(answer, encoding="utf-8")
     journal.write_text(
         json.dumps({
