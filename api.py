@@ -57,6 +57,7 @@ from scoring import handle_scoring
 from timeline import handle_timeline
 from triage import handle_triage
 from review import handle_review
+from request_jobs import RequestJobs, JobError
 
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8080
@@ -698,7 +699,7 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /penalty, POST /check, POST /timeline, POST /draft, POST /triage, POST /duty, POST /export, POST /protocol, POST /scoring."})
 
     def do_POST(self) -> None:
-        if self.path not in ("/ask", "/review", "/extract", "/diff", "/penalty", "/check", "/timeline", "/draft", "/triage", "/duty", "/export", "/protocol", "/scoring", "/sessions/delete"):
+        if self.path not in ("/ask", "/review", "/extract", "/diff", "/penalty", "/check", "/timeline", "/draft", "/triage", "/duty", "/export", "/protocol", "/scoring", "/sessions/delete", "/requests/cancel"):
             self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /penalty, POST /check, POST /timeline, POST /draft, POST /triage, POST /duty, POST /export, POST /protocol, POST /scoring."})
             return
         if not self._authorized():
@@ -711,17 +712,19 @@ class LegalApiHandler(BaseHTTPRequestHandler):
         started = time.perf_counter()
         try:
             payload = self._read_payload()
-            if self.path == "/sessions/delete":
+            if self.path == "/requests/cancel":
+                request_id = payload.get("request_id")
+                result = {"cancelled": self.server.jobs.cancel(request_id)}
+            elif self.path == "/sessions/delete":
                 session_id = payload.get("session_id")
                 if not isinstance(session_id, str) or not SESSION_ID_PATTERN.fullmatch(session_id):
                     raise RequestValidationError("Некорректный session_id.")
                 result = {"deleted": self.server.sessions.delete(session_id)}
             elif self.path == "/ask":
                 result = handle_ask(payload, Path(self.server.output_dir), self.server.sessions)
-            elif self.path == "/review":
-                result = handle_review(payload)
-            elif self.path == "/extract":
-                result = handle_extract(payload)
+            elif self.path in ("/review", "/extract", "/diff"):
+                request_id = self.headers.get("X-Request-ID") or uuid.uuid4().hex
+                result = self.server.jobs.execute(request_id, {"path": self.path, "payload": payload})
             elif self.path == "/penalty":
                 result = handle_penalty(payload)
             elif self.path == "/check":
@@ -742,6 +745,9 @@ class LegalApiHandler(BaseHTTPRequestHandler):
                 result = handle_scoring(payload)
             else:
                 result = handle_diff(payload)
+        except JobError as exc:
+            self._send_json(exc.status, {"code": exc.code, "error": str(exc)})
+            status = exc.status
         except TimeoutError:
             self.close_connection = True
             self._send_json(408, {"error": "Истекло время ожидания данных запроса."})
@@ -768,6 +774,7 @@ def create_server(
     port: int = DEFAULT_PORT,
     output_dir: Path | str = Path("результаты"),
     api_token: str = "",
+    request_timeout_seconds: float = 300,
 ) -> ThreadingHTTPServer:
     import ipaddress
     try:
@@ -776,7 +783,9 @@ def create_server(
         loopback = False
     if not loopback and not api_token.strip():
         raise ValueError("API_TOKEN обязателен при доступе к API за пределами localhost.")
+    jobs = RequestJobs(timeout_seconds=request_timeout_seconds)
     server = ThreadingHTTPServer((host, port), LegalApiHandler)
+    server.jobs = jobs
     server.output_dir = Path(output_dir)
     server.api_token = api_token.strip()
     server.sessions = SessionStore()
