@@ -77,6 +77,22 @@ jobs:
           assert payload['as_of'] == '2023-03-01'
           assert payload['answer']
           PY
+      - name: Reject unauthenticated external API calls
+        run: |
+          python - <<'PY'
+          import json, urllib.error, urllib.request
+          request = urllib.request.Request(
+              'http://127.0.0.1:18080/ask',
+              data=json.dumps({'question': 'Unauthorized', 'demo': True}).encode(),
+              headers={'Content-Type': 'application/json'},
+          )
+          try:
+              urllib.request.urlopen(request, timeout=10)
+          except urllib.error.HTTPError as exc:
+              assert exc.code == 401, f'Expected 401, got {exc.code}'
+          else:
+              raise AssertionError('Unauthenticated request was accepted')
+          PY
       - name: Demo acceptance suite
         env:
           API_TOKEN: ci-smoke-token
