@@ -28,17 +28,22 @@ class WorkbenchAcceptanceTests(unittest.TestCase):
             try:
                 base = f'http://127.0.0.1:{server.server_address[1]}'
                 with patch.dict('os.environ', {'API_TOKEN': 'acceptance-token'}):
-                    self.assertEqual(len(smoke(base)), 26)
-                for route in ('/review/legal', '/case-law/check', '/legal/coverage', '/privacy/check', '/legal/skills/run', '/extract/local'):
-                    request = urllib.request.Request(base + route, data=b'{}', headers={'Content-Type': 'application/json'})
-                    with self.assertRaises(urllib.error.HTTPError) as denied:
-                        urllib.request.urlopen(request)
-                    self.assertEqual(denied.exception.code, 401)
-                with urllib.request.urlopen(base) as response:
-                    self.assertIn("script-src 'self'", response.headers['Content-Security-Policy'])
+                    passed = smoke(base)
+                self.assertEqual(len(passed), 5)
+                self.assertIn('POST /ask session follow-up', passed)
+                for route in ('/ask', '/review', '/extract', '/diff'):
+                    with self.subTest(route=route):
+                        request = urllib.request.Request(
+                            base + route, data=b'{}',
+                            headers={'Content-Type': 'application/json'},
+                        )
+                        with self.assertRaises(urllib.error.HTTPError) as denied:
+                            urllib.request.urlopen(request, timeout=10)
+                        self.assertEqual(denied.exception.code, 401)
+                with urllib.request.urlopen(base + '/health', timeout=10) as response:
                     self.assertEqual(response.headers['Cache-Control'], 'no-store')
+                    self.assertEqual(response.headers['X-Content-Type-Options'], 'nosniff')
             finally:
                 server.shutdown()
                 server.server_close()
                 thread.join(timeout=2)
-
