@@ -102,7 +102,6 @@ class _NoRedirect(urllib.request.HTTPRedirectHandler):
 
 _OPENER = urllib.request.build_opener(_NoRedirect())
 
-
 def open_json_request(request: urllib.request.Request, timeout: int):
     """Выполняет запрос без следования перенаправлениям; возвращает объект ответа."""
     try:
