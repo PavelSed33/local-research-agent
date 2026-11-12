@@ -19,8 +19,14 @@ from html.parser import HTMLParser
 from typing import Any
 
 from agent import AgentError, Source
+from source_admission import classify_source, SourceAdmissionError
 
 BASE_URL = "https://pravo.gov.ru"
+class _RejectRedirects(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, request, fp, code, msg, headers, newurl):
+        raise AgentError("HTTP redirect blocked for official legal source.")
+
+
 MAX_RESPONSE_BYTES = 2 * 1024 * 1024
 MAX_DOCUMENTS = 3
 MAX_REVISIONS = 8
@@ -104,13 +110,17 @@ class PravoIpsBank:
     def _get(self, params: dict[str, Any]) -> str:
         query = urllib.parse.urlencode(params)
         url = f"{BASE_URL}/proxy/ips/?{query}"
+        try:
+            classify_source(url)
+        except SourceAdmissionError as exc:
+            raise AgentError(f"Источник не прошёл проверку происхождения: {exc}") from exc
         request = urllib.request.Request(
             url,
             headers={"Accept": "text/html", "User-Agent": "LocalResearchAgent/1.0 (read-only legal bank client)"},
             method="GET",
         )
         try:
-            with urllib.request.urlopen(request, timeout=self.timeout) as response:
+            with urllib.request.build_opener(_RejectRedirects()).open(request, timeout=self.timeout) as response:
                 raw = response.read(MAX_RESPONSE_BYTES + 1)
         except urllib.error.HTTPError as exc:
             raise AgentError(f"Эталонный банк «Законодательство России» вернул HTTP {exc.code}.") from exc
