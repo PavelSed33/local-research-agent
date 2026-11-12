@@ -695,7 +695,11 @@ def main() -> int:
         return 1
     output_dir = Path(os.getenv("API_OUTPUT_DIR", "результаты"))
     api_token = os.getenv("API_TOKEN", "")
-    server = create_server(host, port, output_dir, api_token)
+    try:
+        server = create_server(host, port, output_dir, api_token)
+    except (ValueError, OSError) as exc:
+        print(f"Ошибка запуска API: {exc}", file=sys.stderr)
+        return 1
     auth_note = "включена (API_TOKEN)" if server.api_token else "отключена (задайте API_TOKEN)"
     print(f"HTTP API юридического помощника: http://{host}:{port}")
     print(f"Эндпоинты: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /penalty, POST /check, POST /timeline, POST /draft, POST /triage, POST /duty, POST /export, POST /protocol, POST /scoring. Авторизация: {auth_note}.")
