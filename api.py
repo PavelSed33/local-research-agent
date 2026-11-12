@@ -42,7 +42,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
 
-from agent import LEGAL_DISCLAIMER, AgentError, load_dotenv, run
+from agent import LEGAL_DISCLAIMER, AgentError, load_dotenv, run, validate_as_of
 from check import handle_check
 from draft import handle_draft
 from duty import handle_duty
@@ -157,6 +157,10 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
     query_count = parse_int_field(payload, "queries", 3, 1, 5)
     source_limit = parse_int_field(payload, "sources", 6, 1, 10)
     demo = bool(payload.get("demo", False))
+    try:
+        as_of = validate_as_of(payload.get("as_of"))
+    except ValueError as exc:
+        raise RequestValidationError(str(exc)) from exc
     context = sessions.context(session_id) if sessions and session_id else ""
 
     # Отдельная папка на запрос: имена файлов внутри не пересекаются.
@@ -169,6 +173,7 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
         output_dir=request_dir,
         demo=demo,
         session_context=context,
+        as_of=as_of,
     )
     answer = report_path.read_text(encoding="utf-8")
     journal = json.loads(journal_path.read_text(encoding="utf-8"))
@@ -181,6 +186,7 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
             for source in journal["sources"]
         ],
         "checked_on": journal["checked_on"],
+        "as_of": journal["as_of"],
         "disclaimer": LEGAL_DISCLAIMER,
         "demo": journal["demo"],
         "session_id": session_id,
