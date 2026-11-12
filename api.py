@@ -626,7 +626,12 @@ class LegalApiHandler(BaseHTTPRequestHandler):
         token = getattr(self.server, "api_token", "")
         if not token:
             return True
-        return hmac.compare_digest(self.headers.get("Authorization", ""), f"Bearer {token}")
+        supplied = self.headers.get("Authorization", "")
+        expected = f"Bearer {token}"
+        try:
+            return hmac.compare_digest(supplied.encode("utf-8"), expected.encode("utf-8"))
+        except (UnicodeEncodeError, AttributeError):
+            return False
 
     def do_GET(self) -> None:
         started = time.perf_counter()
