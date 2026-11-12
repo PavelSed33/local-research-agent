@@ -588,7 +588,10 @@ class LegalApiHandler(BaseHTTPRequestHandler):
         if length > MAX_BODY_BYTES:
             raise RequestValidationError(f"Тело запроса больше {MAX_BODY_BYTES} байт.")
         try:
-            payload = json.loads(self.rfile.read(length).decode("utf-8"))
+            raw = self.rfile.read(length)
+            if len(raw) != length:
+                raise RequestValidationError("Тело запроса передано не полностью.")
+            payload = json.loads(raw.decode("utf-8"))
         except (UnicodeDecodeError, json.JSONDecodeError):
             raise RequestValidationError("Тело запроса должно быть корректным JSON.") from None
         if not isinstance(payload, dict):
