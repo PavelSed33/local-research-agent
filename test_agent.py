@@ -15,6 +15,7 @@ from agent import (
     reflect_on_report,
     run,
     validate_report,
+    validate_service_url,
 )
 
 
@@ -287,3 +288,16 @@ class ProvenanceSecurityTests(unittest.TestCase):
         from agent import classify_source_authority
         self.assertEqual(classify_source_authority("https://www.consultant.ru/document/"), "secondary_legal_reference")
 
+
+
+class ServiceUrlSafetyTests(unittest.TestCase):
+    def test_reject_empty_username(self):
+        with self.assertRaises(AgentError):
+            validate_service_url("https://@api.example.com/v1")
+
+    def test_reject_empty_password(self):
+        with self.assertRaises(AgentError):
+            validate_service_url("https://user:@api.example.com/v1")
+
+    def test_allow_https_endpoint(self):
+        validate_service_url("https://api.example.com/v1")
