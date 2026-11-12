@@ -33,6 +33,10 @@ class SourceAdmissionTests(unittest.TestCase):
         with self.assertRaises(SourceAdmissionError):
             admit_record({**valid, "full_text": "copied legal document"})
         with self.assertRaises(SourceAdmissionError):
+            admit_record({**valid, "full_text": ""})
+        with self.assertRaises(SourceAdmissionError):
+            admit_record({**valid, "raw_content": None})
+        with self.assertRaises(SourceAdmissionError):
             admit_record({**valid, "fetched_at": ""})
 
 
