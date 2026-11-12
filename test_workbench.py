@@ -29,7 +29,7 @@ class WorkbenchAcceptanceTests(unittest.TestCase):
                 base = f'http://127.0.0.1:{server.server_address[1]}'
                 with patch.dict('os.environ', {'API_TOKEN': 'acceptance-token'}):
                     passed = smoke(base)
-                self.assertEqual(len(passed), 5)
+                self.assertEqual(len(passed), 6)
                 self.assertIn('POST /ask session follow-up', passed)
                 for route in ('/ask', '/review', '/extract', '/diff'):
                     with self.subTest(route=route):
