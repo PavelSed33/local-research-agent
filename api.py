@@ -278,7 +278,7 @@ def health_payload(metrics: Metrics | None = None) -> dict[str, Any]:
     }
 
 
-def openapi_spec() -> dict[str, Any]:
+def openapi_spec(auth_required: bool = False) -> dict[str, Any]:
     """Машинное описание API (OpenAPI 3.0) для интеграции с оркестраторами."""
     document_property = {
         "document": {"type": "string", "description": "Полный текст договора (UTF-8)"},
@@ -292,6 +292,10 @@ def openapi_spec() -> dict[str, Any]:
             "version": API_VERSION,
             "description": "Локальный юридический ИИ-помощник по законодательству РФ.",
         },
+        "components": {"securitySchemes": {
+            "ApiToken": {"type": "http", "scheme": "bearer"},
+        }},
+        "security": [{"ApiToken": []}] if auth_required else [],
         "paths": {
             "/health": {
                 "get": {
@@ -693,7 +697,7 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             self._send_json(200, health_payload(self.server.metrics))
             self.server.metrics.record("GET /health", 200, (time.perf_counter() - started) * 1000)
         elif self.path == "/openapi.json":
-            self._send_json(200, openapi_spec())
+            self._send_json(200, openapi_spec(auth_required=bool(self.server.api_token)))
             self.server.metrics.record("GET /openapi.json", 200, (time.perf_counter() - started) * 1000)
         else:
             self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /penalty, POST /check, POST /timeline, POST /draft, POST /triage, POST /duty, POST /export, POST /protocol, POST /scoring."})
