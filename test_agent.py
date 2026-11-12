@@ -301,3 +301,11 @@ class ServiceUrlSafetyTests(unittest.TestCase):
 
     def test_allow_https_endpoint(self):
         validate_service_url("https://api.example.com/v1")
+
+
+class UnreviewedCorpusSafetyTests(unittest.TestCase):
+    def test_unreviewed_corpus_cannot_be_enabled(self):
+        with patch.dict(os.environ, {"ENABLE_UNREVIEWED_STATUTE_CORPUS": "true"}):
+            with tempfile.TemporaryDirectory() as directory:
+                with self.assertRaisesRegex(AgentError, "корпус"):
+                    run("Тест", 1, 2, Path(directory), demo=False)
