@@ -60,7 +60,7 @@ def admit_record(record: dict) -> dict:
     if not isinstance(record, dict):
         raise SourceAdmissionError("Record must be a JSON object.")
     decision = classify_source(record.get("source_url"))
-    if record.get("full_text") or record.get("raw_content") or record.get("pdf_base64"):
+    if any(key in record for key in ("full_text", "raw_content", "pdf_base64")):
         raise SourceAdmissionError("Full-text ingestion requires a separately approved workflow.")
     fetched_at = record.get("fetched_at")
     if not isinstance(fetched_at, str) or not fetched_at.strip():
