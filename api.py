@@ -750,10 +750,12 @@ class LegalApiHandler(BaseHTTPRequestHandler):
                     validate_as_of(payload.get("as_of"))
                 except ValueError as exc:
                     raise RequestValidationError(str(exc)) from exc
+                request_id = self.headers.get("X-Request-ID") or uuid.uuid4().hex
+                if not isinstance(request_id, str) or not re.fullmatch(r"[A-Za-z0-9-]{16,64}", request_id):
+                    raise RequestValidationError("Некорректный X-Request-ID.")
                 context, identity = self.server.sessions.begin(session_id)
                 worker_payload = {**payload}
                 worker_payload.pop("session_id", None)
-                request_id = self.headers.get("X-Request-ID") or uuid.uuid4().hex
                 self._request_id = request_id
                 def publish(reply):
                     self.server.sessions.remember(session_id, question, reply["answer"], expected_session=identity)
