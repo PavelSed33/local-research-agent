@@ -23,7 +23,8 @@ def execute(envelope):
     try:
         with contextlib.redirect_stdout(sys.stderr):
             if envelope['path'] == '/ask':
-                result = handle_ask(envelope['payload'], Path(envelope['output_dir']), persist_results=False)
+                result = handle_ask(envelope['payload'], Path(envelope['output_dir']), persist_results=False,
+                                    session_context_override=envelope.get('context', ''))
             else:
                 result = handlers[envelope['path']](envelope['payload'])
         return {'status': 200, 'result': result}
