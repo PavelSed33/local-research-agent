@@ -20,6 +20,7 @@ def main():
     if MANIFEST.exists():
         manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
         print(f"Statute manifest status: {manifest.get('status', 'unspecified')}")
+        print(f"Statute manifest groups: {len(manifest.get('groups', []))}")
     if not imported:
         print("BLOCKER: no official full-text legal corpus is accepted")
     if not reviewed:
