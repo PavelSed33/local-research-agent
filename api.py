@@ -639,6 +639,18 @@ def openapi_spec(auth_required: bool = False, *, require_auth: bool | None = Non
             },
         },
     }
+    spec["paths"]["/documents/redline"] = {"post": {
+        "summary": "Оригинальный DOCX с отслеживаемыми изменениями Word",
+        "security": [{"ApiToken": []}],
+        "requestBody": {"required": True, "content": {"application/json": {"schema": {
+            "type": "object", "additionalProperties": False,
+            "required": ["filename", "file_base64", "replacements"],
+            "properties": {"filename": {"type": "string"}, "file_base64": {"type": "string"},
+                "replacements": {"type": "array", "items": {"type": "object"}}}
+        }}}},
+        "responses": {"200": {"description": "DOCX с Word Track Changes"},
+            "400": {"description": "Некорректный документ"}, "401": {"description": "Требуется авторизация"}}
+    }}
     required_fields = {"/workspace/cases/report": ["matter_id", "case_number", "as_of"]}
     for path in WORKSPACE_FIELDS:
         spec["paths"][path] = {"post": {"summary": "Операция рабочего пространства",
@@ -745,6 +757,39 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /penalty, POST /check, POST /timeline, POST /draft, POST /triage, POST /duty, POST /export, POST /protocol, POST /scoring."})
 
     def do_POST(self) -> None:
+        if self.path == "/documents/redline":
+            if not self._authorized():
+                self.close_connection = True
+                self._send_json(401, {"error": "Требуется авторизация."})
+                return
+            try:
+                from docx_redline import redline_docx
+                payload = self._read_payload()
+                # Validate the entire package before allocating a worker.
+                # The worker is the only process that produces a revised DOCX.
+                redline_docx(payload)
+                principal_id = getattr(self, "_workspace_principal", None)
+                request_id = self.headers.get("X-Request-ID") or uuid.uuid4().hex
+                def commit_redline(reply):
+                    if getattr(self.server, "workspace_store", None) is not None:
+                        supplied = self.headers.get("Authorization", "")
+                        user = self.server.workspace_store.authenticate(supplied[7:]) if supplied.startswith("Bearer ") else None
+                        if user is None or user["id"] != principal_id:
+                            raise WorkspaceError(401, "token_revoked", "Токен пользователя отозван.")
+                    return reply
+                result = self.server.jobs.execute(request_id, {"path": "/documents/redline",
+                    "payload": payload}, commit=commit_redline)
+            except WorkspaceError as exc:
+                self._send_json(exc.status, {"code": exc.code, "error": str(exc)})
+            except JobError as exc:
+                self._send_json(exc.status, {"code": exc.code, "error": str(exc)})
+            except ValueError as exc:
+                self._send_json(400, {"error": str(exc)})
+            except Exception:
+                self._send_json(500, {"error": "Ошибка обработки DOCX."})
+            else:
+                self._send_json(200, result)
+            return
         if self.path in ("/documents/parse", "/documents/export", "/documents/redact"):
             if not self._authorized():
                 self.close_connection = True
