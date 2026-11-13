@@ -123,8 +123,9 @@ class StatutoryCorpusTests(unittest.TestCase):
     def test_later_copy_is_not_injected_into_historical_model_context(self):
         sources, report = statutory_review_sources('consumer', 'services', '2026-11-07')
         self.assertEqual(sources, [])
-        self.assertTrue(report['entries'])
-        self.assertTrue(all(e['temporal_status'].startswith('later_capture') for e in report['entries']))
+        self.assertEqual(report['entries'], [])
+        self.assertEqual(report['text_received_count'], 0)
+        self.assertFalse(report['verified'])
 
     def test_special_and_consumer_articles_are_not_crowded_out_by_general_law(self):
         sources, _ = statutory_review_sources('consumer', 'services', '2026-11-08')
