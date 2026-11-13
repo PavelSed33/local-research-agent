@@ -712,6 +712,35 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /penalty, POST /check, POST /timeline, POST /draft, POST /triage, POST /duty, POST /export, POST /protocol, POST /scoring."})
 
     def do_POST(self) -> None:
+        workspace = getattr(self.server, "workspace_store", None)
+        if self.path.startswith("/workspace/"):
+            if workspace is None:
+                self._send_json(404, {"error": "Рабочее пространство не настроено."})
+                return
+            from workspace_api import FIELDS, dispatch
+            from workspace_store import WorkspaceError
+            if self.path not in FIELDS:
+                self._send_json(404, {"error": "Неизвестный маршрут рабочего пространства."})
+                return
+            authorization = self.headers.get("Authorization", "")
+            principal = workspace.authenticate(authorization[7:]) if authorization.startswith("Bearer ") else None
+            if principal is None:
+                self.close_connection = True
+                self._send_json(401, {"error": "Требуется действующий токен пользователя."})
+                return
+            try:
+                payload = self._read_payload()
+                result = dispatch(workspace, principal["id"], self.path, payload)
+            except WorkspaceError as exc:
+                self._send_json(exc.status, {"code": exc.code, "error": str(exc)})
+            except ValueError as exc:
+                self.close_connection = True
+                self._send_json(400, {"error": str(exc)})
+            except Exception:
+                self._send_json(500, {"error": "Внутренняя ошибка рабочего пространства."})
+            else:
+                self._send_json(200, result)
+            return
         if self.path not in ("/ask", "/review", "/extract", "/diff", "/penalty", "/check", "/timeline", "/draft", "/triage", "/duty", "/export", "/protocol", "/scoring", "/sessions/delete", "/requests/cancel", "/extract/local", "/legal/skills/run"):
             self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /penalty, POST /check, POST /timeline, POST /draft, POST /triage, POST /duty, POST /export, POST /protocol, POST /scoring."})
             return
@@ -852,6 +881,7 @@ def create_server(
     api_token: str = "",
     request_timeout_seconds: float = 300,
     persist_results: bool = False,
+    workspace_db: Path | str | None = None,
 ) -> ThreadingHTTPServer:
     import ipaddress
     try:
@@ -876,6 +906,11 @@ def create_server(
         server.server_close()
         raise ValueError("persist_results должен быть логическим значением.")
     server.persist_results = persist_results
+    if workspace_db is not None:
+        from workspace_store import WorkspaceStore
+        server.workspace_store = WorkspaceStore(Path(workspace_db))
+    else:
+        server.workspace_store = None
     server.output_dir = Path(output_dir)
     server.api_token = api_token.strip()
     server.sessions = SessionStore()
