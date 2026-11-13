@@ -158,7 +158,7 @@ def corpus_report(card_ids=None, as_of=None, *, corpus_dir: Path | str | None = 
         "raw_response_archived": False,
         "verified": False,
         "history_complete": False,
-        "commercial_use_allowed": bool(manifest.get("commercial_use_allowed", False)),
+        "commercial_use_allowed": False,  # No accepted legal edition or rights review in this corpus.
     }
 
 
