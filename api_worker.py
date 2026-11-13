@@ -10,6 +10,9 @@ import sys
 def execute(envelope):
     from agent import AgentError
     from review import handle_review
+    from legal_research import handle_legal_research
+    from statute_corpus import handle_corpus
+    from case_law import handle_case_law
     from legal_review import handle_legal_review
     from extract import handle_extract
     from redline import handle_diff
@@ -20,6 +23,9 @@ def execute(envelope):
 
     handlers = {
         '/review': handle_review,
+        '/legal/research': handle_legal_research,
+        '/legal/corpus': handle_corpus,
+        '/case-law/check': handle_case_law,
         '/review/legal': handle_legal_review,
         '/extract': handle_extract,
         '/diff': handle_diff,
