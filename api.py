@@ -869,6 +869,12 @@ class LegalApiHandler(BaseHTTPRequestHandler):
                 except SkillRegistryError:
                     self._send_json(503, {"code": "skill_registry_unavailable",
                                           "error": "Реестр навыков недоступен."})
+        elif self.path == "/privacy/options":
+            from privacy_review import privacy_options
+            self._send_json(200, privacy_options())
+        elif self.path == "/legal/research/options":
+            from legal_research import research_options
+            self._send_json(200, research_options())
         elif self.path == "/review/options":
             from legal_review import review_options
             self._send_json(200, review_options())
