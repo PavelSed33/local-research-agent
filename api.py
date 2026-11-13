@@ -725,6 +725,23 @@ def openapi_spec(auth_required: bool = False, *, require_auth: bool | None = Non
                           "401": {"description": "Требуется токен пользователя"},
                           "403": {"description": "Нет доступа"},
                           "413": {"description": "Превышен лимит размера"}}}}
+    spec["paths"]["/extract/local"] = {
+        "post": {
+            "summary": "Локальное извлечение реквизитов без внешней модели",
+            "security": [{"ApiToken": []}],
+            "requestBody": {"required": True, "content": {"application/json": {
+                "schema": {"type": "object", "additionalProperties": False,
+                           "properties": {
+                               "document": {"type": "string", "maxLength": 200000},
+                               "document_base64": {"type": "string"},
+                               "max_matches": {"type": "integer", "minimum": 1, "maximum": 500}}}}}},
+            "responses": {"200": {"description": "Извлечение выполнено"},
+                          "400": {"description": "Некорректные входные данные"},
+                          "401": {"description": "Требуется авторизация"},
+                          "413": {"description": "Превышен размер запроса"},
+                          "504": {"description": "Истёк срок выполнения рабочего процесса"}}
+        }
+    }
     return spec
 
 
