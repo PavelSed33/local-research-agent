@@ -22,7 +22,7 @@ class BuildAuditTests(unittest.TestCase):
         self.assertEqual(len(rows), 2)
         self.assertEqual(skipped, [])
         self.assertEqual([row["файл"] for row in rows], ["a.txt", "b.txt"])
-        self.assertEqual(rows[0]["оценка"], 95)  # демо: один low-риск
+        self.assertEqual(rows[0]["оценка"], 65)  # demo: high-risk (-20) and missing clause (-15)
 
     def test_pdf_is_skipped_with_warning(self):
         folder = make_folder({"a.txt": DOC, "b.pdf": "%PDF мусор"})
@@ -73,13 +73,13 @@ class OutputTests(unittest.TestCase):
         with (out / "аудит.csv").open(encoding="utf-8-sig") as handle:
             parsed = list(csv.DictReader(handle, delimiter=";"))
         self.assertEqual(len(parsed), 2)
-        self.assertEqual(parsed[0]["оценка"], "95")
-        self.assertEqual(parsed[0]["вердикт"], "можно подписывать")
+        self.assertEqual(parsed[0]["оценка"], "65")
+        self.assertEqual(parsed[0]["вердикт"], "требует доработки")
 
         report = (out / "аудит.md").read_text(encoding="utf-8")
         self.assertIn("# Аудит договорной базы", report)
         self.assertIn("Файлов проверено: 2", report)
-        self.assertIn("Средняя оценка: 95/100", report)
+        self.assertIn("Средняя оценка: 65/100", report)
         self.assertIn("## Самый проблемный договор", report)
 
     def test_report_lists_errors(self):
