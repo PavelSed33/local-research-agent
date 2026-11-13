@@ -187,7 +187,7 @@ class RequestControlTests(unittest.TestCase):
         self.assertEqual(status, 200)
         self.assertTrue(Path(data['report_file']).is_file())
         self.assertTrue(Path(data['journal_file']).is_file())
-        self.assertIn('Тест', self.server.sessions.context('a'))
+        self.assertIn('Тест', self.server.sessions.context(data['session_id']))
 
     def test_shutdown_cancels_and_reaps_inflight_work(self):
         results = []
