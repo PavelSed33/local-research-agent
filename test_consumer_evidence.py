@@ -81,6 +81,24 @@ class ConsumerTransitionEvidenceTests(unittest.TestCase):
         self.assertTrue(any(s['retrieval_mode'] == 'local_statutory_extract' for s in result['sources']))
         self.assertFalse(result['verified'])
 
+    def test_review_prompt_keeps_contract_out_of_system_in_real_mode(self):
+        private = 'PRIVATE-CONTRACT-TEXT-DO-NOT-PROMOTE'
+        with patch('legal_review.ensure_document_transfer_allowed'), \
+             patch('legal_review.TavilySearch') as search, \
+             patch('legal_review.OpenAICompatibleModel') as model:
+            search.return_value.search.side_effect = AgentError('offline')
+            model.return_value.complete.return_value = json.dumps({
+                'summary': 'Черновик', 'risks': [], 'missing_clauses': []})
+            result = handle_legal_review({
+                'document': 'Условный потребительский договор. ' + private,
+                'profile': 'consumer', 'as_of': '2026-11-08',
+                'facts': {'customer_is_individual': True,
+                          'personal_use': True, 'seller_is_business': True}})
+        system, user = model.return_value.complete.call_args.args[:2]
+        self.assertNotIn(private, system)
+        self.assertIn(private, user)
+        self.assertFalse(result['verified'])
+
     def test_news_and_lookalike_host_cannot_pose_as_saved_amending_act(self):
         for url in ['https://zpp.rospotrebnadzor.ru/news/389825',
                     'https://zpp.rospotrebnadzor.ru.evil.example/npa/federal/389825']:
