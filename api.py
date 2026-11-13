@@ -31,6 +31,7 @@ from __future__ import annotations
 
 import hmac
 import json
+import hashlib
 import os
 import re
 import secrets
@@ -253,6 +254,13 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
     if sessions and session_id:
         sessions.remember(session_id, question, answer, expected_session=session_identity)
     return {
+        **({"source_materials": [
+            {"id": index, "title": source["title"], "url": source["url"],
+             "text": source.get("text", ""),
+             "sha256": hashlib.sha256(source.get("text", "").encode("utf-8")).hexdigest(),
+             "period_supported": False}
+            for index, source in enumerate(journal["sources"], start=1)
+        ]} if payload.get("include_source_materials", False) else {}),
         "answer": answer,
         "sources": [
             {"title": source["title"], "url": source["url"]}
