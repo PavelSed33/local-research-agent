@@ -12,3 +12,7 @@ legal_uploads/
 legal_corpus/
 case_files/
 downloads/
+
+# Quarantined third-party statute extracts (retain provenance manifest only)
+fixtures/statute_corpus/*.json
+!fixtures/statute_corpus/manifest.json
