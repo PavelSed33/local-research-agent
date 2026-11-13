@@ -57,6 +57,7 @@ from scoring import handle_scoring
 from timeline import handle_timeline
 from triage import handle_triage
 from review import handle_review
+from legal_skills import load_skills, skill_options, SkillRegistryError
 from request_jobs import RequestJobs, JobError
 from workspace_store import WorkspaceError
 
@@ -782,6 +783,16 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             else:
                 from preflight import inspect_runtime
                 self._send_json(200, inspect_runtime())
+        elif self.path == "/legal/skills/options":
+            if not self._authorized():
+                self.close_connection = True
+                self._send_json(401, {"error": "Требуется авторизация."})
+            else:
+                try:
+                    self._send_json(200, skill_options())
+                except SkillRegistryError:
+                    self._send_json(503, {"code": "skill_registry_unavailable",
+                                          "error": "Реестр навыков недоступен."})
         elif self.path == "/review/options":
             from legal_review import review_options
             self._send_json(200, review_options())
