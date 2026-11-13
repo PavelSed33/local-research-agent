@@ -188,9 +188,13 @@ class RequestControlTests(unittest.TestCase):
         self.server.persist_results = True
         status, data, _ = self.post('/ask', {'question': 'Тест', 'demo': True})
         self.assertEqual(status, 200)
-        self.assertTrue(Path(data['report_file']).is_file())
-        self.assertTrue(Path(data['journal_file']).is_file())
+        # Persistence is server-side; public HTTP responses must not leak filesystem paths.
+        self.assertNotIn('report_file', data)
+        self.assertNotIn('journal_file', data)
+        self.assertTrue(data['results_persisted'])
         self.assertIn('Тест', self.server.sessions.context(data['session_id']))
+        saved = list(Path(self.directory.name).rglob('*.json'))
+        self.assertGreaterEqual(len(saved), 2, 'Persisted report and journal should exist on the server')
 
     def test_shutdown_cancels_and_reaps_inflight_work(self):
         results = []
