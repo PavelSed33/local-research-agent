@@ -16,12 +16,15 @@ class DockerPackagingTests(unittest.TestCase):
                 fields = line.split()
                 destination = Path(directory) / fields[-1]
                 for name in fields[1:-1]:
-                    source = root / name
-                    if source.is_dir():
-                        shutil.copytree(source, destination, dirs_exist_ok=True)
-                    else:
-                        destination.mkdir(parents=True, exist_ok=True)
-                        shutil.copy(source, destination)
+                    matches = list(root.glob(name))
+                    if not matches:
+                        self.fail(f"Docker COPY source has no matches: {name}")
+                    for source in matches:
+                        if source.is_dir():
+                            shutil.copytree(source, destination, dirs_exist_ok=True)
+                        else:
+                            destination.mkdir(parents=True, exist_ok=True)
+                            shutil.copy2(source, destination / source.name)
             result = subprocess.run(
                 ['python', '-I', '-c',
                  'import sys; sys.path.insert(0, sys.argv[1]); '
