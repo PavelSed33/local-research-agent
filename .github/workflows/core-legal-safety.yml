@@ -31,6 +31,12 @@ jobs:
             test_statute_corpus.StatutoryCorpusTests.test_quarantined_legal_corpus_is_not_served_as_verified_evidence \
             test_statute_corpus.StatutoryCorpusTests.test_quarantine_manifest_cannot_admit_any_legal_text_by_flag \
             test_statute_corpus.StatutoryCorpusTests.test_manifest_group_filenames_reject_non_strings_and_special_paths
+      - name: Offline corpus refresh preserves quarantine and cannot restore removed texts
+        run: |
+          python -m unittest -v \
+            test_statute_corpus.StatutoryCorpusTests.test_failed_partial_import_preserves_quarantine_and_does_not_restore_text \
+            test_statute_corpus.StatutoryCorpusTests.test_local_search_keeps_exact_article_and_act_and_historical_cutoff \
+            test_statute_corpus.StatutoryCorpusTests.test_special_and_consumer_articles_are_not_crowded_out_by_general_law
       - name: Legal research workflow must require review and reject hostile facts
         run: |
           python -m unittest -v \
