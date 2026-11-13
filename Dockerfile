@@ -8,6 +8,8 @@ COPY scripts/ ./scripts/
 COPY skills/ ./skills/
 COPY third_party/ ./third_party/
 COPY web/ ./web/
+# Metadata only: never bundle quarantined legal article extracts or PDFs.
+COPY fixtures/legal_coverage.json fixtures/legal_workflows.json fixtures/legal_benchmarks.json ./fixtures/
 
 ENV API_HOST=0.0.0.0 \
     API_PORT=8080 \
