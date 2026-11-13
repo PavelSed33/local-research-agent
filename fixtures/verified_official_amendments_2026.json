@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "verified_source": "https://publication.pravo.gov.ru/documents/block/president?index=1&pageSize=200",
-  "status": "official_catalog_metadata_only",
+  "verified_source": null,
+  "status": "unverified_publication_metadata_pending_independent_confirmation",
   "downloaded_pdf_count": 0,
   "records": [
     {
@@ -12,7 +12,8 @@
       "related_act_id": "127fz",
       "kind": "amendment_not_consolidated_text",
       "official_document_url": "https://publication.pravo.gov.ru/document/0001202603230008",
-      "pdf_downloaded": false
+      "pdf_downloaded": false,
+      "metadata_verified": false
     },
     {
       "publication_number": "0001202604250011",
@@ -22,8 +23,9 @@
       "related_act_id": "229fz",
       "kind": "amendment_not_consolidated_text",
       "official_document_url": "https://publication.pravo.gov.ru/document/0001202604250011",
-      "pdf_downloaded": false
+      "pdf_downloaded": false,
+      "metadata_verified": false
     }
   ],
-  "warning": "These are amendments, not original or current consolidated versions of 127-FZ or 229-FZ. Do not admit as full statutes."
+  "warning": "Publication numbers, titles and dates have not been independently verified. No downloaded PDFs; never admit as law or cite as confirmed amendments."
 }
