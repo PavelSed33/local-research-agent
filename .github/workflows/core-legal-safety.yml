@@ -29,7 +29,8 @@ jobs:
         run: |
           python -m unittest -v \
             test_statute_corpus.StatutoryCorpusTests.test_quarantined_legal_corpus_is_not_served_as_verified_evidence \
-            test_statute_corpus.StatutoryCorpusTests.test_quarantine_manifest_cannot_admit_any_legal_text_by_flag
+            test_statute_corpus.StatutoryCorpusTests.test_quarantine_manifest_cannot_admit_any_legal_text_by_flag \
+            test_statute_corpus.StatutoryCorpusTests.test_manifest_group_filenames_reject_non_strings_and_special_paths
       - name: Legal research workflow must require review and reject hostile facts
         run: |
           python -m unittest -v \
