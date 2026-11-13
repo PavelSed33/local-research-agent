@@ -42,7 +42,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
 
-from agent import LEGAL_DISCLAIMER, AgentError, load_dotenv
+from agent import LEGAL_DISCLAIMER, AgentError, load_dotenv, run
 from check import handle_check
 from draft import handle_draft
 from duty import handle_duty
@@ -648,7 +648,7 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             self._send_json(502, {"error": str(exc)})
             status = 502
         except Exception as exc:  # noqa: BLE001 — последняя линия защиты сервиса
-            self._send_json(500, {"error": f"Внутренняя ошибка сервиса: {exc}"})
+            self._send_json(500, {"error": "Внутренняя ошибка сервиса. Подробности доступны только в журнале сервера."})
             status = 500
         else:
             self._send_json(200, result)

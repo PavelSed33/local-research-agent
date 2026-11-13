@@ -297,3 +297,57 @@ def evidence_summary(update_check: dict[str, Any], court_check: dict[str, Any], 
             "error_count": len(court_errors),
         },
     }
+
+
+def run(
+    topic: str,
+    query_count: int = 3,
+    source_limit: int = 6,
+    output_dir: Path | str = Path("результаты"),
+    demo: bool = False,
+    session_context: str = "",
+) -> tuple[Path, Path]:
+    """Safe demo-only fallback until the verified research pipeline is restored.
+
+    Never present synthetic evidence as a real legal answer.
+    """
+    if not isinstance(topic, str) or not topic.strip():
+        raise AgentError("Укажите непустой правовой вопрос.")
+    if not demo:
+        raise AgentError(
+            "Реальный юридический поиск временно недоступен: "
+            "полный исследовательский конвейер ещё не восстановлен. "
+            "Используйте demo=true только для проверки интеграции."
+        )
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    checked_on = current_check_date()
+    report = output_dir / "ответ-demo.md"
+    journal = output_dir / "журнал-demo.json"
+    answer = (
+        "# Демонстрационный ответ (не юридическое заключение)\\n\\n"
+        f"**Вопрос:** {topic.strip()}\\n\\n"
+        "## Краткий ответ\\n"
+        "Демонстрационный режим проверяет только техническую интеграцию.\\n\\n"
+        "## Правовое основание\\n"
+        "Нормативные источники не запрашивались и не проверялись.\\n\\n"
+        "## Актуальность и изменения\\n"
+        f"Дата технического запуска: {checked_on}. Актуальность норм не проверялась.\\n\\n"
+        "## Как применить к ситуации\\n"
+        "Для реального ответа требуется восстановленный поиск по официальным источникам.\\n\\n"
+        "## Ограничения\\n"
+        f"{LEGAL_DISCLAIMER}\\n"
+    )
+    report.write_text(answer, encoding="utf-8")
+    journal.write_text(
+        json.dumps({
+            "topic": topic.strip(),
+            "checked_on": checked_on,
+            "demo": True,
+            "sources": [],
+            "evidence": {"status": "demo", "verified": False},
+            "session_context_provided": bool(session_context),
+        }, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    return report, journal
