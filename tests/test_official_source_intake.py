@@ -62,11 +62,10 @@ class OfficialSourceIntakeTests(unittest.TestCase):
 
     def test_rejects_backslash_and_control_characters(self):
         for url in (
-            "https://publication.pravo.gov.ru\\@evil.example/law",
-            "https://publication.pravo.gov.ru/law\\redirect",
+            r"https://publication.pravo.gov.ru\@evil.example/law",
+            r"https://publication.pravo.gov.ru/law\redirect",
             "https://publication.pravo.gov.ru/law\\nheader",
-            "https://publication.pravo.gov.ru/law%0a",  # encoded data is not fetched by this gate
-        )[:3]:
+        ):
             with self.subTest(url=url), self.assertRaises(ValueError):
                 module.validate_proposal(self.proposal(url=url))
 
