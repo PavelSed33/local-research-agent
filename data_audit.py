@@ -64,7 +64,7 @@ def audit_data(registry, workflows, benchmarks, corpus, *, checked_on):
     if len(received) != len(entries):
         issue('duplicate_corpus_cards', 'corpus')
     for identity in sorted(cards.keys() - received):
-        issue('missing_corpus_extract', identity)
+        issue('missing_corpus_extract', identity, 'gap')
     if corpus.get('errors'):
         issue('corpus_integrity_failed', 'corpus')
     texts = defaultdict(list)
