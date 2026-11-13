@@ -19,6 +19,7 @@ def execute(envelope):
 
     handlers = {
         '/review': handle_review,
+        '/review/legal': handle_review,
         '/extract': handle_extract,
         '/diff': handle_diff,
         '/extract/local': handle_local_extract,
