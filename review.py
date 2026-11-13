@@ -161,9 +161,12 @@ def review_contract(model: LanguageModel, document: str, demo: bool = False) -> 
         )
         try:
             result = extract_json(model.complete(repair_prompt, ""))
-            repaired = not validate_review(result, document)
+            remaining = validate_review(result, document)
+            if remaining:
+                raise AgentError("Исправленный анализ договора не прошёл проверку структуры и цитат.")
+            repaired = True
         except AgentError:
-            repaired = False
+            raise
     # Model output is untrusted: only schema-approved fields can leave this boundary.
     cleaned = {
         "summary": result.get("summary", ""),
