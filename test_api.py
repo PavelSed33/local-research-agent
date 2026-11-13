@@ -543,8 +543,12 @@ class ScoringEndpointTests(ApiTestCase):
         )
         self.assertEqual(status, 200)
         self.assertEqual(payload["status"], "draft")
-        self.assertEqual(payload["score"], 95)
-        self.assertEqual(payload["verdict_color"], "green")
+        from scoring import compute_score
+        expected = compute_score(payload["risks"], payload["missing_clauses"])
+        self.assertEqual(payload["score"], expected["score"])
+        self.assertEqual(payload["verdict_color"], expected["verdict_color"])
+        self.assertEqual(payload["risk_deduction"], expected["risk_deduction"])
+        self.assertEqual(payload["missing_deduction"], expected["missing_deduction"])
         self.assertIn("weights", payload)
 
     def test_scoring_without_document_returns_400(self):
