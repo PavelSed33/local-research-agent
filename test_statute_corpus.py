@@ -189,7 +189,9 @@ class StatutoryCorpusTests(unittest.TestCase):
                     'https://www.consultant.ru/document/cons_doc_LAW_5142/?redirect=x']:
             with self.subTest(url=url), self.assertRaises(ValueError):
                 _public_copy(url)
-        entry = corpus_report(['LAW-02:15'])['entries'][0]
+        # Synthetic metadata exercises offline cleanup without restoring a licensed extract.
+        entry = {'act_id': 'gk1', 'provision': '15',
+                 'url': 'https://www.consultant.ru/document/cons_doc_LAW_5142/'}
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             (root / 'gk1').mkdir()
