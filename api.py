@@ -652,6 +652,12 @@ def openapi_spec(auth_required: bool = False, *, require_auth: bool | None = Non
         "responses": {"200": {"description": "DOCX с Word Track Changes"},
             "400": {"description": "Некорректный документ"}, "401": {"description": "Требуется авторизация"}}
     }}
+    # OpenAPI operation security must match the effective legacy token policy.
+    for route, methods in spec["paths"].items():
+        if not route.startswith("/workspace/") and route != "/documents/redline":
+            for operation in methods.values():
+                if isinstance(operation, dict) and "summary" in operation:
+                    operation["security"] = [{"ApiToken": []}] if auth_required else []
     required_fields = {"/workspace/cases/report": ["matter_id", "case_number", "as_of"]}
     for path in WORKSPACE_FIELDS:
         spec["paths"][path] = {"post": {"summary": "Операция рабочего пространства",
@@ -1038,8 +1044,10 @@ def create_server(
     if workspace_db is not None:
         from workspace_store import WorkspaceStore
         server.workspace_store = WorkspaceStore(Path(workspace_db))
+        server.workspace = server.workspace_store
     else:
         server.workspace_store = None
+        server.workspace = None
     server.output_dir = Path(output_dir)
     server.api_token = api_token.strip()
     server.sessions = SessionStore()
