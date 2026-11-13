@@ -5,6 +5,9 @@ WORKDIR /app
 # Сторонних зависимостей нет: только стандартная библиотека Python.
 COPY *.py ./
 COPY scripts/ ./scripts/
+COPY skills/ ./skills/
+COPY third_party/ ./third_party/
+COPY web/ ./web/
 
 ENV API_HOST=0.0.0.0 \
     API_PORT=8080 \
