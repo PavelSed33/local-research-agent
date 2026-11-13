@@ -63,11 +63,11 @@ class StatutoryCorpusTests(unittest.TestCase):
         self.assertTrue(registry['cards'], 'Coverage candidates remain catalogued')
 
     def test_text_is_requested_explicitly_and_keeps_article_identity(self):
+        # A coverage card is not an authorized text extract after quarantine.
         result = handle_corpus({'card_ids': ['LAW-02:165.1'], 'as_of': '2026-11-08', 'include_text': True})
-        entry = result['entries'][0]
-        self.assertIn('Статья 165.1.', entry['text'])
-        self.assertEqual(entry['act_id'], 'gk1')
-        self.assertTrue(entry['url'].startswith('https://www.consultant.ru/document/cons_doc_LAW_5142/'))
+        self.assertEqual(result['entries'], [])
+        self.assertEqual(result['text_received_count'], 0)
+        self.assertFalse(result['verified'])
 
     def mutate(self, callback, *, rehash=True):
         with tempfile.TemporaryDirectory() as directory:
