@@ -36,5 +36,7 @@ jobs:
             test_legal_research.ResearchWorkflowTests.test_every_workflow_is_local_and_all_yes_still_requires_legal_review \
             test_legal_research.ResearchWorkflowTests.test_scenarios_and_documents_cannot_be_injected_via_facts \
             test_legal_research.ResearchWorkflowTests.test_http_routes_auth_schema_and_no_persisted_user_payloads
+      - name: Missing primary archives must fail closed
+        run: python -m unittest -v test_primary_archive.PrimaryArchiveValidationTests.test_missing_primary_originals_fail_closed_without_leaking_paths
       - name: Official downloader safety checks
         run: python -m unittest -v test_official_publication_download test_minjust_download
