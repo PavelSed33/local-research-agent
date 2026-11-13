@@ -1018,8 +1018,8 @@ class LegalApiHandler(BaseHTTPRequestHandler):
                     self.server.sessions.remember(session_id, question, reply["answer"], expected_session=identity)
                     reply["session_id"] = session_id
                     if not reply.get("results_persisted"):
-                        reply.pop("report_file", None)
-                        reply.pop("journal_file", None)
+                        reply["report_file"] = None
+                        reply["journal_file"] = None
                     return reply
                 result = self.server.jobs.execute(
                     request_id,
