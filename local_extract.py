@@ -26,7 +26,7 @@ def handle_local_extract(payload):
     if type(limit) is not int or not 1 <= limit <= 500:
         raise ValueError('max_matches должен быть целым числом от 1 до 500.')
     document = resolve_document(payload)
-    if not MIN_DOCUMENT_CHARS <= len(document) <= MAX_DOCUMENT_CHARS:
+    if not MIN_DOCUMENT_CHARS <= len(document) <= 200_000:
         raise ValueError('Текст должен содержать от 20 до 200000 символов.')
     candidates = []
     for kind, pattern in [('identifier', IDENTIFIER), ('amount', AMOUNT), ('date', DATE)]:
