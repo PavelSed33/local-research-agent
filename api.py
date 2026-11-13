@@ -771,8 +771,8 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(body)
         elif self.path == "/review/options":
-            from contract_scope import scope_options
-            self._send_json(200, {"contract_types": scope_options()})
+            from legal_review import review_options
+            self._send_json(200, review_options())
         elif self.path == "/health":
             self._send_json(200, health_payload(self.server.metrics))
             self.server.metrics.record("GET /health", 200, (time.perf_counter() - started) * 1000)
