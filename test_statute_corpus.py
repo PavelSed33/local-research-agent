@@ -190,7 +190,7 @@ class StatutoryCorpusTests(unittest.TestCase):
             with self.subTest(url=url), self.assertRaises(ValueError):
                 _public_copy(url)
         # Synthetic metadata exercises offline cleanup without restoring a licensed extract.
-        entry = {'act_id': 'gk1', 'provision': '15',
+        entry = {'act_id': 'gk1', 'provision': '15', 'title': 'Synthetic article metadata',
                  'url': 'https://www.consultant.ru/document/cons_doc_LAW_5142/'}
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
