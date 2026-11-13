@@ -25,7 +25,7 @@ class NoRedirect(HTTPRedirectHandler):
 def fetch(act_id, publication_id, output_dir, opener=None):
     if not ACT_ID.fullmatch(act_id) or not PUBLICATION_ID.fullmatch(publication_id):
         raise ValueError("Invalid act ID or publication number")
-    url = f"https://publication.pravo.gov.ru/file/pdf?eoNumber={publication_id}"
+    # Prevent a known implementing order from being mislabeled as the parent statute.\n    if publication_id == "0001202506300007" and act_id != "pd152-access-order-2025":\n        raise ValueError("Publication belongs to an implementing order, not 152-FZ")\n    url = f"https://publication.pravo.gov.ru/file/pdf?eoNumber={publication_id}"
     opener = opener or build_opener(NoRedirect())
     response = opener.open(Request(url, headers={"User-Agent": "LegalSourceReview/1.0", "Accept": "application/pdf"}), timeout=25)
     with response:
