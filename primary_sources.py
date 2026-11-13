@@ -34,8 +34,12 @@ def _url(value):
     if not isinstance(value, str) or len(value) > 2000:
         raise ValueError('invalid_archive_url')
     url = urlsplit(value)
-    if (url.scheme != 'https' or url.hostname not in HOSTS or url.username or url.password
-            or url.fragment or url.port not in (None, 443)):
+    if (url.scheme != 'https' or url.hostname not in HOSTS
+            or url.username is not None or url.password is not None
+            or url.fragment or url.query or url.port is not None
+            or not url.path.startswith('/')
+            or any(ord(char) < 33 or ord(char) == 127 for char in value)
+            or '\\' in value):
         raise ValueError('invalid_archive_url')
 
 
