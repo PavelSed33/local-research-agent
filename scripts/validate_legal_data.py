@@ -58,8 +58,18 @@ def validate():
     if corpus['errors'] or evidence['errors']:
         raise ValueError('Invalid source corpus')
     received = {entry['card_id'] for entry in corpus['entries']}
-    if received != cards.keys():
-        raise ValueError('Not every declared card has a text extract')
+    missing = sorted(cards.keys() - received)
+    unexpected = sorted(received - cards.keys())
+    if missing or unexpected:
+        raise ValueError(
+            'Statutory corpus coverage incomplete: '
+            f'{len(missing)} missing text extracts, {len(unexpected)} unexpected card IDs; '
+            f'missing IDs: {", ".join(missing[:30]) or "none"}'
+            f'{" ..." if len(missing) > 30 else ""}; '
+            f'unexpected IDs: {", ".join(unexpected[:30]) or "none"}'
+            f'{" ..." if len(unexpected) > 30 else ""}. '
+            'Do not restore quarantined or unlicensed source material to satisfy this check.'
+        )
     return {'pinned_legal_skills': len(skills), 'modules': len(modules), 'acts': len(acts), 'research_cards': len(cards),
             'statutory_extracts': len(received), 'workflows': len(ids),
             'draft_synthetic_cases': len(case_ids), 'legal_acceptance': False}
