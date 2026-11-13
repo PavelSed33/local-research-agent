@@ -26,7 +26,21 @@ def execute(envelope):
     }
     try:
         with contextlib.redirect_stdout(sys.stderr):
-            if envelope['path'] == '/ask':
+            if envelope['path'] == '/workspace/ask':
+                prepared = envelope['payload']
+                sources = prepared['sources']
+                findings = []
+                for source in sources:
+                    quote = source['text'][:min(240, len(source['text']))]
+                    findings.append({'summary': 'Фрагмент документа (демонстрационный режим, без юридической оценки).',
+                                     'citations': [{'document_id': source['document_id'],
+                                                    'start': source['start'],
+                                                    'end': source['start'] + len(quote),
+                                                    'quote': quote}]})
+                result = {'sources': sources, 'findings': findings,
+                          'answer': 'Демонстрационный поиск по материалам дела; выводы требуют проверки юристом.',
+                          'legal_acceptance': False, 'demo': True}
+            elif envelope['path'] == '/ask':
                 result = handle_ask(envelope['payload'], Path(envelope['output_dir']), persist_results=envelope.get('persist_results', False),
                                     session_context_override=envelope.get('context', ''))
             else:
