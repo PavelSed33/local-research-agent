@@ -800,7 +800,14 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             payload = self._read_payload()
             if self.path == "/requests/cancel":
                 request_id = payload.get("request_id")
-                result = {"cancelled": self.server.jobs.cancel(request_id)}
+                if getattr(self.server, "workspace_store", None) is not None:
+                    # A user's cancellation cannot preempt another user's future request.
+                    # Unknown IDs are intentionally not registered as cancelled.
+                    with self.server.jobs.lock:
+                        is_active = request_id in self.server.jobs.active
+                    result = {"cancelled": self.server.jobs.cancel(request_id) if is_active else False}
+                else:
+                    result = {"cancelled": self.server.jobs.cancel(request_id)}
             elif self.path == "/sessions/delete":
                 session_id = payload.get("session_id")
                 if not isinstance(session_id, str) or not SESSION_ID_PATTERN.fullmatch(session_id):
