@@ -147,7 +147,7 @@ def build_review_prompt(document: str, demo: bool = False) -> str:
 def review_contract(model: LanguageModel, document: str, demo: bool = False) -> tuple[dict[str, Any], bool]:
     """Один проход проверки с валидацией и одной попыткой починки JSON."""
     prompt = build_review_prompt(document, demo=demo)
-    response = model.complete(prompt, temperature=0.2)
+    response = model.complete(prompt, "")
     result = extract_json(response)
     issues = validate_review(result, document)
     repaired = False
@@ -158,7 +158,7 @@ def review_contract(model: LanguageModel, document: str, demo: bool = False) -> 
             + ". Верни полный корректный JSON с теми же разделами."
         )
         try:
-            result = extract_json(model.complete(repair_prompt, temperature=0.1))
+            result = extract_json(model.complete(repair_prompt, ""))
             repaired = not validate_review(result, document)
         except AgentError:
             repaired = False
@@ -168,7 +168,7 @@ def review_contract(model: LanguageModel, document: str, demo: bool = False) -> 
 class DemoReviewModel:
     """Детерминированный ответ для проверки без API-ключей."""
 
-    def complete(self, prompt: str, temperature: float = 0.0) -> str:
+    def complete(self, prompt: str, user: str = "") -> str:
         return json.dumps(
             {
                 "summary": "Демонстрационный анализ: договор короткий, типовые риски не проверялись по внешним источникам.",
