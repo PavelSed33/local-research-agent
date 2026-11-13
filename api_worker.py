@@ -26,7 +26,10 @@ def execute(envelope):
     }
     try:
         with contextlib.redirect_stdout(sys.stderr):
-            if envelope['path'] == '/workspace/ask':
+            if envelope['path'] == '/documents/redline':
+                from docx_redline import redline_docx
+                result = redline_docx(envelope['payload'])
+            elif envelope['path'] == '/workspace/ask':
                 prepared = envelope['payload']
                 sources = prepared['sources']
                 findings = []
