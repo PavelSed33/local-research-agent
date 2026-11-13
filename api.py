@@ -286,12 +286,13 @@ def openapi_spec(auth_required: bool = False, *, require_auth: bool | None = Non
         if type(require_auth) is not bool:
             raise ValueError("require_auth должен быть логическим значением.")
         auth_required = require_auth
+    from workspace_api import FIELDS as WORKSPACE_FIELDS
     document_property = {
         "document": {"type": "string", "description": "Полный текст договора (UTF-8)"},
         "document_base64": {"type": "string", "description": "Договор в формате DOCX, закодированный в base64"},
         "demo": {"type": "boolean", "default": False, "description": "Демонстрационный режим без внешних запросов"},
     }
-    return {
+    spec = {
         "openapi": "3.0.3",
         "info": {
             "title": SERVICE_NAME,
@@ -638,6 +639,17 @@ def openapi_spec(auth_required: bool = False, *, require_auth: bool | None = Non
             },
         },
     }
+    for path in WORKSPACE_FIELDS:
+        spec["paths"][path] = {"post": {"summary": "Операция рабочего пространства",
+            "security": [{"ApiToken": []}],
+            "requestBody": {"required": True, "content": {"application/json": {"schema": {
+                "type": "object", "additionalProperties": False,
+                "properties": {name: {"description": "Поле запроса"} for name in WORKSPACE_FIELDS[path]}
+            }}}},
+            "responses": {"200": {"description": "Успешно"}, "400": {"description": "Некорректные данные"},
+                          "401": {"description": "Требуется токен пользователя"},
+                          "403": {"description": "Нет доступа"}}}}
+    return spec
 
 
 class LegalApiHandler(BaseHTTPRequestHandler):
