@@ -724,6 +724,11 @@ class LegalApiHandler(BaseHTTPRequestHandler):
     server_version = f"{SERVICE_NAME}/{API_VERSION}"
     protocol_version = "HTTP/1.1"
 
+    def send_error(self, code: int, message: str | None = None, explain: str | None = None) -> None:
+        # BaseHTTPRequestHandler errors may bypass the JSON response helper.
+        self.close_connection = True
+        super().send_error(code, message, explain)
+
     def setup(self) -> None:
         super().setup()
         # Do not let incomplete HTTP bodies occupy a worker indefinitely.
