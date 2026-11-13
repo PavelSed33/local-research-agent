@@ -74,7 +74,7 @@ def ensure_document_transfer_allowed() -> None:
     """
     base = os.environ.get("LLM_BASE_URL", "").strip()
     if not base:
-        return
+        base = "https://api.openai.com/v1"  # Совпадает с адресом LLM по умолчанию.
     try:
         from urllib.parse import urlsplit
         host = (urlsplit(base).hostname or "").lower()
