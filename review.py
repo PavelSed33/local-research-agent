@@ -28,7 +28,7 @@ from agent import (
     extract_json,
     load_dotenv,
 )
-from doctext import document_fingerprint, quote_span, read_document_file, resolve_document
+from doctext import ensure_document_transfer_allowed, document_fingerprint, quote_span, read_document_file, resolve_document
 
 MIN_DOCUMENT_CHARS = 20
 MAX_DOCUMENT_CHARS = 500_000
@@ -162,7 +162,21 @@ def review_contract(model: LanguageModel, document: str, demo: bool = False) -> 
             repaired = not validate_review(result, document)
         except AgentError:
             repaired = False
-    return result, repaired
+    # Model output is untrusted: only schema-approved fields can leave this boundary.
+    cleaned = {
+        "summary": result.get("summary", ""),
+        "missing_clauses": result.get("missing_clauses", []),
+        "risks": [],
+        "verified": False, "lawyer_reviewed": False,
+    }
+    for risk in result.get("risks", []):
+        if not isinstance(risk, dict):
+            continue
+        safe = {key: risk[key] for key in RISK_FIELDS if key in risk}
+        safe.update(verified=False, lawyer_reviewed=False, legal_basis=[],
+                    basis_status="no_legal_evidence")
+        cleaned["risks"].append(safe)
+    return cleaned, repaired
 
 
 class DemoReviewModel:
@@ -207,9 +221,11 @@ def handle_review(payload: dict[str, Any]) -> dict[str, Any]:
     risks = []
     for risk in result.get("risks", []):
         span = quote_span(document, str(risk.get("quote", "")))
-        risks.append({**risk, "document_span": span, "verified": False})
+        risks.append({**risk, "document_span": span, "verified": False, "lawyer_reviewed": False})
     return {
         "status": "draft",
+        "verified": False,
+        "lawyer_reviewed": False,
         "summary": result["summary"].strip(),
         "risks": risks,
         "missing_clauses": result.get("missing_clauses", []),
