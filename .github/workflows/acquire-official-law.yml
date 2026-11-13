@@ -1,12 +1,6 @@
 name: Acquire official legal publications
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - fix/recover-research-engine-20261112
-    paths:
-      - .github/workflows/acquire-official-law.yml
-      - scripts/fetch_official_publication.py
 permissions:
   contents: read
 jobs:
