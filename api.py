@@ -267,6 +267,7 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
             for source in journal["sources"]
         ],
         "checked_on": journal["checked_on"],
+        "evidence": journal["evidence"],
         "as_of": journal["as_of"],
         "disclaimer": LEGAL_DISCLAIMER,
         "demo": journal["demo"],
