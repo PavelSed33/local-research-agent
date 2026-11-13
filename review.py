@@ -91,8 +91,8 @@ def validate_review(result: dict[str, Any], document: str) -> list[str]:
         if not isinstance(risk, dict):
             issues.append(f"Риск №{index} не является объектом.")
             continue
-        if not str(risk.get("category", "")).strip():
-            issues.append(f"Риск №{index}: пустая категория.")
+        if not isinstance(risk.get("category"), str) or risk["category"] not in REVIEW_CATEGORIES:
+            issues.append(f"Риск №{index}: категория должна быть из разрешённого перечня.")
         if risk.get("severity") not in SEVERITIES:
             issues.append(f"Риск №{index}: severity должен быть одним из {SEVERITIES}.")
         quote = str(risk.get("quote", "")).strip()
