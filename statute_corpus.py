@@ -58,7 +58,7 @@ def _coverage_cards() -> dict:
 
 
 def _safe_group_file(corpus_dir: Path, name: str) -> Path | None:
-    if not _SAFE_PATH.match(name or ""):
+    if not isinstance(name, str) or not _SAFE_PATH.fullmatch(name) or name in (".", ".."):
         return None
     path = corpus_dir / name
     try:
