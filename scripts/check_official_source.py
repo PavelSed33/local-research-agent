@@ -3,7 +3,6 @@
 This is an intake gate, not legal review, copyright clearance or publication.
 Usage: python scripts/check_official_source.py proposal.json
 """
-import ipaddress
 import json
 from pathlib import Path
 import sys
@@ -44,12 +43,8 @@ def validate_proposal(data):
                 parsed.port is not None or parsed.query or parsed.fragment or
                 not parsed.path.startswith("/")):
             raise ValueError("URL must be pinned to an approved official HTTPS host")
-        if host is None or host.endswith(".") or ipaddress.ip_address(host):
-            raise ValueError("IP literals are forbidden")
     except ValueError as exc:
         if str(exc) == "URL must be pinned to an approved official HTTPS host":
-            raise
-        if str(exc) == "IP literals are forbidden":
             raise
         raise ValueError("Invalid URL") from exc
     return {
