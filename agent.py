@@ -1030,7 +1030,7 @@ def run(topic: str, query_count: int, source_limit: int, output_dir: Path, demo:
     log("[1/8] Планирую правовое исследование…")
     queries = plan_queries(model, topic, query_count)
     executed_queries = {_normalized_query_key(query) for query in queries}
-    log("      Запросы: " + "; ".join(queries))
+    log(f"      Поисковых запросов: {len(queries)} (текст скрыт для защиты данных)")
 
     log("[2/8] Ищу нормы и читаю источники…")
     per_query = max(2, min(5, source_limit))
