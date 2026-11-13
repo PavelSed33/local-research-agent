@@ -135,6 +135,27 @@ def dispatch(store, principal, path, payload):
         return store.list_matters(principal)
     if path == '/workspace/members/set':
         return store.grant(principal, p.get('matter_id'), p.get('user_id'), p.get('role'))
+    if path == '/workspace/documents/upload':
+        import base64
+        import binascii
+        from document_tools import parse_file
+        filename = text(p.get('filename'), 'filename', 200)
+        encoded = p.get('file_base64')
+        if not isinstance(encoded, str) or len(encoded) > 14000000:
+            raise ValueError('Некорректный размер файла.')
+        try:
+            raw = base64.b64decode(encoded, validate=True)
+        except (ValueError, binascii.Error):
+            raise ValueError('Некорректное кодирование файла.') from None
+        with store.connect() as db:
+            store._access(db, principal, p.get('matter_id'), ('owner', 'editor'))
+        parsed = parse_file({key: p[key] for key in ('filename', 'file_base64', 'ocr', 'ocr_language') if key in p})
+        return store.add_document(principal, p.get('matter_id'),
+            {'title': p.get('title') or filename, 'document': parsed['document'],
+             'source_url': p.get('source_url', '')},
+            provenance={'origin': 'user_upload', 'original_sha256': hashlib.sha256(raw).hexdigest(),
+                        'current_validity_verified': False},
+            original=(filename, raw))
     if path == '/workspace/documents/add':
         return store.add_document(principal, p.get('matter_id'), p)
     if path == '/workspace/documents/list':
