@@ -690,6 +690,12 @@ class LegalApiHandler(BaseHTTPRequestHandler):
         return payload
 
     def _authorized(self) -> bool:
+        workspace = getattr(self.server, "workspace_store", None)
+        if workspace is not None:
+            supplied = self.headers.get("Authorization", "")
+            principal = workspace.authenticate(supplied[7:]) if supplied.startswith("Bearer ") else None
+            self._workspace_principal = principal["id"] if principal else None
+            return principal is not None
         token = getattr(self.server, "api_token", "")
         if not token:
             return True
