@@ -13,6 +13,8 @@ def execute(envelope):
     from legal_research import handle_legal_research
     from statute_corpus import handle_corpus
     from case_law import handle_case_law
+    from privacy_review import handle_privacy_check
+    from legal_coverage import coverage_report
     from legal_review import handle_legal_review
     from extract import handle_extract
     from redline import handle_diff
@@ -21,11 +23,20 @@ def execute(envelope):
     from api import handle_ask
     from pathlib import Path
 
+    def handle_coverage(payload):
+        allowed = {'module_ids', 'card_ids', 'as_of'}
+        if not isinstance(payload, dict) or set(payload) - allowed:
+            raise ValueError('Допустимы только module_ids, card_ids и as_of.')
+        return coverage_report(payload.get('module_ids'), payload.get('as_of'),
+                               card_ids=payload.get('card_ids'))
+
     handlers = {
         '/review': handle_review,
         '/legal/research': handle_legal_research,
         '/legal/corpus': handle_corpus,
         '/case-law/check': handle_case_law,
+        '/privacy/check': handle_privacy_check,
+        '/legal/coverage': handle_coverage,
         '/review/legal': handle_legal_review,
         '/extract': handle_extract,
         '/diff': handle_diff,
