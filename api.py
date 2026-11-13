@@ -805,6 +805,9 @@ class LegalApiHandler(BaseHTTPRequestHandler):
                 session_id = payload.get("session_id")
                 if not isinstance(session_id, str) or not SESSION_ID_PATTERN.fullmatch(session_id):
                     raise RequestValidationError("Некорректный session_id.")
+                if getattr(self.server, "workspace_store", None) is not None:
+                    from workspace_api import namespace
+                    session_id = namespace(self._workspace_principal, session_id)
                 result = {"deleted": self.server.sessions.delete(session_id)}
             elif self.path == "/ask":
                 # Validate and bind the session in the parent process; workers never
@@ -815,10 +818,14 @@ class LegalApiHandler(BaseHTTPRequestHandler):
                 if len(question) > 8000:
                     raise RequestValidationError("Поле question не должно превышать 8000 символов.")
                 session_id = payload.get("session_id")
+                workspace_mode = getattr(self.server, "workspace_store", None) is not None
                 if session_id is not None:
                     if not isinstance(session_id, str) or not SESSION_ID_PATTERN.fullmatch(session_id):
                         raise RequestValidationError("Некорректный session_id.")
-                    if not self.server.sessions.exists(session_id):
+                    if workspace_mode:
+                        from workspace_api import namespace
+                        session_id = namespace(self._workspace_principal, session_id)
+                    elif not self.server.sessions.exists(session_id):
                         raise RequestValidationError("Неизвестный или истёкший session_id.")
                 else:
                     session_id = secrets.token_hex(24)
