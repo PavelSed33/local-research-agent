@@ -1,0 +1,28 @@
+name: Official source downloader unit tests
+on:
+  push:
+    branches:
+      - fix/recover-research-engine-20261112
+    paths:
+      - scripts/fetch_minjust_document.py
+      - scripts/fetch_official_publication.py
+      - scripts/stage_official_law.py
+      - test_minjust_download.py
+      - test_official_publication_download.py
+      - .github/workflows/test-official-downloaders.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check Python syntax
+        run: python -m py_compile scripts/fetch_minjust_document.py scripts/fetch_official_publication.py scripts/stage_official_law.py test_minjust_download.py test_official_publication_download.py
+      - name: Run offline downloader tests
+        run: python -m unittest -v test_minjust_download test_official_publication_download
