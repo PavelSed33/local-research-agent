@@ -214,7 +214,7 @@ def extract_entities(model: LanguageModel, document: str) -> tuple[dict[str, Any
     )
     remaining = validate_extraction(repaired, document)
     if remaining:
-        raise AgentError("Извлечение реквизитов не прошло контроль после исправления: " + " ".join(remaining))
+        raise AgentError("Извлечение реквизитов не прошло контроль после исправления.")
     return _strip_model_attestations(repaired), True
 
 
