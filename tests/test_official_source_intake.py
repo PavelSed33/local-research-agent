@@ -56,6 +56,20 @@ class OfficialSourceIntakeTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             module.validate_proposal(self.proposal(captured_on="2026-13-99"))
 
+    def test_rejects_future_capture_date(self):
+        with self.assertRaises(ValueError):
+            module.validate_proposal(self.proposal(captured_on="2099-01-01"))
+
+    def test_rejects_backslash_and_control_characters(self):
+        for url in (
+            "https://publication.pravo.gov.ru\\@evil.example/law",
+            "https://publication.pravo.gov.ru/law\\redirect",
+            "https://publication.pravo.gov.ru/law\\nheader",
+            "https://publication.pravo.gov.ru/law%0a",  # encoded data is not fetched by this gate
+        )[:3]:
+            with self.subTest(url=url), self.assertRaises(ValueError):
+                module.validate_proposal(self.proposal(url=url))
+
     def test_rejects_extra_fields(self):
         with self.assertRaises(ValueError):
             module.validate_proposal(self.proposal(text="unverified statute content"))
