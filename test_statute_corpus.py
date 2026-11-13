@@ -70,14 +70,28 @@ class StatutoryCorpusTests(unittest.TestCase):
         self.assertFalse(result['verified'])
 
     def mutate(self, callback, *, rehash=True):
+        # Isolated synthetic fixture: production extracts remain quarantined.
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             shutil.copytree(ROOT, root, dirs_exist_ok=True)
             manifest = json.loads((root / 'manifest.json').read_text())
-            group = next(g for g in manifest['groups'] if g['act_id'] == 'gk1')
-            data = json.loads((root / group['file']).read_text())
-            callback(root, group, data)
+            body = 'Статья 15. Синтетический пример для тестирования целостности. ' * 3
+            section = {
+                'card_id': 'LAW-02:15', 'act_id': 'gk1', 'provision': '15',
+                'title': 'Синтетический тест', 'heading': 'Статья 15.',
+                'text': body, 'sha256': hashlib.sha256(body.encode()).hexdigest(),
+                'url': 'https://www.consultant.ru/document/cons_doc_LAW_5142/',
+                'kind': 'public_copy', 'captured_on': '2026-11-08',
+                'response_sha256': '0' * 64, 'edition_label': None,
+            }
+            data = {'act_id': 'gk1', 'sections': [section]}
             path = root / 'gk1.json'
+            path.write_text(json.dumps(data, ensure_ascii=False))
+            group = {'act_id': 'gk1', 'file': 'gk1.json',
+                     'sha256': hashlib.sha256(path.read_bytes()).hexdigest(),
+                     'article_extract_count': 1}
+            manifest['groups'] = [group]
+            callback(root, group, data)
             path.write_text(json.dumps(data, ensure_ascii=False))
             if rehash:
                 group['sha256'] = hashlib.sha256(path.read_bytes()).hexdigest()
