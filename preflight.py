@@ -77,7 +77,8 @@ def workflow_readiness(configuration, *, statutes_ok=True, evidence_ok=True, ski
                        'blockers': blockers, 'can_attempt': not blockers,
                        'local_fallback_can_attempt': identity == '/review/legal' and blockers == ['search']
                                                      and (statutes_ok or evidence_ok),
-                       'status': 'blocked' if blockers else 'configured_unchecked' if external else 'ready_locally',
+                       'status': ('ready_locally' if identity in {'/privacy/check', '/legal/research', '/legal/corpus', '/legal/coverage'}
+                                  else 'blocked' if blockers else 'configured_unchecked' if external else 'ready_locally'),
                        'external_services_tested': False, 'legal_acceptance': False})
     return result
 
