@@ -663,6 +663,11 @@ def openapi_spec(auth_required: bool = False, *, require_auth: bool | None = Non
             "responses": {"200": {"description": "Черновик анализа"}, "400": {"description": "Ошибка данных"}}
         }
     }
+    spec["paths"]["/review/options"] = {"get": {
+        "summary": "Типы договоров и вопросы для предварительной квалификации",
+        "security": [],
+        "responses": {"200": {"description": "Варианты договора без передачи документов"}}
+    }}
     # OpenAPI operation security must match the effective legacy token policy.
     for route, methods in spec["paths"].items():
         if not route.startswith("/workspace/") and route != "/documents/redline":
@@ -765,6 +770,9 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             self.send_header("Content-Length", str(len(body)))
             self.end_headers()
             self.wfile.write(body)
+        elif self.path == "/review/options":
+            from contract_scope import scope_options
+            self._send_json(200, {"contract_types": scope_options()})
         elif self.path == "/health":
             self._send_json(200, health_payload(self.server.metrics))
             self.server.metrics.record("GET /health", 200, (time.perf_counter() - started) * 1000)
