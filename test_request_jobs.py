@@ -183,7 +183,7 @@ class RequestControlTests(unittest.TestCase):
 
     def test_persistence_is_published_only_after_success(self):
         self.server.persist_results = True
-        status, data, _ = self.post('/ask', {'question': 'Тест', 'demo': True, 'session_id': 'a'})
+        status, data, _ = self.post('/ask', {'question': 'Тест', 'demo': True})
         self.assertEqual(status, 200)
         self.assertTrue(Path(data['report_file']).is_file())
         self.assertTrue(Path(data['journal_file']).is_file())
