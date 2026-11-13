@@ -274,8 +274,8 @@ def health_payload(metrics: Metrics | None = None) -> dict[str, Any]:
         "service": SERVICE_NAME,
         "version": API_VERSION,
         "endpoints": ["GET /health", "GET /openapi.json", "POST /ask", "POST /review", "POST /extract", "POST /diff", "POST /penalty", "POST /check", "POST /timeline", "POST /draft", "POST /triage", "POST /duty", "POST /export", "POST /protocol", "POST /scoring"],
-        "llm_configured": bool(os.getenv("LLM_API_KEY") and os.getenv("LLM_MODEL")),
-        "tavily_configured": bool(os.getenv("TAVILY_API_KEY")),
+        "llm_configured": __import__("preflight").inspect_configuration()["provider_configuration"]["llm"],
+        "tavily_configured": __import__("preflight").inspect_configuration()["provider_configuration"]["search"],
         "demo_available": True,
         "metrics": metrics.snapshot() if metrics else None,
     }
@@ -663,6 +663,11 @@ def openapi_spec(auth_required: bool = False, *, require_auth: bool | None = Non
             "responses": {"200": {"description": "Черновик анализа"}, "400": {"description": "Ошибка данных"}}
         }
     }
+    spec["paths"]["/runtime/readiness"] = {"get": {
+        "summary": "Готовность отдельных рабочих сценариев без внешних проверок",
+        "responses": {"200": {"description": "Состояние локальных предпосылок"},
+                      "401": {"description": "Требуется авторизация"}}
+    }}
     spec["paths"]["/review/options"] = {"get": {
         "summary": "Типы договоров и вопросы для предварительной квалификации",
         "security": [],
@@ -770,6 +775,13 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             self.send_header("Content-Length", str(len(body)))
             self.end_headers()
             self.wfile.write(body)
+        elif self.path == "/runtime/readiness":
+            if not self._authorized():
+                self.close_connection = True
+                self._send_json(401, {"error": "Требуется авторизация."})
+            else:
+                from preflight import inspect_runtime
+                self._send_json(200, inspect_runtime())
         elif self.path == "/review/options":
             from legal_review import review_options
             self._send_json(200, review_options())
