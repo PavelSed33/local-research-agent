@@ -13,6 +13,19 @@ from unittest.mock import patch
 
 
 class StatutoryCorpusTests(unittest.TestCase):
+    def test_quarantined_legal_corpus_is_not_served_as_verified_evidence(self):
+        manifest = json.loads((ROOT / 'manifest.json').read_text(encoding='utf-8'))
+        if manifest.get('groups'):
+            self.skipTest('This test applies only to quarantined corpora')
+        report = corpus_report(as_of='2026-11-08', include_text=True)
+        self.assertEqual(report['entries'], [])
+        self.assertEqual(report['text_received_count'], 0)
+        self.assertFalse(report['commercial_use_allowed'])
+        self.assertFalse(report['verified'])
+        self.assertTrue(any(gap['status'] == 'quarantined_and_removed'
+                            for gap in report['refresh_gaps']))
+        self.assertEqual(search_statutory_sources('ГК РФ статья 15', '2026-11-08'), [])
+
     def test_received_texts_cover_the_declared_scope_without_claiming_legal_acceptance(self):
         result = corpus_report(as_of='2026-11-08')
         self.assertEqual(result['errors'], [])
