@@ -100,6 +100,8 @@ def validate_review(result: dict[str, Any], document: str) -> list[str]:
             issues.append(f"Риск №{index}: цитата короче {MIN_QUOTE_CHARS} символов.")
         elif normalize_text(quote) not in corpus:
             issues.append(f"Риск №{index}: цитата не найдена в тексте договора.")
+        if not isinstance(risk.get("recommendation"), str) or not risk["recommendation"].strip():
+            issues.append(f"Риск №{index}: recommendation обязательно и не должно быть пустым.")
         if not str(risk.get("comment", "")).strip():
             issues.append(f"Риск №{index}: пустой комментарий.")
     missing = result.get("missing_clauses", [])
@@ -215,7 +217,9 @@ def handle_review(payload: dict[str, Any]) -> dict[str, Any]:
         raise ValueError(f"Текст договора слишком короткий: нужно от {MIN_DOCUMENT_CHARS} символов.")
     if len(document) > MAX_DOCUMENT_CHARS:
         raise ValueError(f"Текст договора превышает допустимый размер ({MAX_DOCUMENT_CHARS} символов).")
-    demo = bool(payload.get("demo", False))
+    demo = payload.get("demo", False)
+    if type(demo) is not bool:
+        raise ValueError("Поле demo должно быть логическим значением.")
     model: LanguageModel = DemoReviewModel() if demo else OpenAICompatibleModel()
     result, repaired = review_contract(model, document.strip(), demo=demo)
     risks = []
