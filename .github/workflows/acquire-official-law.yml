@@ -23,7 +23,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p official-review
-          python -m scripts.fetch_official_publication pd152 0001202506300007 official-review
+          python -m scripts.fetch_official_publication pd152-access-order-2025 0001202506300007 official-review
       - name: Upload unreviewed originals as restricted workflow artifacts
         uses: actions/upload-artifact@v4
         if: always()
