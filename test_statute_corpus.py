@@ -26,6 +26,24 @@ class StatutoryCorpusTests(unittest.TestCase):
                             for gap in report['refresh_gaps']))
         self.assertEqual(search_statutory_sources('ГК РФ статья 15', '2026-11-08'), [])
 
+    def test_quarantine_manifest_cannot_admit_any_legal_text_by_flag(self):
+        """Quarantined corpus remains empty even if a manifest is marked accepted."""
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            shutil.copytree(ROOT, root, dirs_exist_ok=True)
+            manifest_path = root / 'manifest.json'
+            manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+            self.assertEqual(manifest.get('groups'), [])
+            manifest['verified'] = True
+            manifest['commercial_use_allowed'] = True
+            manifest['accepted'] = True
+            manifest_path.write_text(json.dumps(manifest), encoding='utf-8')
+            report = corpus_report(as_of='2026-11-08', include_text=True, corpus_dir=root)
+            self.assertEqual(report['entries'], [])
+            self.assertEqual(report['text_received_count'], 0)
+            self.assertFalse(report['verified'])
+            self.assertFalse(report['commercial_use_allowed'])
+
     def test_received_texts_cover_the_declared_scope_without_claiming_legal_acceptance(self):
         result = corpus_report(as_of='2026-11-08')
         self.assertEqual(result['errors'], [])
