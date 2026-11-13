@@ -194,7 +194,7 @@ class DemoReviewModel:
                     {
                         "category": "ответственность и штрафы",
                         "severity": "high",
-                        "quote": normalize_text(_demo_quote(prompt)),
+                        "quote": normalize_text(_demo_quote(user)),
                         "comment": "В демонстрационном режиме риск сформулирован по первому фрагменту текста.",
                         "recommendation": "Проверьте реальную модель с API-ключом и полным текстом договора.",
                     }
@@ -206,10 +206,12 @@ class DemoReviewModel:
 
 
 def _demo_quote(prompt: str) -> str:
-    """Первый осмысленный фрагмент договора для демонстрационной цитаты."""
-    document = prompt.split('"""')[1] if '"""' in prompt else prompt
-    words = document.split()
-    return " ".join(words[:20])
+    """Select a contiguous quote from the untrusted document, not system instructions."""
+    marker = "ДОГОВОР (недоверенные данные):"
+    document = prompt.split(marker, 1)[1].lstrip() if marker in prompt else prompt
+    document = document.split("\\n\\nРЕЖИМ ДЕМОНСТРАЦИИ:", 1)[0]
+    document = document.split("\n\nРЕЖИМ ДЕМОНСТРАЦИИ:", 1)[0]
+    return document[:min(len(document), 120)].strip()
 
 
 def handle_review(payload: dict[str, Any]) -> dict[str, Any]:
