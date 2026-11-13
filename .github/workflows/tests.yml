@@ -16,7 +16,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Block accidentally committed licensed documents
         run: python scripts/check_copyright_hygiene.py
 
@@ -29,7 +29,7 @@ jobs:
         python-version: ["3.10", "3.11", "3.12"]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Fetch full history for copyright inventory
         run: |
           git fetch --unshallow origin || test "$(git rev-parse --is-shallow-repository)" = false
@@ -37,7 +37,7 @@ jobs:
       - name: Audit historical legal document paths (review-only)
         run: python scripts/audit_git_history.py
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
       - name: Compile source
@@ -63,7 +63,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Build image
         run: docker build -t legal-agent:test .
       - name: Assert only approved configuration fixtures are packaged
