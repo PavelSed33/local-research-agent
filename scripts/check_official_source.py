@@ -5,6 +5,7 @@ Usage: python scripts/check_official_source.py proposal.json
 """
 import json
 from pathlib import Path
+from datetime import date
 import sys
 from urllib.parse import urlsplit
 
@@ -26,14 +27,13 @@ def validate_proposal(data):
         raise ValueError("Rights review must be completed before ingestion")
     if not isinstance(data["document_id"], str) or not (1 <= len(data["document_id"]) <= 120):
         raise ValueError("Invalid document ID")
-    from datetime import date
     try:
-        if not isinstance(data["captured_on"], str) or date.fromisoformat(data["captured_on"]).isoformat() != data["captured_on"]:
-            raise ValueError("Invalid date")
+        if not isinstance(data["captured_on"], str) or date.fromisoformat(data["captured_on"]).isoformat() != data["captured_on"] or date.fromisoformat(data["captured_on"]) > date.today():
+            raise ValueError("Invalid or future capture date")
     except (TypeError, ValueError) as exc:
         raise ValueError("captured_on must be ISO date YYYY-MM-DD") from exc
     url = data["url"]
-    if not isinstance(url, str) or len(url) > 2048:
+    if not isinstance(url, str) or len(url) > 2048 or any(ord(ch) < 33 or ord(ch) == 127 for ch in url) or "\\\\" in url or "\\" in url:
         raise ValueError("Invalid URL")
     try:
         parsed = urlsplit(url)
