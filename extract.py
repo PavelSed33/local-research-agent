@@ -97,6 +97,18 @@ def validate_extraction(result: dict[str, Any], document: str) -> list[str]:
                 issues.append(f"{label}: цитата короче {MIN_QUOTE_CHARS} символов.")
             elif normalize_text(quote) not in corpus:
                 issues.append(f"{label}: цитата не найдена в тексте договора.")
+            if section == "amounts" and entry.get("currency") not in ("RUB", "USD", "EUR"):
+                issues.append(f"{label}: currency должна быть допустимым кодом ISO 4217.")
+            if section == "dates":
+                from datetime import datetime as _date_parser
+                value = entry.get("date")
+                if not isinstance(value, str):
+                    issues.append(f"{label}: дата должна быть строкой.")
+                else:
+                    try:
+                        _date_parser.strptime(value, "%d.%m.%Y")
+                    except ValueError:
+                        issues.append(f"{label}: дата должна быть реальной календарной датой.")
             if section == "parties":
                 for field, kind in (("inn", "ИНН"), ("ogrn", "ОГРН")):
                     value = str(entry.get(field, "") or "").strip()
@@ -270,7 +282,9 @@ def handle_extract(payload: dict[str, Any]) -> dict[str, Any]:
         raise ValueError(f"Текст договора слишком короткий: нужно от {MIN_DOCUMENT_CHARS} символов.")
     if len(document) > 500_000:
         raise ValueError("Текст договора превышает допустимый размер (500000 символов).")
-    demo = bool(payload.get("demo", False))
+    demo = payload.get("demo", False)
+    if type(demo) is not bool:
+        raise ValueError("Поле demo должно быть логическим значением.")
     model: LanguageModel = DemoExtractModel() if demo else OpenAICompatibleModel()
     result, repaired = extract_entities(model, document.strip())
     return {
