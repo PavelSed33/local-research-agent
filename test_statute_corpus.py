@@ -26,6 +26,13 @@ class StatutoryCorpusTests(unittest.TestCase):
                             for gap in report['refresh_gaps']))
         self.assertEqual(search_statutory_sources('ГК РФ статья 15', '2026-11-08'), [])
 
+    def test_manifest_group_filenames_reject_non_strings_and_special_paths(self):
+        """Hostile manifest filenames must be rejected rather than crash the API."""
+        from statute_corpus import _safe_group_file
+        for name in (None, True, 123, [], {}, ".", "..", "../secret.json", "/etc/passwd"):
+            with self.subTest(name=name):
+                self.assertIsNone(_safe_group_file(ROOT, name))
+
     def test_quarantine_manifest_cannot_admit_any_legal_text_by_flag(self):
         """Quarantined corpus remains empty even if a manifest is marked accepted."""
         with tempfile.TemporaryDirectory() as directory:
