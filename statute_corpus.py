@@ -57,6 +57,11 @@ def _coverage_cards() -> dict:
     return {card["id"]: card for card in data["cards"]}
 
 
+def _coverage_sources() -> dict:
+    data = json.loads(COVERAGE.read_text(encoding="utf-8"))
+    return {source["id"]: source for source in data["sources"]}
+
+
 def _safe_group_file(corpus_dir: Path, name: str) -> Path | None:
     if not isinstance(name, str) or not _SAFE_PATH.fullmatch(name) or name in (".", ".."):
         return None
@@ -82,6 +87,7 @@ def corpus_report(card_ids=None, as_of=None, *, corpus_dir: Path | str | None = 
     base = Path(corpus_dir) if corpus_dir is not None else ROOT
     manifest = _load_manifest(base)
     cards = _coverage_cards()
+    source_registry = _coverage_sources()
     if card_ids is not None:
         if not isinstance(card_ids, list) or any(not isinstance(cid, str) or cid not in cards for cid in card_ids):
             raise ValueError("card_ids должен содержать известные ID карточек норм.")
@@ -112,6 +118,18 @@ def corpus_report(card_ids=None, as_of=None, *, corpus_dir: Path | str | None = 
                 errors.append(f"Неизвестная карточка {card_id!r} в {name}.")
                 continue
             if wanted is not None and card_id not in wanted:
+                continue
+            card = cards[card_id]
+            if (card.get("act_id") != data["act_id"]
+                    or section.get("act_id") != data["act_id"]
+                    or str(section.get("provision")) != str(card.get("provision"))):
+                errors.append(f"Несовпадение акта или статьи карточки {card_id}.")
+                continue
+            expected_urls = {source_registry[source_id]["url"]
+                             for source_id in card.get("source_ids", [])
+                             if source_id in source_registry}
+            if section.get("kind", "public_copy") != "public_copy" or section.get("url") not in expected_urls:
+                errors.append(f"Источник или тип копии карточки {card_id} не совпадает с реестром.")
                 continue
             text = section.get("text", "")
             if hashlib.sha256(text.encode("utf-8")).hexdigest() != section.get("sha256"):
