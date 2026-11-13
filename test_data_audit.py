@@ -1,5 +1,6 @@
 import copy
 import json
+import hashlib
 import socket
 import unittest
 from unittest.mock import patch
@@ -17,8 +18,8 @@ class DataAuditTests(unittest.TestCase):
         cls.corpus = corpus_report(include_text=True)
 
     def report(self, registry=None, corpus=None):
-        return audit_data(registry or self.registry, self.workflows, self.benchmarks,
-                          corpus or self.corpus, checked_on='2026-11-08')
+        return audit_data(self.registry if registry is None else registry, self.workflows, self.benchmarks,
+                          self.corpus if corpus is None else corpus, checked_on='2026-11-08')
 
     def test_actual_repository_has_no_structural_errors_but_explicit_evidence_gaps(self):
         with patch.object(socket, 'create_connection', side_effect=AssertionError('network')):
@@ -37,13 +38,29 @@ class DataAuditTests(unittest.TestCase):
         self.assertTrue(any(row['code'] == 'reversed_effective_interval' for row in self.report(registry)['findings']))
 
     def test_missing_extract_future_capture_and_duplicate_texts_are_distinct(self):
+        # Synthetic extracts: the quarantined production corpus has no text entries.
         corpus = copy.deepcopy(self.corpus)
-        corpus['entries'].pop()
-        corpus['entries'][0]['captured_on'] = '2027-01-01'
-        corpus['entries'][1]['text'] = corpus['entries'][0]['text']
+        cards = self.registry['cards']
+        synthetic = 'Synthetic fixture only; not a quotation from any law.'
+        corpus['entries'] = [
+            {'card_id': cards[0]['id'], 'captured_on': '2027-01-01',
+             'text': synthetic, 'period_supported': False},
+            {'card_id': cards[1]['id'], 'captured_on': '2026-11-08',
+             'text': synthetic, 'period_supported': False},
+        ]
         codes = {row['code'] for row in self.report(corpus=corpus)['findings']}
-        self.assertTrue({'missing_corpus_extract', 'capture_after_audit_date', 'duplicate_normalized_extract'} <= codes)
+        self.assertTrue({'missing_corpus_extract', 'capture_after_audit_date',
+                         'duplicate_normalized_extract'} <= codes)
 
     def test_audit_reports_never_include_source_text(self):
         report = self.report()
-        self.assertNotIn(self.corpus['entries'][0]['text'], json.dumps(report, ensure_ascii=False))
+        self.assertEqual(self.corpus['entries'], [])
+        self.assertFalse(report['legal_acceptance'])
+        synthetic = copy.deepcopy(self.corpus)
+        synthetic['entries'] = [{'card_id': self.registry['cards'][0]['id'],
+                                 'captured_on': '2026-11-08',
+                                 'text': 'PRIVATE-SYNTHETIC-SOURCE-TEXT-DO-NOT-LEAK',
+                                 'period_supported': False}]
+        report = self.report(corpus=synthetic)
+        self.assertNotIn('PRIVATE-SYNTHETIC-SOURCE-TEXT-DO-NOT-LEAK',
+                         json.dumps(report, ensure_ascii=False))
