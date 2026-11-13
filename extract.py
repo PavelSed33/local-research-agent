@@ -30,7 +30,7 @@ from agent import (
     extract_json,
     load_dotenv,
 )
-from doctext import read_document_file, resolve_document
+from doctext import ensure_document_transfer_allowed, read_document_file, resolve_document
 from review import MIN_DOCUMENT_CHARS, MIN_QUOTE_CHARS, normalize_text
 
 ENTITY_LISTS = ("parties", "amounts", "dates", "penalties")
@@ -86,8 +86,12 @@ def validate_extraction(result: dict[str, Any], document: str) -> list[str]:
                 issues.append(f"{label} не является объектом.")
                 continue
             for field in REQUIRED_FIELDS[section]:
+                if field in entry and not isinstance(entry[field], str):
+                    issues.append(f"{label}: поле {field} должно быть строкой.")
                 if not str(entry.get(field, "")).strip():
                     issues.append(f"{label}: пустое поле {field}.")
+            if not isinstance(entry.get("quote"), str):
+                issues.append(f"{label}: цитата должна быть строкой.")
             quote = str(entry.get("quote", "")).strip()
             if len(quote) < MIN_QUOTE_CHARS:
                 issues.append(f"{label}: цитата короче {MIN_QUOTE_CHARS} символов.")
@@ -109,6 +113,11 @@ def validate_extraction(result: dict[str, Any], document: str) -> list[str]:
         if not isinstance(entry, dict):
             issues.append(f"Поле {field} должно быть объектом или null.")
             continue
+        if not isinstance(entry.get("quote"), str):
+            issues.append(f"Поле {field}: цитата должна быть строкой.")
+        for name in (("duration",) if field == "term" else ("court",)):
+            if name in entry and not isinstance(entry[name], str):
+                issues.append(f"Поле {field}: {name} должно быть строкой.")
         quote = str(entry.get("quote", "")).strip()
         if len(quote) < MIN_QUOTE_CHARS:
             issues.append(f"Поле {field}: цитата короче {MIN_QUOTE_CHARS} символов.")
@@ -152,13 +161,36 @@ def build_extract_prompt(document: str) -> tuple[str, str]:
     return system, user
 
 
+def _strip_model_attestations(result):
+    """Discard self-declared approvals and unknown fields from model output."""
+    cleaned = {"verified": False, "lawyer_reviewed": False}
+    fields = {
+        "parties": ("role", "name", "inn", "ogrn", "quote"),
+        "amounts": ("label", "value", "currency", "quote"),
+        "dates": ("label", "date", "quote"),
+        "penalties": ("label", "rate", "quote"),
+        "term": ("duration", "quote"),
+        "jurisdiction": ("court", "quote"),
+    }
+    for name in ("parties", "amounts", "dates", "penalties"):
+        cleaned[name] = [{**{k: item[k] for k in fields[name] if k in item},
+                          "verified": False, "lawyer_reviewed": False}
+                         for item in result.get(name, []) if isinstance(item, dict)]
+    for name in ("term", "jurisdiction"):
+        item = result.get(name)
+        cleaned[name] = ({**{k: item[k] for k in fields[name] if k in item},
+                          "verified": False, "lawyer_reviewed": False}
+                         if isinstance(item, dict) else None)
+    return cleaned
+
+
 def extract_entities(model: LanguageModel, document: str) -> tuple[dict[str, Any], bool]:
     """Извлекает сущности; при ошибках структуры или цитат — одна попытка исправления."""
     system, user = build_extract_prompt(document)
     result = extract_json(model.complete(system, user))
     issues = validate_extraction(result, document)
     if not issues:
-        return result, False
+        return _strip_model_attestations(result), False
     repaired = extract_json(
         model.complete(
             "Ты исправляешь JSON-результат извлечения реквизитов договора. Устрани все перечисленные проблемы, "
@@ -171,7 +203,7 @@ def extract_entities(model: LanguageModel, document: str) -> tuple[dict[str, Any
     remaining = validate_extraction(repaired, document)
     if remaining:
         raise AgentError("Извлечение реквизитов не прошло контроль после исправления: " + " ".join(remaining))
-    return repaired, True
+    return _strip_model_attestations(repaired), True
 
 
 def _line_with(document: str, start: int) -> str:
@@ -236,11 +268,15 @@ def handle_extract(payload: dict[str, Any]) -> dict[str, Any]:
     document = resolve_document(payload)
     if len(document) < MIN_DOCUMENT_CHARS:
         raise ValueError(f"Текст договора слишком короткий: нужно от {MIN_DOCUMENT_CHARS} символов.")
+    if len(document) > 500_000:
+        raise ValueError("Текст договора превышает допустимый размер (500000 символов).")
     demo = bool(payload.get("demo", False))
     model: LanguageModel = DemoExtractModel() if demo else OpenAICompatibleModel()
     result, repaired = extract_entities(model, document.strip())
     return {
         "status": "draft",
+        "verified": False,
+        "lawyer_reviewed": False,
         "parties": result.get("parties", []),
         "amounts": result.get("amounts", []),
         "dates": result.get("dates", []),
