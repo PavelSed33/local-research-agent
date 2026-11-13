@@ -280,8 +280,12 @@ def health_payload(metrics: Metrics | None = None) -> dict[str, Any]:
     }
 
 
-def openapi_spec(auth_required: bool = False) -> dict[str, Any]:
+def openapi_spec(auth_required: bool = False, *, require_auth: bool | None = None) -> dict[str, Any]:
     """Машинное описание API (OpenAPI 3.0) для интеграции с оркестраторами."""
+    if require_auth is not None:
+        if type(require_auth) is not bool:
+            raise ValueError("require_auth должен быть логическим значением.")
+        auth_required = require_auth
     document_property = {
         "document": {"type": "string", "description": "Полный текст договора (UTF-8)"},
         "document_base64": {"type": "string", "description": "Договор в формате DOCX, закодированный в base64"},
