@@ -723,7 +723,19 @@ class LegalApiHandler(BaseHTTPRequestHandler):
 
     def do_GET(self) -> None:
         started = time.perf_counter()
-        if self.path == "/health":
+        if self.path in ("/workspace", "/workspace.js") and getattr(self.server, "workspace_store", None) is not None:
+            from pathlib import Path
+            filename = "workspace.html" if self.path == "/workspace" else "workspace.js"
+            body = Path(__file__).with_name(filename).read_bytes()
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8" if filename.endswith(".html") else "text/javascript; charset=utf-8")
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("X-Content-Type-Options", "nosniff")
+            self.send_header("Content-Security-Policy", "default-src 'none'; script-src 'self'; style-src 'unsafe-inline'; connect-src 'self'; form-action 'none'; base-uri 'none'; frame-ancestors 'none'")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+        elif self.path == "/health":
             self._send_json(200, health_payload(self.server.metrics))
             self.server.metrics.record("GET /health", 200, (time.perf_counter() - started) * 1000)
         elif self.path == "/openapi.json":
