@@ -128,12 +128,13 @@ class StatutoryCorpusTests(unittest.TestCase):
         self.assertFalse(report['verified'])
 
     def test_special_and_consumer_articles_are_not_crowded_out_by_general_law(self):
-        sources, _ = statutory_review_sources('consumer', 'services', '2026-11-08')
-        self.assertEqual(len(sources), 3)
-        self.assertTrue(any('cons_doc_LAW_305/' in s.url for s in sources))
-        self.assertTrue(any('cons_doc_LAW_9027/' in s.url for s in sources))
-        sources, _ = statutory_review_sources('employment', 'general', '2026-11-08')
-        self.assertTrue(all('cons_doc_LAW_34683/' in s.url for s in sources))
+        # No profile may bypass quarantine, regardless of statutory priority.
+        for domain, topic in [('consumer', 'services'), ('employment', 'general')]:
+            with self.subTest(domain=domain):
+                sources, report = statutory_review_sources(domain, topic, '2026-11-08')
+                self.assertEqual(sources, [])
+                self.assertEqual(report['entries'], [])
+                self.assertFalse(report['verified'])
 
     def test_invalid_requests_do_not_become_local_file_or_network_operations(self):
         for payload in [{'card_ids': 'LAW-02:15'}, {'card_ids': [True]}, {'card_ids': ['LAW-99:1']},
