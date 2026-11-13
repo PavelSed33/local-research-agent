@@ -930,7 +930,7 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             else:
                 self._send_json(200, result)
             return
-        if self.path not in ("/ask", "/review", "/review/legal", "/extract", "/diff", "/penalty", "/check", "/timeline", "/draft", "/triage", "/duty", "/export", "/protocol", "/scoring", "/sessions/delete", "/requests/cancel", "/extract/local", "/legal/skills/run"):
+        if self.path not in ("/ask", "/review", "/review/legal", "/extract", "/diff", "/penalty", "/check", "/timeline", "/draft", "/triage", "/duty", "/export", "/protocol", "/scoring", "/sessions/delete", "/requests/cancel", "/extract/local", "/legal/skills/run", "/legal/research", "/legal/corpus", "/case-law/check"):
             self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /penalty, POST /check, POST /timeline, POST /draft, POST /triage, POST /duty, POST /export, POST /protocol, POST /scoring."})
             return
         if not self._authorized():
@@ -1027,7 +1027,7 @@ class LegalApiHandler(BaseHTTPRequestHandler):
                      "persist_results": getattr(self.server, "persist_results", False)},
                     commit=publish,
                 )
-            elif self.path in ("/review", "/review/legal", "/extract", "/diff", "/extract/local", "/legal/skills/run"):
+            elif self.path in ("/review", "/review/legal", "/extract", "/diff", "/extract/local", "/legal/skills/run", "/legal/research", "/legal/corpus", "/case-law/check"):
                 request_id = self.headers.get("X-Request-ID") or uuid.uuid4().hex
                 self._request_id = request_id
                 result = self.server.jobs.execute(request_id, {"path": self.path, "payload": payload})
