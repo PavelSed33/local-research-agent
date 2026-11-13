@@ -52,19 +52,15 @@ class StatutoryCorpusTests(unittest.TestCase):
             self.assertFalse(report['commercial_use_allowed'])
 
     def test_received_texts_cover_the_declared_scope_without_claiming_legal_acceptance(self):
+        # The legal coverage registry describes candidates, not accepted statutory texts.
         result = corpus_report(as_of='2026-11-08')
         self.assertEqual(result['errors'], [])
-        self.assertEqual(result['text_received_count'], 454)
+        self.assertEqual(result['text_received_count'], 0)
+        self.assertEqual(result['entries'], [])
+        self.assertFalse(result['verified'])
+        self.assertFalse(result['commercial_use_allowed'])
         registry = json.loads((ROOT.parent / 'legal_coverage.json').read_text())
-        self.assertEqual({e['card_id'] for e in result['entries']}, {c['id'] for c in registry['cards']})
-        self.assertEqual(len({e['act_id'] for e in result['entries']}), 15)
-        for entry in result['entries']:
-            self.assertTrue(entry['integrity_checked'])
-            self.assertFalse(entry['original_publication'])
-            self.assertFalse(entry['raw_response_archived'])
-            self.assertFalse(entry['period_supported'])
-            self.assertFalse(entry['verified'])
-            self.assertNotIn('text', entry)
+        self.assertTrue(registry['cards'], 'Coverage candidates remain catalogued')
 
     def test_text_is_requested_explicitly_and_keeps_article_identity(self):
         result = handle_corpus({'card_ids': ['LAW-02:165.1'], 'as_of': '2026-11-08', 'include_text': True})
