@@ -724,6 +724,25 @@ class LegalApiHandler(BaseHTTPRequestHandler):
     server_version = f"{SERVICE_NAME}/{API_VERSION}"
     protocol_version = "HTTP/1.1"
 
+    def log_request(self, code: int | str = "-", size: int | str = "-") -> None:
+        # Never log the request line: it may contain case data in query parameters.
+        self.log_message("HTTP status=%s", code)
+
+    def log_error(self, format: str, *args: Any) -> None:
+        # The default HTTP parser may include raw malformed request bytes here.
+        self.log_message("HTTP error (request details redacted)")
+
+    def log_message(self, format: str, *args: Any) -> None:
+        # Only our fixed, non-user-controlled messages are allowed into stderr.
+        if format == "HTTP status=%s" and len(args) == 1:
+            status = str(args[0])
+            if status.isdigit() and len(status) == 3:
+                super().log_message("HTTP status=%s", status)
+            else:
+                super().log_message("HTTP status=unknown")
+        else:
+            super().log_message("HTTP error (request details redacted)")
+
     def send_error(self, code: int, message: str | None = None, explain: str | None = None) -> None:
         # BaseHTTPRequestHandler errors may bypass the JSON response helper.
         self.close_connection = True
