@@ -769,8 +769,25 @@ class LegalApiHandler(BaseHTTPRequestHandler):
                 return
             try:
                 payload = self._read_payload()
-                result = dispatch(workspace, principal["id"], self.path, payload)
+                if self.path == "/workspace/ask":
+                    from workspace_api import prepare_answer
+                    from request_jobs import JobError
+                    prepared = prepare_answer(workspace, principal["id"], payload)
+                    if not prepared["demo"]:
+                        raise WorkspaceError(503, "workspace_model_unavailable",
+                                             "Анализ с моделью для рабочего пространства пока недоступен.")
+                    request_id = self.headers.get("X-Request-ID") or uuid.uuid4().hex
+                    def publish_workspace(reply):
+                        with workspace.connect() as db:
+                            workspace._access(db, principal["id"], payload.get("matter_id"))
+                        return reply
+                    result = self.server.jobs.execute(request_id, {"path": "/workspace/ask",
+                        "payload": prepared}, commit=publish_workspace)
+                else:
+                    result = dispatch(workspace, principal["id"], self.path, payload)
             except WorkspaceError as exc:
+                self._send_json(exc.status, {"code": exc.code, "error": str(exc)})
+            except JobError as exc:
                 self._send_json(exc.status, {"code": exc.code, "error": str(exc)})
             except Exception as exc:
                 from primary_sources import PrimarySourceError
