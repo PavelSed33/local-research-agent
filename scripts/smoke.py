@@ -44,7 +44,7 @@ def smoke(base_url: str) -> list[str]:
     assert first["answer"] and first["demo"] is True
     assert first["as_of"] == "2023-03-01"
     assert first["session_id"]
-    assert first["report_file"] is None and first["journal_file"] is None
+    assert "report_file" not in first and "journal_file" not in first
     assert first["results_persisted"] is False
     passed.append("POST /ask demo")
 
