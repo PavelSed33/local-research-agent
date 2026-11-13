@@ -208,7 +208,7 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
         raise RequestValidationError("Поле include_source_materials должно быть true или false.")
     demo = payload.get("demo", False)
     if not isinstance(demo, bool):
-        raise RequestValidationError("Поле demo должно быть true или false.")
+        raise RequestValidationError("Поле demo должно быть логическим значением.")
     try:
         as_of = validate_as_of(payload.get("as_of"))
     except ValueError as exc:
