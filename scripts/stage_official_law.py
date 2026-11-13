@@ -12,7 +12,7 @@ import re
 from urllib.parse import urlsplit
 
 PUBLICATION_ID = re.compile(r"^[0-9]{16}$")
-ACT_ID = re.compile(r"^[a-z][a-z0-9-]{0,63}$")
+ACT_ID = re.compile(r"^[a-z0-9][a-z0-9-]{0,63}$")
 
 
 def validate_official_url(value):
