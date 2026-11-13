@@ -980,7 +980,7 @@ class LegalApiHandler(BaseHTTPRequestHandler):
                      "persist_results": getattr(self.server, "persist_results", False)},
                     commit=publish,
                 )
-            elif self.path in ("/review", "/extract", "/diff", "/extract/local", "/legal/skills/run"):
+            elif self.path in ("/review", "/review/legal", "/extract", "/diff", "/extract/local", "/legal/skills/run"):
                 request_id = self.headers.get("X-Request-ID") or uuid.uuid4().hex
                 self._request_id = request_id
                 result = self.server.jobs.execute(request_id, {"path": self.path, "payload": payload})
