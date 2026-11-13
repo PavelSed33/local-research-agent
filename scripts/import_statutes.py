@@ -146,6 +146,17 @@ def import_corpus(download_dir, destination):
     dates = [section['captured_on'] for group in groups
              for section in json.loads((destination / group['file']).read_text(encoding='utf-8'))['sections']]
     manifest['captured_on'] = max(dates) if dates else None
+    # A failed/offline refresh must not erase the quarantine audit trail.
+    # Retain provenance warnings and the explicit commercial-use prohibition.
+    previous_manifest_path = destination / 'manifest.json'
+    if not groups and previous_manifest_path.is_file():
+        previous_manifest = json.loads(previous_manifest_path.read_text(encoding='utf-8'))
+        quarantined = [gap for gap in previous_manifest.get('gaps', [])
+                       if gap.get('status') == 'quarantined_and_removed']
+        if quarantined:
+            manifest['gaps'] = quarantined + gaps
+            manifest['quarantined_on'] = previous_manifest.get('quarantined_on')
+            manifest['commercial_use_allowed'] = False
     (destination / 'manifest.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     if destination.resolve() == (ROOT / 'fixtures/statute_corpus').resolve():
         by_act = {group['act_id']: group for group in groups}
