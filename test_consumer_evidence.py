@@ -78,7 +78,8 @@ class ConsumerTransitionEvidenceTests(unittest.TestCase):
         self.assertLessEqual(len(result['sources']), 5)
         self.assertEqual([s['url'] for s in result['sources'][:2]], [s.url for s in fresh[:2]])
         self.assertIn(URL, {s['url'] for s in result['sources']})
-        self.assertTrue(any(s['retrieval_mode'] == 'local_statutory_extract' for s in result['sources']))
+        # The statutory corpus was quarantined: never fabricate a local law extract.
+        self.assertFalse(any(s['retrieval_mode'] == 'local_statutory_extract' for s in result['sources']))
         self.assertFalse(result['verified'])
 
     def test_review_prompt_keeps_contract_out_of_system_in_real_mode(self):
