@@ -14,6 +14,24 @@
     {
       "url": "https://vsrf.ru/documents/",
       "role": "supreme_court_plenum_and_case_law"
+    },
+    {
+      "url": "https://pravo.minjust.ru/",
+      "role": "official_ministry_of_justice_federal_regional_municipal_law_search",
+      "access": "free_public_portal",
+      "automated_download_verified": false
+    },
+    {
+      "url": "https://pravo-search.minjust.ru/bigs/portal.html",
+      "role": "official_ministry_of_justice_search_interface",
+      "access": "public_web_search",
+      "automated_download_verified": false
+    },
+    {
+      "url": "https://www.pravo.gov.ru/",
+      "role": "official_full_text_and_consolidated_legal_information",
+      "access": "public_web_portal",
+      "automated_download_verified": false
     }
   ],
   "candidate_corpus": {
@@ -735,5 +753,15 @@
       "edition_verified": false,
       "legal_reviewed": false
     }
-  ]
+  ],
+  "acquisition_policy": {
+    "preferred": "official_publication_or_official_consolidated_text",
+    "fallback": "ministry_of_justice_portal",
+    "require_exact_act_number_date_and_title": true,
+    "require_source_sha256": true,
+    "require_edition_date_and_effective_period": true,
+    "do_not_assume_official_publication_is_current_consolidation": true,
+    "automatic_admission": false,
+    "verified_automated_minjust_download": false
+  }
 }
