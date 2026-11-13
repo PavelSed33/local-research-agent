@@ -1,0 +1,39 @@
+name: Acquire reviewed Ministry of Justice PDF
+on:
+  workflow_dispatch:
+    inputs:
+      act_id:
+        description: "Reviewed document identifier (not necessarily a full statute)"
+        required: true
+        type: string
+      pdf_url:
+        description: "Exact reviewed HTTPS PDF URL on pravo.minjust.ru"
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  quarantine:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate and download PDF to quarantine
+        env:
+          ACT_ID: ${{ inputs.act_id }}
+          PDF_URL: ${{ inputs.pdf_url }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m scripts.fetch_minjust_document "$ACT_ID" "$PDF_URL" official-review
+      - name: Upload unreviewed PDF and provenance
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: minjust-unreviewed-document
+          path: official-review/
+          retention-days: 7
+          if-no-files-found: error
