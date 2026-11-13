@@ -37,6 +37,12 @@ class OfficialPublicationDownloadTests(unittest.TestCase):
                 fetch("14fz-ooo", "0001202512280026", temp,
                     opener=Mock(open=Mock(return_value=Response(b"%PDF-1.4\nsynthetic test"))))
 
+    def test_implementing_order_cannot_be_mislabeled_as_parent_law(self):
+        with tempfile.TemporaryDirectory() as temp:
+            with self.assertRaises(ValueError):
+                fetch("pd152", "0001202506300007", temp)
+            self.assertEqual(list(Path(temp).iterdir()), [])
+
     def test_html_and_invalid_identifiers_rejected(self):
         with tempfile.TemporaryDirectory() as temp:
             with self.assertRaises(ValueError):
