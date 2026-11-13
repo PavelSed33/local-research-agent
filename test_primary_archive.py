@@ -25,6 +25,16 @@ class PrimaryArchiveValidationTests(unittest.TestCase):
                 load_sources(root)
             self.assertNotIn(str(root), str(caught.exception))
 
+    def test_missing_primary_originals_fail_closed_without_leaking_paths(self):
+        """An orphaned manifest cannot turn missing licensed archives into evidence."""
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            shutil.copy(ROOT / 'manifest.json', root / 'manifest.json')
+            with self.assertRaises(PrimarySourceError) as caught:
+                load_sources(root)
+            self.assertNotIn(str(root), str(caught.exception))
+            self.assertNotIn('Traceback', str(caught.exception))
+
     def test_seven_physical_originals_have_identity_and_page_maps_without_legal_acceptance(self):
         sources = source_catalog()
         self.assertEqual(len(sources['sources']), 7)
