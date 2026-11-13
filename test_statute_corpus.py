@@ -165,17 +165,24 @@ class StatutoryCorpusTests(unittest.TestCase):
         self.assertEqual(len(result), 1)
         self.assertIn('Статья 13.11.', result[0].text)
 
-    def test_failed_partial_import_preserves_old_texts_and_original_capture_dates(self):
+    def test_failed_partial_import_preserves_quarantine_and_does_not_restore_text(self):
         with tempfile.TemporaryDirectory() as directory, tempfile.TemporaryDirectory() as staging:
             destination = Path(directory)
             shutil.copytree(ROOT, destination, dirs_exist_ok=True)
+            original = json.loads((destination / 'manifest.json').read_text(encoding='utf-8'))
             result = import_corpus(Path(staging), destination)
-            self.assertEqual(result['received'], 454)
-            self.assertEqual(result['gaps'], 454)
+            self.assertEqual(result['received'], 0)
+            self.assertGreater(result['gaps'], 0)
             report = corpus_report(corpus_dir=destination)
             self.assertEqual(report['errors'], [])
-            self.assertTrue(all(entry['captured_on'] == '2026-11-08' for entry in report['entries']))
-            self.assertTrue(all(gap['status'] == 'retained_older_extract' for gap in report['refresh_gaps']))
+            self.assertEqual(report['entries'], [])
+            self.assertFalse(report['commercial_use_allowed'])
+            self.assertFalse(report['verified'])
+            refreshed = json.loads((destination / 'manifest.json').read_text(encoding='utf-8'))
+            self.assertEqual(refreshed['quarantined_on'], original['quarantined_on'])
+            self.assertTrue(any(gap['status'] == 'quarantined_and_removed'
+                                for gap in refreshed['gaps']))
+            self.assertEqual(refreshed['groups'], [])
 
     def test_refresh_rejects_unpinned_urls_and_does_not_redate_stale_bytes(self):
         for url in ['http://www.consultant.ru/document/cons_doc_LAW_5142/',
