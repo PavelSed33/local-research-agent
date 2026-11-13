@@ -1,0 +1,37 @@
+name: Core legal safety regression tests
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  safety-regressions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Compile all Python modules
+        run: python -m compileall -q .
+      - name: Quarantined statutory texts cannot be served as verified law
+        run: python -m unittest -v test_statute_corpus.StatutoryCorpusTests.test_quarantined_legal_corpus_is_not_served_as_verified_evidence
+      - name: Legal research workflow must require review and reject hostile facts
+        run: |
+          python -m unittest -v \
+            test_legal_research.ResearchWorkflowTests.test_every_workflow_is_local_and_all_yes_still_requires_legal_review \
+            test_legal_research.ResearchWorkflowTests.test_scenarios_and_documents_cannot_be_injected_via_facts \
+            test_legal_research.ResearchWorkflowTests.test_http_routes_auth_schema_and_no_persisted_user_payloads
+      - name: Official downloader safety checks
+        run: python -m unittest -v test_official_publication_download test_minjust_download
