@@ -1,0 +1,35 @@
+name: Acquire official legal publications
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - fix/recover-research-engine-20261112
+    paths:
+      - .github/workflows/acquire-official-law.yml
+      - scripts/fetch_official_publication.py
+permissions:
+  contents: read
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Download verified publication candidates into quarantine
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p official-review
+          python -m scripts.fetch_official_publication 127fz 0001202603230008 official-review
+          python -m scripts.fetch_official_publication 229fz 0001202604250011 official-review
+      - name: Upload unreviewed originals as restricted workflow artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: official-publications-unreviewed
+          path: official-review/
+          retention-days: 7
+          if-no-files-found: warn
