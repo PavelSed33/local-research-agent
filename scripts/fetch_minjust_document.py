@@ -5,7 +5,6 @@ Usage: python -m scripts.fetch_minjust_document ACT_ID HTTPS_PDF_URL OUTPUT_DIR
 """
 import argparse
 import hashlib
-import ipaddress
 import json
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -17,7 +16,7 @@ from scripts.stage_official_law import ACT_ID
 ALLOWED_HOSTS = frozenset({"pravo.minjust.ru", "pravo-search.minjust.ru"})
 def validate_url(url):
     parts = urlsplit(url)
-    if (parts.scheme != "https" or parts.hostname not in ALLOWED_HOSTS
+    if (not isinstance(url, str) or parts.scheme != "https" or parts.hostname not in ALLOWED_HOSTS
             or parts.username or parts.password or parts.port not in (None, 443)
             or parts.fragment or not parts.path.startswith("/")
             or "\\" in url or any(ord(c) < 32 for c in url)):
