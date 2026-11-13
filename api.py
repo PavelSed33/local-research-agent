@@ -639,16 +639,19 @@ def openapi_spec(auth_required: bool = False, *, require_auth: bool | None = Non
             },
         },
     }
+    required_fields = {"/workspace/cases/report": ["matter_id", "case_number", "as_of"]}
     for path in WORKSPACE_FIELDS:
         spec["paths"][path] = {"post": {"summary": "Операция рабочего пространства",
             "security": [{"ApiToken": []}],
             "requestBody": {"required": True, "content": {"application/json": {"schema": {
                 "type": "object", "additionalProperties": False,
+                "required": required_fields.get(path, []),
                 "properties": {name: {"description": "Поле запроса"} for name in WORKSPACE_FIELDS[path]}
             }}}},
             "responses": {"200": {"description": "Успешно"}, "400": {"description": "Некорректные данные"},
                           "401": {"description": "Требуется токен пользователя"},
-                          "403": {"description": "Нет доступа"}}}}
+                          "403": {"description": "Нет доступа"},
+                          "413": {"description": "Превышен лимит размера"}}}}
     return spec
 
 
