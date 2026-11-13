@@ -1,0 +1,207 @@
+{
+  "schema_version": 1,
+  "checked_on": "2026-11-13",
+  "purpose": "Candidate source discovery only. No legal text imported or accepted.",
+  "official_portals": [
+    {
+      "url": "https://publication.pravo.gov.ru/search",
+      "role": "official_publication_lookup"
+    },
+    {
+      "url": "https://pravo.gov.ru/",
+      "role": "official_legal_information"
+    }
+  ],
+  "candidate_corpus": {
+    "url": "https://github.com/irlcode/RusLawOD",
+    "coverage_through": "2026-08-02",
+    "limitations": [
+      "Initial versions only; no current consolidated editions",
+      "Project materials may be CC BY-NC 4.0; review rights before commercial reuse",
+      "Do not copy third-party corpus files into distributable repository"
+    ],
+    "accepted_for_legal_answers": false
+  },
+  "acts": [
+    {
+      "id": "pd152",
+      "title": "152-ФЗ",
+      "number": "152-ФЗ",
+      "signed_on": "2006-07-27",
+      "priority": "high",
+      "source_lookup": "https://publication.pravo.gov.ru/search",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false,
+      "legal_reviewed": false
+    },
+    {
+      "id": "gk1",
+      "title": "ГК РФ, часть I",
+      "number": "51-ФЗ",
+      "signed_on": "1994-11-30",
+      "priority": "high",
+      "source_lookup": "https://publication.pravo.gov.ru/search",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false,
+      "legal_reviewed": false
+    },
+    {
+      "id": "gk2",
+      "title": "ГК РФ, часть II",
+      "number": "14-ФЗ",
+      "signed_on": "1996-01-26",
+      "priority": "high",
+      "source_lookup": "https://publication.pravo.gov.ru/search",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false,
+      "legal_reviewed": false
+    },
+    {
+      "id": "consumer",
+      "title": "Закон РФ № 2300-1",
+      "number": "2300-1",
+      "signed_on": "1992-02-07",
+      "priority": "normal",
+      "source_lookup": "https://publication.pravo.gov.ru/search",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false,
+      "legal_reviewed": false
+    },
+    {
+      "id": "tk",
+      "title": "ТК РФ",
+      "number": "197-ФЗ",
+      "signed_on": "2001-12-30",
+      "priority": "normal",
+      "source_lookup": "https://publication.pravo.gov.ru/search",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false,
+      "legal_reviewed": false
+    },
+    {
+      "id": "gpk",
+      "title": "ГПК РФ",
+      "number": "138-ФЗ",
+      "signed_on": "2002-11-14",
+      "priority": "normal",
+      "source_lookup": "https://publication.pravo.gov.ru/search",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false,
+      "legal_reviewed": false
+    },
+    {
+      "id": "apk",
+      "title": "АПК РФ",
+      "number": "95-ФЗ",
+      "signed_on": "2002-07-24",
+      "priority": "normal",
+      "source_lookup": "https://publication.pravo.gov.ru/search",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false,
+      "legal_reviewed": false
+    },
+    {
+      "id": "nk2",
+      "title": "НК РФ, часть II",
+      "number": "117-ФЗ",
+      "signed_on": "2000-08-05",
+      "priority": "normal",
+      "source_lookup": "https://publication.pravo.gov.ru/search",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false,
+      "legal_reviewed": false
+    },
+    {
+      "id": "info149",
+      "title": "149-ФЗ",
+      "number": "149-ФЗ",
+      "signed_on": "2006-07-27",
+      "priority": "normal",
+      "source_lookup": "https://publication.pravo.gov.ru/search",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false,
+      "legal_reviewed": false
+    },
+    {
+      "id": "esign63",
+      "title": "63-ФЗ",
+      "number": "63-ФЗ",
+      "signed_on": "2011-04-06",
+      "priority": "normal",
+      "source_lookup": "https://publication.pravo.gov.ru/search",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false,
+      "legal_reviewed": false
+    },
+    {
+      "id": "koap",
+      "title": "КоАП РФ",
+      "number": "195-ФЗ",
+      "signed_on": "2001-12-30",
+      "priority": "normal",
+      "source_lookup": "https://publication.pravo.gov.ru/search",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false,
+      "legal_reviewed": false
+    },
+    {
+      "id": "pp1119",
+      "title": "Постановление Правительства РФ от 01.11.2012 № 1119",
+      "number": "1119",
+      "signed_on": "2012-11-01",
+      "priority": "normal",
+      "source_lookup": "https://publication.pravo.gov.ru/search",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false,
+      "legal_reviewed": false
+    },
+    {
+      "id": "fstec21",
+      "title": "Приказ ФСТЭК России от 18.02.2013 № 21",
+      "number": "21",
+      "signed_on": "2013-02-18",
+      "priority": "normal",
+      "source_lookup": "https://publication.pravo.gov.ru/search",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false,
+      "legal_reviewed": false
+    },
+    {
+      "id": "rkn178",
+      "title": "Приказ Роскомнадзора от 27.10.2022 № 178",
+      "number": "178",
+      "signed_on": "2022-10-27",
+      "priority": "normal",
+      "source_lookup": "https://publication.pravo.gov.ru/search",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false,
+      "legal_reviewed": false
+    },
+    {
+      "id": "rkn179",
+      "title": "Приказ Роскомнадзора от 28.10.2022 № 179",
+      "number": "179",
+      "signed_on": "2022-10-28",
+      "priority": "normal",
+      "source_lookup": "https://publication.pravo.gov.ru/search",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false,
+      "legal_reviewed": false
+    }
+  ]
+}
