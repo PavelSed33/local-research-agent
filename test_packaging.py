@@ -43,7 +43,7 @@ class DockerPackagingTests(unittest.TestCase):
                  'from legal_skills import skill_options; assert len(skill_options()["skills"])==6; '
                  'from statute_corpus import corpus_report; '
                  'statutes=corpus_report(); assert statutes["text_received_count"]==0; '
-                 'assert {str(p.relative_to("fixtures")) for p in Path("fixtures").rglob("*") if p.is_file()} == {"legal_coverage.json", "legal_workflows.json", "legal_benchmarks.json"}; '
+                 'assert {str(p.relative_to("fixtures")) for p in Path("fixtures").rglob("*") if p.is_file()} == {"legal_coverage.json", "legal_workflows.json", "legal_benchmarks.json", "contract_rule_catalog.json"}; '
                  'from pathlib import Path; '
                  'api.handle_ask({"question":"Тест", "demo":True}, Path("results")); '
                  'import legal_review; legal_review.handle_legal_review({"document":"Условный договор для проверки упаковки.","demo":True,"facts":{"both_businesses":True}}); '
