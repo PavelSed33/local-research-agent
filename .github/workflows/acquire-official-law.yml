@@ -18,13 +18,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Download verified publication candidates into quarantine
+      - name: Download officially identified implementing order into quarantine
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p official-review
-          python -m scripts.fetch_official_publication 127fz 0001202603230008 official-review
-          python -m scripts.fetch_official_publication 229fz 0001202604250011 official-review
+          python -m scripts.fetch_official_publication pd152 0001202506300007 official-review
       - name: Upload unreviewed originals as restricted workflow artifacts
         uses: actions/upload-artifact@v4
         if: always()
