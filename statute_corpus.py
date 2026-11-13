@@ -17,7 +17,7 @@ COVERAGE = Path(__file__).resolve().parent / "fixtures" / "legal_coverage.json"
 
 MAX_SECTION_TEXT_CHARS = 200_000
 _SAFE_PATH = re.compile(r"^[A-Za-z0-9_.-]+$")
-_PUBLIC_COPY_HOSTS = {"www.consultant.ru", "consultant.ru"}
+_PUBLIC_COPY_HOSTS = {"publication.pravo.gov.ru", "pravo.gov.ru", "www.pravo.gov.ru"}
 
 
 def _url(url: str, kind: str = "public_copy") -> str:
