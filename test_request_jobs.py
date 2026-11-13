@@ -134,19 +134,22 @@ class RequestControlTests(unittest.TestCase):
 
     def test_cancelled_research_cannot_repopulate_deleted_session_or_keep_reports(self):
         self.server.persist_results = True
+        initial_status, initial, _ = self.post('/ask', {'question': 'Начало сессии', 'demo': True})
+        self.assertEqual(initial_status, 200)
+        session_id = initial['session_id']
         key = uuid.uuid4().hex
         results = []
         thread = threading.Thread(target=lambda: results.append(self.post('/ask', {
-            'question': 'Условный вопрос для проверки отмены', 'session_id': 'a'}, key)))
+            'question': 'Условный вопрос для проверки отмены', 'session_id': session_id}, key)))
         thread.start()
         self.assertTrue(self.started.wait(3))
-        self.assertEqual(self.post('/sessions/delete', {'session_id': 'a'})[0], 200)
+        self.assertEqual(self.post('/sessions/delete', {'session_id': session_id})[0], 200)
         self.assertEqual(self.post('/requests/cancel', {'request_id': key})[0], 200)
         thread.join(2)
         self.assertFalse(thread.is_alive())
         self.assertEqual(results[0][1]['code'], 'request_cancelled')
-        self.assertEqual(self.server.sessions.context('a'), '')
-        self.assertEqual(list(Path(self.directory.name).iterdir()), [])
+        self.assertEqual(self.server.sessions.context(session_id), '')
+        self.assertFalse(any(p.is_file() and key in p.name for p in Path(self.directory.name).iterdir()))
         for process, directory in self.children:
             self.assertIsNotNone(process.poll())
             self.assertFalse(directory.exists())
