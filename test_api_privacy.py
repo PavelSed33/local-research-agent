@@ -28,8 +28,8 @@ class ApiPrivacyTests(unittest.TestCase):
                 with urllib.request.urlopen(request, timeout=5) as response:
                     result = json.load(response)
                 self.assertFalse(result['results_persisted'])
-                self.assertIsNone(result['report_file'])
-                self.assertIsNone(result['journal_file'])
+                self.assertNotIn('report_file', result)
+                self.assertNotIn('journal_file', result)
                 self.assertFalse(output.exists())
             finally:
                 server.shutdown()
