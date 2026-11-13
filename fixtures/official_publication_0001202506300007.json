@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "source": "https://publication.pravo.gov.ru/document/0001202506300007",
+  "publication_number": "0001202506300007",
+  "published_on": "2025-06-30",
+  "document_signed_on": "2025-06-25",
+  "document_type": "joint_federal_agency_order",
+  "document_number": "245/56/399/85/441",
+  "subject": "Порядок доступа к информационным системам и базам данных, содержащим персональные данные отдельных категорий лиц",
+  "related_law": "152-ФЗ",
+  "metadata_verified_from_official_page": true,
+  "full_text_imported": false,
+  "document_sha256": null,
+  "edition_verified": false,
+  "admitted_to_agent": false,
+  "warning": "This is an implementing order, NOT the text of Federal Law 152-FZ. The official publication URL was previously used as a synthetic test example."
+}
