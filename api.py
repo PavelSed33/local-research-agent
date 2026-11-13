@@ -718,6 +718,24 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /penalty, POST /check, POST /timeline, POST /draft, POST /triage, POST /duty, POST /export, POST /protocol, POST /scoring."})
 
     def do_POST(self) -> None:
+        if self.path in ("/documents/parse", "/documents/export", "/documents/redact"):
+            if not self._authorized():
+                self.close_connection = True
+                self._send_json(401, {"error": "Требуется авторизация."})
+                return
+            try:
+                from document_tools import parse_file, export_docx, redact
+                payload = self._read_payload()
+                handler = {"/documents/parse": parse_file, "/documents/export": export_docx,
+                           "/documents/redact": redact}[self.path]
+                result = handler(payload)
+            except ValueError as exc:
+                self._send_json(400, {"error": str(exc)})
+            except Exception:
+                self._send_json(500, {"error": "Ошибка обработки документа."})
+            else:
+                self._send_json(200, result)
+            return
         workspace = getattr(self.server, "workspace_store", None)
         if self.path.startswith("/workspace/"):
             if workspace is None:
@@ -739,11 +757,16 @@ class LegalApiHandler(BaseHTTPRequestHandler):
                 result = dispatch(workspace, principal["id"], self.path, payload)
             except WorkspaceError as exc:
                 self._send_json(exc.status, {"code": exc.code, "error": str(exc)})
-            except ValueError as exc:
-                self.close_connection = True
-                self._send_json(400, {"error": str(exc)})
-            except Exception:
-                self._send_json(500, {"error": "Внутренняя ошибка рабочего пространства."})
+            except Exception as exc:
+                from primary_sources import PrimarySourceError
+                if isinstance(exc, PrimarySourceError):
+                    self._send_json(503, {"code": "primary_archive_unavailable", "error": "Архив первичных источников недоступен."})
+                elif isinstance(exc, ValueError):
+                    self.close_connection = True
+                    self._send_json(400, {"error": str(exc)})
+                else:
+                    self._send_json(500, {"error": "Внутренняя ошибка рабочего пространства."})
+
             else:
                 self._send_json(200, result)
             return
