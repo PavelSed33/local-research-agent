@@ -771,7 +771,6 @@ class LegalApiHandler(BaseHTTPRequestHandler):
                 payload = self._read_payload()
                 if self.path == "/workspace/ask":
                     from workspace_api import prepare_answer
-                    from request_jobs import JobError
                     prepared = prepare_answer(workspace, principal["id"], payload)
                     if not prepared["demo"]:
                         raise WorkspaceError(503, "workspace_model_unavailable",
