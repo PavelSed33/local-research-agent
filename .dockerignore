@@ -16,3 +16,4 @@ fixtures/*
 !fixtures/legal_coverage.json
 !fixtures/legal_workflows.json
 !fixtures/legal_benchmarks.json
+!fixtures/contract_rule_catalog.json
