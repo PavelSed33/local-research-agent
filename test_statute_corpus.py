@@ -155,16 +155,13 @@ class StatutoryCorpusTests(unittest.TestCase):
         self.assertIn('Мера\tУровень 1\t+', text)
 
     def test_local_search_keeps_exact_article_and_act_and_historical_cutoff(self):
-        result = search_statutory_sources('152-ФЗ статья 9: согласие', '2026-11-08')
-        self.assertEqual(len(result), 1)
-        self.assertIn('cons_doc_LAW_61801/', result[0].url)
-        self.assertIn('Статья 9.', result[0].text)
+        # Search must fail closed until a separately sourced corpus is accepted.
+        for query in ('152-ФЗ статья 9: согласие', '152-ФЗ статья 9',
+                      'статья 9 без указания акта', '1152-ФЗ статья 9',
+                      'КоАП статья 13.11'):
+            with self.subTest(query=query):
+                self.assertEqual(search_statutory_sources(query, '2026-11-08'), [])
         self.assertEqual(search_statutory_sources('152-ФЗ статья 9', '2026-11-07'), [])
-        self.assertEqual(search_statutory_sources('статья 9 без указания акта', '2026-11-08'), [])
-        self.assertEqual(search_statutory_sources('1152-ФЗ статья 9', '2026-11-08'), [])
-        result = search_statutory_sources('КоАП статья 13.11', '2026-11-08')
-        self.assertEqual(len(result), 1)
-        self.assertIn('Статья 13.11.', result[0].text)
 
     def test_failed_partial_import_preserves_quarantine_and_does_not_restore_text(self):
         with tempfile.TemporaryDirectory() as directory, tempfile.TemporaryDirectory() as staging:
