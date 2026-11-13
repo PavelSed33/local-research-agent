@@ -730,6 +730,7 @@ class LegalApiHandler(BaseHTTPRequestHandler):
         self.connection.settimeout(30)
 
     def _send_json(self, status: int, payload: dict[str, Any]) -> None:
+        self.close_connection = True  # Prevent dangling keep-alive on error and malformed requests.
         body = json.dumps(payload, ensure_ascii=False, indent=2).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
