@@ -10,6 +10,7 @@ import sys
 def execute(envelope):
     from agent import AgentError
     from review import handle_review
+    from legal_review import handle_legal_review
     from extract import handle_extract
     from redline import handle_diff
     from local_extract import handle_local_extract
@@ -19,7 +20,7 @@ def execute(envelope):
 
     handlers = {
         '/review': handle_review,
-        '/review/legal': handle_review,
+        '/review/legal': handle_legal_review,
         '/extract': handle_extract,
         '/diff': handle_diff,
         '/extract/local': handle_local_extract,
