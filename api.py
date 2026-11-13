@@ -664,6 +664,30 @@ def openapi_spec(auth_required: bool = False, *, require_auth: bool | None = Non
             "responses": {"200": {"description": "Черновик анализа"}, "400": {"description": "Ошибка данных"}}
         }
     }
+    # The registry may be broken; OpenAPI must remain available without loading it.
+    spec["paths"]["/legal/skills/run"] = {"post": {
+        "summary": "Запуск юридического навыка в изолированном процессе",
+        "requestBody": {"required": True, "content": {"application/json": {"schema": {
+            "type": "object", "additionalProperties": False,
+            "required": ["skill_id"],
+            "properties": {
+                "skill_id": {"type": "string"},
+                "document": {"type": "string"},
+                "document_base64": {"type": "string"},
+                "demo": {"type": "boolean"},
+                "as_of": {"type": "string"},
+                "jurisdiction": {"type": "string"},
+                "user_position": {"type": "string"},
+                "playbook": {"type": "string"},
+                "research_query": {"type": "string"}
+            }
+        }}}},
+        "responses": {"200": {"description": "Черновик результата"},
+                      "400": {"description": "Некорректные параметры"},
+                      "401": {"description": "Требуется авторизация"},
+                      "503": {"description": "Реестр навыков недоступен"},
+                      "504": {"description": "Превышено время выполнения"}}
+    }}
     spec["paths"]["/runtime/readiness"] = {"get": {
         "summary": "Готовность отдельных рабочих сценариев без внешних проверок",
         "responses": {"200": {"description": "Состояние локальных предпосылок"},
