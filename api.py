@@ -708,6 +708,20 @@ def openapi_spec(auth_required: bool = False, *, require_auth: bool | None = Non
         "security": [],
         "responses": {"200": {"description": "Варианты договора без передачи документов"}}
     }}
+    # Keep documented routes in sync with the actual POST dispatcher.
+    for route, description in {
+        "/legal/research": "Правовой сценарий: предварительная квалификация и список требуемых норм",
+        "/legal/corpus": "Локальный правовой корпус: только доступные проверенные материалы",
+    }.items():
+        spec["paths"].setdefault(route, {"post": {
+            "summary": description,
+            "requestBody": {"required": True, "content": {"application/json": {
+                "schema": {"type": "object"}
+            }}},
+            "responses": {"200": {"description": "Результат"},
+                          "400": {"description": "Ошибка входных данных"},
+                          "401": {"description": "Требуется авторизация"}}
+        }})
     # OpenAPI operation security must match the effective legacy token policy.
     for route, methods in spec["paths"].items():
         if not route.startswith("/workspace/") and route != "/documents/redline":
