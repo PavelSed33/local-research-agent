@@ -58,6 +58,7 @@ from timeline import handle_timeline
 from triage import handle_triage
 from review import handle_review
 from request_jobs import RequestJobs, JobError
+from workspace_store import WorkspaceError
 
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8080
@@ -814,7 +815,6 @@ class LegalApiHandler(BaseHTTPRequestHandler):
                 self._send_json(404, {"error": "Рабочее пространство не настроено."})
                 return
             from workspace_api import FIELDS, dispatch
-            from workspace_store import WorkspaceError
             if self.path not in FIELDS:
                 self._send_json(404, {"error": "Неизвестный маршрут рабочего пространства."})
                 return
