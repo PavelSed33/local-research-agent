@@ -65,7 +65,7 @@ class HandleScoringTests(unittest.TestCase):
     def test_demo_scoring(self):
         result = handle_scoring({"document": "Договор аренды с условиями оплаты и сроками.", "demo": True})
         self.assertEqual(result["status"], "draft")
-        self.assertEqual(result["score"], 95)  # один low-риск демо-модели: −5
+        self.assertEqual(result["score"], 65)  # low-риск −5 и два отсутствующих условия −30
         self.assertIn("weights", result)
         self.assertTrue(result["demo"])
 
