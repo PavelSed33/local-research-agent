@@ -92,12 +92,17 @@ class AdversarialApiTests(unittest.TestCase):
 
     def test_parallel_sessions_are_unique(self):
         def create(index):
-            status, payload = self.post({"question": f"Дело {index}", "demo": True})
-            return status, payload.get("session_id")
+            return self.post({"question": f"Дело {index}", "demo": True})
         with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
             results = list(executor.map(create, range(16)))
-        self.assertTrue(all(status == 200 for status, _ in results))
-        ids = [session_id for _, session_id in results]
+        # The server deliberately caps concurrent jobs; overload must be rejected,
+        # not silently admitted beyond the configured capacity.
+        self.assertTrue(all(status in (200, 429) for status, _ in results))
+        accepted = [payload for status, payload in results if status == 200]
+        rejected = [payload for status, payload in results if status == 429]
+        self.assertTrue(accepted)
+        self.assertTrue(all(payload.get("code") == "request_capacity" for payload in rejected))
+        ids = [payload.get("session_id") for payload in accepted]
         self.assertEqual(len(ids), len(set(ids)))
         self.assertTrue(all(isinstance(sid, str) and len(sid) == 48 for sid in ids))
 
