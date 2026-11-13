@@ -1095,6 +1095,10 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             self._send_json(500, {"error": "Внутренняя ошибка сервиса. Подробности не раскрываются в HTTP-ответе."})
             status = 500
         else:
+            # Filesystem locations are internal implementation details, never HTTP fields.
+            if self.path == "/ask" and isinstance(result, dict):
+                result = {key: value for key, value in result.items()
+                          if key not in ("report_file", "journal_file")}
             self._send_json(200, result)
             status = 200
         self.server.metrics.record(f"POST {self.path}", status, (time.perf_counter() - started) * 1000)
