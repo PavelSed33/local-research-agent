@@ -193,8 +193,11 @@ class RequestControlTests(unittest.TestCase):
         self.assertNotIn('journal_file', data)
         self.assertTrue(data['results_persisted'])
         self.assertIn('Тест', self.server.sessions.context(data['session_id']))
-        saved = list(Path(self.directory.name).rglob('*.json'))
-        self.assertGreaterEqual(len(saved), 2, 'Persisted report and journal should exist on the server')
+        saved = list(Path(self.directory.name).rglob('*'))
+        self.assertTrue(any(p.is_file() and p.suffix == '.json' for p in saved),
+                        'Persisted journal should exist on the server')
+        self.assertTrue(any(p.is_file() and p.suffix == '.md' for p in saved),
+                        'Persisted report should exist on the server')
 
     def test_shutdown_cancels_and_reaps_inflight_work(self):
         results = []
