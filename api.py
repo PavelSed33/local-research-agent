@@ -268,6 +268,7 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
         ],
         "checked_on": journal["checked_on"],
         "evidence": journal["evidence"],
+        "provision_period": __import__("legal_history").select_provision_period({}, journal["as_of"]),
         "as_of": journal["as_of"],
         "disclaimer": LEGAL_DISCLAIMER,
         "demo": journal["demo"],
