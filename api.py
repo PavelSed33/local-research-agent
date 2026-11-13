@@ -652,6 +652,17 @@ def openapi_spec(auth_required: bool = False, *, require_auth: bool | None = Non
         "responses": {"200": {"description": "DOCX с Word Track Changes"},
             "400": {"description": "Некорректный документ"}, "401": {"description": "Требуется авторизация"}}
     }}
+    spec["paths"]["/review/legal"] = {
+        "post": {
+            "summary": "Проверка договора: черновик без юридической аттестации",
+            "security": [{"ApiToken": []}] if auth_required else [],
+            "requestBody": {"required": True, "content": {"application/json": {"schema": {
+                "type": "object", "required": ["document"],
+                "properties": {"document": {"type": "string"}, "demo": {"type": "boolean"}}
+            }}}},
+            "responses": {"200": {"description": "Черновик анализа"}, "400": {"description": "Ошибка данных"}}
+        }
+    }
     # OpenAPI operation security must match the effective legacy token policy.
     for route, methods in spec["paths"].items():
         if not route.startswith("/workspace/") and route != "/documents/redline":
@@ -864,7 +875,7 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             else:
                 self._send_json(200, result)
             return
-        if self.path not in ("/ask", "/review", "/extract", "/diff", "/penalty", "/check", "/timeline", "/draft", "/triage", "/duty", "/export", "/protocol", "/scoring", "/sessions/delete", "/requests/cancel", "/extract/local", "/legal/skills/run"):
+        if self.path not in ("/ask", "/review", "/review/legal", "/extract", "/diff", "/penalty", "/check", "/timeline", "/draft", "/triage", "/duty", "/export", "/protocol", "/scoring", "/sessions/delete", "/requests/cancel", "/extract/local", "/legal/skills/run"):
             self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /penalty, POST /check, POST /timeline, POST /draft, POST /triage, POST /duty, POST /export, POST /protocol, POST /scoring."})
             return
         if not self._authorized():
