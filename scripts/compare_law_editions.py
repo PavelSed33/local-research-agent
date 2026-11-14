@@ -9,7 +9,7 @@ import json
 import re
 from pathlib import Path
 
-ARTICLE = re.compile(r"(?m)^\s*Статья\s+(\d+(?:\.\d+)?)\s*[.．]?\s*(.*)$")
+ARTICLE = re.compile(r"(?m)^[ \t]*Статья[ \t]+(\d+(?:\.\d+)?)[ \t]*[.．]?[ \t]*([^\r\n]*)$")
 
 def parse_articles(text):
     matches = list(ARTICLE.finditer(text))
