@@ -22,7 +22,7 @@ class QuarantineSearchTests(unittest.TestCase):
                 'warning':'Unverified edition'}), encoding='utf-8')
             (folder / 'articles.jsonl').write_text(json.dumps({
                 'id':code+'-1','part':'I','article':'12.8',
-                'heading':'Тестовая статья','text':'Тестовое содержание'}, ensure_ascii=False)+'\\n', encoding='utf-8')
+                'heading':'Тестовая статья','text':'Тестовое содержание'}, ensure_ascii=False)+'\n', encoding='utf-8')
 
     def test_each_supported_code(self):
         for code in ('gk','nk','tk','koap'):
