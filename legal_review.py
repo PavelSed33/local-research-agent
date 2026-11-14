@@ -156,7 +156,7 @@ def handle_legal_review(payload: dict[str, Any]) -> dict[str, Any]:
     # Extract only its trusted instructions; untrusted contract data must
     # remain in the separate user message below.
     template = build_review_prompt("")
-    delimiter = '\\nДОГОВОР:\\n"""'
+    delimiter = '\nДОГОВОР:\n"""'
     if delimiter not in template:
         raise AgentError("Шаблон юридической проверки изменился.")
     system = template.split(delimiter, 1)[0]
