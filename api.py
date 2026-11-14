@@ -786,6 +786,40 @@ def openapi_spec(require_auth: bool = True) -> dict[str, Any]:
         },
     }
 
+    # Workspace schema is static and never serializes database paths or tokens.
+    from workspace_api import FIELDS
+    for route, allowed in FIELDS.items():
+        properties = {key: {"type": "string"} for key in sorted(allowed)}
+        required = (["matter_id", "case_number", "as_of"]
+                    if route == "/workspace/cases/report" else [])
+        specification["paths"][route] = {
+            "post": {
+                "summary": "Защищённая операция рабочего пространства",
+                "requestBody": {"required": True, "content": {"application/json": {
+                    "schema": {"type": "object", "additionalProperties": False,
+                               "properties": properties, "required": required}}}},
+                "responses": {"200": {"description": "Результат для авторизованного пользователя"},
+                              "400": {"description": "Некорректные данные"},
+                              "401": {"description": "Персональный токен недействителен"},
+                              "403": {"description": "Недостаточно прав"},
+                              "413": {"description": "Превышен лимит отчёта"},
+                              "503": {"description": "Недоступен архив"}},
+            }
+        }
+    for route in ("/documents/parse", "/documents/export", "/documents/redact", "/documents/redline"):
+        specification["paths"][route] = {
+            "post": {"summary": "Изолированная операция с документом",
+                     "requestBody": {"required": True, "content": {"application/json": {
+                         "schema": {"type": "object", "additionalProperties": False,
+                                    "properties": {
+                                        "document": {"type": "string"},
+                                        "filename": {"type": "string"},
+                                        "file_base64": {"type": "string"},
+                                        "replacements": {"type": "array"}}}}}},
+                     "responses": {"200": {"description": "Результат обработки"},
+                                   "400": {"description": "Некорректные данные"},
+                                   "401": {"description": "Требуется токен"},
+                                   "504": {"description": "Истёк срок"}}}}
     for route, methods in specification["paths"].items():
         for method, operation in methods.items():
             operation["security"] = ([{"ApiToken": []}] if require_auth and (
