@@ -626,6 +626,11 @@ class LegalApiHandler(BaseHTTPRequestHandler):
         if self.path not in ("/ask", "/corpus/search", "/review", "/extract", "/diff", "/penalty", "/check", "/timeline", "/draft", "/triage", "/duty", "/export", "/protocol", "/scoring"):
             self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /penalty, POST /check, POST /timeline, POST /draft, POST /triage, POST /duty, POST /export, POST /protocol, POST /scoring."})
             return
+        if self.path == "/corpus/search" and not getattr(self.server, "api_token", ""):
+            self.close_connection = True
+            self._send_json(503, {"error": "Для карантинного поиска необходимо настроить API_TOKEN."})
+            self.server.metrics.record(f"POST {self.path}", 503, 0.0)
+            return
         if not self._authorized():
             # Соединение закрываем: непрочитанное тело запроса не должно
             # восприниматься как начало следующего запроса.
