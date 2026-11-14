@@ -54,7 +54,7 @@ jobs:
       - name: Verify health and demo research
         run: |
           python - <<'PY'
-          import json, time, urllib.request
+          import json, time, urllib.request, urllib.error
           for attempt in range(30):
               try:
                   with urllib.request.urlopen('http://127.0.0.1:18080/health', timeout=2) as response:
@@ -68,8 +68,12 @@ jobs:
               'http://127.0.0.1:18080/ask',
               data=json.dumps({'question': 'Тест', 'demo': True, 'as_of': '2023-03-01'}).encode(),
               headers={'Content-Type': 'application/json', 'Authorization': 'Bearer ci-smoke-token'})
-          with urllib.request.urlopen(request, timeout=30) as response:
-              payload = json.load(response)
+          try:
+              with urllib.request.urlopen(request, timeout=30) as response:
+                  payload = json.load(response)
+          except urllib.error.HTTPError as exc:
+              print(f'POST /ask failed with HTTP {exc.code}: {exc.read(4096).decode("utf-8", errors="replace")}', flush=True)
+              raise
           assert payload['demo'] is True
           assert payload['as_of'] == '2023-03-01'
           assert payload['answer']
