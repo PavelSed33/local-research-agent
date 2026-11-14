@@ -295,6 +295,16 @@ def openapi_spec() -> dict[str, Any]:
             "description": "Локальный юридический ИИ-помощник по законодательству РФ.",
         },
         "paths": {
+            "/review/options": {
+                "get": {"summary": "Вопросы для уточнения вида договора",
+                        "responses": {"200": {"description": "Варианты квалификации"}}}
+            },
+            "/review/legal": {
+                "post": {"summary": "Юридический черновик с проверкой области применимости",
+                         "responses": {"200": {"description": "Неподтверждённый анализ договора"},
+                                       "400": {"description": "Ошибка валидации"},
+                                       "401": {"description": "Требуется Bearer-токен"}}}
+            },
             "/health": {
                 "get": {
                     "summary": "Проверка работоспособности и готовности конфигурации",
@@ -681,6 +691,10 @@ class LegalApiHandler(BaseHTTPRequestHandler):
         if self.path == "/health":
             self._send_json(200, health_payload(self.server.metrics))
             self.server.metrics.record("GET /health", 200, (time.perf_counter() - started) * 1000)
+        elif self.path == "/review/options":
+            from legal_review import review_options
+            self._send_json(200, review_options())
+            self.server.metrics.record("GET /review/options", 200, (time.perf_counter() - started) * 1000)
         elif self.path == "/openapi.json":
             specification = openapi_spec()
             requires_token = bool(getattr(self.server, "api_token", ""))
@@ -694,7 +708,7 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /penalty, POST /check, POST /timeline, POST /draft, POST /triage, POST /duty, POST /export, POST /protocol, POST /scoring."})
 
     def do_POST(self) -> None:
-        if self.path not in ("/sessions/delete", "/ask", "/corpus/search", "/review", "/extract", "/diff", "/penalty", "/check", "/timeline", "/draft", "/triage", "/duty", "/export", "/protocol", "/scoring"):
+        if self.path not in ("/review/legal", "/sessions/delete", "/ask", "/corpus/search", "/review", "/extract", "/diff", "/penalty", "/check", "/timeline", "/draft", "/triage", "/duty", "/export", "/protocol", "/scoring"):
             self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /penalty, POST /check, POST /timeline, POST /draft, POST /triage, POST /duty, POST /export, POST /protocol, POST /scoring."})
             return
         if self.path == "/corpus/search" and not getattr(self.server, "api_token", ""):
@@ -712,7 +726,10 @@ class LegalApiHandler(BaseHTTPRequestHandler):
         started = time.perf_counter()
         try:
             payload = self._read_payload()
-            if self.path == "/sessions/delete":
+            if self.path == "/review/legal":
+                from legal_review import handle_legal_review
+                result = handle_legal_review(payload)
+            elif self.path == "/sessions/delete":
                 session_id = payload.get("session_id")
                 if not isinstance(session_id, str) or not SESSION_ID_PATTERN.fullmatch(session_id):
                     raise RequestValidationError("Поле session_id должно содержать 1–64 символа: латиница, цифры, дефис.")
