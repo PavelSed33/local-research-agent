@@ -324,14 +324,23 @@ def handle_corpus_search(payload: dict[str, Any]) -> dict[str, Any]:
     return result
 
 
+def valid_configuration(name: str) -> bool:
+    value = os.getenv(name, "").strip().casefold()
+    return bool(value) and value not in {
+        "your_api_key", "your_model", "your_tavily_api_key", "changeme",
+        "замените_на_ключ_модели", "замените_на_название_модели",
+        "замените_на_ключ_tavily",
+    }
+
+
 def health_payload(metrics: Metrics | None = None) -> dict[str, Any]:
     return {
         "status": "ok",
         "service": SERVICE_NAME,
         "version": API_VERSION,
         "endpoints": ["GET /health", "GET /openapi.json", "POST /ask", "POST /corpus/search", "POST /review", "POST /extract", "POST /diff", "POST /penalty", "POST /check", "POST /timeline", "POST /draft", "POST /triage", "POST /duty", "POST /export", "POST /protocol", "POST /scoring"],
-        "llm_configured": bool(os.getenv("LLM_API_KEY") and os.getenv("LLM_MODEL")),
-        "tavily_configured": bool(os.getenv("TAVILY_API_KEY")),
+        "llm_configured": all(valid_configuration(name) for name in ("LLM_API_KEY", "LLM_MODEL")),
+        "tavily_configured": valid_configuration("TAVILY_API_KEY"),
         "demo_available": True,
         "metrics": metrics.snapshot() if metrics else None,
     }
