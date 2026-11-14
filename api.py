@@ -64,6 +64,7 @@ SERVICE_NAME = "legal-research-agent"
 API_VERSION = "1.5"
 SESSION_TTL_SECONDS = 3600
 SESSION_MAX_ENTRIES = 10
+SESSION_MAX_COUNT = 100
 SESSION_ANSWER_CHARS = 500
 SESSION_ID_PATTERN = re.compile(r"^[A-Za-z0-9-]{1,64}$")
 
@@ -95,6 +96,9 @@ class SessionStore:
         now = time.time()
         with self._lock:
             self._purge_expired(now)
+            if session_id not in self._sessions and len(self._sessions) >= SESSION_MAX_COUNT:
+                oldest = min(self._sessions, key=lambda sid: self._sessions[sid]["updated"])
+                del self._sessions[oldest]
             session = self._sessions.setdefault(session_id, {"updated": now, "entries": []})
             session["updated"] = now
             session["entries"].append({"question": question.strip(), "answer": answer[:SESSION_ANSWER_CHARS]})
@@ -157,7 +161,9 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
         raise RequestValidationError("Поле «session_id» должно быть строкой из 1–64 символов: латиница, цифры, дефис.")
     query_count = parse_int_field(payload, "queries", 3, 1, 5)
     source_limit = parse_int_field(payload, "sources", 6, 1, 10)
-    demo = bool(payload.get("demo", False))
+    demo = payload.get("demo", False)
+    if not isinstance(demo, bool):
+        raise RequestValidationError("Поле demo должно быть логическим значением true или false.")
     as_of = payload.get("as_of")
     if as_of is not None and not isinstance(as_of, str):
         raise RequestValidationError("Поле «as_of» должно быть датой в формате YYYY-MM-DD.")
@@ -704,6 +710,8 @@ def create_server(
     output_dir: Path | str = Path("результаты"),
     api_token: str = "",
 ) -> ThreadingHTTPServer:
+    if not api_token.strip() and host not in ("127.0.0.1", "::1", "localhost"):
+        raise ValueError("API_TOKEN обязателен для внешнего сетевого интерфейса.")
     server = ThreadingHTTPServer((host, port), LegalApiHandler)
     server.output_dir = Path(output_dir)
     server.api_token = api_token.strip()
