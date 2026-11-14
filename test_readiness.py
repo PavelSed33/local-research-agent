@@ -90,6 +90,19 @@ class WorkflowReadinessTests(unittest.TestCase):
         self.assertEqual(rows['/legal/corpus']['blockers'], ['statutes'])
         self.assertTrue(rows['/diff']['can_attempt'])
 
+    def test_empty_legal_evidence_blocks_evidence_dependent_workflows(self):
+        # Missing evidence must not be reported as locally ready, even when
+        the statutory corpus is otherwise available.
+        with patch.dict('os.environ', {}, clear=True), \
+                patch('preflight.evidence_report', return_value={'entries': [], 'errors': []}), \
+                patch('preflight.corpus_report', return_value={'entries': [{'id': 'synthetic'}], 'errors': []}):
+            rows = workflows(inspect_runtime())
+        self.assertEqual(rows['/privacy/check']['blockers'], ['evidence'])
+        self.assertEqual(rows['/legal/research']['blockers'], ['evidence'])
+        self.assertEqual(rows['/legal/coverage']['blockers'], ['evidence'])
+        self.assertEqual(rows['/legal/corpus']['status'], 'ready_locally')
+        self.assertTrue(rows['/diff']['can_attempt'])
+
     def test_values_and_credential_urls_are_never_serialized(self):
         with patch.dict('os.environ', {**MODEL, 'TAVILY_API_KEY': 'PRIVATE-SEARCH',
                                       'LLM_BASE_URL': 'https://PRIVATE-USER:PRIVATE-PASSWORD@example.org/v1'}, clear=True):
