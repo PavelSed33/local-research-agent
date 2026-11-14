@@ -16,11 +16,27 @@ class SituationDateTests(unittest.TestCase):
                     handle_ask({'question': 'Тест', 'as_of': value}, Path('.'))
                 run.assert_not_called()
 
+    def test_valid_iso_date_reaches_engine(self):
+        import json
+        with tempfile.TemporaryDirectory() as directory:
+            with patch('api.run') as run:
+                output = Path(directory)
+                report = output / 'report.md'
+                journal = output / 'journal.json'
+                report.write_text('Test report', encoding='utf-8')
+                journal.write_text(json.dumps({'sources': [], 'checked_on': '2026-11-14',
+                                               'demo': True, 'as_of': '2023-03-01'}), encoding='utf-8')
+                run.return_value = (report, journal)
+                result = handle_ask({'question': 'Тест', 'demo': True,
+                                     'as_of': '2023-03-01'}, output)
+                self.assertEqual(result['as_of'], '2023-03-01')
+                run.assert_called_once()
+
     def test_explicit_date_survives_api_journal_and_report(self):
         with tempfile.TemporaryDirectory() as directory, patch.object(
             agent, 'current_check_date', return_value='2026-11-07'
         ):
-            result = handle_ask({'question': 'Тест', 'demo': True, 'as_of': '2024-02-29'}, Path(directory))
+            result = handle_ask({'question': 'Тест', 'demo': True, 'as_of': '2024-02-29'}, Path(directory), persist_results=True)
             self.assertEqual(result['as_of'], '2024-02-29')
             self.assertEqual(result['checked_on'], '2026-11-07')
             self.assertIn('**Дата правовой ситуации:** 2024-02-29', result['answer'])

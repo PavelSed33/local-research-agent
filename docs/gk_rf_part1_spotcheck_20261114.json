@@ -1,0 +1,18 @@
+{
+  "audit_date": "2026-11-14",
+  "status": "partial_cross_source_phrase_match_only",
+  "act": "ГК РФ часть I №51-ФЗ",
+  "source": "https://11.rosguard.gov.ru/uploads/2025/07/5_grazhdanskijj_kodeks_rossijjskojj_federacii_chast_pervaya.pdf",
+  "government_hosted_source_edition": "2025-07-07",
+  "source_contains_third_party_annotations": true,
+  "short_article_1_phrase_checks": {
+    "matched": 3,
+    "total": 3
+  },
+  "local_corpus_contains_2026_amendment_reference": true,
+  "exact_edition_same_as_source": false,
+  "word_for_word_whole_edition_compared": false,
+  "official_ips_direct_retrieval": false,
+  "edition_verified": false,
+  "warning": "Short overlapping passages do not establish accuracy or temporal applicability of the full local edition; government-hosted PDF has third-party annotations."
+}

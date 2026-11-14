@@ -1,0 +1,227 @@
+# Python 3.12 CI failure audit — run 43582601004
+
+**Evidence:** GitHub Actions run 43582601004, job 132410323875. Historical snapshot only; subsequent commits must be re-tested.
+
+**Total:** 800 tests; 88 errors, 22 failures, 4 skipped. Docker smoke succeeded.
+
+## Category root causes (do not confuse failures with legal readiness)
+
+- Software/API: workspace and request-worker integration, access control, endpoints and OpenAPI, document workflow and UI; code changes in integration branch pending confirmation.
+- Test fixture isolation: subprocess mock left active after failed setup; historical HTTPS opener stubs targeted obsolete call path. Corrected without weakening redirect rejection.
+- Data and provenance: 19 corpus cases and 11 primary-original cases depend on unavailable/quarantined source copies. Must not fabricate, silently reactivate, or declare legal verification.
+- Cross-module evaluation: readiness, live-acceptance, source budgets, response quality, deterministic demo scoring, backup/restore and UI checks require isolated E2E evidence.
+
+## Count by test module
+
+| Module | Error+failure occurrences |
+|---|---:|
+| `test_statute_corpus` | 19 |
+| `test_workspace_http` | 13 |
+| `test_request_jobs` | 12 |
+| `test_primary_archive` | 11 |
+| `test_live_acceptance` | 6 |
+| `test_readiness` | 5 |
+| `test_audit_fixes` | 4 |
+| `test_response_quality` | 4 |
+| `test_case_report` | 3 |
+| `test_data_audit` | 3 |
+| `test_legal_skills` | 3 |
+| `test_local_extract` | 3 |
+| `test_workspace_backup` | 3 |
+| `test_skill_service_health` | 2 |
+| `test_workbench` | 2 |
+| `test_workspace_report_ui` | 2 |
+| `test_audit` | 2 |
+| `test_backup_acceptance` | 1 |
+| `test_decision_revisions` | 1 |
+| `test_document_tools` | 1 |
+| `test_legal_p0` | 1 |
+| `test_legal_research` | 1 |
+| `test_outbound_security` | 1 |
+| `test_period_selection` | 1 |
+| `test_session_delete` | 1 |
+| `test_api` | 1 |
+| `test_consumer_evidence` | 1 |
+| `test_document_hardening` | 1 |
+| `test_packaging` | 1 |
+| `test_scoring` | 1 |
+
+## Individual errors from job 132410323875
+
+### test_statute_corpus
+- ERROR: test_corrupt_file_is_excluded_without_serving_its_text (test_statute_corpus.StatutoryCorpusTests.test_corrupt_file_is_excluded_without_serving_its_text)
+- ERROR: test_manifest_flags_cannot_promote_a_copy_to_an_accepted_law (test_statute_corpus.StatutoryCorpusTests.test_manifest_flags_cannot_promote_a_copy_to_an_accepted_law)
+- ERROR: test_path_escape_and_symlink_are_rejected (test_statute_corpus.StatutoryCorpusTests.test_path_escape_and_symlink_are_rejected) (name='../legal_coverage.json')
+- ERROR: test_path_escape_and_symlink_are_rejected (test_statute_corpus.StatutoryCorpusTests.test_path_escape_and_symlink_are_rejected) (name='/etc/passwd')
+- ERROR: test_path_escape_and_symlink_are_rejected (test_statute_corpus.StatutoryCorpusTests.test_path_escape_and_symlink_are_rejected)
+- ERROR: test_refresh_rejects_unpinned_urls_and_does_not_redate_stale_bytes (test_statute_corpus.StatutoryCorpusTests.test_refresh_rejects_unpinned_urls_and_does_not_redate_stale_bytes)
+- ERROR: test_rehashed_file_still_checks_text_hash_and_exact_act_url (test_statute_corpus.StatutoryCorpusTests.test_rehashed_file_still_checks_text_hash_and_exact_act_url) (changes={'text': 'Подменённый текст с достаточным количе
+- ERROR: test_rehashed_file_still_checks_text_hash_and_exact_act_url (test_statute_corpus.StatutoryCorpusTests.test_rehashed_file_still_checks_text_hash_and_exact_act_url) (changes={'url': 'https://www.consultant.ru/document/cons
+- ERROR: test_rehashed_file_still_checks_text_hash_and_exact_act_url (test_statute_corpus.StatutoryCorpusTests.test_rehashed_file_still_checks_text_hash_and_exact_act_url) (changes={'url': 'https://www.consultant.ru.evil.example/
+- ERROR: test_rehashed_file_still_checks_text_hash_and_exact_act_url (test_statute_corpus.StatutoryCorpusTests.test_rehashed_file_still_checks_text_hash_and_exact_act_url) (changes={'url': 'https://www.consultant.ru:1234/document
+- ERROR: test_rehashed_file_still_checks_text_hash_and_exact_act_url (test_statute_corpus.StatutoryCorpusTests.test_rehashed_file_still_checks_text_hash_and_exact_act_url) (changes={'kind': 'official_publication'})
+- ERROR: test_rehashed_file_still_checks_text_hash_and_exact_act_url (test_statute_corpus.StatutoryCorpusTests.test_rehashed_file_still_checks_text_hash_and_exact_act_url) (changes={'act_id': 'gk2'})
+- ERROR: test_rehashed_file_still_checks_text_hash_and_exact_act_url (test_statute_corpus.StatutoryCorpusTests.test_rehashed_file_still_checks_text_hash_and_exact_act_url) (changes={'provision': '100'})
+- ERROR: test_text_is_requested_explicitly_and_keeps_article_identity (test_statute_corpus.StatutoryCorpusTests.test_text_is_requested_explicitly_and_keeps_article_identity)
+- FAIL: test_failed_partial_import_preserves_old_texts_and_original_capture_dates (test_statute_corpus.StatutoryCorpusTests.test_failed_partial_import_preserves_old_texts_and_original_capture_dates)
+- FAIL: test_later_copy_is_not_injected_into_historical_model_context (test_statute_corpus.StatutoryCorpusTests.test_later_copy_is_not_injected_into_historical_model_context)
+- FAIL: test_local_search_keeps_exact_article_and_act_and_historical_cutoff (test_statute_corpus.StatutoryCorpusTests.test_local_search_keeps_exact_article_and_act_and_historical_cutoff)
+- FAIL: test_received_texts_cover_the_declared_scope_without_claiming_legal_acceptance (test_statute_corpus.StatutoryCorpusTests.test_received_texts_cover_the_declared_scope_without_claiming_legal_acceptance)
+- FAIL: test_special_and_consumer_articles_are_not_crowded_out_by_general_law (test_statute_corpus.StatutoryCorpusTests.test_special_and_consumer_articles_are_not_crowded_out_by_general_law)
+
+### test_workspace_http
+- ERROR: test_archive_catalog_and_repeat_import_are_available_without_duplicates (test_workspace_http.WorkspaceHttpTests.test_archive_catalog_and_repeat_import_are_available_without_duplicates)
+- ERROR: test_archive_failure_is_503_without_breaking_health_or_document_work (test_workspace_http.WorkspaceHttpTests.test_archive_failure_is_503_without_breaking_health_or_document_work)
+- ERROR: test_case_report_http_schema_limits_and_revoked_access (test_workspace_http.WorkspaceHttpTests.test_case_report_http_schema_limits_and_revoked_access)
+- ERROR: test_individual_auth_rejects_shared_token_and_missing_tokens (test_workspace_http.WorkspaceHttpTests.test_individual_auth_rejects_shared_token_and_missing_tokens)
+- ERROR: test_matter_membership_and_document_access_are_enforced (test_workspace_http.WorkspaceHttpTests.test_matter_membership_and_document_access_are_enforced)
+- ERROR: test_multiple_documents_are_retrieved_and_demo_quotes_are_grounded (test_workspace_http.WorkspaceHttpTests.test_multiple_documents_are_retrieved_and_demo_quotes_are_grounded)
+- ERROR: test_original_docx_redline_worker_route_auth_schema_and_revisions (test_workspace_http.WorkspaceHttpTests.test_original_docx_redline_worker_route_auth_schema_and_revisions)
+- ERROR: test_original_source_import_and_document_tools_work_via_http (test_workspace_http.WorkspaceHttpTests.test_original_source_import_and_document_tools_work_via_http)
+- ERROR: test_request_ids_cancellation_and_sessions_are_namespaced_per_user (test_workspace_http.WorkspaceHttpTests.test_request_ids_cancellation_and_sessions_are_namespaced_per_user)
+- ERROR: test_revocation_before_answer_commit_blocks_late_response (test_workspace_http.WorkspaceHttpTests.test_revocation_before_answer_commit_blocks_late_response)
+- ERROR: test_schema_and_assets_expose_the_new_workflow_without_leaking_database_path (test_workspace_http.WorkspaceHttpTests.test_schema_and_assets_expose_the_new_workflow_without_leaking_database_path)
+- ERROR: test_uploaded_original_is_bound_to_parsed_text_and_protected_by_acl (test_workspace_http.WorkspaceHttpTests.test_uploaded_original_is_bound_to_parsed_text_and_protected_by_acl)
+- ERROR: test_workspace_api_rejects_unrecognized_fields_and_bad_types (test_workspace_http.WorkspaceHttpTests.test_workspace_api_rejects_unrecognized_fields_and_bad_types)
+
+### test_request_jobs
+- ERROR: test_bad_worker_protocol_is_500_and_cleans_temporary_files (test_request_jobs.RequestControlTests.test_bad_worker_protocol_is_500_and_cleans_temporary_files)
+- ERROR: test_cancel_stalled_work_requires_auth_and_no_late_result_is_published (test_request_jobs.RequestControlTests.test_cancel_stalled_work_requires_auth_and_no_late_result_is_published)
+- ERROR: test_cancelled_research_cannot_repopulate_deleted_session_or_keep_reports (test_request_jobs.RequestControlTests.test_cancelled_research_cannot_repopulate_deleted_session_or_keep_reports)
+- ERROR: test_capacity_configuration_and_request_id_types_are_bounded (test_request_jobs.RequestControlTests.test_capacity_configuration_and_request_id_types_are_bounded)
+- ERROR: test_capacity_keeps_control_handler_available (test_request_jobs.RequestControlTests.test_capacity_keeps_control_handler_available)
+- ERROR: test_deadline_kills_blocked_provider_work_and_next_request_succeeds (test_request_jobs.RequestControlTests.test_deadline_kills_blocked_provider_work_and_next_request_succeeds)
+- ERROR: test_early_cancel_and_duplicate_ids_do_not_execute_again (test_request_jobs.RequestControlTests.test_early_cancel_and_duplicate_ids_do_not_execute_again)
+- ERROR: test_persistence_is_published_only_after_success (test_request_jobs.RequestControlTests.test_persistence_is_published_only_after_success)
+- ERROR: test_shutdown_cancels_and_reaps_inflight_work (test_request_jobs.RequestControlTests.test_shutdown_cancels_and_reaps_inflight_work)
+- ERROR: test_skill_work_is_cancellable_and_does_not_persist_document (test_request_jobs.RequestControlTests.test_skill_work_is_cancellable_and_does_not_persist_document)
+- ERROR: test_timeout_configuration_is_bounded (test_request_jobs.RequestControlTests.test_timeout_configuration_is_bounded)
+- ERROR: test_twelve_parallel_local_jobs_have_isolated_results_and_cleaned_files (test_request_jobs.RequestControlTests.test_twelve_parallel_local_jobs_have_isolated_results_and_cleaned_files)
+
+### test_primary_archive
+- ERROR: test_citation_whitespace_keeps_returned_quote_and_offsets_consistent (test_primary_archive.OfficialDecisionTests.test_citation_whitespace_keeps_returned_quote_and_offsets_consistent)
+- ERROR: test_decision_card_import_is_atomic_idempotent_and_keeps_review_empty (test_primary_archive.OfficialDecisionTests.test_decision_card_import_is_atomic_idempotent_and_keeps_review_empty)
+- ERROR: test_eleven_procedural_mentions_are_literal_not_archived_lower_court_acts (test_primary_archive.OfficialDecisionTests.test_eleven_procedural_mentions_are_literal_not_archived_lower_court_acts)
+- ERROR: test_future_archived_decisions_are_excluded_on_date (test_primary_archive.OfficialDecisionTests.test_future_archived_decisions_are_excluded_on_date)
+- ERROR: test_real_first_pages_and_dispositions_can_form_unreviewed_dossiers (test_primary_archive.OfficialDecisionTests.test_real_first_pages_and_dispositions_can_form_unreviewed_dossiers)
+- ERROR: test_concurrent_retries_reuse_one_original_and_one_index (test_primary_archive.PrimaryArchiveImportTests.test_concurrent_retries_reuse_one_original_and_one_index)
+- ERROR: test_deduplication_is_scoped_to_matter_and_preserves_write_permissions (test_primary_archive.PrimaryArchiveImportTests.test_deduplication_is_scoped_to_matter_and_preserves_write_permissions)
+- ERROR: test_reimport_rejects_corrupted_original_instead_of_reusing_it (test_primary_archive.PrimaryArchiveImportTests.test_reimport_rejects_corrupted_original_instead_of_reusing_it)
+- ERROR: test_header_amendment_mention_is_literal_not_complete_history (test_primary_archive.PrimaryArchiveValidationTests.test_header_amendment_mention_is_literal_not_complete_history)
+- ERROR: test_original_is_rechecked_after_catalog_load (test_primary_archive.PrimaryArchiveValidationTests.test_original_is_rechecked_after_catalog_load)
+- ERROR: test_seven_physical_originals_have_identity_and_page_maps_without_legal_acceptance (test_primary_archive.PrimaryArchiveValidationTests.test_seven_physical_originals_have_identity_and_page_maps_without_legal_acceptance)
+
+### test_live_acceptance
+- ERROR: test_complete_mocked_checks_require_all_endpoints_and_never_demo_in_live_requests (test_live_acceptance.LocalAcceptanceTests.test_complete_mocked_checks_require_all_endpoints_and_never_demo_in_live_requests)
+- ERROR: test_document_checks_remain_blocked_without_transfer_configuration (test_live_acceptance.LocalAcceptanceTests.test_document_checks_remain_blocked_without_transfer_configuration)
+- ERROR: test_failed_local_baseline_blocks_provider_calls (test_live_acceptance.LocalAcceptanceTests.test_failed_local_baseline_blocks_provider_calls)
+- ERROR: test_provider_errors_do_not_expose_secret_values_or_responses (test_live_acceptance.LocalAcceptanceTests.test_provider_errors_do_not_expose_secret_values_or_responses)
+- FAIL: test_demo_in_isolated_process_runs_all_http_workflows (test_live_acceptance.LocalAcceptanceTests.test_demo_in_isolated_process_runs_all_http_workflows)
+- FAIL: test_missing_keys_are_blocked_not_counted_as_live_success (test_live_acceptance.LocalAcceptanceTests.test_missing_keys_are_blocked_not_counted_as_live_success)
+
+### test_readiness
+- ERROR: test_readiness_is_a_protected_get_in_schema (test_readiness.WorkflowReadinessTests.test_readiness_is_a_protected_get_in_schema)
+- FAIL: test_cloud_policy_is_independent_of_key_configuration (test_readiness.WorkflowReadinessTests.test_cloud_policy_is_independent_of_key_configuration)
+- FAIL: test_health_rejects_placeholders_and_whitespace (test_readiness.WorkflowReadinessTests.test_health_rejects_placeholders_and_whitespace)
+- FAIL: test_http_auth_no_store_and_no_persisted_payloads (test_readiness.WorkflowReadinessTests.test_http_auth_no_store_and_no_persisted_payloads)
+- FAIL: test_local_features_available_without_providers_or_network (test_readiness.WorkflowReadinessTests.test_local_features_available_without_providers_or_network)
+
+### test_audit_fixes
+- ERROR: test_history_returns_full_snapshot_text_and_runs_revision_audit (test_audit_fixes.OfficialIntegratedLegalBankTests.test_history_returns_full_snapshot_text_and_runs_revision_audit)
+- ERROR: test_history_selects_snapshot_not_later_than_requested_date (test_audit_fixes.OfficialIntegratedLegalBankTests.test_history_selects_snapshot_not_later_than_requested_date)
+- ERROR: test_search_fetches_official_document_text_and_dates (test_audit_fixes.OfficialPravoPortalIntegrationTests.test_search_fetches_official_document_text_and_dates)
+- FAIL: test_portal_response_size_is_bounded (test_audit_fixes.OfficialPravoPortalIntegrationTests.test_portal_response_size_is_bounded)
+
+### test_response_quality
+- ERROR: test_cli_distinguishes_failed_blocked_and_invalid_inputs (test_response_quality.ResponseQualityTests.test_cli_distinguishes_failed_blocked_and_invalid_inputs) (expected=0)
+- ERROR: test_cli_distinguishes_failed_blocked_and_invalid_inputs (test_response_quality.ResponseQualityTests.test_cli_distinguishes_failed_blocked_and_invalid_inputs) (expected=1)
+- ERROR: test_cli_distinguishes_failed_blocked_and_invalid_inputs (test_response_quality.ResponseQualityTests.test_cli_distinguishes_failed_blocked_and_invalid_inputs) (expected=2)
+- ERROR: test_cli_distinguishes_failed_blocked_and_invalid_inputs (test_response_quality.ResponseQualityTests.test_cli_distinguishes_failed_blocked_and_invalid_inputs) (expected=2)
+
+### test_case_report
+- ERROR: test_date_candidate_does_not_claim_court_correspondence_or_original_authenticity (test_case_report.CaseReportTests.test_date_candidate_does_not_claim_court_correspondence_or_original_authenticity)
+- ERROR: test_known_lower_act_mentions_are_explicit_gaps_with_source_proofs (test_case_report.CaseReportTests.test_known_lower_act_mentions_are_explicit_gaps_with_source_proofs)
+- ERROR: test_real_archive_quotes_hashes_pages_and_export_agree (test_case_report.CaseReportTests.test_real_archive_quotes_hashes_pages_and_export_agree)
+
+### test_data_audit
+- ERROR: test_audit_reports_never_include_source_text (test_data_audit.DataAuditTests.test_audit_reports_never_include_source_text)
+- ERROR: test_missing_extract_future_capture_and_duplicate_texts_are_distinct (test_data_audit.DataAuditTests.test_missing_extract_future_capture_and_duplicate_texts_are_distinct)
+- FAIL: test_actual_repository_has_no_structural_errors_but_explicit_evidence_gaps (test_data_audit.DataAuditTests.test_actual_repository_has_no_structural_errors_but_explicit_evidence_gaps)
+
+### test_legal_skills
+- ERROR: test_registry_failure_keeps_openapi_available_and_returns_service_error (test_legal_skills.LegalSkillsTests.test_registry_failure_keeps_openapi_available_and_returns_service_error)
+- ERROR: test_schema_advertises_auth_cancellation_and_closed_input (test_legal_skills.LegalSkillsTests.test_schema_advertises_auth_cancellation_and_closed_input)
+- ERROR: test_unknown_skills_paths_foreign_law_and_types_rejected (test_legal_skills.LegalSkillsTests.test_unknown_skills_paths_foreign_law_and_types_rejected) [oversized input]
+
+### test_local_extract
+- ERROR: test_schema_exposes_worker_deadline_and_auth (test_local_extract.LocalExtractionTests.test_schema_exposes_worker_deadline_and_auth)
+- FAIL: test_http_auth_isolation_and_no_document_files (test_local_extract.LocalExtractionTests.test_http_auth_isolation_and_no_document_files)
+- FAIL: test_input_ambiguity_types_and_unknown_fields_rejected (test_local_extract.LocalExtractionTests.test_input_ambiguity_types_and_unknown_fields_rejected) [oversized input]
+
+### test_workspace_backup
+- ERROR: test_cli_admin_recovery_requires_existing_admin_and_rotates_credentials (test_workspace_backup.WorkspaceBackupTests.test_cli_admin_recovery_requires_existing_admin_and_rotates_credentials)
+- ERROR: test_verify_command_does_not_create_a_missing_database (test_workspace_backup.WorkspaceBackupTests.test_verify_command_does_not_create_a_missing_database)
+- ERROR: test_wal_snapshot_preserves_originals_tasks_revisions_acl_and_disables_old_tokens (test_workspace_backup.WorkspaceBackupTests.test_wal_snapshot_preserves_originals_tasks_revisions_acl_and_disables_old_tokens)
+
+### test_skill_service_health
+- ERROR: test_broken_registry_is_503_while_core_endpoints_remain_available (test_skill_service_health.SkillServiceHealthTests.test_broken_registry_is_503_while_core_endpoints_remain_available)
+- ERROR: test_malformed_inputs_across_public_workflows_return_400 (test_skill_service_health.SkillServiceHealthTests.test_malformed_inputs_across_public_workflows_return_400)
+
+### test_workbench
+- ERROR: test_document_input_encoding_and_binary_transport_without_browser (test_workbench.WorkbenchAcceptanceTests.test_document_input_encoding_and_binary_transport_without_browser)
+- ERROR: test_local_demo_workflows_and_assets (test_workbench.WorkbenchAcceptanceTests.test_local_demo_workflows_and_assets)
+
+### test_workspace_report_ui
+- ERROR: test_all_requests_reject_responses_from_previous_context (test_workspace_report_ui.WorkspaceReportUiTests.test_all_requests_reject_responses_from_previous_context)
+- ERROR: test_preview_download_and_privacy_resets (test_workspace_report_ui.WorkspaceReportUiTests.test_preview_download_and_privacy_resets)
+
+### test_audit
+- FAIL: test_all_supported_files_processed (test_audit.BuildAuditTests.test_all_supported_files_processed)
+- FAIL: test_csv_and_report (test_audit.OutputTests.test_csv_and_report)
+
+### test_backup_acceptance
+- ERROR: test_recovered_workspace_keeps_authorization_and_rejects_old_credentials (test_backup_acceptance.BackupHttpAcceptanceTests.test_recovered_workspace_keeps_authorization_and_rejects_old_credentials)
+
+### test_decision_revisions
+- ERROR: test_real_archived_card_can_be_enriched_and_reimport_reuses_latest (test_decision_revisions.DecisionRevisionTests.test_real_archived_card_can_be_enriched_and_reimport_reuses_latest)
+
+### test_document_tools
+- ERROR: test_original_source_integrity_and_corruption_detection (test_document_tools.DocumentToolsTests.test_original_source_integrity_and_corruption_detection)
+
+### test_legal_p0
+- ERROR: test_routes_auth_validation_and_no_persisted_payloads (test_legal_p0.P0HttpTests.test_routes_auth_validation_and_no_persisted_payloads)
+
+### test_legal_research
+- ERROR: test_http_routes_auth_schema_and_no_persisted_user_payloads (test_legal_research.ResearchWorkflowTests.test_http_routes_auth_schema_and_no_persisted_user_payloads)
+
+### test_outbound_security
+- ERROR: test_api_token_comparison_accepts_unicode_without_crashing (test_outbound_security.OutboundTransportTests.test_api_token_comparison_accepts_unicode_without_crashing)
+
+### test_period_selection
+- ERROR: test_api_returns_selection_for_requested_date (test_period_selection.PeriodSelectionTests.test_api_returns_selection_for_requested_date)
+
+### test_session_delete
+- ERROR: test_next_research_receives_no_deleted_context (test_session_delete.DeleteEndpointTests.test_next_research_receives_no_deleted_context)
+
+### test_api
+- FAIL: test_scoring_demo (test_api.ScoringEndpointTests.test_scoring_demo)
+
+### test_consumer_evidence
+- FAIL: test_source_budget_keeps_transition_and_statute_with_fresh_search (test_consumer_evidence.ConsumerTransitionEvidenceTests.test_source_budget_keeps_transition_and_statute_with_fresh_search)
+
+### test_document_hardening
+- FAIL: test_review_locations_refer_to_resolved_text (test_document_hardening.DocumentHardeningTests.test_review_locations_refer_to_resolved_text)
+
+### test_packaging
+- FAIL: test_shipped_files_support_demo_and_real_mode_imports (test_packaging.DockerPackagingTests.test_shipped_files_support_demo_and_real_mode_imports)
+
+### test_scoring
+- FAIL: test_demo_scoring (test_scoring.HandleScoringTests.test_demo_scoring)
+
+
+## Release gates
+
+1. Full Python 3.10–3.12 tests and Docker run must complete successfully after the latest changes.
+2. Per-user workspace ACL, revocation, worker cancellation, and sanitized logs must pass under real HTTP.
+3. Missing archived originals and statute extracts require evidence of origin, integrity, publication date, version, and redistribution rights. Unavailable content remains quarantined.
+4. Lawyer-accepted factual benchmarks and live-provider tests must be independently completed before claiming production-level legal accuracy.

@@ -25,10 +25,13 @@ from doctext import read_document_file, resolve_document
 from review import MIN_DOCUMENT_CHARS
 
 MAX_CHANGED_PAIRS_NOTE = "Количество удалённых и добавленных строк в блоке различается."
+MAX_DIFF_DOCUMENT_CHARS = 200_000
 
 
 def diff_documents(old: str, new: str) -> dict[str, Any]:
     """Сравнивает две редакции построчно и возвращает структурированный список изменений."""
+    if max(len(old), len(new)) > MAX_DIFF_DOCUMENT_CHARS:
+        raise ValueError(f"Длина каждой версии не должна превышать {MAX_DIFF_DOCUMENT_CHARS} символов.")
     old_lines = old.splitlines()
     new_lines = new.splitlines()
     matcher = difflib.SequenceMatcher(a=old_lines, b=new_lines, autojunk=False)
