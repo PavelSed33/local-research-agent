@@ -1264,9 +1264,12 @@ def create_server(
         server.workspace = WorkspaceStore(workspace_db)
     else:
         server.workspace = None
-    if request_timeout_seconds is not None:
+    if request_timeout_seconds is not None or workspace_db is not None:
+        # Workspace requests require process isolation, cancellation, and a
+        # bounded execution deadline even without an explicit CLI override.
         from request_jobs import RequestJobs
-        server.jobs = RequestJobs(request_timeout_seconds, max_active_requests)
+        deadline = request_timeout_seconds if request_timeout_seconds is not None else 300
+        server.jobs = RequestJobs(deadline, max_active_requests)
         server.jobs.enabled = True
     else:
         server.jobs = InlineJobs(server)
