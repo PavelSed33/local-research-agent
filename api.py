@@ -47,6 +47,8 @@ from typing import Any
 
 from agent import LEGAL_DISCLAIMER, AgentError, load_dotenv, run
 from request_jobs import JobError, ID_PATTERN
+from workspace_store import WorkspaceError
+from primary_sources import PrimarySourceError
 from check import handle_check
 from draft import handle_draft
 from duty import handle_duty
@@ -1212,10 +1214,10 @@ class LegalApiHandler(BaseHTTPRequestHandler):
                 result = handle_scoring(payload)
             else:
                 result = handle_diff(payload)
-        except __import__("workspace_store").WorkspaceError as exc:
+        except WorkspaceError as exc:
             self._send_json(exc.status, {"code": exc.code, "error": str(exc)})
             status = exc.status
-        except __import__("primary_sources").PrimarySourceError:
+        except PrimarySourceError:
             self._send_json(503, {"code": "primary_archive_unavailable",
                                   "error": "Архив первоисточников недоступен."})
             status = 503
