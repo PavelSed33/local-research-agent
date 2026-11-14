@@ -30,6 +30,7 @@
 from __future__ import annotations
 
 import hmac
+import hashlib
 import json
 import os
 import re
@@ -195,6 +196,9 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
     demo = payload.get("demo", False)
     if not isinstance(demo, bool):
         raise RequestValidationError("Поле demo должно быть логическим значением true или false.")
+    include_source_materials = payload.get("include_source_materials", False)
+    if not isinstance(include_source_materials, bool):
+        raise RequestValidationError("Поле include_source_materials должно быть логическим.")
     as_of = payload.get("as_of")
     if as_of is not None:
         if not isinstance(as_of, str) or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", as_of):
@@ -230,7 +234,7 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
         journal = json.loads(journal_path.read_text(encoding="utf-8"))
         if sessions and session_id:
             sessions.remember(session_id, question, answer, expected_session=session_identity)
-        return {
+        result = {
             "answer": answer,
             "sources": [
                 {"title": source["title"], "url": source["url"]}
@@ -241,10 +245,25 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
             "demo": journal["demo"],
             "as_of": journal.get("as_of", as_of or journal["checked_on"]),
             "session_id": session_id,
+            "evidence": journal.get("evidence", {"status": "not_legally_verified", "verified": False}),
             "results_persisted": persist_results,
             "report_file": str(report_path) if persist_results else None,
             "journal_file": str(journal_path) if persist_results else None,
         }
+        if include_source_materials:
+            result["source_materials"] = [
+                {
+                    "id": index,
+                    "title": source.get("title", ""),
+                    "url": source.get("url", ""),
+                    "text": source.get("text", ""),
+                    "sha256": hashlib.sha256(source.get("text", "").encode("utf-8")).hexdigest(),
+                    "period_supported": False,
+                    "verified": False,
+                }
+                for index, source in enumerate(journal.get("sources", []), 1)
+            ]
+        return result
     finally:
         if temporary is not None:
             temporary.cleanup()
