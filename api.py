@@ -38,7 +38,7 @@ import threading
 import tempfile
 import time
 import uuid
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
@@ -165,8 +165,13 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
     if not isinstance(demo, bool):
         raise RequestValidationError("Поле demo должно быть логическим значением true или false.")
     as_of = payload.get("as_of")
-    if as_of is not None and not isinstance(as_of, str):
-        raise RequestValidationError("Поле «as_of» должно быть датой в формате YYYY-MM-DD.")
+    if as_of is not None:
+        if not isinstance(as_of, str) or not re.fullmatch(r"\\d{4}-\\d{2}-\\d{2}", as_of):
+            raise RequestValidationError("Поле «as_of» должно быть датой в формате YYYY-MM-DD.")
+        try:
+            date.fromisoformat(as_of)
+        except ValueError:
+            raise RequestValidationError("Поле «as_of» содержит несуществующую дату.") from None
     context = sessions.context(session_id) if sessions and session_id else ""
 
     # Исследование не сохраняется после ответа, если это явно не разрешено.
