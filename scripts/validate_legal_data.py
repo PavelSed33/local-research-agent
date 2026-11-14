@@ -1,4 +1,5 @@
 """Validate data relationships and provenance; never certify legal correctness."""
+import argparse
 import json
 from pathlib import Path
 import sys
@@ -11,7 +12,7 @@ from privacy_review import privacy_options
 from legal_skills import load_skills
 
 
-def validate():
+def validate(require_corpus=True):
     skills = load_skills()
     registry = json.loads((ROOT / 'fixtures/legal_coverage.json').read_text(encoding='utf-8'))
     workflows = json.loads((ROOT / 'fixtures/legal_workflows.json').read_text(encoding='utf-8'))
@@ -60,7 +61,7 @@ def validate():
     received = {entry['card_id'] for entry in corpus['entries']}
     missing = sorted(cards.keys() - received)
     unexpected = sorted(received - cards.keys())
-    if missing or unexpected:
+    if unexpected or (require_corpus and missing):
         raise ValueError(
             'Statutory corpus coverage incomplete: '
             f'{len(missing)} missing text extracts, {len(unexpected)} unexpected card IDs; '
@@ -72,8 +73,17 @@ def validate():
         )
     return {'pinned_legal_skills': len(skills), 'modules': len(modules), 'acts': len(acts), 'research_cards': len(cards),
             'statutory_extracts': len(received), 'workflows': len(ids),
-            'draft_synthetic_cases': len(case_ids), 'legal_acceptance': False}
+            'draft_synthetic_cases': len(case_ids),
+            'missing_statutory_extracts': len(missing),
+            'unexpected_statutory_extracts': len(unexpected),
+            'source_coverage_complete': not missing and not unexpected,
+            'validation_mode': 'strict' if require_corpus else 'structure_only',
+            'legal_acceptance': False}
 
 
 if __name__ == '__main__':
-    print(json.dumps(validate(), ensure_ascii=False, indent=2))
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--structure-only', action='store_true',
+                        help='Check references and report missing quarantined sources; never accept legal coverage')
+    args = parser.parse_args()
+    print(json.dumps(validate(require_corpus=not args.structure_only), ensure_ascii=False, indent=2))
