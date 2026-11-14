@@ -4,6 +4,7 @@ This is an intake gate, not legal review, copyright clearance or publication.
 Usage: python scripts/check_official_source.py proposal.json
 """
 import json
+import re
 from pathlib import Path
 from datetime import date
 import sys
@@ -25,7 +26,9 @@ def validate_proposal(data):
         raise ValueError("Only official publications are eligible for this intake")
     if data["rights_reviewed"] is not True:
         raise ValueError("Rights review must be completed before ingestion")
-    if not isinstance(data["document_id"], str) or not (1 <= len(data["document_id"]) <= 120):
+    if (not isinstance(data["document_id"], str) or not (1 <= len(data["document_id"]) <= 120)
+            or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._/-]*", data["document_id"])
+            or ".." in data["document_id"] or "//" in data["document_id"]):
         raise ValueError("Invalid document ID")
     try:
         if not isinstance(data["captured_on"], str) or date.fromisoformat(data["captured_on"]).isoformat() != data["captured_on"] or date.fromisoformat(data["captured_on"]) > date.today():
@@ -33,7 +36,7 @@ def validate_proposal(data):
     except (TypeError, ValueError) as exc:
         raise ValueError("captured_on must be ISO date YYYY-MM-DD") from exc
     url = data["url"]
-    if not isinstance(url, str) or len(url) > 2048 or any(ord(ch) < 33 or ord(ch) == 127 for ch in url) or "\\\\" in url or "\\" in url:
+    if not isinstance(url, str) or len(url) > 2048 or any(ord(ch) < 33 or ord(ch) == 127 for ch in url) or "\\" in url:
         raise ValueError("Invalid URL")
     try:
         parsed = urlsplit(url)
@@ -41,7 +44,9 @@ def validate_proposal(data):
         if (parsed.scheme != "https" or host not in ALLOWED_HOSTS or
                 parsed.username is not None or parsed.password is not None or
                 parsed.port is not None or parsed.query or parsed.fragment or
-                not parsed.path.startswith("/")):
+                not parsed.path.startswith("/") or "//" in parsed.path or
+                any(part in {".", ".."} for part in parsed.path.split("/")) or
+                re.search(r"%(?:2e|2f|5c|00)", parsed.path, re.IGNORECASE)):
             raise ValueError("URL must be pinned to an approved official HTTPS host")
     except ValueError as exc:
         if str(exc) == "URL must be pinned to an approved official HTTPS host":
