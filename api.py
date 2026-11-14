@@ -949,6 +949,28 @@ class LegalApiHandler(BaseHTTPRequestHandler):
         if self.path == "/health":
             self._send_json(200, health_payload(self.server.metrics))
             self.server.metrics.record("GET /health", 200, (time.perf_counter() - started) * 1000)
+        elif self.path in ("/", "/app.js", "/style.css", "/workspace", "/workspace.js"):
+            assets = {"/": ("index.html", "text/html; charset=utf-8"),
+                      "/app.js": ("app.js", "application/javascript; charset=utf-8"),
+                      "/style.css": ("style.css", "text/css; charset=utf-8"),
+                      "/workspace": ("workspace.html", "text/html; charset=utf-8"),
+                      "/workspace.js": ("workspace.js", "application/javascript; charset=utf-8")}
+            name, content_type = assets[self.path]
+            try:
+                raw = (Path(__file__).parent / "web" / name).read_bytes()
+            except OSError:
+                self._send_json(503, {"error": "Веб-интерфейс недоступен."})
+                return
+            self.send_response(200)
+            self.send_header("Content-Type", content_type)
+            self.send_header("Content-Length", str(len(raw)))
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("X-Content-Type-Options", "nosniff")
+            self.send_header("Connection", "close")
+            self.end_headers()
+            self.close_connection = True
+            self.wfile.write(raw)
+            self.server.metrics.record(f"GET {self.path}", 200, (time.perf_counter() - started) * 1000)
         elif self.path == "/runtime/readiness":
             if not self._authorized():
                 self._send_json(401, {"error": "Требуется Bearer-токен."})
