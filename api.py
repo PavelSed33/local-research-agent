@@ -394,6 +394,18 @@ def openapi_spec(require_auth: bool = True) -> dict[str, Any]:
             "description": "Локальный юридический ИИ-помощник по законодательству РФ.",
         },
         "paths": {
+            "/privacy/options": {"get": {"summary": "Сценарии правового анализа персональных данных",
+                "responses": {"200": {"description": "11 локальных сценариев"}}}},
+            "/privacy/check": {"post": {"summary": "Локальная предварительная проверка по фактам",
+                "responses": {"200": {"description": "Неподтверждённые правовые вопросы"},
+                              "400": {"description": "Ошибка данных"},
+                              "401": {"description": "Требуется токен"}}}},
+            "/legal/skills/options": {"get": {"summary": "Каталог разрешённых навыков",
+                "responses": {"200": {"description": "Навыки и параметры"},
+                              "503": {"description": "Реестр недоступен"}}}},
+            "/case-law/check": {"post": {"summary": "Поиск и проверка судебных источников",
+                "responses": {"200": {"description": "Демонстрационный или неподтверждённый результат"},
+                              "401": {"description": "Требуется токен"}}}},
             "/runtime/readiness": {"get": {"summary": "Локальная проверка готовности без сетевых запросов",
                 "responses": {"200": {"description": "Статус без секретов"},
                               "401": {"description": "Требуется Bearer-токен"}}}},
@@ -1000,6 +1012,7 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             self.send_header("Content-Length", str(len(raw)))
             self.send_header("Cache-Control", "no-store")
             self.send_header("X-Content-Type-Options", "nosniff")
+            self.send_header("Content-Security-Policy", "default-src 'self'; script-src 'self'; object-src 'none'; base-uri 'none'")
             self.send_header("Connection", "close")
             self.end_headers()
             self.close_connection = True
@@ -1013,6 +1026,20 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             from preflight import inspect_runtime
             self._send_json(200, inspect_runtime())
             self.server.metrics.record("GET /runtime/readiness", 200, (time.perf_counter() - started) * 1000)
+        elif self.path == "/privacy/options":
+            from privacy_review import privacy_options
+            self._send_json(200, privacy_options())
+            self.server.metrics.record("GET /privacy/options", 200, (time.perf_counter() - started) * 1000)
+        elif self.path == "/legal/skills/options":
+            from legal_skills import skill_options, SkillRegistryError
+            try:
+                self._send_json(200, skill_options())
+                status = 200
+            except SkillRegistryError:
+                self._send_json(503, {"code": "skill_registry_unavailable",
+                                      "error": "Реестр навыков недоступен."})
+                status = 503
+            self.server.metrics.record("GET /legal/skills/options", status, (time.perf_counter() - started) * 1000)
         elif self.path == "/legal/research/options":
             from legal_research import research_options
             self._send_json(200, research_options())
@@ -1033,7 +1060,7 @@ class LegalApiHandler(BaseHTTPRequestHandler):
         workspace_routes = getattr(self.server, "workspace", None) is not None and self.path in FIELDS
         document_tools_routes = self.path in (
             "/documents/parse", "/documents/redact", "/documents/export", "/documents/redline")
-        if not workspace_routes and not document_tools_routes and self.path not in ("/requests/cancel", "/extract/local", "/legal/skills/run", "/legal/research", "/legal/corpus", "/legal/coverage", "/review/legal", "/sessions/delete", "/ask", "/corpus/search", "/review", "/extract", "/diff", "/penalty", "/check", "/timeline", "/draft", "/triage", "/duty", "/export", "/protocol", "/scoring"):
+        if not workspace_routes and not document_tools_routes and self.path not in ("/requests/cancel", "/extract/local", "/legal/skills/run", "/legal/research", "/legal/corpus", "/legal/coverage", "/privacy/check", "/case-law/check", "/review/legal", "/sessions/delete", "/ask", "/corpus/search", "/review", "/extract", "/diff", "/penalty", "/check", "/timeline", "/draft", "/triage", "/duty", "/export", "/protocol", "/scoring"):
             self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /penalty, POST /check, POST /timeline, POST /draft, POST /triage, POST /duty, POST /export, POST /protocol, POST /scoring."})
             return
         if self.path == "/corpus/search" and not getattr(self.server, "api_token", ""):
@@ -1122,6 +1149,12 @@ class LegalApiHandler(BaseHTTPRequestHandler):
                     result = handle_skill(payload)
                 except SkillRegistryError as exc:
                     raise JobError(503, "skill_registry_unavailable", "Реестр навыков недоступен.") from None
+            elif self.path == "/privacy/check":
+                from privacy_review import handle_privacy_check
+                result = handle_privacy_check(payload)
+            elif self.path == "/case-law/check":
+                from case_law import handle_case_law
+                result = handle_case_law(payload)
             elif self.path == "/legal/research":
                 from legal_research import handle_legal_research
                 result = handle_legal_research(payload)
