@@ -47,6 +47,17 @@ class CompareOfficialEditionsTests(unittest.TestCase):
         self.assertFalse(result["results"][0]["edition_verified"])
         self.assertIn("изменённый", result["results"][1]["diff_preview"])
 
+    def test_unicode_line_separator_is_not_a_jsonl_record_boundary(self):
+        folder = self.corpus / "gk"
+        original = "Первая строка\\u2028Вторая строка."
+        (folder / "articles.jsonl").write_text(
+            json.dumps({"article": "395", "text": original}, ensure_ascii=False) + "\\n",
+            encoding="utf-8")
+        check = self._check("gk", original, "gk.txt")
+        result = compare_batch(self.corpus, self.snapshots, {"checks": [check]})
+        self.assertEqual(result["exact_text_matches"], 1)
+        self.assertFalse(result["edition_verified"])
+
     def test_wrong_digest_rejected(self):
         check = self._check("gk", "Something", "gk.txt")
         check["snapshot_sha256"] = "0" * 64
