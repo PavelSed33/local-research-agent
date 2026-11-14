@@ -11,8 +11,9 @@ def execute(envelope):
     from document_tools import parse_file, redact, export_docx
     from docx_redline import redline_docx
     from matter_research import answer as matter_answer
-    from api import (handle_ask, handle_review, handle_legal_review,
-                     handle_case_law, handle_extract, handle_diff, AgentError)
+    from api import (handle_ask, handle_review, handle_extract, handle_diff, AgentError)
+    from legal_review import handle_legal_review
+    from case_law import handle_case_law
     payload = envelope['payload']
     handlers = {'/review': handle_review, '/review/legal': handle_legal_review,
                 '/case-law/check': handle_case_law, '/extract': handle_extract, '/diff': handle_diff,
