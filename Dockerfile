@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Сторонних зависимостей нет: только стандартная библиотека Python.
 COPY agent.py api.py review.py extract.py doctext.py registry.py redline.py penalty.py check.py timeline.py draft.py triage.py duty.py export.py protocol.py scoring.py audit.py source_admission.py legal_quarantine_search.py legal_history.py pravo_portal.py pravo_ips.py legal_review.py legal_catalog.py legal_coverage.py legal_evidence.py statute_corpus.py contract_scope.py legal_research.py legal_skills.py local_extract.py workspace_api.py workspace_store.py workspace_backup.py reviewed_evidence.py case_report.py docx_redline.py document_tools.py primary_sources.py ./
-COPY fixtures/contract_rule_catalog.json ./fixtures/
+COPY fixtures/contract_rule_catalog.json fixtures/legal_workflows.json fixtures/legal_coverage.json ./fixtures/
 
 ENV API_HOST=0.0.0.0 \
     API_PORT=8080 \
