@@ -19,4 +19,10 @@ class LawEditionDiffTests(unittest.TestCase):
  def test_duplicate_numbers_flagged(self):
   r=m.compare("", "Статья 1. А\nт\nСтатья 1. Б\nт")
   self.assertEqual(r["duplicate_article_numbers_new"],["1"])
+ def test_article_heading_does_not_swallow_next_line(self):
+  parsed=m.parse_articles("Статья 1\nПервый абзац\nСтатья 2\nВторой абзац")
+  self.assertEqual(set(parsed),{"1","2"})
+ def test_inline_article_reference_not_heading(self):
+  parsed=m.parse_articles("Пункт 1 ссылается на Статья 123.\nСтатья 2. Заголовок\nТекст")
+  self.assertEqual(set(parsed),{"2"})
 if __name__=="__main__":unittest.main()
