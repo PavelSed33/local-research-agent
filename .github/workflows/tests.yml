@@ -78,6 +78,23 @@ jobs:
           assert payload['as_of'] == '2023-03-01'
           assert payload['answer']
           PY
+      - name: Verify historical-date input validation
+        run: |
+          python - <<'PY'
+          import json, urllib.error, urllib.request
+          url = 'http://127.0.0.1:18080/ask'
+          for invalid in ('2023-02-30', '2023/03/01', 20230301):
+              request = urllib.request.Request(
+                  url,
+                  data=json.dumps({'question': 'Тест', 'demo': True, 'as_of': invalid}).encode(),
+                  headers={'Content-Type': 'application/json', 'Authorization': 'Bearer ci-smoke-token'})
+              try:
+                  urllib.request.urlopen(request, timeout=10)
+              except urllib.error.HTTPError as exc:
+                  assert exc.code == 400, (invalid, exc.code)
+                  continue
+              raise AssertionError(f'Invalid as_of was accepted: {invalid!r}')
+          PY
       - name: Demo acceptance suite
         env:
           API_TOKEN: ci-smoke-token
