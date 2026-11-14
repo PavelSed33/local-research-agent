@@ -652,8 +652,10 @@ class LegalApiHandler(BaseHTTPRequestHandler):
         except AgentError as exc:
             self._send_json(502, {"error": str(exc)})
             status = 502
-        except Exception as exc:  # noqa: BLE001 — последняя линия защиты сервиса
-            self._send_json(500, {"error": f"Внутренняя ошибка сервиса: {exc}"})
+        except Exception:  # noqa: BLE001 — последняя линия защиты сервиса
+            import traceback
+            traceback.print_exc()
+            self._send_json(500, {"error": "Внутренняя ошибка сервиса. Проверьте журнал сервера."})
             status = 500
         else:
             self._send_json(200, result)
