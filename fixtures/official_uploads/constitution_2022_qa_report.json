@@ -1,0 +1,24 @@
+{
+  "document": "Конституция Российской Федерации",
+  "source_id": "0001202210060013",
+  "pdf_sha256": "f17dcd8054ebedbd4b688e47a3f0e88999d678e9087710f0135c80f55d464510",
+  "ocr_sha256": "5b95041a0b21264d628eb7b0ad1f911a6c07462b1124c35df016d65584d50b69",
+  "pdf_pages": 76,
+  "ocr_pages": 76,
+  "ocr_pages_missing": 0,
+  "ocr_article_heading_occurrences": 144,
+  "checks": {
+    "pdf_hash_matches_intake": true,
+    "all_pages_have_ocr": true,
+    "human_ocr_review": false,
+    "edition_current_verified": false,
+    "official_pdf_byte_match": false,
+    "approved_for_legal_search": false
+  },
+  "known_issues": [
+    "OCR footnotes and amendment markers contain recognition artifacts",
+    "No article-by-article authoritative comparison",
+    "Original file not independently compared to official portal binary"
+  ],
+  "status": "quarantined_pending_review"
+}
