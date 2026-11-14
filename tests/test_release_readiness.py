@@ -54,6 +54,10 @@ class ReadinessTests(unittest.TestCase):
             "https://github.com/line\\nfeed",
             r"https://github.com\\@evil.example/proof",
             "https://localhost/proof",
+            "https://service.local/proof",
+            "https://127.0.0.1/proof",
+            "https://192.168.1.2/proof",
+            "https://[::1]/proof",
             "http://github.com/example/proof",
         ):
             with self.subTest(proof=proof):
