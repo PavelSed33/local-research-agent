@@ -30,7 +30,7 @@ def smoke(base_url: str) -> list[str]:
         passed.append("GET " + path)
     payloads = (
         ("/ask", {"question": "Техническая проверка", "demo": True, "as_of": "2023-03-01"}, "answer"),
-        ("/diff", {"document_a": "Срок десять дней", "document_b": "Срок пять дней"}, "changes"),
+        ("/diff", {"document_a": "Стороны установили срок поставки десять календарных дней.", "document_b": "Стороны установили срок поставки пять календарных дней."}, "changes"),
         ("/extract", {"document": "ИНН 7707083893. Цена 1000 рублей", "demo": True}, "parties"),
     )
     for path, data, key in payloads:
