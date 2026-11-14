@@ -173,7 +173,7 @@ class DemoReviewModel:
         # review passes trusted system instructions and untrusted user data.
         # Both demo paths must quote the actual contract, never the system text.
         if isinstance(temperature, str):
-            document = temperature.rsplit("\\nТекст договора:\\n", 1)[-1]
+            document = temperature.rsplit("\nТекст договора:\n", 1)[-1]
             quote_input = document
         else:
             quote_input = prompt
