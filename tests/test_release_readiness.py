@@ -61,6 +61,13 @@ class ReadinessTests(unittest.TestCase):
                 evidence["security"]["proof_url"] = proof
                 self.assertFalse(mod.assess(evidence)["gates"]["security"]["passed"])
 
+    def test_noncanonical_evidence_dates_do_not_count(self):
+        for stamp in ("20261114", "2026-W46-6", "2026-11-14T00:00:00"):
+            with self.subTest(stamp=stamp):
+                evidence = self.passing()
+                evidence["security"]["verified_on"] = stamp
+                self.assertFalse(mod.assess(evidence)["gates"]["security"]["passed"])
+
     def test_stale_future_and_unlinked_evidence_not_counted(self):
         for replacement in (
             {"status": "pass", "verified_on": "2000-01-01", "proof_url": "https://example.org/proof"},
