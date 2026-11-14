@@ -1,0 +1,192 @@
+{
+  "schema_version": 1,
+  "policy": {
+    "automatic_discovery_enabled": false,
+    "automatic_download_enabled": false,
+    "legal_search_admission": "manual_verified_only",
+    "check_frequency": "daily_metadata_review",
+    "sources": [
+      "https://pravo.gov.ru/",
+      "https://publication.pravo.gov.ru/"
+    ],
+    "note": "Registry is a watchlist, not evidence of current editions. Discovery requires a documented permitted interface."
+  },
+  "acts": [
+    {
+      "id": "constitution",
+      "title": "Конституция Российской Федерации",
+      "priority": 1,
+      "official_document_url": null,
+      "last_verified_edition": null,
+      "approved_for_legal_search": false
+    },
+    {
+      "id": "gk1",
+      "title": "ГК РФ часть первая",
+      "priority": 1,
+      "official_document_url": null,
+      "last_verified_edition": null,
+      "approved_for_legal_search": false
+    },
+    {
+      "id": "gk2",
+      "title": "ГК РФ часть вторая",
+      "priority": 1,
+      "official_document_url": null,
+      "last_verified_edition": null,
+      "approved_for_legal_search": false
+    },
+    {
+      "id": "gk3",
+      "title": "ГК РФ часть третья",
+      "priority": 1,
+      "official_document_url": null,
+      "last_verified_edition": null,
+      "approved_for_legal_search": false
+    },
+    {
+      "id": "gk4",
+      "title": "ГК РФ часть четвертая",
+      "priority": 1,
+      "official_document_url": null,
+      "last_verified_edition": null,
+      "approved_for_legal_search": false
+    },
+    {
+      "id": "uk",
+      "title": "УК РФ",
+      "priority": 1,
+      "official_document_url": null,
+      "last_verified_edition": null,
+      "approved_for_legal_search": false
+    },
+    {
+      "id": "upk",
+      "title": "УПК РФ",
+      "priority": 1,
+      "official_document_url": null,
+      "last_verified_edition": null,
+      "approved_for_legal_search": false
+    },
+    {
+      "id": "gpk",
+      "title": "ГПК РФ",
+      "priority": 1,
+      "official_document_url": null,
+      "last_verified_edition": null,
+      "approved_for_legal_search": false
+    },
+    {
+      "id": "apk",
+      "title": "АПК РФ",
+      "priority": 1,
+      "official_document_url": null,
+      "last_verified_edition": null,
+      "approved_for_legal_search": false
+    },
+    {
+      "id": "koap",
+      "title": "КоАП РФ",
+      "priority": 1,
+      "official_document_url": null,
+      "last_verified_edition": null,
+      "approved_for_legal_search": false
+    },
+    {
+      "id": "nk1",
+      "title": "НК РФ часть первая",
+      "priority": 1,
+      "official_document_url": null,
+      "last_verified_edition": null,
+      "approved_for_legal_search": false
+    },
+    {
+      "id": "nk2",
+      "title": "НК РФ часть вторая",
+      "priority": 1,
+      "official_document_url": null,
+      "last_verified_edition": null,
+      "approved_for_legal_search": false
+    },
+    {
+      "id": "tk",
+      "title": "ТК РФ",
+      "priority": 1,
+      "official_document_url": null,
+      "last_verified_edition": null,
+      "approved_for_legal_search": false
+    },
+    {
+      "id": "sk",
+      "title": "СК РФ",
+      "priority": 1,
+      "official_document_url": null,
+      "last_verified_edition": null,
+      "approved_for_legal_search": false
+    },
+    {
+      "id": "zk",
+      "title": "ЗК РФ",
+      "priority": 1,
+      "official_document_url": null,
+      "last_verified_edition": null,
+      "approved_for_legal_search": false
+    },
+    {
+      "id": "zhk",
+      "title": "ЖК РФ",
+      "priority": 1,
+      "official_document_url": null,
+      "last_verified_edition": null,
+      "approved_for_legal_search": false
+    },
+    {
+      "id": "kas",
+      "title": "КАС РФ",
+      "priority": 1,
+      "official_document_url": null,
+      "last_verified_edition": null,
+      "approved_for_legal_search": false
+    },
+    {
+      "id": "bk",
+      "title": "БК РФ",
+      "priority": 1,
+      "official_document_url": null,
+      "last_verified_edition": null,
+      "approved_for_legal_search": false
+    },
+    {
+      "id": "fz152",
+      "title": "152-ФЗ персональные данные",
+      "priority": 2,
+      "official_document_url": null,
+      "last_verified_edition": null,
+      "approved_for_legal_search": false
+    },
+    {
+      "id": "fz127",
+      "title": "127-ФЗ банкротство",
+      "priority": 2,
+      "official_document_url": null,
+      "last_verified_edition": null,
+      "approved_for_legal_search": false
+    },
+    {
+      "id": "fz229",
+      "title": "229-ФЗ исполнительное производство",
+      "priority": 2,
+      "official_document_url": null,
+      "last_verified_edition": null,
+      "approved_for_legal_search": false
+    },
+    {
+      "id": "fz2300",
+      "title": "Закон РФ № 2300-1 о защите прав потребителей",
+      "priority": 2,
+      "official_document_url": null,
+      "last_verified_edition": null,
+      "approved_for_legal_search": false
+    }
+  ]
+}
