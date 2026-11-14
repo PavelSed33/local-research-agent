@@ -28,6 +28,7 @@ from extract import handle_extract
 CSV_NAME = "реестр.csv"
 EXPIRING_NAME = "истекающие-договоры.md"
 SUPPORTED_SUFFIXES = (".txt", ".docx")
+MAX_REGISTRY_FILE_BYTES = 10 * 1024 * 1024
 
 COLUMNS = (
     "файл",
@@ -119,6 +120,9 @@ def build_registry(folder: Path, demo: bool) -> tuple[list[dict[str, str]], list
         if path.suffix.lower() not in SUPPORTED_SUFFIXES:
             continue
         try:
+            if path.stat().st_size > MAX_REGISTRY_FILE_BYTES:
+                skipped.append(f"{path.name}: файл больше допустимых {MAX_REGISTRY_FILE_BYTES} байт")
+                continue
             document = read_document_file(path.read_bytes(), path.name)
             extraction = handle_extract({"document": document, "demo": demo})
         except (AgentError, ValueError, OSError) as exc:
