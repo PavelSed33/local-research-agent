@@ -140,22 +140,54 @@ class SessionStore:
 
 
 class InlineJobs:
-    """Backward-compatible in-process dispatcher for local API and mocked tests."""
+    """Bounded in-memory request IDs for the local, in-process compatibility mode."""
     enabled = False
 
     def __init__(self, server):
         self.server = server
         self.active = {}
+        self.finished = {}
+        self.lock = threading.Lock()
 
     def execute(self, request_id, envelope, commit=lambda result: result):
-        if envelope.get("path") != "/ask":
-            raise ValueError("Unsupported inline route.")
-        result = handle_ask(envelope["payload"], Path(self.server.output_dir),
-                            self.server.sessions, persist_results=self.server.persist_results)
-        return commit(result)
+        if not isinstance(request_id, str) or not ID_PATTERN.fullmatch(request_id):
+            raise ValueError("Некорректный X-Request-ID.")
+        with self.lock:
+            if request_id in self.finished:
+                state = self.finished[request_id]
+                raise JobError(409, "request_cancelled" if state == "cancelled" else "duplicate_request_id",
+                               "Запрос отменён." if state == "cancelled" else "Идентификатор занят.")
+            self.finished[request_id] = "running"
+            while len(self.finished) > 1000:
+                del self.finished[next(iter(self.finished))]
+        path = envelope.get("path")
+        try:
+            if path == "/ask":
+                result = handle_ask(envelope["payload"], Path(self.server.output_dir),
+                                    self.server.sessions, persist_results=self.server.persist_results)
+            elif path == "/matter/answer":
+                from matter_research import answer
+                result = answer(envelope["payload"])
+            elif path == "/documents/redline":
+                from docx_redline import redline_docx
+                result = redline_docx(envelope["payload"])
+            else:
+                raise ValueError("Unsupported inline route.")
+            return commit(result)
+        finally:
+            with self.lock:
+                self.finished[request_id] = "finished"
 
     def cancel(self, request_id):
-        raise ValueError("Для управления заданиями включите изолированный режим.")
+        if not isinstance(request_id, str) or not ID_PATTERN.fullmatch(request_id):
+            raise ValueError("Некорректный request_id.")
+        with self.lock:
+            if request_id in self.finished:
+                return self.finished[request_id] == "cancelled"
+            self.finished[request_id] = "cancelled"
+            while len(self.finished) > 1000:
+                del self.finished[next(iter(self.finished))]
+            return True
 
     def close(self):
         pass
@@ -1002,6 +1034,7 @@ def create_server(
     *,
     request_timeout_seconds: float | None = None,
     max_active_requests: int = 3,
+    workspace_db: Path | str | None = None,
 ) -> ThreadingHTTPServer:
     if not api_token.strip() and host not in ("127.0.0.1", "::1", "localhost"):
         raise ValueError("API_TOKEN обязателен для внешнего сетевого интерфейса.")
@@ -1011,6 +1044,11 @@ def create_server(
     server.sessions = SessionStore()
     server.metrics = Metrics()
     server.persist_results = False
+    if workspace_db is not None:
+        from workspace_store import WorkspaceStore
+        server.workspace = WorkspaceStore(workspace_db)
+    else:
+        server.workspace = None
     if request_timeout_seconds is not None:
         from request_jobs import RequestJobs
         server.jobs = RequestJobs(request_timeout_seconds, max_active_requests)
