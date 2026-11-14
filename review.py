@@ -190,7 +190,7 @@ class DemoReviewModel:
                 "quote": quote, "comment": "Требуется самостоятельная правовая проверка.",
                 "recommendation": "Проверьте договор с юристом.",
             }],
-            "missing_clauses": ["Порядок приёмки по количеству и качеству"],
+            "missing_clauses": [],
         }, ensure_ascii=False)
 
 
@@ -202,8 +202,8 @@ def _demo_quote(document: str) -> str:
     # For long documents cite the first full line; for short documents use all.
     for line in document.splitlines():
         if len(line.strip()) >= MIN_QUOTE_CHARS:
-            return line.strip()[:300]
-    return document[:300]
+            return normalize_text(line.strip()[:300])
+    return normalize_text(document[:300])
 
 
 def handle_review(payload: dict[str, Any]) -> dict[str, Any]:
