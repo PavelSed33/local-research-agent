@@ -102,6 +102,8 @@ def validate_review(result: dict[str, Any], document: str) -> list[str]:
             issues.append(f"Риск №{index}: цитата не найдена в тексте договора.")
         if not str(risk.get("comment", "")).strip():
             issues.append(f"Риск №{index}: пустой комментарий.")
+        if not isinstance(risk.get("recommendation"), str) or not risk["recommendation"].strip():
+            issues.append(f"Риск №{index}: recommendation обязательно и должно быть непустым.")
     missing = result.get("missing_clauses", [])
     if not isinstance(missing, list) or any(not isinstance(item, str) for item in missing):
         issues.append("Поле missing_clauses должно быть списком строк.")
@@ -174,40 +176,32 @@ def review_contract(model: LanguageModel, document: str, demo: bool = False) -> 
 
 
 class DemoReviewModel:
-    """Детерминированный ответ для проверки без API-ключей."""
+    """Детерминированный пример, цитирующий только текст договора."""
 
-    def complete(self, prompt: str, temperature: float | str = 0.0) -> str:
-        # The standalone review uses one combined prompt; the source-linked
-        # review passes trusted system instructions and untrusted user data.
-        # Both demo paths must quote the actual contract, never the system text.
-        if isinstance(temperature, str):
-            document = temperature.rsplit("\nТекст договора:\n", 1)[-1]
-            quote_input = document
-        else:
-            quote_input = prompt
-        return json.dumps(
-            {
-                "summary": "Демонстрационный анализ: договор короткий, типовые риски не проверялись по внешним источникам.",
-                "risks": [
-                    {
-                        "category": "ответственность и штрафы",
-                        "severity": "high",
-                        "quote": normalize_text(_demo_quote(quote_input)),
-                        "comment": "В демонстрационном режиме риск сформулирован по первому фрагменту текста.",
-                        "recommendation": "Проверьте реальную модель с API-ключом и полным текстом договора.",
-                    }
-                ],
-                "missing_clauses": ["Порядок приёмки по количеству и качеству"],
-            },
-            ensure_ascii=False,
-        )
+    def complete(self, system: str, user: str) -> str:
+        document = user.split("Текст договора:\\n", 1)[-1].split("\\n\\nРЕЖИМ ДЕМОНСТРАЦИИ:", 1)[0].strip()
+        quote = _demo_quote(document)
+        return json.dumps({
+            "summary": "Условный пример анализа договора, не юридическое заключение.",
+            "risks": [{
+                "category": "ответственность и штрафы", "severity": "low",
+                "quote": quote, "comment": "Требуется самостоятельная правовая проверка.",
+                "recommendation": "Проверьте договор с юристом.",
+            }],
+            "missing_clauses": ["Порядок приёмки по количеству и качеству"],
+        }, ensure_ascii=False)
 
 
-def _demo_quote(prompt: str) -> str:
-    """Первый осмысленный фрагмент договора для демонстрационной цитаты."""
-    document = prompt.split('"""')[1] if '"""' in prompt else prompt
-    words = document.split()
-    return " ".join(words[:20])
+def _demo_quote(document: str) -> str:
+    """Select a contiguous literal quote to preserve offsets and whitespace."""
+    document = document.strip()
+    if not document:
+        return ""
+    # For long documents cite the first full line; for short documents use all.
+    for line in document.splitlines():
+        if len(line.strip()) >= MIN_QUOTE_CHARS:
+            return line.strip()[:300]
+    return document[:300]
 
 
 def handle_review(payload: dict[str, Any]) -> dict[str, Any]:
