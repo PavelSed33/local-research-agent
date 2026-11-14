@@ -1,4 +1,4 @@
-"""Read-only search over quarantined GK/NK article indexes (never legal verification)."""
+"""Read-only search over quarantined GK/NK/TK/KoAP article indexes (never legal verification)."""
 import json
 import re
 from pathlib import Path
@@ -7,8 +7,8 @@ class CorpusError(ValueError):
     pass
 
 def search(corpus_root, code, query, limit=10):
-    if code not in ("gk", "nk"):
-        raise CorpusError("Only gk/nk are supported")
+    if code not in ("gk", "nk", "tk", "koap"):
+        raise CorpusError("Only gk/nk/tk/koap are supported")
     if not isinstance(query, str) or not query.strip() or len(query)>500:
         raise CorpusError("Query must be 1-500 characters")
     if type(limit) is not int or not 1<=limit<=50:
