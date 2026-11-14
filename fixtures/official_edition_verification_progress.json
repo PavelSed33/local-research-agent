@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "checked_on": "2026-11-14",
+  "purpose": "Official-act discovery only; NOT a certification of local legal editions",
+  "entries": [
+    {
+      "code": "gk",
+      "part": "I",
+      "law_number": "51-ФЗ",
+      "law_date": "1994-11-30",
+      "official_act_record": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102033239",
+      "reference_provenance": "https://minjust.gov.ru/ru/pages/perechen-normativnyh-pravovyh-aktov-ih-otdelnyh-polozhenij-soderzhashih-obyazatelnye-trebovaniya-religiya/",
+      "local_edition_identified": false,
+      "full_text_compared": false,
+      "edition_verified": false
+    },
+    {
+      "code": "uk",
+      "law_number": "63-ФЗ",
+      "law_date": "1996-06-13",
+      "official_act_record": null,
+      "local_edition_identified": false,
+      "full_text_compared": false,
+      "edition_verified": false
+    }
+  ]
+}
