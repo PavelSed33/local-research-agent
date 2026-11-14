@@ -91,15 +91,46 @@ class SessionStore:
         lines = [f"Вопрос: {item['question']}\nКраткий ответ: {item['answer']}" for item in entries]
         return "\n---\n".join(lines)
 
-    def remember(self, session_id: str, question: str, answer: str) -> None:
-        """Запоминает пару вопрос/ответ (ответ усечённо) в сессии."""
+    def begin(self, session_id: str) -> tuple[str, str]:
+        """Acquire an incarnation ID to prevent stale in-flight writes after deletion."""
         now = time.time()
         with self._lock:
             self._purge_expired(now)
-            if session_id not in self._sessions and len(self._sessions) >= SESSION_MAX_COUNT:
-                oldest = min(self._sessions, key=lambda sid: self._sessions[sid]["updated"])
-                del self._sessions[oldest]
-            session = self._sessions.setdefault(session_id, {"updated": now, "entries": []})
+            if session_id not in self._sessions:
+                if len(self._sessions) >= SESSION_MAX_COUNT:
+                    oldest = min(self._sessions, key=lambda sid: self._sessions[sid]["updated"])
+                    del self._sessions[oldest]
+                self._sessions[session_id] = {"updated": now, "entries": [], "identity": uuid.uuid4().hex}
+            session = self._sessions[session_id]
+            entries = list(session["entries"])
+            identity = session.setdefault("identity", uuid.uuid4().hex)
+        context = "\\n---\\n".join(
+            f"Вопрос: {item['question']}\\nКраткий ответ: {item['answer']}" for item in entries
+        )
+        return context, identity
+
+    def delete(self, session_id: str) -> bool:
+        """Delete session history; old in-flight writers cannot recreate it."""
+        with self._lock:
+            self._purge_expired(time.time())
+            return self._sessions.pop(session_id, None) is not None
+
+    def remember(self, session_id: str, question: str, answer: str, *, expected_session: str | None = None) -> None:
+        """Keep only bounded history, rejecting writes from stale session incarnations."""
+        now = time.time()
+        with self._lock:
+            self._purge_expired(now)
+            if expected_session is not None:
+                session = self._sessions.get(session_id)
+                if session is None or session.get("identity") != expected_session:
+                    return
+            else:
+                if session_id not in self._sessions and len(self._sessions) >= SESSION_MAX_COUNT:
+                    oldest = min(self._sessions, key=lambda sid: self._sessions[sid]["updated"])
+                    del self._sessions[oldest]
+                session = self._sessions.setdefault(session_id, {
+                    "updated": now, "entries": [], "identity": uuid.uuid4().hex,
+                })
             session["updated"] = now
             session["entries"].append({"question": question.strip(), "answer": answer[:SESSION_ANSWER_CHARS]})
             del session["entries"][:-SESSION_MAX_ENTRIES]
@@ -172,7 +203,7 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
             date.fromisoformat(as_of)
         except ValueError:
             raise RequestValidationError("Поле «as_of» содержит несуществующую дату.") from None
-    context = sessions.context(session_id) if sessions and session_id else ""
+    context, session_identity = sessions.begin(session_id) if sessions and session_id else ("", None)
 
     # Исследование не сохраняется после ответа, если это явно не разрешено.
     temporary = None
@@ -198,7 +229,7 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
         answer = report_path.read_text(encoding="utf-8")
         journal = json.loads(journal_path.read_text(encoding="utf-8"))
         if sessions and session_id:
-            sessions.remember(session_id, question, answer)
+            sessions.remember(session_id, question, answer, expected_session=session_identity)
         return {
             "answer": answer,
             "sources": [
@@ -663,7 +694,7 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /penalty, POST /check, POST /timeline, POST /draft, POST /triage, POST /duty, POST /export, POST /protocol, POST /scoring."})
 
     def do_POST(self) -> None:
-        if self.path not in ("/ask", "/corpus/search", "/review", "/extract", "/diff", "/penalty", "/check", "/timeline", "/draft", "/triage", "/duty", "/export", "/protocol", "/scoring"):
+        if self.path not in ("/sessions/delete", "/ask", "/corpus/search", "/review", "/extract", "/diff", "/penalty", "/check", "/timeline", "/draft", "/triage", "/duty", "/export", "/protocol", "/scoring"):
             self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /penalty, POST /check, POST /timeline, POST /draft, POST /triage, POST /duty, POST /export, POST /protocol, POST /scoring."})
             return
         if self.path == "/corpus/search" and not getattr(self.server, "api_token", ""):
@@ -681,7 +712,12 @@ class LegalApiHandler(BaseHTTPRequestHandler):
         started = time.perf_counter()
         try:
             payload = self._read_payload()
-            if self.path == "/ask":
+            if self.path == "/sessions/delete":
+                session_id = payload.get("session_id")
+                if not isinstance(session_id, str) or not SESSION_ID_PATTERN.fullmatch(session_id):
+                    raise RequestValidationError("Поле session_id должно содержать 1–64 символа: латиница, цифры, дефис.")
+                result = {"deleted": self.server.sessions.delete(session_id)}
+            elif self.path == "/ask":
                 result = handle_ask(payload, Path(self.server.output_dir), self.server.sessions)
             elif self.path == "/corpus/search":
                 result = handle_corpus_search(payload)
