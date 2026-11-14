@@ -49,9 +49,9 @@ class CompareOfficialEditionsTests(unittest.TestCase):
 
     def test_unicode_line_separator_is_not_a_jsonl_record_boundary(self):
         folder = self.corpus / "gk"
-        original = "Первая строка\\u2028Вторая строка."
+        original = "Первая строка\u2028Вторая строка."
         (folder / "articles.jsonl").write_text(
-            json.dumps({"article": "395", "text": original}, ensure_ascii=False) + "\\n",
+            json.dumps({"article": "395", "text": original}, ensure_ascii=False) + "\n",
             encoding="utf-8")
         check = self._check("gk", original, "gk.txt")
         result = compare_batch(self.corpus, self.snapshots, {"checks": [check]})
