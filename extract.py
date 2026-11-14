@@ -290,6 +290,8 @@ def handle_extract(payload: dict[str, Any]) -> dict[str, Any]:
     result, repaired = extract_entities(model, document.strip())
     return {
         "status": "draft",
+        "verified": False,
+        "lawyer_reviewed": False,
         "parties": result.get("parties", []),
         "amounts": result.get("amounts", []),
         "dates": result.get("dates", []),
