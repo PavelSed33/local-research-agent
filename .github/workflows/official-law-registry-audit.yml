@@ -8,6 +8,10 @@ on:
       - 'fixtures/official_uploads/official_law_registry.json'
       - 'scripts/audit_official_law_registry.py'
       - 'tests/test_audit_official_law_registry.py'
+      - 'scripts/compare_law_editions.py'
+      - 'tests/test_compare_law_editions.py'
+      - 'scripts/official_law_intake.py'
+      - 'tests/test_official_law_intake.py'
       - '.github/workflows/official-law-registry-audit.yml'
 permissions:
   contents: read
@@ -22,5 +26,8 @@ jobs:
           python-version: '3.11'
       - name: Validate registry metadata (no downloads)
         run: python scripts/audit_official_law_registry.py
-      - name: Run registry tests
-        run: python -m unittest discover -s tests -p test_audit_official_law_registry.py -v
+      - name: Run law intake, registry and edition comparison tests
+        run: |
+          python -m unittest discover -s tests -p test_audit_official_law_registry.py -v
+          python -m unittest discover -s tests -p test_official_law_intake.py -v
+          python -m unittest discover -s tests -p test_compare_law_editions.py -v
