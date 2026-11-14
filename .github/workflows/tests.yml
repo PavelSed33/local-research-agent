@@ -20,6 +20,26 @@ jobs:
       - name: Block accidentally committed licensed documents
         run: python scripts/check_copyright_hygiene.py
 
+  source-safety-regressions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Compile security and readiness modules
+        run: |
+          python -m py_compile scripts/check_official_source.py scripts/release_readiness.py
+          python -m py_compile tests/test_official_source_intake.py tests/test_release_readiness.py tests/test_statutory_source_hosts.py
+      - name: Verify source intake and release safety independently of quarantined archives
+        run: |
+          python -m unittest -v tests.test_official_source_intake tests.test_release_readiness tests.test_statutory_source_hosts
+
   unittest:
     runs-on: ubuntu-latest
     timeout-minutes: 25
