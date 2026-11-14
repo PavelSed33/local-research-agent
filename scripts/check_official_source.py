@@ -52,6 +52,13 @@ def validate_proposal(data):
         if str(exc) == "URL must be pinned to an approved official HTTPS host":
             raise
         raise ValueError("Invalid URL") from exc
+    # A valid official host is insufficient if the proposed identifier refers
+    # to a different publication. This check never downloads or accepts text.
+    view_prefix = "/Document/View/"
+    if parsed.path.startswith(view_prefix):
+        path_id = parsed.path[len(view_prefix):]
+        if not path_id or "/" in path_id or path_id != data["document_id"]:
+            raise ValueError("Official document ID does not match publication URL")
     return {
         "status": "metadata_eligible_only",
         "document_id": data["document_id"],
