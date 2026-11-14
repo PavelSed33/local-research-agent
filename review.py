@@ -91,8 +91,8 @@ def validate_review(result: dict[str, Any], document: str) -> list[str]:
         if not isinstance(risk, dict):
             issues.append(f"Риск №{index} не является объектом.")
             continue
-        if not str(risk.get("category", "")).strip():
-            issues.append(f"Риск №{index}: пустая категория.")
+        if risk.get("category") not in REVIEW_CATEGORIES:
+            issues.append(f"Риск №{index}: категория отсутствует в допустимом перечне.")
         if risk.get("severity") not in SEVERITIES:
             issues.append(f"Риск №{index}: severity должен быть одним из {SEVERITIES}.")
         quote = str(risk.get("quote", "")).strip()
@@ -140,7 +140,7 @@ def build_review_prompt(document: str, demo: bool = False) -> tuple[str, str]:
 
 """
     # All document content is untrusted user data, not system instructions.
-    return instructions, "Текст договора:\\n" + document + demo_note
+    return instructions, "Текст договора:\n" + document + demo_note
 
 
 def review_contract(model: LanguageModel, document: str, demo: bool = False) -> tuple[dict[str, Any], bool]:
@@ -154,7 +154,7 @@ def review_contract(model: LanguageModel, document: str, demo: bool = False) -> 
                       "Не добавляй факты или юридическую достоверность. "
                       "Ошибки: " + "; ".join(issues[:5]))
         try:
-            result = extract_json(model.complete(system, user + "\\n" + correction))
+            result = extract_json(model.complete(system, user + "\n" + correction))
         except AgentError:
             raise AgentError("Не удалось проверить ответ модели по договору.") from None
         if validate_review(result, document):
