@@ -31,6 +31,7 @@ from __future__ import annotations
 
 import hmac
 import hashlib
+import shutil
 import json
 import os
 import re
@@ -45,6 +46,7 @@ from pathlib import Path
 from typing import Any
 
 from agent import LEGAL_DISCLAIMER, AgentError, load_dotenv, run
+from request_jobs import JobError, ID_PATTERN
 from check import handle_check
 from draft import handle_draft
 from duty import handle_duty
@@ -724,10 +726,66 @@ class LegalApiHandler(BaseHTTPRequestHandler):
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
+        request_id = getattr(self, "_response_request_id", None)
+        if request_id:
+            self.send_header("X-Request-ID", request_id)
         self.send_header("Connection", "close")
         self.close_connection = True
         self.end_headers()
         self.wfile.write(body)
+
+    def _execute_managed(self, payload: dict[str, Any]) -> dict[str, Any]:
+        """Run an isolated worker; publish only a successful, non-cancelled reply."""
+        request_id = self.headers.get("X-Request-ID") or uuid.uuid4().hex
+        if not ID_PATTERN.fullmatch(request_id):
+            raise RequestValidationError("X-Request-ID: 16–64 латинских символов, цифр или дефисов.")
+        self._response_request_id = request_id
+        session_id = payload.get("session_id") if self.path == "/ask" else None
+        identity = None
+        context = ""
+        if session_id is not None:
+            if not isinstance(session_id, str) or not SESSION_ID_PATTERN.fullmatch(session_id):
+                raise RequestValidationError("Некорректный session_id.")
+            context, identity = self.server.sessions.begin(session_id)
+        envelope = {
+            "path": self.path, "payload": payload, "context": context,
+            "persist_results": bool(self.server.persist_results and self.path == "/ask"),
+        }
+
+        def commit(result: dict[str, Any]) -> dict[str, Any]:
+            if self.path != "/ask":
+                return result
+            if self.server.persist_results:
+                # The child files exist only until the job's temporary directory is
+                # cleaned. Publish both atomically by renaming their staging folder.
+                report = Path(result.get("report_file", "")).resolve()
+                journal = Path(result.get("journal_file", "")).resolve()
+                if (not report.is_file() or not journal.is_file()
+                        or report.parent != journal.parent
+                        or not report.parent.parent.name.startswith("legal-api-job-")):
+                    raise JobError(500, "worker_protocol", "Некорректный путь результата.")
+                root = Path(self.server.output_dir)
+                root.mkdir(parents=True, exist_ok=True)
+                suffix = uuid.uuid4().hex
+                stage = root / (".pending-" + suffix)
+                final = root / ("request-" + suffix)
+                stage.mkdir()
+                try:
+                    shutil.copyfile(report, stage / report.name)
+                    shutil.copyfile(journal, stage / journal.name)
+                    stage.rename(final)
+                finally:
+                    if stage.exists():
+                        shutil.rmtree(stage)
+                result["report_file"] = str(final / report.name)
+                result["journal_file"] = str(final / journal.name)
+                result["results_persisted"] = True
+            if session_id is not None:
+                self.server.sessions.remember(session_id, payload["question"],
+                                              result["answer"], expected_session=identity)
+            return result
+
+        return self.server.jobs.execute(request_id, envelope, commit)
 
     def _read_payload(self) -> dict[str, Any]:
         raw_length = self.headers.get("Content-Length")
@@ -779,7 +837,7 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /penalty, POST /check, POST /timeline, POST /draft, POST /triage, POST /duty, POST /export, POST /protocol, POST /scoring."})
 
     def do_POST(self) -> None:
-        if self.path not in ("/legal/research", "/legal/corpus", "/legal/coverage", "/review/legal", "/sessions/delete", "/ask", "/corpus/search", "/review", "/extract", "/diff", "/penalty", "/check", "/timeline", "/draft", "/triage", "/duty", "/export", "/protocol", "/scoring"):
+        if self.path not in ("/requests/cancel", "/extract/local", "/legal/skills/run", "/legal/research", "/legal/corpus", "/legal/coverage", "/review/legal", "/sessions/delete", "/ask", "/corpus/search", "/review", "/extract", "/diff", "/penalty", "/check", "/timeline", "/draft", "/triage", "/duty", "/export", "/protocol", "/scoring"):
             self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /penalty, POST /check, POST /timeline, POST /draft, POST /triage, POST /duty, POST /export, POST /protocol, POST /scoring."})
             return
         if self.path == "/corpus/search" and not getattr(self.server, "api_token", ""):
@@ -797,7 +855,13 @@ class LegalApiHandler(BaseHTTPRequestHandler):
         started = time.perf_counter()
         try:
             payload = self._read_payload()
-            if self.path == "/legal/research":
+            if self.path == "/requests/cancel":
+                result = {"cancelled": self.server.jobs.cancel(payload.get("request_id"))}
+            elif self.server.jobs.enabled and self.path in {
+                    "/ask", "/review", "/review/legal", "/extract",
+                    "/extract/local", "/legal/skills/run"}:
+                result = self._execute_managed(payload)
+            elif self.path == "/legal/research":
                 from legal_research import handle_legal_research
                 result = handle_legal_research(payload)
             elif self.path == "/legal/corpus":
@@ -818,7 +882,10 @@ class LegalApiHandler(BaseHTTPRequestHandler):
                     raise RequestValidationError("Поле session_id должно содержать 1–64 символа: латиница, цифры, дефис.")
                 result = {"deleted": self.server.sessions.delete(session_id)}
             elif self.path == "/ask":
-                result = handle_ask(payload, Path(self.server.output_dir), self.server.sessions)
+                session_id = payload.get("session_id")
+                context = self.server.sessions.context(session_id) if isinstance(session_id, str) else ""
+                result = self.server.jobs.execute(uuid.uuid4().hex,
+                    {"path": "/ask", "payload": payload, "context": context})
             elif self.path == "/corpus/search":
                 result = handle_corpus_search(payload)
             elif self.path == "/review":
@@ -845,6 +912,9 @@ class LegalApiHandler(BaseHTTPRequestHandler):
                 result = handle_scoring(payload)
             else:
                 result = handle_diff(payload)
+        except JobError as exc:
+            self._send_json(exc.status, {"code": exc.code, "error": str(exc)})
+            status = exc.status
         except ValueError as exc:
             self._send_json(400, {"error": str(exc)})
             status = 400
