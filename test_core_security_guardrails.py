@@ -2,6 +2,7 @@
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from api import SESSION_MAX_COUNT, SessionStore, create_server, handle_ask
 from redline import MAX_DIFF_DOCUMENT_CHARS, diff_documents
@@ -34,6 +35,26 @@ class CoreGuardrailTests(unittest.TestCase):
     def test_oversized_diff_rejected_before_matching(self):
         with self.assertRaisesRegex(ValueError, "не должна превышать"):
             diff_documents("x" * (MAX_DIFF_DOCUMENT_CHARS + 1), "other")
+
+    def test_oversized_extraction_does_not_call_model_or_cloud(self):
+        from extract import handle_extract
+        from review import MAX_DOCUMENT_CHARS
+        with patch("extract.OpenAICompatibleModel") as model, patch(
+            "extract.ensure_document_transfer_allowed") as transfer:
+            with self.assertRaisesRegex(ValueError, "превышает допустимый размер"):
+                handle_extract({"document": "x" * (MAX_DOCUMENT_CHARS + 1)})
+            model.assert_not_called()
+            transfer.assert_not_called()
+
+    def test_remote_contract_requires_consent_before_model(self):
+        from review import handle_review
+        from extract import handle_extract
+        document = "Стороны согласовали оплату и передачу товара в течение десяти дней."
+        with patch.dict("os.environ", {"LLM_BASE_URL": "https://example.org/v1",
+                                    "ALLOW_CLOUD_DOCUMENTS": ""}):
+            for fn in (handle_review, handle_extract):
+                with self.subTest(module=fn.__module__), self.assertRaisesRegex(ValueError, "облачный сервис"):
+                    fn({"document": document})
 
     def test_oversized_registry_input_is_skipped(self):
         with tempfile.TemporaryDirectory() as directory:
