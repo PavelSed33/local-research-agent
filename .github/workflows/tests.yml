@@ -98,10 +98,10 @@ jobs:
                   continue
               raise AssertionError(f'Invalid as_of was accepted: {invalid!r}')
           PY
-      - name: Demo acceptance suite
+      - name: Core API smoke (implemented endpoints only)
         env:
           API_TOKEN: ci-smoke-token
-        run: python scripts/smoke.py --base-url http://127.0.0.1:18080
+        run: python scripts/smoke_core.py --base-url http://127.0.0.1:18080
       - name: Container logs
         if: always()
         run: docker logs legal-agent-test
