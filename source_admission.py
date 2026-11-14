@@ -60,8 +60,9 @@ def admit_record(record: dict) -> dict:
     if not isinstance(record, dict):
         raise SourceAdmissionError("Record must be a JSON object.")
     decision = classify_source(record.get("source_url"))
-    if any(key in record for key in ("full_text", "raw_content", "pdf_base64")):
-        raise SourceAdmissionError("Full-text ingestion requires a separately approved workflow.")
+    forbidden_payload_keys = {"full_text", "raw_content", "pdf_base64", "content", "text", "body", "html", "markdown", "pdf_bytes", "attachment"}
+    if forbidden_payload_keys.intersection(record):
+        raise SourceAdmissionError("Document content ingestion requires a separately approved workflow.")
     fetched_at = record.get("fetched_at")
     if not isinstance(fetched_at, str) or not fetched_at.strip():
         raise SourceAdmissionError("Missing retrieval timestamp.")
