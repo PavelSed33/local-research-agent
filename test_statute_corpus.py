@@ -12,6 +12,29 @@ from statute_corpus import ROOT, corpus_report, handle_corpus, statutory_review_
 from unittest.mock import patch
 
 
+class LegacyStatutePathSecurityTests(unittest.TestCase):
+    def test_rejects_parent_paths_and_absolute_paths(self):
+        from statute_corpus import StatuteCorpus
+        with tempfile.TemporaryDirectory() as tmp:
+            corpus = StatuteCorpus(tmp)
+            for candidate in ("../private", "..", ".", "/etc", "a/b", "a\\\\b", 42, None):
+                with self.subTest(candidate=candidate):
+                    self.assertIsNone(corpus.get_statute(candidate))
+
+    def test_rejects_symlinked_statute_directory(self):
+        from statute_corpus import StatuteCorpus
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            external = root / "external"
+            external.mkdir()
+            (external / "content.json").write_text('{"articles":{"article_1":{"text":"secret"}}}', encoding="utf-8")
+            corpus_dir = root / "corpus"
+            corpus_dir.mkdir()
+            (corpus_dir / "linked").symlink_to(external, target_is_directory=True)
+            corpus = StatuteCorpus(corpus_dir)
+            self.assertIsNone(corpus.get_statute("linked"))
+
+
 class StatutoryCorpusTests(unittest.TestCase):
     def test_quarantined_legal_corpus_is_not_served_as_verified_evidence(self):
         manifest = json.loads((ROOT / 'manifest.json').read_text(encoding='utf-8'))
