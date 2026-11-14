@@ -157,6 +157,9 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
     query_count = parse_int_field(payload, "queries", 3, 1, 5)
     source_limit = parse_int_field(payload, "sources", 6, 1, 10)
     demo = bool(payload.get("demo", False))
+    as_of = payload.get("as_of")
+    if as_of is not None and not isinstance(as_of, str):
+        raise RequestValidationError("Поле «as_of» должно быть датой в формате YYYY-MM-DD.")
     context = sessions.context(session_id) if sessions and session_id else ""
 
     # Отдельная папка на запрос: имена файлов внутри не пересекаются.
@@ -169,6 +172,7 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
         output_dir=request_dir,
         demo=demo,
         session_context=context,
+        as_of=as_of,
     )
     answer = report_path.read_text(encoding="utf-8")
     journal = json.loads(journal_path.read_text(encoding="utf-8"))
@@ -183,6 +187,7 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
         "checked_on": journal["checked_on"],
         "disclaimer": LEGAL_DISCLAIMER,
         "demo": journal["demo"],
+        "as_of": as_of,
         "session_id": session_id,
         "report_file": str(report_path),
         "journal_file": str(journal_path),
