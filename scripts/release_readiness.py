@@ -1,7 +1,7 @@
 """Fail-closed release evidence gate. This does not execute tests or grant legal approval.
 
 Usage: python scripts/release_readiness.py [evidence.json]
-Only explicit, externally verified PASS evidence counts. Missing/stale evidence fails.
+Only recent linked PASS claims count toward a provisional score. No independent verification.
 """
 import json
 from datetime import date, timedelta
