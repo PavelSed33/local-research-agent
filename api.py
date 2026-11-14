@@ -194,12 +194,28 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
     }
 
 
+def handle_corpus_search(payload: dict[str, Any]) -> dict[str, Any]:
+    """Optional quarantined research search; never feeds /ask or asserts legal validity."""
+    if os.getenv("ENABLE_QUARANTINE_SEARCH") != "true":
+        raise RequestValidationError("Карантинный поиск отключён администратором.")
+    root = os.getenv("LEGAL_CORPUS_DIR", "").strip()
+    if not root:
+        raise RequestValidationError("Каталог юридического корпуса не настроен.")
+    code = payload.get("code")
+    query = payload.get("query")
+    limit = parse_int_field(payload, "limit", 10, 1, 50)
+    from legal_quarantine_search import search
+    result = search(Path(root), code, query, limit)
+    result["disclaimer"] = "Черновой поиск: тексты и редакции не прошли юридическую верификацию. Нельзя использовать как подтверждённые действующие нормы."
+    return result
+
+
 def health_payload(metrics: Metrics | None = None) -> dict[str, Any]:
     return {
         "status": "ok",
         "service": SERVICE_NAME,
         "version": API_VERSION,
-        "endpoints": ["GET /health", "GET /openapi.json", "POST /ask", "POST /review", "POST /extract", "POST /diff", "POST /penalty", "POST /check", "POST /timeline", "POST /draft", "POST /triage", "POST /duty", "POST /export", "POST /protocol", "POST /scoring"],
+        "endpoints": ["GET /health", "GET /openapi.json", "POST /ask", "POST /corpus/search", "POST /review", "POST /extract", "POST /diff", "POST /penalty", "POST /check", "POST /timeline", "POST /draft", "POST /triage", "POST /duty", "POST /export", "POST /protocol", "POST /scoring"],
         "llm_configured": bool(os.getenv("LLM_API_KEY") and os.getenv("LLM_MODEL")),
         "tavily_configured": bool(os.getenv("TAVILY_API_KEY")),
         "demo_available": True,
@@ -607,7 +623,7 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /penalty, POST /check, POST /timeline, POST /draft, POST /triage, POST /duty, POST /export, POST /protocol, POST /scoring."})
 
     def do_POST(self) -> None:
-        if self.path not in ("/ask", "/review", "/extract", "/diff", "/penalty", "/check", "/timeline", "/draft", "/triage", "/duty", "/export", "/protocol", "/scoring"):
+        if self.path not in ("/ask", "/corpus/search", "/review", "/extract", "/diff", "/penalty", "/check", "/timeline", "/draft", "/triage", "/duty", "/export", "/protocol", "/scoring"):
             self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /penalty, POST /check, POST /timeline, POST /draft, POST /triage, POST /duty, POST /export, POST /protocol, POST /scoring."})
             return
         if not self._authorized():
@@ -622,6 +638,8 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             payload = self._read_payload()
             if self.path == "/ask":
                 result = handle_ask(payload, Path(self.server.output_dir), self.server.sessions)
+            elif self.path == "/corpus/search":
+                result = handle_corpus_search(payload)
             elif self.path == "/review":
                 result = handle_review(payload)
             elif self.path == "/extract":
