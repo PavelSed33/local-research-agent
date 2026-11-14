@@ -765,6 +765,7 @@ class LegalApiHandler(BaseHTTPRequestHandler):
         body = json.dumps(payload, ensure_ascii=False, indent=2).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Cache-Control", "no-store")
         self.send_header("Content-Length", str(len(body)))
         request_id = getattr(self, "_response_request_id", None)
         if request_id:
@@ -856,6 +857,14 @@ class LegalApiHandler(BaseHTTPRequestHandler):
         if self.path == "/health":
             self._send_json(200, health_payload(self.server.metrics))
             self.server.metrics.record("GET /health", 200, (time.perf_counter() - started) * 1000)
+        elif self.path == "/runtime/readiness":
+            if not self._authorized():
+                self._send_json(401, {"error": "Требуется Bearer-токен."})
+                self.server.metrics.record("GET /runtime/readiness", 401, (time.perf_counter() - started) * 1000)
+                return
+            from preflight import inspect_runtime
+            self._send_json(200, inspect_runtime())
+            self.server.metrics.record("GET /runtime/readiness", 200, (time.perf_counter() - started) * 1000)
         elif self.path == "/legal/research/options":
             from legal_research import research_options
             self._send_json(200, research_options())
@@ -865,12 +874,7 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             self._send_json(200, review_options())
             self.server.metrics.record("GET /review/options", 200, (time.perf_counter() - started) * 1000)
         elif self.path == "/openapi.json":
-            specification = openapi_spec()
-            requires_token = bool(getattr(self.server, "api_token", ""))
-            for operation in specification["paths"].values():
-                for method_spec in operation.values():
-                    if isinstance(method_spec, dict):
-                        method_spec["security"] = [{"ApiToken": []}] if requires_token and "post" in operation else []
+            specification = openapi_spec(require_auth=bool(getattr(self.server, "api_token", "")))
             self._send_json(200, specification)
             self.server.metrics.record("GET /openapi.json", 200, (time.perf_counter() - started) * 1000)
         else:
@@ -901,6 +905,15 @@ class LegalApiHandler(BaseHTTPRequestHandler):
                     "/ask", "/review", "/review/legal", "/extract",
                     "/extract/local", "/legal/skills/run"}:
                 result = self._execute_managed(payload)
+            elif self.path == "/extract/local":
+                from local_extract import handle_local_extract
+                result = handle_local_extract(payload)
+            elif self.path == "/legal/skills/run":
+                from legal_skills import handle_skill, SkillRegistryError
+                try:
+                    result = handle_skill(payload)
+                except SkillRegistryError as exc:
+                    raise JobError(503, "skill_registry_unavailable", "Реестр навыков недоступен.") from None
             elif self.path == "/legal/research":
                 from legal_research import handle_legal_research
                 result = handle_legal_research(payload)
