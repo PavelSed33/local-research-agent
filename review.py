@@ -228,8 +228,6 @@ def handle_review(payload: dict[str, Any]) -> dict[str, Any]:
         "status": "draft",
         "verified": False,
         "lawyer_reviewed": False,
-        "verified": False,
-        "lawyer_reviewed": False,
         "summary": result["summary"].strip(),
         "risks": risks,
         "missing_clauses": result.get("missing_clauses", []),
