@@ -21,7 +21,7 @@ class DockerPackagingTests(unittest.TestCase):
                         self.fail(f"Docker COPY source has no matches: {name}")
                     for source in matches:
                         if source.is_dir():
-                            shutil.copytree(source, destination, dirs_exist_ok=True)
+                            shutil.copytree(source, destination / source.name, dirs_exist_ok=True)
                         else:
                             destination.mkdir(parents=True, exist_ok=True)
                             shutil.copy2(source, destination / source.name)
