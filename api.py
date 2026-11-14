@@ -104,8 +104,8 @@ class SessionStore:
             session = self._sessions[session_id]
             entries = list(session["entries"])
             identity = session.setdefault("identity", uuid.uuid4().hex)
-        context = "\\n---\\n".join(
-            f"Вопрос: {item['question']}\\nКраткий ответ: {item['answer']}" for item in entries
+        context = "\n---\n".join(
+            f"Вопрос: {item['question']}\nКраткий ответ: {item['answer']}" for item in entries
         )
         return context, identity
 
