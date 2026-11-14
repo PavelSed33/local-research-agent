@@ -288,7 +288,7 @@ class DemoModel:
     def complete(self, system: str, user: str) -> str:
         if "legal_update_queries" in system:
             return json.dumps(
-                {"queries": ["условная проверка последних изменений"], "notes": "Демонстрационная проверка изменений."},
+                {"legal_update_queries": ["условная проверка последних изменений"], "notes": "Демонстрационная проверка изменений."},
                 ensure_ascii=False,
             )
         if "court_queries" in system:
@@ -454,8 +454,6 @@ def plan_legal_update_check(model: LanguageModel, question: str, sources: list[S
                 raise
             time.sleep(1)
     raw_queries = data.get("legal_update_queries", data.get("queries", []))
-    if not isinstance(raw_queries, list):
-        raise AgentError("Запросы для проверки изменений имеют неверный формат.")
     if not isinstance(raw_queries, list):
         raise AgentError("Запросы для проверки изменений имеют неверный формат.")
     queries = [item for item in raw_queries if isinstance(item, str)]
