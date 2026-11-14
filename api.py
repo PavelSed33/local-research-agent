@@ -314,6 +314,17 @@ def openapi_spec() -> dict[str, Any]:
             "description": "Локальный юридический ИИ-помощник по законодательству РФ.",
         },
         "paths": {
+            "/legal/research/options": {"get": {"summary": "Сценарии юридического исследования",
+                "responses": {"200": {"description": "Справочник сценариев, не юридическая консультация"}}}},
+            "/legal/research": {"post": {"summary": "Уточнение обстоятельств и ограничений применимости",
+                "responses": {"200": {"description": "Неподтверждённое исследование"},
+                              "401": {"description": "Требуется токен"}}}},
+            "/legal/corpus": {"post": {"summary": "Запрос карт нормы по идентификаторам",
+                "responses": {"200": {"description": "Копии с явным статусом проверки"},
+                              "401": {"description": "Требуется токен"}}}},
+            "/legal/coverage": {"post": {"summary": "Проверка полноты и пробелов покрытия законодательства",
+                "responses": {"200": {"description": "Отчёт о пробелах и непроверенных копиях"},
+                              "401": {"description": "Требуется токен"}}}},
             "/review/options": {
                 "get": {"summary": "Вопросы для уточнения вида договора",
                         "responses": {"200": {"description": "Варианты квалификации"}}}
@@ -710,6 +721,10 @@ class LegalApiHandler(BaseHTTPRequestHandler):
         if self.path == "/health":
             self._send_json(200, health_payload(self.server.metrics))
             self.server.metrics.record("GET /health", 200, (time.perf_counter() - started) * 1000)
+        elif self.path == "/legal/research/options":
+            from legal_research import research_options
+            self._send_json(200, research_options())
+            self.server.metrics.record("GET /legal/research/options", 200, (time.perf_counter() - started) * 1000)
         elif self.path == "/review/options":
             from legal_review import review_options
             self._send_json(200, review_options())
@@ -727,7 +742,7 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /penalty, POST /check, POST /timeline, POST /draft, POST /triage, POST /duty, POST /export, POST /protocol, POST /scoring."})
 
     def do_POST(self) -> None:
-        if self.path not in ("/review/legal", "/sessions/delete", "/ask", "/corpus/search", "/review", "/extract", "/diff", "/penalty", "/check", "/timeline", "/draft", "/triage", "/duty", "/export", "/protocol", "/scoring"):
+        if self.path not in ("/legal/research", "/legal/corpus", "/legal/coverage", "/review/legal", "/sessions/delete", "/ask", "/corpus/search", "/review", "/extract", "/diff", "/penalty", "/check", "/timeline", "/draft", "/triage", "/duty", "/export", "/protocol", "/scoring"):
             self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /penalty, POST /check, POST /timeline, POST /draft, POST /triage, POST /duty, POST /export, POST /protocol, POST /scoring."})
             return
         if self.path == "/corpus/search" and not getattr(self.server, "api_token", ""):
@@ -745,7 +760,19 @@ class LegalApiHandler(BaseHTTPRequestHandler):
         started = time.perf_counter()
         try:
             payload = self._read_payload()
-            if self.path == "/review/legal":
+            if self.path == "/legal/research":
+                from legal_research import handle_legal_research
+                result = handle_legal_research(payload)
+            elif self.path == "/legal/corpus":
+                from statute_corpus import handle_corpus
+                result = handle_corpus(payload)
+            elif self.path == "/legal/coverage":
+                from legal_coverage import coverage_report
+                if set(payload) - {"module_ids", "card_ids", "as_of"}:
+                    raise RequestValidationError("Допустимы только module_ids, card_ids и as_of.")
+                result = coverage_report(payload.get("module_ids"), payload.get("as_of"),
+                                         card_ids=payload.get("card_ids"))
+            elif self.path == "/review/legal":
                 from legal_review import handle_legal_review
                 result = handle_legal_review(payload)
             elif self.path == "/sessions/delete":
