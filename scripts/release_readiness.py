@@ -4,6 +4,7 @@ Usage: python scripts/release_readiness.py [evidence.json]
 Only recent linked PASS claims count toward a provisional score. No independent verification.
 """
 import json
+import ipaddress
 from datetime import date, timedelta
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -24,7 +25,14 @@ def _valid_proof_url(value):
     try:
         parsed = urlsplit(value)
         host = parsed.hostname
-        return (parsed.scheme == "https" and bool(host) and "." in host
+        if not host or host == "localhost" or host.endswith((".localhost", ".local")):
+            return False
+        try:
+            ipaddress.ip_address(host)
+            return False  # Evidence must link to a public DNS host, not an IP literal.
+        except ValueError:
+            pass
+        return (parsed.scheme == "https" and "." in host
                 and parsed.username is None and parsed.password is None
                 and parsed.port is None and not parsed.fragment)
     except ValueError:
