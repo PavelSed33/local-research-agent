@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "title": "Гражданский кодекс Российской Федерации (части I–IV)",
+  "original_filename": "Гражданский кодекс Российской Федерации.pdf",
+  "received_from": "user_upload",
+  "pdf_sha256": "0969f009e35c7058621d5c88c430881b71cf72a6de7f25036216ce3e2518ee73",
+  "pdf_pages": 736,
+  "text_layer_present": true,
+  "extracted_text_bytes": 3749273,
+  "official_reference": "https://minjust.gov.ru/ru/pages/grazhdanskij-kodeks/",
+  "official_original_verified": false,
+  "edition_current_verified": false,
+  "source_rights_verified": false,
+  "full_text_committed": false,
+  "approved_for_legal_search": false,
+  "status": "quarantined_pending_source_and_edition_review"
+}
