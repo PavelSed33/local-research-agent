@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "checked_on": "2026-11-14",
+  "scope": "Reference discovery only; no official edition full-text comparison",
+  "legal_reliability_status": "quarantine_unverified",
+  "acts": [
+    {
+      "act": "ГК РФ, часть первая",
+      "law_number": "51-ФЗ",
+      "law_date": "1994-11-30",
+      "official_bank_record_id": "102033239",
+      "official_bank_candidate_url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102033239",
+      "reference_status": "reported_by_official_minjust_listing; direct portal access timed out",
+      "local_source_sha256": "d618f262d0350ec126bc2c937668bdae82902d21600304361b3fca56f4b68af8",
+      "exact_official_edition_downloaded": false,
+      "full_text_compared": false,
+      "edition_verified": false
+    },
+    {
+      "act": "УК РФ",
+      "law_number": "63-ФЗ",
+      "law_date": "1996-06-13",
+      "official_bank_record_id": "102041891",
+      "official_bank_candidate_url": "https://pravo.gov.ru/proxy/ips/?docbody=&nd=102041891",
+      "reference_evidence": [
+        "https://www.dom-rsuh.ru/sveden/files/PP_oznakomit.prakt_2021_podpisano.pdf",
+        "https://infoneeds.kubsu.ru/infoneeds/file_export.do?fid=4115714"
+      ],
+      "reference_status": "secondary academic citations; direct official portal access timed out",
+      "local_source_sha256": "c6ce792c5f99ed81a3ae61cc16ec66fd0d7279a5df44917dced5a4b4325a3205",
+      "exact_official_edition_downloaded": false,
+      "full_text_compared": false,
+      "edition_verified": false
+    }
+  ],
+  "release_gate": "Do not elevate verified state until edition-specific primary official text is retrieved, dates of validity established, and text compared against indexed source."
+}
