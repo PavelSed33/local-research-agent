@@ -43,7 +43,10 @@ def assess(evidence, *, today=None):
         if isinstance(item, dict):
             stamp = item.get("verified_on")
             proof = item.get("proof_url")
-            if isinstance(stamp, str):
+            if (isinstance(stamp, str) and len(stamp) == 10
+                    and stamp[4] == "-" and stamp[7] == "-"
+                    and (stamp[:4] + stamp[5:7] + stamp[8:]).isascii()
+                    and (stamp[:4] + stamp[5:7] + stamp[8:]).isdigit()):
                 try:
                     checked = date.fromisoformat(stamp)
                     recent = checked <= today and today - checked <= timedelta(days=MAX_EVIDENCE_AGE_DAYS)
