@@ -939,7 +939,11 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /penalty, POST /check, POST /timeline, POST /draft, POST /triage, POST /duty, POST /export, POST /protocol, POST /scoring."})
 
     def do_POST(self) -> None:
-        if self.path not in ("/requests/cancel", "/extract/local", "/legal/skills/run", "/legal/research", "/legal/corpus", "/legal/coverage", "/review/legal", "/sessions/delete", "/ask", "/corpus/search", "/review", "/extract", "/diff", "/penalty", "/check", "/timeline", "/draft", "/triage", "/duty", "/export", "/protocol", "/scoring"):
+        from workspace_api import FIELDS
+        workspace_routes = getattr(self.server, "workspace", None) is not None and self.path in FIELDS
+        document_tools_routes = self.path in (
+            "/documents/parse", "/documents/redact", "/documents/export", "/documents/redline")
+        if not workspace_routes and not document_tools_routes and self.path not in ("/requests/cancel", "/extract/local", "/legal/skills/run", "/legal/research", "/legal/corpus", "/legal/coverage", "/review/legal", "/sessions/delete", "/ask", "/corpus/search", "/review", "/extract", "/diff", "/penalty", "/check", "/timeline", "/draft", "/triage", "/duty", "/export", "/protocol", "/scoring"):
             self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /penalty, POST /check, POST /timeline, POST /draft, POST /triage, POST /duty, POST /export, POST /protocol, POST /scoring."})
             return
         if self.path == "/corpus/search" and not getattr(self.server, "api_token", ""):
@@ -957,7 +961,63 @@ class LegalApiHandler(BaseHTTPRequestHandler):
         started = time.perf_counter()
         try:
             payload = self._read_payload()
-            if self.path == "/requests/cancel":
+            workspace = getattr(self.server, "workspace", None)
+            principal = getattr(self, "_principal", None)
+            if workspace is not None and self.path in ("/ask", "/sessions/delete"):
+                external_id = payload.get("session_id")
+                if external_id is not None:
+                    if (not isinstance(external_id, str)
+                            or not SESSION_ID_PATTERN.fullmatch(external_id)):
+                        raise RequestValidationError("Некорректный session_id.")
+                    from workspace_api import namespace
+                    payload = {**payload, "session_id": namespace(principal["id"], external_id)}
+            if workspace is not None and self.path == "/requests/cancel":
+                key = payload.get("request_id")
+                if not isinstance(key, str) or not ID_PATTERN.fullmatch(key):
+                    raise RequestValidationError("Некорректный request_id.")
+                from workspace_api import namespace
+                payload = {"request_id": namespace(principal["id"], key)}
+            if workspace_routes:
+                from workspace_api import dispatch, prepare_answer, namespace
+                if self.path == "/workspace/ask":
+                    prepared = prepare_answer(workspace, principal["id"], payload)
+                    raw_id = self.headers.get("X-Request-ID") or uuid.uuid4().hex
+                    if not ID_PATTERN.fullmatch(raw_id):
+                        raise RequestValidationError("Некорректный X-Request-ID.")
+                    user_id = principal["id"]
+                    matter_id = payload.get("matter_id")
+                    def commit_workspace(answer):
+                        self._workspace_current_user()
+                        with workspace.connect() as db:
+                            workspace._access(db, user_id, matter_id)
+                        return answer
+                    result = self.server.jobs.execute(namespace(user_id, raw_id),
+                        {"path": "/matter/answer", "payload": prepared}, commit_workspace)
+                else:
+                    result = dispatch(workspace, principal["id"], self.path, payload)
+            elif document_tools_routes:
+                from document_tools import parse_file, redact, export_docx
+                from docx_redline import redline_docx
+                if self.path == "/documents/redline":
+                    from workspace_api import namespace
+                    raw_id = self.headers.get("X-Request-ID") or uuid.uuid4().hex
+                    if not ID_PATTERN.fullmatch(raw_id):
+                        raise RequestValidationError("Некорректный X-Request-ID.")
+                    user_id = principal["id"] if principal else ""
+                    def commit_document(answer):
+                        if workspace is not None:
+                            self._workspace_current_user()
+                        return answer
+                    result = self.server.jobs.execute(
+                        namespace(user_id, raw_id) if workspace else raw_id,
+                        {"path": "/documents/redline", "payload": payload}, commit_document)
+                elif self.path == "/documents/parse":
+                    result = parse_file(payload)
+                elif self.path == "/documents/redact":
+                    result = redact(payload)
+                else:
+                    result = export_docx(payload)
+            elif self.path == "/requests/cancel":
                 result = {"cancelled": self.server.jobs.cancel(payload.get("request_id"))}
             elif self.server.jobs.enabled and self.path in {
                     "/ask", "/review", "/review/legal", "/extract",
@@ -995,7 +1055,13 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             elif self.path == "/ask":
                 session_id = payload.get("session_id")
                 context = self.server.sessions.context(session_id) if isinstance(session_id, str) else ""
-                result = self.server.jobs.execute(uuid.uuid4().hex,
+                raw_id = self.headers.get("X-Request-ID") or uuid.uuid4().hex
+                if not ID_PATTERN.fullmatch(raw_id):
+                    raise RequestValidationError("Некорректный X-Request-ID.")
+                if workspace is not None:
+                    from workspace_api import namespace
+                    raw_id = namespace(principal["id"], raw_id)
+                result = self.server.jobs.execute(raw_id,
                     {"path": "/ask", "payload": payload, "context": context})
             elif self.path == "/corpus/search":
                 result = handle_corpus_search(payload)
@@ -1023,6 +1089,13 @@ class LegalApiHandler(BaseHTTPRequestHandler):
                 result = handle_scoring(payload)
             else:
                 result = handle_diff(payload)
+        except __import__("workspace_store").WorkspaceError as exc:
+            self._send_json(exc.status, {"code": exc.code, "error": str(exc)})
+            status = exc.status
+        except __import__("primary_sources").PrimarySourceError:
+            self._send_json(503, {"code": "primary_archive_unavailable",
+                                  "error": "Архив первоисточников недоступен."})
+            status = 503
         except JobError as exc:
             self._send_json(exc.status, {"code": exc.code, "error": str(exc)})
             status = exc.status
