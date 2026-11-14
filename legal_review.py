@@ -135,21 +135,28 @@ def handle_legal_review(payload: dict[str, Any]) -> dict[str, Any]:
             sources = TavilySearch().search(query, 5)
         except AgentError:
             errors.append('Не удалось получить сетевые правовые источники; локальные извлечения, если есть, неполны.')
-        # Keep retrieved source IDs stable and prefer a newly retrieved copy for the same URL.
-        urls = {source.url for source in sources}
-        # Keep fresh search IDs stable while reserving room for article-specific local texts.
-        if statutory_cached:
-            sources = sources[:2]
-            urls = {source.url for source in sources}
-            # Keep the consumer transition beside the article copies even when
-            # the five-source budget is filled by fresh results and local texts.
-            transitions = [source for source in cached if
-                           captures.get(source.url, {}).get('kind') == 'government_amending_act_copy']
-            sources.extend(source for source in transitions if source.url not in urls)
-            urls = {source.url for source in sources}
-            sources.extend(source for source in statutory_cached if source.url not in urls)
-            urls = {source.url for source in sources}
-        sources.extend(source for source in cached if source.url not in urls)
+        # Reserve source slots for available locally captured transition acts
+        # and article extracts, even when search returns its entire budget.
+        # Retrieval never implies legal verification or temporal applicability.
+        transitions = [source for source in cached
+                       if captures.get(source.url, {}).get("kind") == "government_amending_act_copy"]
+        preferred = transitions + list(statutory_cached)
+        if preferred:
+            pinned = []
+            seen = set()
+            for source in preferred:
+                if source.url not in seen and len(pinned) < 3:
+                    pinned.append(source)
+                    seen.add(source.url)
+            selected = []
+            for source in sources:
+                if source.url not in seen and len(selected) < 5 - len(pinned):
+                    selected.append(source)
+                    seen.add(source.url)
+            sources = selected + pinned
+        seen = {source.url for source in sources}
+        sources.extend(source for source in cached if source.url not in seen)
+
     sources = [Source(s.title[:500], s.url[:2000], s.text[:12000], s.query) for s in sources[:5]]
     model = DemoReviewModel() if demo else OpenAICompatibleModel()
     system, _ = build_review_prompt(document)
