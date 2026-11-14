@@ -20,7 +20,7 @@ class SituationDateTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory, patch.object(
             agent, 'current_check_date', return_value='2026-11-07'
         ):
-            result = handle_ask({'question': 'Тест', 'demo': True, 'as_of': '2024-02-29'}, Path(directory))
+            result = handle_ask({'question': 'Тест', 'demo': True, 'as_of': '2024-02-29'}, Path(directory), persist_results=True)
             self.assertEqual(result['as_of'], '2024-02-29')
             self.assertEqual(result['checked_on'], '2026-11-07')
             self.assertIn('**Дата правовой ситуации:** 2024-02-29', result['answer'])
