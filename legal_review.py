@@ -192,6 +192,8 @@ def handle_legal_review(payload: dict[str, Any]) -> dict[str, Any]:
     safe_risks = []
     for candidate in result['risks']:
         risk = safe_review_risk(candidate)
+        if risk is None:
+            raise AgentError("Не удалось безопасно обработать риск в юридическом заключении.")
         risk['document_span'] = quote_span(document, risk['quote'])
         risk['legal_basis'] = [{
             'source_id': basis['source_id'], 'provision': basis['provision'], 'quote': basis['quote'],
