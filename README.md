@@ -87,11 +87,11 @@ LLM_API_KEY=ваш_ключ
 LLM_MODEL=название_доступной_модели
 LLM_BASE_URL=https://api.openai.com/v1
 TAVILY_API_KEY=ваш_ключ_tavily
-LEGAL_SEARCH_DOMAINS=pravo.gov.ru,www.consultant.ru,www.garant.ru
-COURT_SEARCH_DOMAINS=kad.arbitr.ru,vsrf.ru,sudact.ru
+LEGAL_SEARCH_DOMAINS=pravo.gov.ru,publication.pravo.gov.ru
+COURT_SEARCH_DOMAINS=kad.arbitr.ru,vsrf.ru
 ```
 
-Если используется другой OpenAI-совместимый сервис, замените `LLM_BASE_URL` на базовый адрес без `/chat/completions` в конце.
+Используйте только источники с проверенным происхождением и допустимыми условиями доступа; наличие официального домена не подтверждает редакцию документа или разрешение на массовую загрузку.\n\nЕсли используется другой OpenAI-совместимый сервис, замените `LLM_BASE_URL` на базовый адрес без `/chat/completions` в конце.
 
 3. Запустите помощника:
 
