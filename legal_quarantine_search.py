@@ -7,8 +7,8 @@ class CorpusError(ValueError):
     pass
 
 def search(corpus_root, code, query, limit=10):
-    if code not in ("gk", "nk", "tk", "koap", "kas", "grk", "uk", "upk", "uik", "gpk"):
-        raise CorpusError("Only gk/nk/tk/koap/kas/grk/uk/upk/uik/gpk are supported")
+    if code not in ("gk", "nk", "tk", "koap", "kas", "grk", "uk", "upk", "uik", "gpk", "apk"):
+        raise CorpusError("Only gk/nk/tk/koap/kas/grk/uk/upk/uik/gpk/apk are supported")
     if not isinstance(query, str) or not query.strip() or len(query)>500:
         raise CorpusError("Query must be 1-500 characters")
     if type(limit) is not int or not 1<=limit<=50:
@@ -27,7 +27,7 @@ def search(corpus_root, code, query, limit=10):
         manifest.get("source_claim_verified") is not False):
         raise CorpusError("Only quarantined unverified corpus is supported")
     needle=query.strip().casefold()
-    article=re.fullmatch(r"(?:статья|ст\.?|article)?\s*(\d+(?:\.\d+)?)",needle)
+    article=re.fullmatch(r"(?:статья|ст\.?|article)?\s*(\d+(?:\.\d+)?(?:-\d+)?)",needle)
     matches=[]
     with article_path.open(encoding="utf-8") as stream:
         for line in stream:
