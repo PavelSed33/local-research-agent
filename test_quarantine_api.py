@@ -3,10 +3,13 @@ import json
 import os
 from pathlib import Path
 import tempfile
+import threading
+import urllib.error
+import urllib.request
 import unittest
 from unittest.mock import patch
 
-from api import RequestValidationError, handle_corpus_search
+from api import RequestValidationError, handle_corpus_search, create_server
 
 
 class QuarantineApiTests(unittest.TestCase):
@@ -40,6 +43,26 @@ class QuarantineApiTests(unittest.TestCase):
         self.assertFalse(result["results"][0]["verified"])
         self.assertEqual(result["results"][0]["article"], "395")
         self.assertIn("не прошли", result["disclaimer"])
+
+    def test_http_endpoint_requires_configured_token(self):
+        body = json.dumps({"code": "gk", "query": "395"}).encode("utf-8")
+        for token, expected_status in (("", 503), ("test-token", 401)):
+            with self.subTest(token_configured=bool(token)):
+                server = create_server("127.0.0.1", 0, self.tmp.name, token)
+                thread = threading.Thread(target=server.serve_forever, daemon=True)
+                thread.start()
+                try:
+                    request = urllib.request.Request(
+                        f"http://127.0.0.1:{server.server_port}/corpus/search",
+                        data=body, headers={"Content-Type": "application/json"},
+                    )
+                    with self.assertRaises(urllib.error.HTTPError) as caught:
+                        urllib.request.urlopen(request, timeout=3)
+                    self.assertEqual(caught.exception.code, expected_status)
+                finally:
+                    server.shutdown()
+                    server.server_close()
+                    thread.join(timeout=3)
 
     def test_reject_invalid_limits_and_unknown_codes(self):
         with patch.dict(os.environ, {
