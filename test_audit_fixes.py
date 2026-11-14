@@ -281,8 +281,8 @@ class OfficialPravoPortalIntegrationTests(unittest.TestCase):
         text_response = json.dumps({"Text": "<p>Текст официального акта.</p>"}).encode("utf-8")
         with patch("urllib.request.build_opener") as mocked:
             mocked.return_value.open.side_effect = [
-            io.BytesIO(search_response), io.BytesIO(text_response)
-        ]
+                io.BytesIO(search_response), io.BytesIO(text_response)
+            ]
             client = PravoPortalSearch()
             sources = client.search("Федеральный закон", 3)
         self.assertEqual(len(sources), 1)
@@ -334,11 +334,11 @@ class OfficialIntegratedLegalBankTests(unittest.TestCase):
         new_page = '<html>Редакция от 01.01.2024 Текст новой редакции.</html>'
         with patch("urllib.request.build_opener") as mocked:
             mocked.return_value.open.side_effect = [
-            io.BytesIO(search_page.encode()),
-            io.BytesIO(history_page.encode()),
-            io.BytesIO(old_page.encode()),
-            io.BytesIO(new_page.encode()),
-        ]
+                io.BytesIO(search_page.encode()),
+                io.BytesIO(history_page.encode()),
+                io.BytesIO(old_page.encode()),
+                io.BytesIO(new_page.encode()),
+            ]
             sources = PravoIpsBank().search("тестовый закон", 1, as_of="2022-06-01")
         self.assertEqual(len(sources), 1)
         self.assertIn("Редакция-снимок: 2020-01-01", sources[0].text)
@@ -377,10 +377,10 @@ class OfficialIntegratedLegalBankTests(unittest.TestCase):
         new_page = '<html>Редакция от 01.01.2024\\nСтатья 1. Новый текст.\\nСтатья 2. Без изменений.</html>'
         with patch("urllib.request.build_opener") as mocked:
             mocked.return_value.open.side_effect = [
-            io.BytesIO(history_page.encode()),
-            io.BytesIO(old_page.encode()),
-            io.BytesIO(new_page.encode()),
-        ]
+                io.BytesIO(history_page.encode()),
+                io.BytesIO(old_page.encode()),
+                io.BytesIO(new_page.encode()),
+            ]
             result = PravoIpsBank().get_history("102000001")
 
         self.assertEqual(len(result["snapshots"]), 3)
