@@ -249,10 +249,15 @@ class StatuteCorpus:
         return {"statutes": {}}
 
     def get_statute(self, statute_id):
+        # Legacy IDs are path components, never caller-controlled paths.
+        if not isinstance(statute_id, str) or not _SAFE_PATH.fullmatch(statute_id) or statute_id in (".", ".."):
+            return None
         if statute_id in self.cache:
             return self.cache[statute_id]
         statute_path = self.base_dir / statute_id / "content.json"
-        if not statute_path.exists():
+        if statute_path.is_symlink() or not statute_path.is_file() or statute_path.parent.is_symlink():
+            return None
+        if statute_path.resolve().parent.parent != self.base_dir.resolve():
             return None
         with open(statute_path, "r", encoding="utf-8") as f:
             data = json.load(f)
