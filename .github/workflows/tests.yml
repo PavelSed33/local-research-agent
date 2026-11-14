@@ -49,6 +49,9 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build image
         run: docker build -t legal-agent:test .
+      - name: Offline demo preflight inside image
+        run: |
+          docker run --rm legal-agent:test python -c "import tempfile; from pathlib import Path; from agent import run; d=Path(tempfile.mkdtemp()); report,journal=run('Тест',3,6,d,demo=True,as_of='2023-03-01',verbose=False); print(report.read_text(encoding='utf-8')[:400]); print(journal.read_text(encoding='utf-8')[:400])"
       - name: Start API
         run: docker run -d --name legal-agent-test -p 127.0.0.1:18080:8080 -e API_TOKEN=ci-smoke-token legal-agent:test
       - name: Verify health and demo research
