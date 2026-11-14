@@ -944,8 +944,42 @@ class LegalApiHandler(BaseHTTPRequestHandler):
         return user["id"]
 
 
+    def _send_static(self, path: str) -> None:
+        """Serve only bundled application assets; never resolve user-supplied paths."""
+        assets = {
+            "/": ("index.html", "text/html; charset=utf-8"),
+            "/app.js": ("app.js", "text/javascript; charset=utf-8"),
+            "/style.css": ("style.css", "text/css; charset=utf-8"),
+            "/workspace": ("workspace.html", "text/html; charset=utf-8"),
+            "/workspace.js": ("workspace.js", "text/javascript; charset=utf-8"),
+        }
+        name, content_type = assets[path]
+        try:
+            data = (Path(__file__).resolve().parent / "web" / name).read_bytes()
+            if len(data) > 512 * 1024:
+                raise OSError("Asset is oversized")
+        except OSError:
+            self._send_json(503, {"error": "Ресурсы веб-интерфейса временно недоступны."})
+            return
+        self.send_response(200)
+        self.send_header("Content-Type", content_type)
+        self.send_header("Content-Length", str(len(data)))
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("Referrer-Policy", "no-referrer")
+        self.send_header("Content-Security-Policy",
+                         "default-src 'self'; script-src 'self'; style-src 'self'; "
+                         "connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'")
+        self.send_header("Connection", "close")
+        self.close_connection = True
+        self.end_headers()
+        self.wfile.write(data)
+
     def do_GET(self) -> None:
         started = time.perf_counter()
+        if self.path in {"/", "/app.js", "/style.css", "/workspace", "/workspace.js"}:
+            self._send_static(self.path)
+            return
         if self.path == "/health":
             self._send_json(200, health_payload(self.server.metrics))
             self.server.metrics.record("GET /health", 200, (time.perf_counter() - started) * 1000)
