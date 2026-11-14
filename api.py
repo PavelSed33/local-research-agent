@@ -337,14 +337,14 @@ def health_payload(metrics: Metrics | None = None) -> dict[str, Any]:
     }
 
 
-def openapi_spec() -> dict[str, Any]:
+def openapi_spec(require_auth: bool = True) -> dict[str, Any]:
     """Машинное описание API (OpenAPI 3.0) для интеграции с оркестраторами."""
     document_property = {
         "document": {"type": "string", "description": "Полный текст договора (UTF-8)"},
         "document_base64": {"type": "string", "description": "Договор в формате DOCX, закодированный в base64"},
         "demo": {"type": "boolean", "default": False, "description": "Демонстрационный режим без внешних запросов"},
     }
-    return {
+    specification = {
         "components": {"securitySchemes": {"ApiToken": {"type": "http", "scheme": "bearer"}}},
         "openapi": "3.0.3",
         "info": {
@@ -353,6 +353,41 @@ def openapi_spec() -> dict[str, Any]:
             "description": "Локальный юридический ИИ-помощник по законодательству РФ.",
         },
         "paths": {
+            "/runtime/readiness": {"get": {"summary": "Локальная проверка готовности без сетевых запросов",
+                "responses": {"200": {"description": "Статус без секретов"},
+                              "401": {"description": "Требуется Bearer-токен"}}}},
+            "/extract/local": {"post": {"summary": "Локальное извлечение данных без LLM",
+                "requestBody": {"required": True, "content": {"application/json":
+                    {"schema": {"type": "object", "additionalProperties": False,
+                                "properties": {"document": {"type": "string"},
+                                               "document_base64": {"type": "string"}}}}}},
+                "responses": {"200": {"description": "Локальные совпадения"},
+                              "400": {"description": "Ошибка входных данных"},
+                              "504": {"description": "Превышен срок выполнения"}}}},
+            "/legal/skills/run": {"post": {"summary": "Запуск разрешённого юридического навыка",
+                "requestBody": {"required": True, "content": {"application/json":
+                    {"schema": {"type": "object", "additionalProperties": False,
+                                "properties": {"skill_id": {"type": "string"},
+                                               "document": {"type": "string"},
+                                               "document_base64": {"type": "string"},
+                                               "user_position": {"type": "string"},
+                                               "playbook": {"type": "string"},
+                                               "research_query": {"type": "string"},
+                                               "as_of": {"type": "string"},
+                                               "demo": {"type": "boolean"}}}}}},
+                "responses": {"200": {"description": "Черновик навыка"},
+                              "400": {"description": "Неверный запрос"},
+                              "503": {"description": "Реестр навыков недоступен"},
+                              "504": {"description": "Превышен срок выполнения"}}}},
+            "/requests/cancel": {"post": {"summary": "Отмена или предварительная блокировка запроса",
+                "requestBody": {"required": True, "content": {"application/json":
+                    {"schema": {"type": "object", "additionalProperties": False,
+                                "required": ["request_id"],
+                                "properties": {"request_id": {"type": "string", "minLength": 16,
+                                                              "maxLength": 64}}}}}},
+                "responses": {"200": {"description": "Результат отмены"},
+                              "400": {"description": "Неверный идентификатор"},
+                              "401": {"description": "Требуется токен"}}}},
             "/legal/research/options": {"get": {"summary": "Сценарии юридического исследования",
                 "responses": {"200": {"description": "Справочник сценариев, не юридическая консультация"}}}},
             "/legal/research": {"post": {"summary": "Уточнение обстоятельств и ограничений применимости",
@@ -710,6 +745,11 @@ def openapi_spec() -> dict[str, Any]:
         },
     }
 
+    for route, methods in specification["paths"].items():
+        for method, operation in methods.items():
+            operation["security"] = ([{"ApiToken": []}] if require_auth and (
+                method == "post" or route == "/runtime/readiness") else [])
+    return specification
 
 class LegalApiHandler(BaseHTTPRequestHandler):
     server_version = f"{SERVICE_NAME}/{API_VERSION}"
