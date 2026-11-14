@@ -7,8 +7,8 @@ class CorpusError(ValueError):
     pass
 
 def search(corpus_root, code, query, limit=10):
-    if code not in ("gk", "nk", "tk", "koap", "kas", "grk", "uk", "upk", "uik"):
-        raise CorpusError("Only gk/nk/tk/koap/kas/grk/uk/upk/uik are supported")
+    if code not in ("gk", "nk", "tk", "koap", "kas", "grk", "uk", "upk", "uik", "gpk"):
+        raise CorpusError("Only gk/nk/tk/koap/kas/grk/uk/upk/uik/gpk are supported")
     if not isinstance(query, str) or not query.strip() or len(query)>500:
         raise CorpusError("Query must be 1-500 characters")
     if type(limit) is not int or not 1<=limit<=50:
