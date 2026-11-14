@@ -69,6 +69,17 @@ class OfficialSourceIntakeTests(unittest.TestCase):
             with self.subTest(url=url), self.assertRaises(ValueError):
                 module.validate_proposal(self.proposal(url=url))
 
+    def test_rejects_unsafe_document_identifiers(self):
+        for document_id in ("../secret", "a/../b", "a//b", "id\\nheader", "id with space", "é"):
+            with self.subTest(document_id=document_id), self.assertRaises(ValueError):
+                module.validate_proposal(self.proposal(document_id=document_id))
+
+    def test_rejects_encoded_path_traversal(self):
+        for path in ("/Document/%2e%2e/secret", "/Document/%2fsecret",
+                     "/Document/%5csecret", "/Document/../secret", "//evil.example/path"):
+            with self.subTest(path=path), self.assertRaises(ValueError):
+                module.validate_proposal(self.proposal(url="https://publication.pravo.gov.ru" + path))
+
     def test_rejects_extra_fields(self):
         with self.assertRaises(ValueError):
             module.validate_proposal(self.proposal(text="unverified statute content"))
