@@ -6,6 +6,7 @@ Only explicit, externally verified PASS evidence counts. Missing/stale evidence 
 import json
 from datetime import date, timedelta
 from pathlib import Path
+from urllib.parse import urlsplit
 import sys
 
 GATES = (
@@ -14,6 +15,20 @@ GATES = (
     "backups", "legal_acceptance",
 )
 MAX_EVIDENCE_AGE_DAYS = 14
+
+
+def _valid_proof_url(value):
+    """Accept only unambiguous HTTPS links, never local or credential-bearing URLs."""
+    if not isinstance(value, str) or len(value) > 2048 or any(ord(ch) <= 32 or ord(ch) == 127 for ch in value) or "\\" in value:
+        return False
+    try:
+        parsed = urlsplit(value)
+        host = parsed.hostname
+        return (parsed.scheme == "https" and bool(host) and "." in host
+                and parsed.username is None and parsed.password is None
+                and parsed.port is None and not parsed.fragment)
+    except ValueError:
+        return False
 
 
 def assess(evidence, *, today=None):
@@ -37,10 +52,9 @@ def assess(evidence, *, today=None):
             else:
                 recent = False
             if (item.get("status") == "pass" and recent
-                    and isinstance(proof, str) and proof.startswith("https://")
-                    and len(proof) > 12 and not any(c.isspace() for c in proof)):
+                    and _valid_proof_url(proof)):
                 passed = True
-                reason = "verified pass claimed; review linked evidence"
+                reason = "pass claimed with recent linked evidence; independent verification still required"
             elif item.get("status") == "fail":
                 reason = "reported failure"
         results[gate] = {"passed": passed, "reason": reason}
@@ -51,7 +65,7 @@ def assess(evidence, *, today=None):
         "at_least_90_percent": count * 10 >= len(GATES) * 9,
         "release_approved": False,
         "gates": results,
-        "note": "Self-reported evidence is not independently verified; human legal acceptance is required.",
+        "note": "Scores reflect submitted claims only, not independent verification. Human legal acceptance is required.",
     }
 
 
