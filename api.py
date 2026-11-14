@@ -251,6 +251,7 @@ def openapi_spec() -> dict[str, Any]:
         "demo": {"type": "boolean", "default": False, "description": "Демонстрационный режим без внешних запросов"},
     }
     return {
+        "components": {"securitySchemes": {"ApiToken": {"type": "http", "scheme": "bearer"}}},
         "openapi": "3.0.3",
         "info": {
             "title": SERVICE_NAME,
@@ -637,7 +638,13 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             self._send_json(200, health_payload(self.server.metrics))
             self.server.metrics.record("GET /health", 200, (time.perf_counter() - started) * 1000)
         elif self.path == "/openapi.json":
-            self._send_json(200, openapi_spec())
+            specification = openapi_spec()
+            requires_token = bool(getattr(self.server, "api_token", ""))
+            for operation in specification["paths"].values():
+                for method_spec in operation.values():
+                    if isinstance(method_spec, dict):
+                        method_spec["security"] = [{"ApiToken": []}] if requires_token and "post" in operation else []
+            self._send_json(200, specification)
             self.server.metrics.record("GET /openapi.json", 200, (time.perf_counter() - started) * 1000)
         else:
             self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /penalty, POST /check, POST /timeline, POST /draft, POST /triage, POST /duty, POST /export, POST /protocol, POST /scoring."})
