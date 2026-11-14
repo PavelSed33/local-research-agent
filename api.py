@@ -187,7 +187,7 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
         "checked_on": journal["checked_on"],
         "disclaimer": LEGAL_DISCLAIMER,
         "demo": journal["demo"],
-        "as_of": as_of,
+        "as_of": journal.get("as_of", as_of or journal["checked_on"]),
         "session_id": session_id,
         "report_file": str(report_path),
         "journal_file": str(journal_path),
