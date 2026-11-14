@@ -108,7 +108,7 @@ def validate_review(result: dict[str, Any], document: str) -> list[str]:
     return issues
 
 
-def build_review_prompt(document: str, demo: bool = False) -> str:
+def build_review_prompt(document: str, demo: bool = False) -> tuple[str, str]:
     """Промпт для модели: строгая схема JSON и требование цитат из текста."""
     demo_note = (
         "\n\nРЕЖИМ ДЕМОНСТРАЦИИ: верни 2 риска и 2 отсутствующих условия "
@@ -116,7 +116,7 @@ def build_review_prompt(document: str, demo: bool = False) -> str:
         if demo
         else ""
     )
-    return f"""Ты юрист, проверяющий договор перед подписанием. Проанализируй договор и верни ТОЛЬКО JSON вида:
+    instructions = f"""Ты юрист, проверяющий договор перед подписанием. Проанализируй договор и верни ТОЛЬКО JSON вида:
 
 {{
   "summary": "2-3 предложения: что за договор и главный вывод",
@@ -138,31 +138,38 @@ def build_review_prompt(document: str, demo: bool = False) -> str:
 - severity: high — деньги/ответственность без защиты; medium — неоднозначность; low — косметика.
 - Без комментариев вне JSON.
 
-ДОГОВОР:
-\"\"\"
-{document}
-\"\"\"{demo_note}"""
+"""
+    # All document content is untrusted user data, not system instructions.
+    return instructions, "Текст договора:\\n" + document + demo_note
 
 
 def review_contract(model: LanguageModel, document: str, demo: bool = False) -> tuple[dict[str, Any], bool]:
-    """Один проход проверки с валидацией и одной попыткой починки JSON."""
-    prompt = build_review_prompt(document, demo=demo)
-    response = model.complete(prompt, temperature=0.2)
-    result = extract_json(response)
+    """Validate and sanitize the model draft without trusting document instructions."""
+    system, user = build_review_prompt(document, demo=demo)
+    result = extract_json(model.complete(system, user))
     issues = validate_review(result, document)
     repaired = False
     if issues:
-        repair_prompt = (
-            "Исправь JSON. Проблемы: "
-            + "; ".join(issues[:5])
-            + ". Верни полный корректный JSON с теми же разделами."
-        )
+        correction = ("Исправь структуру и цитаты, используя только исходный договор. "
+                      "Не добавляй факты или юридическую достоверность. "
+                      "Ошибки: " + "; ".join(issues[:5]))
         try:
-            result = extract_json(model.complete(repair_prompt, temperature=0.1))
-            repaired = not validate_review(result, document)
+            result = extract_json(model.complete(system, user + "\\n" + correction))
         except AgentError:
-            repaired = False
-    return result, repaired
+            raise AgentError("Не удалось проверить ответ модели по договору.") from None
+        if validate_review(result, document):
+            raise AgentError("Не удалось проверить ответ модели по договору.")
+        repaired = True
+    # Never promote model-controlled verification flags or arbitrary fields.
+    sanitized = []
+    for candidate in result["risks"]:
+        risk = safe_review_risk(candidate)
+        if risk is None:
+            raise AgentError("Не удалось проверить ответ модели по договору.")
+        risk["verified"] = False
+        sanitized.append(risk)
+    return {"summary": result["summary"], "risks": sanitized,
+            "missing_clauses": result.get("missing_clauses", [])}, repaired
 
 
 class DemoReviewModel:
