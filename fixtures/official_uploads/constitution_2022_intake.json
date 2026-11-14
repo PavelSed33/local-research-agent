@@ -15,5 +15,10 @@
   "edition_verified": false,
   "legal_reviewed": false,
   "commercial_use_allowed": false,
-  "status": "pending_binary_import_and_verification"
+  "status": "pending_binary_import_and_verification",
+  "ocr_generated_externally": true,
+  "ocr_pages_processed": 76,
+  "ocr_text_verified": false,
+  "ocr_imported_to_repository": false,
+  "ocr_note": "A 76-page OCR draft was generated in the conversation workspace; not committed or approved for legal retrieval. Requires manual QA, official edition comparison and import."
 }
