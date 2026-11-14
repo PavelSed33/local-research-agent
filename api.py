@@ -888,10 +888,27 @@ class LegalApiHandler(BaseHTTPRequestHandler):
         return payload
 
     def _authorized(self) -> bool:
+        workspace = getattr(self.server, "workspace", None)
+        if workspace is not None:
+            header = self.headers.get("Authorization", "")
+            self._principal = (workspace.authenticate(header[7:])
+                               if header.startswith("Bearer ") else None)
+            return self._principal is not None
         token = getattr(self.server, "api_token", "")
         if not token:
             return True
-        return hmac.compare_digest(self.headers.get("Authorization", "").encode("utf-8"), f"Bearer {token}".encode("utf-8"))
+        return hmac.compare_digest(self.headers.get("Authorization", "").encode("utf-8"),
+                                   f"Bearer {token}".encode("utf-8"))
+
+    def _workspace_current_user(self):
+        workspace = getattr(self.server, "workspace", None)
+        header = self.headers.get("Authorization", "")
+        user = workspace.authenticate(header[7:]) if workspace and header.startswith("Bearer ") else None
+        if not user:
+            from workspace_store import WorkspaceError
+            raise WorkspaceError(401, "workspace_auth_required", "Пользовательская авторизация недействительна.")
+        return user["id"]
+
 
     def do_GET(self) -> None:
         started = time.perf_counter()
