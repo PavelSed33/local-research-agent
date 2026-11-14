@@ -46,6 +46,21 @@ class ReadinessTests(unittest.TestCase):
         self.assertTrue(result["at_least_90_percent"])
         self.assertFalse(result["release_approved"])
 
+    def test_malicious_proof_urls_do_not_count(self):
+        for proof in (
+            "https://user@github.com/example/proof",
+            "https://github.com:443/example/proof",
+            "https://github.com/example#fragment",
+            "https://github.com/line\\nfeed",
+            r"https://github.com\\@evil.example/proof",
+            "https://localhost/proof",
+            "http://github.com/example/proof",
+        ):
+            with self.subTest(proof=proof):
+                evidence = self.passing()
+                evidence["security"]["proof_url"] = proof
+                self.assertFalse(mod.assess(evidence)["gates"]["security"]["passed"])
+
     def test_stale_future_and_unlinked_evidence_not_counted(self):
         for replacement in (
             {"status": "pass", "verified_on": "2000-01-01", "proof_url": "https://example.org/proof"},
