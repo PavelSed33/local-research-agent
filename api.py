@@ -137,6 +137,38 @@ class SessionStore:
             del session["entries"][:-SESSION_MAX_ENTRIES]
 
 
+class InlineJobs:
+    """Backward-compatible in-process dispatcher for local API and mocked tests."""
+    enabled = False
+
+    def __init__(self, server):
+        self.server = server
+        self.active = {}
+
+    def execute(self, request_id, envelope, commit=lambda result: result):
+        if envelope.get("path") != "/ask":
+            raise ValueError("Unsupported inline route.")
+        result = handle_ask(envelope["payload"], Path(self.server.output_dir),
+                            self.server.sessions, persist_results=self.server.persist_results)
+        return commit(result)
+
+    def cancel(self, request_id):
+        raise ValueError("Для управления заданиями включите изолированный режим.")
+
+    def close(self):
+        pass
+
+
+class ManagedHTTPServer(ThreadingHTTPServer):
+    """Ensure child processes are stopped when the HTTP listener is closed."""
+
+    def server_close(self):
+        jobs = getattr(self, "jobs", None)
+        if jobs is not None:
+            jobs.close()
+        super().server_close()
+
+
 class Metrics:
     """Счётчики запросов в оперативной памяти: наблюдаемость без внешних систем."""
 
@@ -835,14 +867,24 @@ def create_server(
     port: int = DEFAULT_PORT,
     output_dir: Path | str = Path("результаты"),
     api_token: str = "",
+    *,
+    request_timeout_seconds: float | None = None,
+    max_active_requests: int = 3,
 ) -> ThreadingHTTPServer:
     if not api_token.strip() and host not in ("127.0.0.1", "::1", "localhost"):
         raise ValueError("API_TOKEN обязателен для внешнего сетевого интерфейса.")
-    server = ThreadingHTTPServer((host, port), LegalApiHandler)
+    server = ManagedHTTPServer((host, port), LegalApiHandler)
     server.output_dir = Path(output_dir)
     server.api_token = api_token.strip()
     server.sessions = SessionStore()
     server.metrics = Metrics()
+    server.persist_results = False
+    if request_timeout_seconds is not None:
+        from request_jobs import RequestJobs
+        server.jobs = RequestJobs(request_timeout_seconds, max_active_requests)
+        server.jobs.enabled = True
+    else:
+        server.jobs = InlineJobs(server)
     return server
 
 
