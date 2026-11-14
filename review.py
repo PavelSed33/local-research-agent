@@ -179,7 +179,7 @@ class DemoReviewModel:
     """Детерминированный пример, цитирующий только текст договора."""
 
     def complete(self, system: str, user: str) -> str:
-        document = user.split("Текст договора:\\n", 1)[-1].split("\\n\\nРЕЖИМ ДЕМОНСТРАЦИИ:", 1)[0].strip()
+        document = user.split("Текст договора:\n", 1)[-1].split("\n\nРЕЖИМ ДЕМОНСТРАЦИИ:", 1)[0].strip()
         quote = _demo_quote(document)
         return json.dumps({
             "summary": "Условный пример анализа договора, не юридическое заключение.",
