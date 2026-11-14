@@ -88,7 +88,20 @@ def validate_extraction(result: dict[str, Any], document: str) -> list[str]:
             for field in REQUIRED_FIELDS[section]:
                 if not str(entry.get(field, "")).strip():
                     issues.append(f"{label}: пустое поле {field}.")
+            if not isinstance(entry.get("quote"), str):
+                issues.append(f"{label}: quote должен быть строкой.")
             quote = str(entry.get("quote", "")).strip()
+            if section == "amounts" and entry.get("currency", "RUB") != "RUB":
+                issues.append(f"{label}: currency должен быть RUB.")
+            if section == "dates":
+                value = entry.get("date")
+                if isinstance(value, str):
+                    match = re.fullmatch(r"\\d{2}\\.\\d{2}\\.\\d{4}", value)
+                    if match:
+                        try:
+                            datetime.strptime(value, "%d.%m.%Y")
+                        except ValueError:
+                            issues.append(f"{label}: date должна быть реальной календарной датой.")
             if len(quote) < MIN_QUOTE_CHARS:
                 issues.append(f"{label}: цитата короче {MIN_QUOTE_CHARS} символов.")
             elif normalize_text(quote) not in corpus:
@@ -109,6 +122,11 @@ def validate_extraction(result: dict[str, Any], document: str) -> list[str]:
         if not isinstance(entry, dict):
             issues.append(f"Поле {field} должно быть объектом или null.")
             continue
+        for key in (("duration",) if field == "term" else ("court",)):
+            if key in entry and not isinstance(entry[key], str):
+                issues.append(f"Поле {field}.{key} должно быть строкой.")
+        if not isinstance(entry.get("quote"), str):
+            issues.append(f"Поле {field}.quote должно быть строкой.")
         quote = str(entry.get("quote", "")).strip()
         if len(quote) < MIN_QUOTE_CHARS:
             issues.append(f"Поле {field}: цитата короче {MIN_QUOTE_CHARS} символов.")
