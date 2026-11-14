@@ -1,0 +1,42 @@
+{
+  "document": "Гражданский кодекс Российской Федерации",
+  "as_of": "2026-11-14",
+  "uploaded_pdf_sha256": "0969f009e35c7058621d5c88c430881b71cf72a6de7f25036216ce3e2518ee73",
+  "uploaded_pdf_pages": 736,
+  "uploaded_pdf_creation_date": "2024-10-24",
+  "official_reference": "https://minjust.gov.ru/ru/pages/grazhdanskij-kodeks/",
+  "comparison_scope": "edition chronology and PDF metadata only; NOT article-by-article text verification",
+  "post_upload_effective_amendments": [
+    {
+      "law": "459-ФЗ",
+      "effective": "2025-01-13"
+    },
+    {
+      "law": "178-ФЗ",
+      "effective": "2025-08-01"
+    },
+    {
+      "law": "315-ФЗ",
+      "effective": "2025-07-31"
+    },
+    {
+      "law": "167-ФЗ",
+      "effective": "2026-06-10"
+    }
+  ],
+  "future_amendments": [
+    {
+      "law": "296-ФЗ",
+      "effective": "2027-01-01"
+    }
+  ],
+  "checks": {
+    "uploaded_pdf_integrity": true,
+    "official_edition_downloaded": false,
+    "article_by_article_diff_completed": false,
+    "current_edition_verified": false,
+    "approved_for_legal_search": false
+  },
+  "status": "outdated_unverified_quarantined",
+  "action": "Do not admit uploaded text as current law; acquire independently verified official consolidated editions and compare each article."
+}
