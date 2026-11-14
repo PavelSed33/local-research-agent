@@ -183,7 +183,8 @@ def parse_int_field(payload: dict[str, Any], field: str, default: int, minimum: 
     return value
 
 
-def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore | None = None, persist_results: bool = False) -> dict[str, Any]:
+def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore | None = None,
+               persist_results: bool = False, *, session_context_override: str | None = None) -> dict[str, Any]:
     """Выполняет полный цикл агента и возвращает структурированный ответ."""
     question = payload.get("question", "")
     if not isinstance(question, str) or not question.strip():
@@ -208,6 +209,8 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
         except ValueError:
             raise RequestValidationError("Поле «as_of» содержит несуществующую дату.") from None
     context, session_identity = sessions.begin(session_id) if sessions and session_id else ("", None)
+    if session_context_override is not None:
+        context = session_context_override
 
     # Исследование не сохраняется после ответа, если это явно не разрешено.
     temporary = None
