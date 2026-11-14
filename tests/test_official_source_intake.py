@@ -28,6 +28,16 @@ class OfficialSourceIntakeTests(unittest.TestCase):
         self.assertFalse(result["legal_edition_verified"])
         self.assertFalse(result["commercial_use_allowed"])
 
+    def test_rejects_publication_url_with_mismatched_document_id(self):
+        with self.assertRaisesRegex(ValueError, "does not match"):
+            module.validate_proposal(self.proposal(document_id="0001202611139999"))
+
+    def test_rejects_nested_publication_document_path(self):
+        with self.assertRaisesRegex(ValueError, "does not match"):
+            module.validate_proposal(self.proposal(
+                url="https://publication.pravo.gov.ru/Document/View/0001202611130001/other"
+            ))
+
     def test_rejects_unreviewed_rights(self):
         with self.assertRaises(ValueError):
             module.validate_proposal(self.proposal(rights_reviewed=False))
