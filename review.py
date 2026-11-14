@@ -168,7 +168,15 @@ def review_contract(model: LanguageModel, document: str, demo: bool = False) -> 
 class DemoReviewModel:
     """Детерминированный ответ для проверки без API-ключей."""
 
-    def complete(self, prompt: str, temperature: float = 0.0) -> str:
+    def complete(self, prompt: str, temperature: float | str = 0.0) -> str:
+        # The standalone review uses one combined prompt; the source-linked
+        # review passes trusted system instructions and untrusted user data.
+        # Both demo paths must quote the actual contract, never the system text.
+        if isinstance(temperature, str):
+            document = temperature.rsplit("\\nТекст договора:\\n", 1)[-1]
+            quote_input = document
+        else:
+            quote_input = prompt
         return json.dumps(
             {
                 "summary": "Демонстрационный анализ: договор короткий, типовые риски не проверялись по внешним источникам.",
@@ -176,7 +184,7 @@ class DemoReviewModel:
                     {
                         "category": "ответственность и штрафы",
                         "severity": "high",
-                        "quote": normalize_text(_demo_quote(prompt)),
+                        "quote": normalize_text(_demo_quote(quote_input)),
                         "comment": "В демонстрационном режиме риск сформулирован по первому фрагменту текста.",
                         "recommendation": "Проверьте реальную модель с API-ключом и полным текстом договора.",
                     }
