@@ -126,6 +126,9 @@ def handle_skill(payload):
         raise ValueError('Неизвестное поле запроса навыка.')
     if sum(key in payload for key in ('document', 'document_base64')) != 1:
         raise ValueError('Передайте ровно один текст или DOCX.')
+    # Reject ambiguous demo values rather than silently treating them as live requests.
+    if 'demo' in payload and type(payload['demo']) is not bool:
+        raise ValueError('demo должен быть логическим значением.')
     skills = load_skills()
     skill_id = payload.get('skill_id')
     if not isinstance(skill_id, str) or skill_id not in skills:
