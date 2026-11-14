@@ -15,7 +15,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 HOST = "publication.pravo.gov.ru"
-DOC = re.compile(r"^/document/(\\d{16})/?$")
+DOC = re.compile(r"^/document/(\d{16})/?$")
 MAX_BYTES = 30 * 1024 * 1024
 
 def validate_url(url):
