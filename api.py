@@ -176,7 +176,9 @@ def handle_ask(payload: dict[str, Any], output_dir: Path, sessions: SessionStore
         request_dir = output_dir / f"запрос-{stamp}-{uuid.uuid4().hex[:8]}"
     else:
         temporary = tempfile.TemporaryDirectory(prefix="legal-agent-")
-        request_dir = Path(temporary.name)
+        # Agent creates its own per-request directory. Keep parent temporary
+        # so failures clean up even if the engine creates partial files.
+        request_dir = Path(temporary.name) / "request"
     try:
         report_path, journal_path = run(
             topic=question.strip(),
