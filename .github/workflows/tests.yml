@@ -103,6 +103,25 @@ jobs:
           assert result['status'] == 'needs_facts', result
           assert result['verified'] is False
           PY
+      - name: Verify web interface assets and isolation
+        run: |
+          python - <<'PY'
+          import urllib.error, urllib.request
+          base = 'http://127.0.0.1:18080'
+          for path in ('/', '/workspace', '/app.js', '/workspace.js', '/style.css'):
+              with urllib.request.urlopen(base + path, timeout=10) as reply:
+                  body = reply.read()
+                  assert reply.status == 200 and body, path
+                  assert reply.headers['Cache-Control'] == 'no-store', path
+                  assert "script-src 'self'" in reply.headers['Content-Security-Policy'], path
+                  assert reply.headers['X-Content-Type-Options'] == 'nosniff', path
+          try:
+              urllib.request.urlopen(base + '/api.py', timeout=10)
+          except urllib.error.HTTPError as error:
+              assert error.code == 404
+          else:
+              raise AssertionError('Application source must not be available through the static handler')
+          PY
       - name: Verify historical-date input validation
         run: |
           python - <<'PY'
