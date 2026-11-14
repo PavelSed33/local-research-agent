@@ -63,8 +63,16 @@ def audit_data(registry, workflows, benchmarks, corpus, *, checked_on):
     received = {row['card_id'] for row in entries}
     if len(received) != len(entries):
         issue('duplicate_corpus_cards', 'corpus')
+    # A deliberately removed, quarantined corpus is an acknowledged evidence
+    # gap, not corruption. Partial imports and unexpected missing copies remain
+    # structural errors so broken capture pipelines cannot appear healthy.
+    quarantined_empty = (
+        not entries and not corpus.get('errors')
+        and any(row.get('status') == 'quarantined_and_removed'
+                for row in corpus.get('refresh_gaps', []))
+    )
     for identity in sorted(cards.keys() - received):
-        issue('missing_corpus_extract', identity)
+        issue('missing_corpus_extract', identity, 'gap' if quarantined_empty else 'error')
     if corpus.get('errors'):
         issue('corpus_integrity_failed', 'corpus')
     texts = defaultdict(list)
