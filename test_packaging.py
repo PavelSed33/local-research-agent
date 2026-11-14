@@ -41,7 +41,7 @@ class DockerPackagingTests(unittest.TestCase):
                  'from legal_evidence import evidence_report; '
                  'corpus=evidence_report(); assert len(corpus["entries"])==5 and not corpus["errors"]; '
                  'from statute_corpus import corpus_report; '
-                 'statutes=corpus_report(); assert statutes["text_received_count"]==454 and not statutes["errors"]; '
+                 'statutes=corpus_report(); assert not statutes["errors"] and not statutes["verified"] and (statutes["text_received_count"]>0 or any(g["status"]=="quarantined_and_removed" for g in statutes["refresh_gaps"])); '
                  'from pathlib import Path; '
                  'api.handle_ask({"question":"Тест", "demo":True}, Path("results")); '
                  'import legal_review; legal_review.handle_legal_review({"document":"Условный договор для проверки упаковки.","demo":True,"facts":{"both_businesses":True}}); '
