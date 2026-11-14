@@ -17,7 +17,7 @@ def search(directory, query, limit=10):
         manifest.get("legal_review_approved") is not False or
         manifest.get("source_claim_verified") is not False):
         raise QuarantinedCorpusError("Unverified quarantined index required")
-    match=re.fullmatch(r"(?:статья|ст\\.?|article)?\\s*(\\d+(?:\\.\\d+)?)",query.strip().casefold())
+    match=re.fullmatch(r"(?:статья|ст\.?|article)?\s*(\d+(?:\.\d+)?)",query.strip().casefold())
     results=[]
     with (base/"articles.jsonl").open(encoding="utf-8") as stream:
         for line in stream:
