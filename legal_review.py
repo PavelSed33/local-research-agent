@@ -152,14 +152,7 @@ def handle_legal_review(payload: dict[str, Any]) -> dict[str, Any]:
         sources.extend(source for source in cached if source.url not in urls)
     sources = [Source(s.title[:500], s.url[:2000], s.text[:12000], s.query) for s in sources[:5]]
     model = DemoReviewModel() if demo else OpenAICompatibleModel()
-    # The legacy review prompt is a single string that embeds the contract.
-    # Extract only its trusted instructions; untrusted contract data must
-    # remain in the separate user message below.
-    template = build_review_prompt("")
-    delimiter = '\nДОГОВОР:\n"""'
-    if delimiter not in template:
-        raise AgentError("Шаблон юридической проверки изменился.")
-    system = template.split(delimiter, 1)[0]
+    system, _ = build_review_prompt(document)
     system += (
         ' Каждый риск дополнительно содержит legal_basis: [{"source_id":1,"provision":"дословное обозначение нормы",'
         '"quote":"дословная цитата нормы вместе с её обозначением"}]. Используй только источники ниже. '
