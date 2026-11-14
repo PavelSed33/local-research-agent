@@ -24,8 +24,12 @@ class WorkflowReadinessTests(unittest.TestCase):
         with patch.dict('os.environ', {}, clear=True), patch.object(socket, 'create_connection', side_effect=AssertionError('external network')):
             report = inspect_runtime()
         rows = workflows(report)
-        for identity in ['/diff', '/extract/local', '/privacy/check', '/legal/research', '/legal/corpus', '/legal/coverage']:
+        for identity in ['/diff', '/extract/local']:
             self.assertEqual(rows[identity]['status'], 'ready_locally')
+        for identity in ['/privacy/check', '/legal/research', '/legal/corpus', '/legal/coverage']:
+            self.assertEqual(rows[identity]['status'], 'blocked')
+            self.assertFalse(rows[identity]['can_attempt'])
+            self.assertTrue(rows[identity]['blockers'])
         self.assertFalse(rows['/ask']['can_attempt'])
         self.assertFalse(report['external_services_tested'])
 
