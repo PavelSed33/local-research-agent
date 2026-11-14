@@ -149,13 +149,15 @@ class StatutoryCorpusTests(unittest.TestCase):
         self.assertTrue(self.mutate(link)['errors'])
 
     def test_manifest_flags_cannot_promote_a_copy_to_an_accepted_law(self):
+        # The synthetic fixture deliberately uses a non-official copy URL.
+        # Its trust flags must not bypass the official-host allowlist.
         result = self.mutate(lambda root, group, data: data['sections'][0].update(
             verified=True, original_publication=True, period_supported=True, effective_from='1995-01-01'))
-        entry = next(e for e in result['entries'] if e['act_id'] == 'gk1')
-        self.assertFalse(entry['verified'])
-        self.assertFalse(entry['period_supported'])
-        self.assertFalse(entry['original_publication'])
-        self.assertNotIn('effective_from', entry)
+        self.assertTrue(result['errors'], 'An unapproved copy must be rejected')
+        self.assertFalse(any(e['act_id'] == 'gk1' for e in result['entries']))
+        self.assertFalse(result['verified'])
+        self.assertFalse(result['original_publication'])
+        self.assertFalse(result['commercial_use_allowed'])
 
     def test_later_copy_is_not_injected_into_historical_model_context(self):
         sources, report = statutory_review_sources('consumer', 'services', '2026-11-07')
