@@ -1,5 +1,12 @@
 name: Official law registry audit
 on:
+  pull_request:
+    paths:
+      - 'fixtures/official_uploads/official_law_registry.json'
+      - 'scripts/**'
+      - 'tests/test_*law*.py'
+      - 'tests/test_official_law_intake.py'
+      - '.github/workflows/official-law-registry-audit.yml'
   workflow_dispatch:
   schedule:
     - cron: '17 5 * * *'
