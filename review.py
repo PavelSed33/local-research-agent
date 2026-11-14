@@ -169,9 +169,11 @@ def review_contract(model: LanguageModel, document: str, demo: bool = False) -> 
         risk = safe_review_risk(candidate)
         if risk is None:
             raise AgentError("Не удалось проверить ответ модели по договору.")
-        risk["verified"] = False
+        risk.update({"verified": False, "lawyer_reviewed": False,
+                     "legal_basis": [], "basis_status": "no_legal_evidence"})
         sanitized.append(risk)
     return {"summary": result["summary"], "risks": sanitized,
+            "verified": False, "lawyer_reviewed": False,
             "missing_clauses": result.get("missing_clauses", [])}, repaired
 
 
