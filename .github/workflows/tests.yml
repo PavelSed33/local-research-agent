@@ -38,7 +38,9 @@ jobs:
           python -m py_compile tests/test_official_source_intake.py tests/test_release_readiness.py tests/test_statutory_source_hosts.py
       - name: Verify source intake and release safety independently of quarantined archives
         run: |
-          python -m unittest -v tests.test_official_source_intake tests.test_release_readiness tests.test_statutory_source_hosts
+          python -m unittest discover -s tests -p "test_official_source_intake.py" -v
+          python -m unittest discover -s tests -p "test_release_readiness.py" -v
+          python -m unittest discover -s tests -p "test_statutory_source_hosts.py" -v
 
   unittest:
     runs-on: ubuntu-latest
