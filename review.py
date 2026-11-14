@@ -28,7 +28,7 @@ from agent import (
     extract_json,
     load_dotenv,
 )
-from doctext import document_fingerprint, quote_span, read_document_file, resolve_document
+from doctext import document_fingerprint, quote_span, read_document_file, resolve_document, ensure_document_transfer_allowed
 
 MIN_DOCUMENT_CHARS = 20
 MAX_DOCUMENT_CHARS = 500_000
@@ -201,7 +201,11 @@ def handle_review(payload: dict[str, Any]) -> dict[str, Any]:
         raise ValueError(f"Текст договора слишком короткий: нужно от {MIN_DOCUMENT_CHARS} символов.")
     if len(document) > MAX_DOCUMENT_CHARS:
         raise ValueError(f"Текст договора превышает допустимый размер ({MAX_DOCUMENT_CHARS} символов).")
-    demo = bool(payload.get("demo", False))
+    demo = payload.get("demo", False)
+    if not isinstance(demo, bool):
+        raise ValueError("Поле demo должно быть логическим значением.")
+    if not demo:
+        ensure_document_transfer_allowed()
     model: LanguageModel = DemoReviewModel() if demo else OpenAICompatibleModel()
     result, repaired = review_contract(model, document.strip(), demo=demo)
     risks = []
