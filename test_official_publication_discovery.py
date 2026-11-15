@@ -1,4 +1,5 @@
 import unittest
+from urllib.error import URLError
 from scripts.discover_official_publications import publication_candidates, discover
 
 
@@ -22,6 +23,20 @@ class OfficialPublicationDiscoveryTests(unittest.TestCase):
         self.assertFalse(report["legal_acceptance"])
         self.assertEqual(report["full_text_imported"], 0)
         self.assertFalse(report["results"][0]["verified"])
+
+    def test_three_network_errors_open_circuit_without_false_not_found(self):
+        calls = []
+        def unavailable(url):
+            calls.append(url)
+            raise URLError("unavailable")
+        acts = [{"id": str(i), "title": "Test", "number": "152-ФЗ",
+                 "signed_on": "2006-07-27"} for i in range(10)]
+        report = discover({"acts": acts}, fetch=unavailable, days=5)
+        self.assertEqual(len(calls), 3)
+        self.assertTrue(report["network_circuit_open"])
+        self.assertEqual(report["candidates_found"], 0)
+        self.assertEqual(report["results"][0]["status"], "official_source_network_circuit_open")
+        self.assertEqual(report["results"][-1]["status"], "official_source_network_circuit_open")
 
 
 if __name__ == "__main__":
