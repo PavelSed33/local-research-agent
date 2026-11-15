@@ -3,14 +3,25 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
+from urllib.parse import urlsplit
 
 MAX_BYTES = 25_000_000
 
 
 def register(pdf: Path, *, act_id: str, official_url: str):
     from scripts.monitor_official_sources import allowed_url
-    if not allowed_url(official_url):
-        raise ValueError("Official HTTPS URL from the approved government domains is required")
+    parsed = urlsplit(official_url)
+    if not allowed_url(official_url) or not (
+        parsed.hostname == "publication.pravo.gov.ru" and
+        (parsed.path.startswith("/document/") or parsed.path == "/File/Pdf")
+    ):
+        raise ValueError("Exact official publication document URL is required")
+    if parsed.path.startswith("/document/") and not (
+        len(parsed.path) == len("/document/") + 16 and parsed.path[len("/document/"):].isdigit()
+    ):
+        raise ValueError("Official document URL must contain a 16-digit publication number")
+    if parsed.path == "/File/Pdf" and not parsed.query.startswith("eoNumber="):
+        raise ValueError("Official PDF URL requires eoNumber")
     if not act_id or len(act_id) > 128:
         raise ValueError("Invalid act identifier")
     if not pdf.is_file() or pdf.suffix.lower() != ".pdf":
