@@ -813,6 +813,50 @@
       "official_publication_document_url": null,
       "current_effective_edition_verified": false,
       "production_approved": false
+    },
+    {
+      "act": "Гражданский кодекс РФ (части I-IV)",
+      "uploaded_file": "Гражданский кодекс Российской Федерации.pdf",
+      "uploaded_edition": null,
+      "evidence_urls": [
+        "https://www.minjust.gov.ru/ru/pages/grazhdanskij-kodeks/",
+        "https://base.garant.ru/10164072/"
+      ],
+      "finding": "Ministry of Justice links all four parts. Secondary chronology identifies 2026-06-10 amendment No.167-FZ effective immediately and 2026-08-04 No.296-FZ amendments effective 2027-01-01; imported edition and each part's amendment scope not yet verified.",
+      "status": "official_ministry_index_found_uploaded_edition_unverified",
+      "official_publication_document_url": null,
+      "current_effective_edition_verified": false,
+      "production_approved": false
+    },
+    {
+      "act": "Гражданский кодекс РФ (часть IV)",
+      "uploaded_file": "Гр.pdf",
+      "uploaded_edition": null,
+      "evidence_urls": [
+        "https://www.minjust.gov.ru/ru/pages/grazhdanskij-kodeks/",
+        "https://www.wipo.int/wipolex/ru/legislation/details/23255",
+        "https://www.consultant.ru/document/cons_doc_LAW_64629/"
+      ],
+      "finding": "Part IV is Federal Law 230-FZ dated 2006-12-18; WIPO has an explicitly superseded historical edition. Uploaded PDF edition cannot be inferred from filename and has not been compared.",
+      "status": "identity_confirmed_edition_unverified",
+      "official_publication_document_url": null,
+      "current_effective_edition_verified": false,
+      "production_approved": false
+    },
+    {
+      "act": "Приказ ФСТЭК России №21 от 18.02.2013",
+      "uploaded_file": "Prikaz_FSTJEK_Rossii_21.pdf",
+      "uploaded_edition": null,
+      "evidence_urls": [
+        "https://www.consultant.ru/document/cons_doc_LAW_146520/",
+        "https://www.base.spinform.ru/show_doc.fwx?rgn=60087",
+        "https://www.credos.ru/news/fstek-proekt-prikaza-pdn-2026/"
+      ],
+      "finding": "Registration No.28375 on 2013-05-14. Amendments Nos.49 of 2017-03-23 and 68 of 2020-05-14 reported. A 2026 replacement was only a draft as of 2026-09-24; must verify adoption/publication and status as of 2026-11-15 before treating order 21 as current.",
+      "status": "amendment_history_secondary_only_current_status_unverified",
+      "official_publication_document_url": null,
+      "current_effective_edition_verified": false,
+      "production_approved": false
     }
   ],
   "effective_date_policy": {
