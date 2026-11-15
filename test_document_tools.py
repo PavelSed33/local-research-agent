@@ -1,3 +1,4 @@
+from archive_test_requirements import originals_available
 import base64
 import copy
 import importlib.util
@@ -67,6 +68,7 @@ class DocumentToolsTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'tesseract-ocr-rus'):
                 parse_file({'filename': 'scan.pdf', 'file_base64': base64.b64encode(b'%PDF-1.4').decode(), 'ocr': True})
 
+    @unittest.skipUnless(originals_available(), "Archived original PDFs intentionally absent; restore only authorized verified originals")
     def test_original_source_integrity_and_corruption_detection(self):
         rows = load_sources()
         self.assertEqual(len(rows), 7)
