@@ -3,7 +3,7 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
-from urllib.parse import urlsplit
+from urllib.parse import urlsplit, parse_qs
 
 MAX_BYTES = 25_000_000
 
@@ -20,8 +20,12 @@ def register(pdf: Path, *, act_id: str, official_url: str):
         len(parsed.path) == len("/document/") + 16 and parsed.path[len("/document/"):].isdigit()
     ):
         raise ValueError("Official document URL must contain a 16-digit publication number")
-    if parsed.path == "/File/Pdf" and not parsed.query.startswith("eoNumber="):
-        raise ValueError("Official PDF URL requires eoNumber")
+    if parsed.path == "/File/Pdf":
+        params = parse_qs(parsed.query)
+        if set(params) != {"eoNumber"} or len(params["eoNumber"]) != 1 or not (
+            len(params["eoNumber"][0]) == 16 and params["eoNumber"][0].isdigit()
+        ):
+            raise ValueError("Official PDF URL requires exact 16-digit eoNumber")
     if not act_id or len(act_id) > 128:
         raise ValueError("Invalid act identifier")
     if not pdf.is_file() or pdf.suffix.lower() != ".pdf":
