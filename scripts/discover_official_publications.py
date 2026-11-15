@@ -99,7 +99,9 @@ def discover(registry, *, fetch=None, days=7, max_seconds=90):
             result["status"] = "invalid_act_metadata"
         else:
             if result.get("status") != "time_budget_exhausted":
-                result["status"] = "candidate_found" if result["candidates"] else "not_found_in_checked_dates"
+                result["status"] = ("candidate_found" if result["candidates"] else
+                                    "source_unreachable_or_partial" if result.get("errors") else
+                                    "not_found_in_checked_dates")
         results.append(result)
     return {"source": PUBLICATIONS, "acts_checked": len(results),
             "candidates_found": sum(len(x["candidates"]) for x in results),
