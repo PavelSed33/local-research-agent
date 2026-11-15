@@ -9,6 +9,8 @@ on:
       - 'scripts/discover_official_publications.py'
       - 'scripts/probe_official_legal_sources.py'
       - 'scripts/discover_official_api.py'
+      - 'scripts/register_local_official_pdf.py'
+      - 'test_register_local_official_pdf.py'
       - 'test_official_api_discovery.py'
       - 'test_official_publication_discovery.py'
       - 'scripts/monitor_official_sources.py'
@@ -29,7 +31,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Verify discovery security and matching
-        run: python -m unittest test_official_publication_discovery test_official_source_monitor test_official_publication_quarantine test_official_api_discovery -v
+        run: python -m unittest test_official_publication_discovery test_official_source_monitor test_official_publication_quarantine test_official_api_discovery test_register_local_official_pdf -v
       - name: Diagnose official legal portals without downloading documents
         run: python -m scripts.probe_official_legal_sources --output official-source-connectivity.json
       - name: Search 5 priority acts with 60-second discovery budget
