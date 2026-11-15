@@ -1,4 +1,5 @@
 import json
+import hashlib
 import unittest
 from pathlib import Path
 from scripts.legal_article_search import search_verified_article
@@ -18,10 +19,34 @@ class GkArticleSearchTests(unittest.TestCase):
                     published_on="2019-12-31",
                     official_publication_url="https://publication.pravo.gov.ru/Document/View/test-fixture",
                     source_sha256="a" * 64, verified=True, reviewer_accepted=True,
-                    amendment_history_checked=True)
+                    amendment_history_checked=True, production_approved=True,
+                    article_text_sha256=hashlib.sha256(b"Synthetic fixture only").hexdigest())
         result = search_verified_article([fake], article_id="test:1", as_of="2026-11-15")
         self.assertEqual(result["status"], "verified")
         self.assertEqual(result["source_url"], fake["official_publication_url"])
+
+    def test_tampered_article_text_blocked(self):
+        fake = dict(article_id="test:1", text="Tampered",
+                    effective_from="2020-01-01", effective_until=None,
+                    published_on="2019-12-31",
+                    official_publication_url="https://publication.pravo.gov.ru/Document/View/test-fixture",
+                    source_sha256="a" * 64, verified=True, reviewer_accepted=True,
+                    amendment_history_checked=True, production_approved=True,
+                    article_text_sha256=hashlib.sha256(b"Original").hexdigest())
+        result = search_verified_article([fake], article_id="test:1", as_of="2026-11-15")
+        self.assertEqual(result["status"], "unverified")
+        self.assertIsNone(result["text"])
+
+    def test_missing_production_approval_blocked(self):
+        fake = dict(article_id="test:1", text="Synthetic fixture only",
+                    effective_from="2020-01-01", effective_until=None,
+                    published_on="2019-12-31",
+                    official_publication_url="https://publication.pravo.gov.ru/Document/View/test-fixture",
+                    source_sha256="a" * 64, verified=True, reviewer_accepted=True,
+                    amendment_history_checked=True, production_approved=False,
+                    article_text_sha256=hashlib.sha256(b"Synthetic fixture only").hexdigest())
+        result = search_verified_article([fake], article_id="test:1", as_of="2026-11-15")
+        self.assertEqual(result["status"], "unverified")
 
     def test_missing_review_blocks_citation(self):
         fake = dict(article_id="test:1", text="Synthetic fixture only",
@@ -29,7 +54,8 @@ class GkArticleSearchTests(unittest.TestCase):
                     published_on="2019-12-31",
                     official_publication_url="https://publication.pravo.gov.ru/Document/View/test-fixture",
                     source_sha256="a" * 64, verified=True, reviewer_accepted=False,
-                    amendment_history_checked=True)
+                    amendment_history_checked=True, production_approved=True,
+                    article_text_sha256=hashlib.sha256(b"Synthetic fixture only").hexdigest())
         result = search_verified_article([fake], article_id="test:1", as_of="2026-11-15")
         self.assertEqual(result["status"], "unverified")
         self.assertIsNone(result["text"])
