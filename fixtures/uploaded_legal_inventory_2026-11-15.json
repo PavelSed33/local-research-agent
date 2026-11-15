@@ -1,0 +1,671 @@
+{
+  "schema_version": 1,
+  "audited_on": "2026-11-15",
+  "scope": "Metadata-only crosswalk; no legal text imported, no edition legally accepted",
+  "candidate_registry_count": 59,
+  "registry_acts": [
+    {
+      "id": "pd152",
+      "title": "152-ФЗ",
+      "number": "152-ФЗ",
+      "signed_on": "2006-07-27",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "gk1",
+      "title": "ГК РФ, часть I",
+      "number": "51-ФЗ",
+      "signed_on": "1994-11-30",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "gk2",
+      "title": "ГК РФ, часть II",
+      "number": "14-ФЗ",
+      "signed_on": "1996-01-26",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "consumer",
+      "title": "Закон РФ № 2300-1",
+      "number": "2300-1",
+      "signed_on": "1992-02-07",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "tk",
+      "title": "ТК РФ",
+      "number": "197-ФЗ",
+      "signed_on": "2001-12-30",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "gpk",
+      "title": "ГПК РФ",
+      "number": "138-ФЗ",
+      "signed_on": "2002-11-14",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "apk",
+      "title": "АПК РФ",
+      "number": "95-ФЗ",
+      "signed_on": "2002-07-24",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "nk2",
+      "title": "НК РФ, часть II",
+      "number": "117-ФЗ",
+      "signed_on": "2000-08-05",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "info149",
+      "title": "149-ФЗ",
+      "number": "149-ФЗ",
+      "signed_on": "2006-07-27",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "esign63",
+      "title": "63-ФЗ",
+      "number": "63-ФЗ",
+      "signed_on": "2011-04-06",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "koap",
+      "title": "КоАП РФ",
+      "number": "195-ФЗ",
+      "signed_on": "2001-12-30",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "pp1119",
+      "title": "Постановление Правительства РФ от 01.11.2012 № 1119",
+      "number": "1119",
+      "signed_on": "2012-11-01",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "fstec21",
+      "title": "Приказ ФСТЭК России от 18.02.2013 № 21",
+      "number": "21",
+      "signed_on": "2013-02-18",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "rkn178",
+      "title": "Приказ Роскомнадзора от 27.10.2022 № 178",
+      "number": "178",
+      "signed_on": "2022-10-27",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "rkn179",
+      "title": "Приказ Роскомнадзора от 28.10.2022 № 179",
+      "number": "179",
+      "signed_on": "2022-10-28",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "gk3",
+      "title": "ГК РФ, часть III",
+      "number": "146-ФЗ",
+      "signed_on": "2001-11-26",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "gk4",
+      "title": "ГК РФ, часть IV",
+      "number": "230-ФЗ",
+      "signed_on": "2006-12-18",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "nk1",
+      "title": "НК РФ, часть I",
+      "number": "146-ФЗ",
+      "signed_on": "1998-07-31",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "uk",
+      "title": "УК РФ",
+      "number": "63-ФЗ",
+      "signed_on": "1996-06-13",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "upk",
+      "title": "УПК РФ",
+      "number": "174-ФЗ",
+      "signed_on": "2001-12-18",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "kas",
+      "title": "КАС РФ",
+      "number": "21-ФЗ",
+      "signed_on": "2015-03-08",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "sk",
+      "title": "СК РФ",
+      "number": "223-ФЗ",
+      "signed_on": "1995-12-29",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "zk",
+      "title": "ЗК РФ",
+      "number": "136-ФЗ",
+      "signed_on": "2001-10-25",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "bk",
+      "title": "БК РФ",
+      "number": "145-ФЗ",
+      "signed_on": "1998-07-31",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "grad",
+      "title": "Градостроительный кодекс РФ",
+      "number": "190-ФЗ",
+      "signed_on": "2004-12-29",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "44fz",
+      "title": "Контрактная система закупок",
+      "number": "44-ФЗ",
+      "signed_on": "2013-04-05",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "223fz",
+      "title": "Закупки отдельными видами юридических лиц",
+      "number": "223-ФЗ",
+      "signed_on": "2011-07-18",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "59fz",
+      "title": "Обращения граждан РФ",
+      "number": "59-ФЗ",
+      "signed_on": "2006-05-02",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "constitution",
+      "title": "Конституция Российской Федерации",
+      "number": null,
+      "signed_on": null,
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "zhk",
+      "title": "Жилищный кодекс РФ",
+      "number": "188-ФЗ",
+      "signed_on": "2004-12-29",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "uik",
+      "title": "Уголовно-исполнительный кодекс РФ",
+      "number": "1-ФЗ",
+      "signed_on": "1997-01-08",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "229fz",
+      "title": "Об исполнительном производстве",
+      "number": "229-ФЗ",
+      "signed_on": "2007-10-02",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "127fz",
+      "title": "О несостоятельности (банкротстве)",
+      "number": "127-ФЗ",
+      "signed_on": "2002-10-26",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "14fz-ooo",
+      "title": "Об обществах с ограниченной ответственностью",
+      "number": "14-ФЗ",
+      "signed_on": "1998-02-08",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "208fz-ao",
+      "title": "Об акционерных обществах",
+      "number": "208-ФЗ",
+      "signed_on": "1995-12-26",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "135fz",
+      "title": "О защите конкуренции",
+      "number": "135-ФЗ",
+      "signed_on": "2006-07-26",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "218fz",
+      "title": "О государственной регистрации недвижимости",
+      "number": "218-ФЗ",
+      "signed_on": "2015-07-13",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "214fz",
+      "title": "Об участии в долевом строительстве",
+      "number": "214-ФЗ",
+      "signed_on": "2004-12-30",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "38fz",
+      "title": "О рекламе",
+      "number": "38-ФЗ",
+      "signed_on": "2006-03-13",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "99fz",
+      "title": "О лицензировании отдельных видов деятельности",
+      "number": "99-ФЗ",
+      "signed_on": "2011-05-04",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "129fz",
+      "title": "О государственной регистрации юридических лиц и индивидуальных предпринимателей",
+      "number": "129-ФЗ",
+      "signed_on": "2001-08-08",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "402fz",
+      "title": "О бухгалтерском учете",
+      "number": "402-ФЗ",
+      "signed_on": "2011-12-06",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "98fz",
+      "title": "О коммерческой тайне",
+      "number": "98-ФЗ",
+      "signed_on": "2004-07-29",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "273fz-corruption",
+      "title": "О противодействии коррупции",
+      "number": "273-ФЗ",
+      "signed_on": "2008-12-25",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "115fz",
+      "title": "О противодействии легализации доходов",
+      "number": "115-ФЗ",
+      "signed_on": "2001-08-07",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "40fz-osago",
+      "title": "Об обязательном страховании гражданской ответственности владельцев транспортных средств",
+      "number": "40-ФЗ",
+      "signed_on": "2002-04-25",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "7fz-environment",
+      "title": "Об охране окружающей среды",
+      "number": "7-ФЗ",
+      "signed_on": "2002-01-10",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "323fz-health",
+      "title": "Об основах охраны здоровья граждан",
+      "number": "323-ФЗ",
+      "signed_on": "2011-11-21",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "273fz-education",
+      "title": "Об образовании в Российской Федерации",
+      "number": "273-ФЗ",
+      "signed_on": "2012-12-29",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "air-code",
+      "title": "Воздушный кодекс РФ",
+      "number": "60-ФЗ",
+      "signed_on": "1997-03-19",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "water-code",
+      "title": "Водный кодекс РФ",
+      "number": "74-ФЗ",
+      "signed_on": "2006-06-03",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "forest-code",
+      "title": "Лесной кодекс РФ",
+      "number": "200-ФЗ",
+      "signed_on": "2006-12-04",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "maritime-code",
+      "title": "Кодекс торгового мореплавания РФ",
+      "number": "81-ФЗ",
+      "signed_on": "1999-04-30",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "inland-water-code",
+      "title": "Кодекс внутреннего водного транспорта РФ",
+      "number": "24-ФЗ",
+      "signed_on": "2001-03-07",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "customs-code-eaeu",
+      "title": "Таможенный кодекс ЕАЭС",
+      "number": null,
+      "signed_on": "2017-04-11",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "fcl-constitutional-court",
+      "title": "О Конституционном Суде Российской Федерации",
+      "number": "1-ФКЗ",
+      "signed_on": "1994-07-21",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "fcl-judicial-system",
+      "title": "О судебной системе Российской Федерации",
+      "number": "1-ФКЗ",
+      "signed_on": "1996-12-31",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "fcl-supreme-court",
+      "title": "О Верховном Суде Российской Федерации",
+      "number": "3-ФКЗ",
+      "signed_on": "2014-02-05",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    },
+    {
+      "id": "fcl-government",
+      "title": "О Правительстве Российской Федерации",
+      "number": "4-ФКЗ",
+      "signed_on": "2020-11-06",
+      "source_document_url": null,
+      "full_text_imported": false,
+      "edition_verified": false
+    }
+  ],
+  "uploaded_evidence": [
+    {
+      "act": "ГК РФ (все четыре части)",
+      "file": "Гражданский кодекс Российской Федерации.pdf",
+      "availability": "available_library",
+      "notes": "736-page PDF; current edition and provenance unverified",
+      "production_approved": false
+    },
+    {
+      "act": "ГК РФ, часть IV",
+      "file": "Гр.pdf",
+      "availability": "available_library",
+      "notes": "293-page PDF; edition unverified",
+      "production_approved": false
+    },
+    {
+      "act": "152-ФЗ",
+      "file": "federalnyy_zakon_ot_27_07_2006_n_152_fz_red_ot_08_08_2024.pdf",
+      "availability": "available_library",
+      "notes": "2024 edition; publisher markers; quarantine",
+      "production_approved": false
+    },
+    {
+      "act": "63-ФЗ об электронной подписи",
+      "file": "20110406_20250731_FZ_N_63_FZ.pdf",
+      "availability": "available_library",
+      "notes": "2025 edition; publisher markers; quarantine",
+      "production_approved": false
+    },
+    {
+      "act": "63-ФЗ об электронной подписи",
+      "file": "Zakon_Rossiyskoy_Federatsii_63.pdf",
+      "availability": "available_library",
+      "notes": "older alternate edition; quarantine",
+      "production_approved": false
+    },
+    {
+      "act": "Приказ ФСТЭК № 21",
+      "file": "Prikaz_FSTJEK_Rossii_21.pdf",
+      "availability": "available_library",
+      "notes": "2013 version; later amendments not incorporated",
+      "production_approved": false
+    },
+    {
+      "act": "149-ФЗ",
+      "file": "1270721.pdf",
+      "availability": "available_library",
+      "notes": "text available; current edition unverified",
+      "production_approved": false
+    },
+    {
+      "act": "ПП РФ № 1119",
+      "file": "446.pdf",
+      "availability": "available_library",
+      "notes": "text available; current edition unverified",
+      "production_approved": false
+    },
+    {
+      "act": "Конституция РФ",
+      "file": "0001202210060013.pdf",
+      "availability": "available_library",
+      "notes": "second same-named copy; hash equality not verified",
+      "production_approved": false
+    },
+    {
+      "act": "Конституция РФ",
+      "file": "0001202210060013(1).pdf",
+      "availability": "available_library",
+      "notes": "duplicate candidate; compare SHA-256 before removal",
+      "production_approved": false
+    },
+    {
+      "act": "Градостроительный кодекс РФ",
+      "file": "05-Градостроительный кодекс Российской Федерации  от 29.12.2004.pdf",
+      "availability": "audit_record_only",
+      "notes": "2026-08-04; ConsultantPlus; source PDF not currently in library",
+      "production_approved": false
+    },
+    {
+      "act": "Бюджетный кодекс РФ",
+      "file": "02-Бюджетный кодекс Российской Федерации  от 31.07.1998 N 145-Ф.pdf",
+      "availability": "audit_record_only",
+      "notes": "2026-06-26; ConsultantPlus; source PDF not currently in library",
+      "production_approved": false
+    },
+    {
+      "act": "КАС РФ",
+      "file": "03-Кодекс административного судопроизводства Российской Федерац.pdf",
+      "availability": "audit_record_only",
+      "notes": "2026-04-09; ConsultantPlus; source PDF not currently in library",
+      "production_approved": false
+    },
+    {
+      "act": "Земельный кодекс РФ",
+      "file": "04-Земельный кодекс Российской Федерации  от 25.10.2001 N 136-Ф.pdf",
+      "availability": "audit_record_only",
+      "notes": "2026-08-04; ConsultantPlus; source PDF not currently in library",
+      "production_approved": false
+    },
+    {
+      "act": "Семейный кодекс РФ",
+      "file": "05-Семейный кодекс Российской Федерации  от 29.12.1995 N 223-ФЗ.pdf",
+      "availability": "audit_record_only",
+      "notes": "2026-03-23; ConsultantPlus; source PDF not currently in library",
+      "production_approved": false
+    }
+  ],
+  "historical_index": {
+    "codes": 11,
+    "article_records": 6849,
+    "official_document_urls_verified": 0,
+    "edition_verified": false,
+    "production_approved": false
+  },
+  "duplicate_candidates": [
+    [
+      "0001202210060013.pdf",
+      "0001202210060013(1).pdf"
+    ],
+    [
+      "20110406_20250731_FZ_N_63_FZ.pdf",
+      "Zakon_Rossiyskoy_Federatsii_63.pdf"
+    ]
+  ],
+  "next_steps": [
+    "Compare SHA-256 for exact duplicate files; keep differing editions separately",
+    "Recover original missing PDFs from user-approved sources, not from report metadata",
+    "Resolve exact official document URLs and dates of effect on pravo.gov.ru or Ministry of Justice portal",
+    "Reconstruct verified statute text only from official sources; do not commit publisher PDFs",
+    "Run legal acceptance tests before production indexing"
+  ],
+  "policy": "No deletion or copying of publisher materials; all listed evidence remains unverified."
+}
