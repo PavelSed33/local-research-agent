@@ -1,0 +1,28 @@
+name: Runner diagnostic
+
+on:
+  push:
+    branches:
+      - fix/recover-research-engine-20261112
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  runner-probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Report runner allocation and revision
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "runner_assigned=true"
+          echo "event=$GITHUB_EVENT_NAME"
+          echo "sha=$GITHUB_SHA"
+          echo "python=$(python3 --version)"
+          echo "utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
