@@ -1,3 +1,4 @@
+from archive_test_requirements import originals_available
 """Technical snapshot/export acceptance; synthetic reviews are not legal acceptance."""
 import hashlib
 import json
@@ -22,6 +23,7 @@ class CaseReportTests(unittest.TestCase):
     def report(self, **kwargs):
         return CaseReport(self.store).build(kwargs.get('user',self.owner),kwargs.get('matter',self.matter),kwargs.get('case','А00-1/2025'),kwargs.get('as_of','2025-06-01'))
 
+    @unittest.skipUnless(originals_available(), "Archived original PDFs intentionally absent; restore only authorized verified originals")
     def test_real_archive_quotes_hashes_pages_and_export_agree(self):
         source=next(row for row in load_sources() if row['id']=='vsrf-decision-2485538')
         dispatch(self.store,self.owner,'/workspace/sources/decision-draft',{'matter_id':self.matter,'source_id':source['id']})
@@ -160,6 +162,7 @@ class CaseReportTests(unittest.TestCase):
                         {'matter_id':self.matter,'case_number':'А00-1/2025','as_of':'2025-01-01','allow_cloud':True}):
             with self.assertRaises(ValueError):dispatch(self.store,self.owner,'/workspace/cases/report',payload)
 
+    @unittest.skipUnless(originals_available(), "Archived original PDFs intentionally absent; restore only authorized verified originals")
     def test_known_lower_act_mentions_are_explicit_gaps_with_source_proofs(self):
         dispatch(self.store,self.owner,'/workspace/sources/decision-draft',{'matter_id':self.matter,'source_id':'vsrf-decision-2332384'})
         result=self.report(case='А40-255028/2022',as_of='2024-01-29')
@@ -176,6 +179,7 @@ class CaseReportTests(unittest.TestCase):
         self.assertIn('Пробел: отдельная карточка',result['markdown'])
         self.assertFalse(result['report']['complete_history'])
 
+    @unittest.skipUnless(originals_available(), "Archived original PDFs intentionally absent; restore only authorized verified originals")
     def test_date_candidate_does_not_claim_court_correspondence_or_original_authenticity(self):
         dispatch(self.store,self.owner,'/workspace/sources/decision-draft',{'matter_id':self.matter,'source_id':'vsrf-decision-2332384'})
         body='Синтетический иной суд. Первая инстанция. Дело А40-255028/2022 от 23.01.2023\nУчебный результат только для проверки механизма.'
