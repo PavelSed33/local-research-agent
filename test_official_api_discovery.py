@@ -28,7 +28,7 @@ class OfficialApiDiscoveryTests(unittest.TestCase):
         self.assertEqual(report["results"][0]["candidates"][0]["url"],
                          "https://publication.pravo.gov.ru/document/0001200012010001")
 
-    def test_network_circuit_stops_after_three_failures(self):
+    def test_post_2011_acts_take_priority_over_older_statutes(self):\n        registry = {"acts": [\n            {"id": "old", "number": "51-ФЗ", "signed_on": "1994-11-30"},\n            {"id": "recent", "number": "178", "signed_on": "2022-10-27"}]}\n        report = api_candidates(registry, fetch=lambda url: {"items": []}, limit=1)\n        self.assertEqual(report["results"][0]["id"], "recent")\n        self.assertFalse(report["results"][0]["original_predates_electronic_publication"])\n\n    def test_network_circuit_stops_after_three_failures(self):
         calls = []
         def fetch(url):
             calls.append(url)
