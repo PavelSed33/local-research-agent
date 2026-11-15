@@ -784,6 +784,52 @@
       "official_publication_document_url": null,
       "current_effective_edition_verified": false,
       "production_approved": false
+    },
+    {
+      "act": "149-ФЗ",
+      "uploaded_file": "1270721.pdf",
+      "uploaded_edition": null,
+      "evidence_urls": [
+        "https://sfr.gov.ru/order/temporary_disability/federal_laws/~11100",
+        "https://base.garant.ru/12148555/",
+        "https://ivo.garant.ru/document/redirect/12148555/149"
+      ],
+      "finding": "2026 amendments include staggered commencement; as-of date must select 2026-09-01 effective text and exclude future 2027 provisions until effective. Uploaded PDF edition not yet identified.",
+      "status": "effective_date_complexity_confirmed_pdf_unverified",
+      "official_publication_document_url": null,
+      "current_effective_edition_verified": false,
+      "production_approved": false
+    },
+    {
+      "act": "Постановление Правительства РФ № 1119 от 01.11.2012",
+      "uploaded_file": "446.pdf",
+      "uploaded_edition": null,
+      "evidence_urls": [
+        "https://base.garant.ru/70252506/",
+        "https://minobrnauki.gov.ru/open_ministry/gossluzhba/entry/files/"
+      ],
+      "finding": "Act identity and subject corroborated; ministry-hosted PDF is marked ConsultantPlus. Do not treat ministry-hosted publisher PDF as original official publication. Uploaded edition unverified.",
+      "status": "identity_confirmed_edition_unverified",
+      "official_publication_document_url": null,
+      "current_effective_edition_verified": false,
+      "production_approved": false
     }
-  ]
+  ],
+  "effective_date_policy": {
+    "required_fields": [
+      "signed_on",
+      "published_on",
+      "effective_from",
+      "effective_until",
+      "amendment_act",
+      "official_publication_url"
+    ],
+    "rule": "Select provision version by legal-event date; do not apply future amendments early; if provenance or date range missing, return unverified instead of legal conclusion",
+    "reference_example": {
+      "act": "149-ФЗ",
+      "as_of": "2026-11-15",
+      "future_amendments_from": "2027-03-01",
+      "note": "Cross-check official publication and per-provision dates before accepting"
+    }
+  }
 }
