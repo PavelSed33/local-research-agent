@@ -27,8 +27,8 @@ jobs:
           python-version: '3.12'
       - name: Verify discovery security and matching
         run: python -m unittest test_official_publication_discovery test_official_source_monitor test_official_publication_quarantine -v
-      - name: Search 15 priority acts, bounded official index requests
-        run: python -m scripts.discover_official_publications --limit 15 --days 2 --output official-publication-candidates.json
+      - name: Search 5 priority acts with 60-second discovery budget
+        run: python -m scripts.discover_official_publications --limit 5 --days 1 --max-seconds 60 --output official-publication-candidates.json
       - name: Download up to 5 candidate publications into temporary quarantine
         run: python -m scripts.quarantine_official_publications --candidates official-publication-candidates.json --output legal-source-quarantine --limit 5
       - name: Store candidate metadata
