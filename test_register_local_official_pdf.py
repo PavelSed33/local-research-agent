@@ -24,6 +24,13 @@ class LocalOfficialPdfTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 register(path, act_id="esign63", official_url="https://evil.example/document/123")
 
+    def test_rejects_official_homepage_as_document_provenance(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "official.pdf"
+            path.write_bytes(b"%PDF-1.4\nfixture")
+            with self.assertRaises(ValueError):
+                register(path, act_id="esign63", official_url="https://pravo.gov.ru/")
+
     def test_rejects_non_pdf(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "fake.pdf"
