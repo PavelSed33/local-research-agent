@@ -103,11 +103,15 @@ def discover(registry, *, fetch=None, days=7):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--days", type=int, default=7)
+    parser.add_argument("--limit", type=int, default=15)
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
     if not 0 <= args.days <= 14:
         parser.error("--days must be between 0 and 14")
+    if not 1 <= args.limit <= 59:
+        parser.error("--limit must be between 1 and 59")
     registry = json.loads(REGISTRY.read_text(encoding="utf-8"))
+    registry["acts"] = registry["acts"][:args.limit]
     report = discover(registry, days=args.days)
     output = json.dumps(report, ensure_ascii=False, indent=2) + "\n"
     if args.output:
