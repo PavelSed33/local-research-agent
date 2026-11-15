@@ -36,6 +36,7 @@ jobs:
         run: |
           python -m py_compile scripts/check_official_source.py scripts/release_readiness.py
           python -m py_compile tests/test_official_source_intake.py tests/test_release_readiness.py tests/test_statutory_source_hosts.py
+          python -m py_compile preflight.py test_readiness.py
       - name: Verify source intake and release safety independently of quarantined archives
         run: |
           python -m unittest discover -s tests -p "test_official_source_intake.py" -v
@@ -68,6 +69,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Compile source
         run: python -m compileall -q .
+      - name: Readiness and authenticated HTTP regression tests
+        run: python -m unittest test_readiness -v
       - name: Diagnose legal source coverage (informational; never masks failures)
         run: python scripts/diagnose_release_sources.py
       - name: Run unit tests
