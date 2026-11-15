@@ -73,6 +73,9 @@ jobs:
         run: python -m unittest test_readiness -v
       - name: Diagnose legal source coverage (informational; never masks failures)
         run: python scripts/diagnose_release_sources.py
+      - name: Diagnose missing quarantined archive originals (informational)
+        if: success() || failure()
+        run: python scripts/diagnose_primary_archive.py || test "$?" -eq 2
       - name: Run unit tests
         if: success() || failure()
         run: python -m unittest discover -v
