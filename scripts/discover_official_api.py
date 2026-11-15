@@ -94,8 +94,7 @@ def main():
         p.error("--limit must be 1..59")
     registry = json.loads(REGISTRY.read_text(encoding="utf-8"))
     args.output.write_text(json.dumps(api_candidates(registry, limit=args.limit),
-                                      ensure_ascii=False, indent=2) + "
-", encoding="utf-8")
+                                      ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
 if __name__ == "__main__":
