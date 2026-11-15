@@ -41,7 +41,8 @@ class WorkflowReadinessTests(unittest.TestCase):
             self.assertTrue(rows[identity]['can_attempt'])
         self.assertEqual(rows['claim-audit']['blockers'], ['search'])
         self.assertEqual(rows['/ask']['blockers'], ['search'])
-        self.assertTrue(rows['/review/legal']['local_fallback_can_attempt'])
+        # Without accepted local statutory extracts or evidence there is no safe fallback.
+        self.assertFalse(rows['/review/legal']['local_fallback_can_attempt'])
         self.assertFalse(rows['claim-audit']['local_fallback_can_attempt'])
 
     def test_local_model_does_not_need_cloud_document_opt_in(self):
