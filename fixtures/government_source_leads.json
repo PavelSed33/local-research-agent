@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "description": "Government-hosted source leads requiring human provenance, edition, and rights review; not imported statutory corpus.",
+  "candidates": [
+    {
+      "act_id": "pd152",
+      "number": "152-ФЗ",
+      "signed_on": "2006-07-27",
+      "source_url": "https://rosguard.gov.ru/document/article/federalnyj-zakon-ot-27-iyulya-2006-g--152fz",
+      "source_organization": "Федеральная служба войск национальной гвардии Российской Федерации",
+      "source_type": "government_hosted_legal_text",
+      "provenance": "public government web page; discovered 2026-11-15",
+      "edition_verified": false,
+      "latest_edition_verified": false,
+      "rights_reviewed": false,
+      "identity_reviewed": false,
+      "full_text_imported": false,
+      "status": "candidate_not_approved"
+    },
+    {
+      "act_id": "pd152",
+      "number": "152-ФЗ",
+      "signed_on": "2006-07-27",
+      "source_url": "https://minjust.gov.ru/ru/appeals/legal/",
+      "source_organization": "Министерство юстиции Российской Федерации",
+      "source_type": "government_reference_page",
+      "provenance": "public government legal reference; discovered 2026-11-15",
+      "edition_verified": false,
+      "latest_edition_verified": false,
+      "rights_reviewed": false,
+      "identity_reviewed": false,
+      "full_text_imported": false,
+      "status": "reference_not_document"
+    }
+  ]
+}
