@@ -652,10 +652,6 @@
   },
   "duplicate_candidates": [
     [
-      "0001202210060013.pdf",
-      "0001202210060013(1).pdf"
-    ],
-    [
       "20110406_20250731_FZ_N_63_FZ.pdf",
       "Zakon_Rossiyskoy_Federatsii_63.pdf"
     ]
@@ -667,5 +663,45 @@
     "Reconstruct verified statute text only from official sources; do not commit publisher PDFs",
     "Run legal acceptance tests before production indexing"
   ],
-  "policy": "No deletion or copying of publisher materials; all listed evidence remains unverified."
+  "policy": "No deletion or copying of publisher materials; all listed evidence remains unverified.",
+  "hash_verification": {
+    "verified_on": "2026-11-15",
+    "method": "SHA-256 of original bytes materialized from ChatGPT Library",
+    "files": [
+      {
+        "file": "0001202210060013.pdf",
+        "sha256": "f17dcd8054ebedbd4b688e47a3f0e88999d678e9087710f0135c80f55d464510"
+      },
+      {
+        "file": "0001202210060013(1).pdf",
+        "sha256": "f17dcd8054ebedbd4b688e47a3f0e88999d678e9087710f0135c80f55d464510"
+      },
+      {
+        "file": "20110406_20250731_FZ_N_63_FZ.pdf",
+        "sha256": "fc0b071ed503066062c2a7b6da4fb6aa9bad4734313688b2eec29b19892954c2"
+      },
+      {
+        "file": "Zakon_Rossiyskoy_Federatsii_63.pdf",
+        "sha256": "9af57493e1b3996be3d23dbdc3cc4637f2be5b9a1211e386c3e63a2b78da96db"
+      },
+      {
+        "file": "Гражданский кодекс Российской Федерации.pdf",
+        "sha256": "0969f009e35c7058621d5c88c430881b71cf72a6de7f25036216ce3e2518ee73"
+      }
+    ],
+    "exact_duplicate_groups": [
+      [
+        "0001202210060013.pdf",
+        "0001202210060013(1).pdf"
+      ]
+    ],
+    "distinct_version_groups": [
+      [
+        "20110406_20250731_FZ_N_63_FZ.pdf",
+        "Zakon_Rossiyskoy_Federatsii_63.pdf"
+      ]
+    ],
+    "legal_edition_verified": false,
+    "files_deleted": 0
+  }
 }
