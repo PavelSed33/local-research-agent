@@ -61,7 +61,7 @@ def discover(registry, *, fetch=None, days=7):
         opener = build_opener(NoRedirect)
         def fetch(url):
             with opener.open(Request(url, headers={"User-Agent": "LegalSourceDiscovery/1.0"}),
-                             timeout=10) as response:
+                             timeout=4) as response:
                 if response.status != 200:
                     raise ValueError("Unexpected HTTP status")
                 if int(response.headers.get("Content-Length", "0")) > MAX_HTML:
