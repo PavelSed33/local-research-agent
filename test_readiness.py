@@ -159,6 +159,26 @@ class WorkflowReadinessTests(unittest.TestCase):
         self.assertFalse(report['statutory_corpus']['coverage_complete'])
         self.assertIn('statutes', workflows(report)['/legal/corpus']['blockers'])
 
+    def test_whitespace_alias_in_complete_registry_fails_closed(self):
+        registry_path = Path(__file__).parent / 'fixtures' / 'legal_coverage.json'
+        original_loads = json.loads
+        registry = original_loads(registry_path.read_text(encoding='utf-8'))
+        entries = [{'card_id': card['id']} for card in registry['cards']]
+        entries[0]['card_id'] = ' ' + entries[0]['card_id']
+
+        def whitespace_alias(raw, *args, **kwargs):
+            value = original_loads(raw, *args, **kwargs)
+            if isinstance(value, dict) and value.get('cards'):
+                value['cards'][0]['id'] = ' ' + value['cards'][0]['id']
+            return value
+
+        with patch.dict('os.environ', {}, clear=True), \
+                patch('preflight.json.loads', side_effect=whitespace_alias), \
+                patch('preflight.corpus_report', return_value={'entries': entries, 'errors': []}):
+            report = inspect_runtime()
+        self.assertFalse(report['statutory_corpus']['coverage_complete'])
+        self.assertIn('statutes', workflows(report)['/legal/corpus']['blockers'])
+
     def test_empty_legal_evidence_blocks_evidence_dependent_workflows(self):
         # Missing evidence must not be reported as locally ready, even when
         # the statutory corpus is otherwise available.
