@@ -106,31 +106,39 @@ class WorkflowReadinessTests(unittest.TestCase):
 
     def test_duplicate_registry_card_ids_cannot_claim_complete_coverage(self):
         original_loads = json.loads
+        registry_path = Path(__file__).parent / 'fixtures' / 'legal_coverage.json'
+        registry = original_loads(registry_path.read_text(encoding='utf-8'))
+        complete_entries = [{'card_id': card['id']} for card in registry['cards']]
 
         def duplicate_cards(raw, *args, **kwargs):
-            registry = original_loads(raw, *args, **kwargs)
-            if isinstance(registry, dict) and 'cards' in registry and registry['cards']:
-                registry['cards'].append(dict(registry['cards'][0]))
-            return registry
+            value = original_loads(raw, *args, **kwargs)
+            if isinstance(value, dict) and 'cards' in value and value['cards']:
+                value['cards'].append(dict(value['cards'][0]))
+            return value
 
         with patch.dict('os.environ', {}, clear=True), \
-                patch('preflight.json.loads', side_effect=duplicate_cards):
+                patch('preflight.json.loads', side_effect=duplicate_cards), \
+                patch('preflight.corpus_report', return_value={'entries': complete_entries, 'errors': []}):
             report = inspect_runtime()
         self.assertFalse(report['statutory_corpus']['coverage_complete'])
         self.assertIn('statutes', workflows(report)['/legal/corpus']['blockers'])
 
     def test_blank_registry_id_does_not_count_as_coverage(self):
         original_loads = json.loads
+        registry_path = Path(__file__).parent / 'fixtures' / 'legal_coverage.json'
+        registry = original_loads(registry_path.read_text(encoding='utf-8'))
+        complete_entries = [{'card_id': card['id']} for card in registry['cards']]
+        complete_entries[0]['card_id'] = ''
 
         def blank_card(raw, *args, **kwargs):
-            registry = original_loads(raw, *args, **kwargs)
-            if isinstance(registry, dict) and registry.get('cards'):
-                registry['cards'][0]['id'] = ''
-            return registry
+            value = original_loads(raw, *args, **kwargs)
+            if isinstance(value, dict) and value.get('cards'):
+                value['cards'][0]['id'] = ''
+            return value
 
         with patch.dict('os.environ', {}, clear=True), \
                 patch('preflight.json.loads', side_effect=blank_card), \
-                patch('preflight.corpus_report', return_value={'entries': [], 'errors': []}):
+                patch('preflight.corpus_report', return_value={'entries': complete_entries, 'errors': []}):
             report = inspect_runtime()
         self.assertFalse(report['statutory_corpus']['coverage_complete'])
         self.assertIn('statutes', workflows(report)['/legal/corpus']['blockers'])
