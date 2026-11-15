@@ -119,6 +119,22 @@ class WorkflowReadinessTests(unittest.TestCase):
         self.assertFalse(report['statutory_corpus']['coverage_complete'])
         self.assertIn('statutes', workflows(report)['/legal/corpus']['blockers'])
 
+    def test_blank_registry_id_does_not_count_as_coverage(self):
+        original_loads = json.loads
+
+        def blank_card(raw, *args, **kwargs):
+            registry = original_loads(raw, *args, **kwargs)
+            if isinstance(registry, dict) and registry.get('cards'):
+                registry['cards'][0]['id'] = ''
+            return registry
+
+        with patch.dict('os.environ', {}, clear=True), \
+                patch('preflight.json.loads', side_effect=blank_card), \
+                patch('preflight.corpus_report', return_value={'entries': [], 'errors': []}):
+            report = inspect_runtime()
+        self.assertFalse(report['statutory_corpus']['coverage_complete'])
+        self.assertIn('statutes', workflows(report)['/legal/corpus']['blockers'])
+
     def test_empty_legal_evidence_blocks_evidence_dependent_workflows(self):
         # Missing evidence must not be reported as locally ready, even when
         # the statutory corpus is otherwise available.
