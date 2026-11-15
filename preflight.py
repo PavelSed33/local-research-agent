@@ -102,16 +102,23 @@ def inspect_runtime() -> dict:
         registry = json.loads((Path(__file__).parent / 'fixtures' / 'legal_coverage.json').read_text(encoding='utf-8'))
         expected_cards = {card['id'] for card in registry['cards']}
         actual_cards = {entry['card_id'] for entry in statutes['entries']}
-        registry_has_duplicates = len(expected_cards) != len(registry['cards'])
+        # Whitespace aliases must not count as distinct or valid registry IDs.
+        normalized_registry_ids = [card['id'].strip() if isinstance(card['id'], str) else card['id']
+                                   for card in registry['cards']]
+
+        registry_has_duplicates = len(set(normalized_registry_ids)) != len(registry['cards'])
         registry_ids_valid = all(isinstance(card['id'], str) and bool(card['id'].strip())
                                  for card in registry['cards'])
         corpus_ids_valid = all(isinstance(entry['card_id'], str) and bool(entry['card_id'].strip())
                                for entry in statutes['entries'])
+        identifiers_canonical = (all(isinstance(card_id, str) and card_id == card_id.strip() for card_id in expected_cards)
+                                 and all(isinstance(card_id, str) and card_id == card_id.strip() for card_id in actual_cards))
         expected_card_count = len(expected_cards)
         missing_card_count = len(expected_cards - actual_cards)
         statutes_complete = (bool(expected_cards)
                              and not registry_has_duplicates
                              and registry_ids_valid and corpus_ids_valid
+                             and identifiers_canonical
                              and actual_cards == expected_cards
                              and len(statutes['entries']) == len(expected_cards)
                              and not statutes['errors'])
