@@ -55,7 +55,7 @@ def select_article_version(versions, as_of, article_id):
         if item.get("article_id") != article_id:
             continue
         start = _date(item.get("effective_from"), "effective_from")
-        end = _date(item["effective_until"], "effective_until") if item.get("effective_until") else None
+        end = _date(item["effective_until"], "effective_until") if item.get("effective_until") is not None else None
         published = _date(item.get("published_on"), "published_on")
         if end is not None and end <= start:
             raise LegalVersionError("invalid effective interval")
