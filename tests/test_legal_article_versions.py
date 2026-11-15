@@ -13,6 +13,14 @@ class ArticleVersionTests(unittest.TestCase):
                         effective_from="2027-01-01", effective_until=None,
                         published_on="2026-08-04", source_sha256="b" * 64)
 
+    def test_empty_effective_until_rejected(self):
+        with self.assertRaises(LegalVersionError):
+            select_article_version([dict(self.old, effective_until="")], "2026-11-15", "gk:10")
+
+    def test_invalid_effective_until_type_rejected(self):
+        with self.assertRaises(LegalVersionError):
+            select_article_version([dict(self.old, effective_until=False)], "2026-11-15", "gk:10")
+
     def test_non_dict_record_fails_closed(self):
         with self.assertRaises(LegalVersionError):
             select_article_version([None, self.old], "2026-11-15", "gk:10")
