@@ -100,7 +100,9 @@ class WorkflowReadinessTests(unittest.TestCase):
         self.assertEqual(rows['/privacy/check']['blockers'], ['evidence'])
         self.assertEqual(rows['/legal/research']['blockers'], ['evidence'])
         self.assertEqual(rows['/legal/coverage']['blockers'], ['evidence'])
-        self.assertEqual(rows['/legal/corpus']['status'], 'ready_locally')
+        # A single synthetic extract is not complete statutory coverage.
+        self.assertEqual(rows['/legal/corpus']['status'], 'blocked')
+        self.assertIn('statutes', rows['/legal/corpus']['blockers'])
         self.assertTrue(rows['/diff']['can_attempt'])
 
     def test_values_and_credential_urls_are_never_serialized(self):
