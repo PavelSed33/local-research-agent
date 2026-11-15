@@ -1,3 +1,4 @@
+from archive_test_requirements import originals_available
 import base64
 import http.client
 import json
@@ -94,6 +95,7 @@ class WorkspaceHttpTests(unittest.TestCase):
         self.assertEqual(status, 403)
         self.assertNotIn('PRIVATE-', json.dumps(data))
 
+    @unittest.skipUnless(originals_available(), "Archived original PDFs intentionally absent; restore only authorized verified originals")
     def test_original_source_import_and_document_tools_work_via_http(self):
         matter = self.matter()
         status, source = self.request('/workspace/sources/import', {'matter_id': matter, 'source_id': 'vsrf-plenum-49-2018'})
@@ -117,6 +119,7 @@ class WorkspaceHttpTests(unittest.TestCase):
                               ('/documents/parse', {'filename': 'test.txt', 'file_base64': '!!!'})]:
             self.assertEqual(self.request(path, payload)[0], 400)
 
+    @unittest.skipUnless(originals_available(), "Archived original PDFs intentionally absent; restore only authorized verified originals")
     def test_archive_catalog_and_repeat_import_are_available_without_duplicates(self):
         status, catalog = self.request('/workspace/sources/list')
         self.assertEqual(status, 200)
@@ -174,6 +177,7 @@ class WorkspaceHttpTests(unittest.TestCase):
             connection.close()
 
 
+    @unittest.skipUnless(originals_available(), "Archived original PDFs intentionally absent; restore only authorized verified originals")
     def test_case_report_http_schema_limits_and_revoked_access(self):
         matter = self.matter()
         args = {'matter_id': matter, 'case_number': 'А56-119496/2023', 'as_of': '2025-09-04'}
