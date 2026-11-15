@@ -902,6 +902,38 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             self._send_json(404, {"error": "Неизвестный путь. Доступны: GET /health, GET /openapi.json, POST /ask, POST /review, POST /extract, POST /diff, POST /penalty, POST /check, POST /timeline, POST /draft, POST /triage, POST /duty, POST /export, POST /protocol, POST /scoring."})
 
     def do_POST(self) -> None:
+        if self.path == "/legal/article":
+            if not self._authorized():
+                self.close_connection = True
+                self._send_json(401, {"error": "Требуется авторизация."})
+                return
+            try:
+                from scripts.legal_article_search import search_verified_article
+                payload = self._read_payload()
+                if not isinstance(payload, dict):
+                    raise ValueError("JSON object required")
+                article_id = payload.get("article_id")
+                as_of = payload.get("as_of")
+                if not isinstance(article_id, str) or not (1 <= len(article_id) <= 128):
+                    raise ValueError("article_id required")
+                if not isinstance(as_of, str) or len(as_of) != 10:
+                    raise ValueError("as_of must be YYYY-MM-DD")
+                # Deliberately load only a server-managed, reviewed corpus.
+                # Never accept client-provided versions, file paths, or text.
+                import json
+                from pathlib import Path
+                corpus = Path(__file__).with_name("fixtures") / "verified_legal_articles.json"
+                records = json.loads(corpus.read_text(encoding="utf-8")) if corpus.exists() else []
+                if not isinstance(records, list):
+                    raise ValueError("Invalid server corpus")
+                result = search_verified_article(records, article_id=article_id, as_of=as_of)
+            except (ValueError, TypeError) as exc:
+                self._send_json(400, {"error": str(exc)})
+            except Exception:
+                self._send_json(500, {"error": "Ошибка проверки юридической статьи."})
+            else:
+                self._send_json(200, result)
+            return
         if self.path == "/documents/redline":
             if not self._authorized():
                 self.close_connection = True
