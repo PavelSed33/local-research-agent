@@ -94,12 +94,16 @@ def inspect_runtime() -> dict:
     except (OSError, ValueError, KeyError, TypeError):
         skill_entries = None
         skills_count, skills_ok = 0, False
+    expected_card_count = 0
+    missing_card_count = None
     # Partial extracts must never unlock statutory workflows. The registry is a
     # declaration of expected coverage, not evidence that texts are present.
     try:
         registry = json.loads((Path(__file__).parent / 'fixtures' / 'legal_coverage.json').read_text(encoding='utf-8'))
         expected_cards = {card['id'] for card in registry['cards']}
         actual_cards = {entry['card_id'] for entry in statutes['entries']}
+        expected_card_count = len(expected_cards)
+        missing_card_count = len(expected_cards - actual_cards)
         statutes_complete = (bool(expected_cards)
                              and actual_cards == expected_cards
                              and len(statutes['entries']) == len(expected_cards)
@@ -111,7 +115,11 @@ def inspect_runtime() -> dict:
         'ui_files_present': ui,
         'local_captures': {'checked_count': len(corpus['entries']), 'errors': corpus['errors'],
                            'original_publication_count': 0, 'legal_acceptance': False},
-        'statutory_corpus': {'checked_count': len(statutes['entries']), 'errors': statutes['errors'],
+        'statutory_corpus': {'checked_count': len(statutes['entries']),
+                             'expected_card_count': expected_card_count,
+                             'missing_card_count': missing_card_count,
+                             'coverage_complete': statutes_complete,
+                             'errors': statutes['errors'],
                              'period_supported': False, 'legal_acceptance': False},
         **configuration,
         'research_configuration_present': all(configuration['provider_configuration'].values()),
