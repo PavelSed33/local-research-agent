@@ -918,6 +918,12 @@ class LegalApiHandler(BaseHTTPRequestHandler):
                     raise ValueError("article_id required")
                 if not isinstance(as_of, str) or len(as_of) != 10:
                     raise ValueError("as_of must be YYYY-MM-DD")
+                from datetime import date
+                try:
+                    if date.fromisoformat(as_of).isoformat() != as_of:
+                        raise ValueError("as_of must be YYYY-MM-DD")
+                except ValueError:
+                    raise ValueError("as_of must be a valid YYYY-MM-DD date")
                 # Deliberately load only a server-managed, reviewed corpus.
                 # Never accept client-provided versions, file paths, or text.
                 import json
