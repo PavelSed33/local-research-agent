@@ -12,7 +12,7 @@ from urllib.error import HTTPError, URLError
 from scripts.monitor_official_sources import ALLOWED, NoRedirect, REGISTRY, allowed_url
 
 PUBLICATIONS = "https://publication.pravo.gov.ru"
-DOCUMENT = re.compile(r"/document/(\\d{16})")
+DOCUMENT = re.compile(r"/document/(\d{16})")
 MAX_HTML = 2_000_000
 
 
@@ -47,7 +47,7 @@ def publication_candidates(html, *, number, signed_on):
         url = urljoin(PUBLICATIONS, href)
         match = DOCUMENT.search(url)
         if (match and allowed_url(url) and
-                re.search(r"(?<![\\w])" + re.escape(number) + r"(?![\\w])", label, re.I) and
+                re.search(r"(?<![\w])" + re.escape(number) + r"(?![\w])", label, re.I) and
                 (signed_on in label or dt.date.fromisoformat(signed_on).strftime("%d.%m.%Y") in label)):
             found.append({"url": url, "publication_number": match.group(1),
                           "matched_link_text": label[:350],
