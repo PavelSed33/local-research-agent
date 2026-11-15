@@ -94,6 +94,15 @@ def inspect_runtime() -> dict:
     except (OSError, ValueError, KeyError, TypeError):
         skill_entries = None
         skills_count, skills_ok = 0, False
+    # Partial extracts must never unlock statutory workflows. The registry is a
+    # declaration of expected coverage, not evidence that texts are present.
+    try:
+        registry = json.loads((Path(__file__).parent / 'fixtures' / 'legal_coverage.json').read_text(encoding='utf-8'))
+        expected_cards = {card['id'] for card in registry['cards']}
+        actual_cards = {entry['card_id'] for entry in statutes['entries']}
+        statutes_complete = bool(expected_cards) and actual_cards == expected_cards and not statutes['errors']
+    except (OSError, ValueError, KeyError, TypeError):
+        statutes_complete = False
     return {
         'python_supported': sys.version_info >= (3, 10),
         'ui_files_present': ui,
@@ -104,7 +113,7 @@ def inspect_runtime() -> dict:
         **configuration,
         'research_configuration_present': all(configuration['provider_configuration'].values()),
         'legal_skills': {'checked_count': skills_count, 'integrity_ok': skills_ok},
-        'workflows': workflow_readiness(configuration, statutes_ok=bool(statutes['entries']) and not statutes['errors'],
+        'workflows': workflow_readiness(configuration, statutes_ok=statutes_complete,
                                         evidence_ok=bool(corpus['entries']) and not corpus['errors'], skills_ok=skills_ok,
                                         skill_entries=skill_entries),
         'docker_binary_present': shutil.which('docker') is not None,
