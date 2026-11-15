@@ -34,7 +34,9 @@ class WorkflowReadinessTests(unittest.TestCase):
         self.assertFalse(report['external_services_tested'])
 
     def test_model_only_enables_contract_skills_but_not_web_audit(self):
-        with patch.dict('os.environ', MODEL, clear=True):
+        with patch.dict('os.environ', MODEL, clear=True), \
+                patch('preflight.evidence_report', return_value={'entries': [], 'errors': []}), \
+                patch('preflight.corpus_report', return_value={'entries': [], 'errors': []}):
             rows = workflows(inspect_runtime())
         for identity in ['contract-risk', 'contract-playbook', 'nda-screen', 'fact-timeline', 'legal-search-plan', '/extract', '/review']:
             self.assertEqual(rows[identity]['status'], 'configured_unchecked')
