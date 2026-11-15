@@ -5,6 +5,7 @@ from html.parser import HTMLParser
 import json
 from pathlib import Path
 import re
+import time
 from urllib.parse import urlencode, urljoin
 from urllib.request import Request, build_opener
 from urllib.error import HTTPError, URLError
@@ -56,7 +57,7 @@ def publication_candidates(html, *, number, signed_on):
     return found
 
 
-def discover(registry, *, fetch=None, days=7):
+def discover(registry, *, fetch=None, days=7, max_seconds=90):
     if fetch is None:
         opener = build_opener(NoRedirect)
         def fetch(url):
@@ -71,6 +72,7 @@ def discover(registry, *, fetch=None, days=7):
                     raise ValueError("Oversized page")
                 return data.decode("utf-8", errors="replace")
     results = []
+    deadline = time.monotonic() + max_seconds
     for act in registry["acts"]:
         result = {"id": act["id"], "title": act["title"], "candidates": [],
                   "verified": False, "imported": False}
@@ -80,6 +82,9 @@ def discover(registry, *, fetch=None, days=7):
             if not number or not isinstance(number, str):
                 raise ValueError("Missing act number")
             for offset in range(days + 1):
+                if time.monotonic() >= deadline:
+                    result["status"] = "time_budget_exhausted"
+                    break
                 date = start + dt.timedelta(days=offset)
                 url = PUBLICATIONS + "/documents?" + urlencode({
                     "date": date.isoformat(), "index": 1, "pageSize": 200, "periodType": "day"})
@@ -93,10 +98,13 @@ def discover(registry, *, fetch=None, days=7):
         except (ValueError, TypeError, OverflowError):
             result["status"] = "invalid_act_metadata"
         else:
-            result["status"] = "candidate_found" if result["candidates"] else "not_found_in_checked_dates"
+            if result.get("status") != "time_budget_exhausted":
+                result["status"] = "candidate_found" if result["candidates"] else "not_found_in_checked_dates"
         results.append(result)
     return {"source": PUBLICATIONS, "acts_checked": len(results),
             "candidates_found": sum(len(x["candidates"]) for x in results),
+            "request_errors": sum(len(x.get("errors", [])) for x in results),
+            "budget_exhausted": any(x["status"] == "time_budget_exhausted" for x in results),
             "legal_acceptance": False, "full_text_imported": 0, "results": results}
 
 
@@ -104,15 +112,18 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--days", type=int, default=7)
     parser.add_argument("--limit", type=int, default=15)
+    parser.add_argument("--max-seconds", type=int, default=90)
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
     if not 0 <= args.days <= 14:
         parser.error("--days must be between 0 and 14")
     if not 1 <= args.limit <= 59:
         parser.error("--limit must be between 1 and 59")
+    if not 1 <= args.max_seconds <= 180:
+        parser.error("--max-seconds must be between 1 and 180")
     registry = json.loads(REGISTRY.read_text(encoding="utf-8"))
     registry["acts"] = registry["acts"][:args.limit]
-    report = discover(registry, days=args.days)
+    report = discover(registry, days=args.days, max_seconds=args.max_seconds)
     output = json.dumps(report, ensure_ascii=False, indent=2) + "\n"
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
