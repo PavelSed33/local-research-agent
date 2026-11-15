@@ -9,6 +9,7 @@ on:
       - 'scripts/discover_official_publications.py'
       - 'test_official_publication_discovery.py'
       - 'scripts/monitor_official_sources.py'
+      - 'scripts/quarantine_official_publications.py'
       - '.github/workflows/official-publication-discovery.yml'
 
 permissions:
@@ -27,9 +28,18 @@ jobs:
         run: python -m unittest test_official_publication_discovery test_official_source_monitor -v
       - name: Search 15 priority acts, bounded official index requests
         run: python scripts/discover_official_publications.py --limit 15 --days 2 --output official-publication-candidates.json
-      - name: Store candidates, not legal text
+      - name: Download up to 5 candidate publications into temporary quarantine
+        run: python scripts/quarantine_official_publications.py --candidates official-publication-candidates.json --output legal-source-quarantine --limit 5
+      - name: Store candidate metadata
         uses: actions/upload-artifact@v4
         with:
           name: official-publication-candidates
           path: official-publication-candidates.json
           retention-days: 14
+      - name: Store temporary unverified legal-source quarantine separately
+        uses: actions/upload-artifact@v4
+        with:
+          name: unverified-official-publications
+          path: legal-source-quarantine/
+          retention-days: 1
+          if-no-files-found: error
