@@ -32,7 +32,9 @@ def api_candidates(registry, *, fetch=None, limit=5):
     errors = 0
     for act in registry["acts"][:limit]:
         item = {"id": act["id"], "number": act.get("number"),
-                "candidates": [], "verified": False, "imported": False}
+                "candidates": [], "verified": False, "imported": False,
+                "edition_scope": "original_official_publication_only",
+                "current_consolidated_edition_required": True}
         if errors >= 3:
             item["status"] = "network_circuit_open"
             results.append(item)
@@ -72,7 +74,9 @@ def api_candidates(registry, *, fetch=None, limit=5):
         results.append(item)
     return {"source": BASE + "/api/Documents", "acts_checked": len(results),
             "candidates_found": sum(len(i["candidates"]) for i in results),
-            "legal_acceptance": False, "full_text_imported": 0, "results": results}
+            "legal_acceptance": False, "full_text_imported": 0,
+            "warning": "Original publications do not establish the current consolidated edition; older acts may predate electronic publication.",
+            "results": results}
 
 
 def main():
