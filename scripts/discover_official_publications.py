@@ -73,9 +73,15 @@ def discover(registry, *, fetch=None, days=7, max_seconds=90):
                 return data.decode("utf-8", errors="replace")
     results = []
     deadline = time.monotonic() + max_seconds
+    consecutive_network_errors = 0
+    circuit_open = False
     for act in registry["acts"]:
         result = {"id": act["id"], "title": act["title"], "candidates": [],
                   "verified": False, "imported": False}
+        if circuit_open:
+            result["status"] = "official_source_network_circuit_open"
+            results.append(result)
+            continue
         signed_on, number = act.get("signed_on"), act.get("number")
         try:
             start = dt.date.fromisoformat(signed_on)
@@ -93,12 +99,19 @@ def discover(registry, *, fetch=None, days=7, max_seconds=90):
                 try:
                     matches = publication_candidates(fetch(url), number=number, signed_on=signed_on)
                     result["candidates"].extend(matches)
+                    consecutive_network_errors = 0
                 except (HTTPError, URLError, OSError, TimeoutError, ValueError, UnicodeError) as exc:
                     result.setdefault("errors", []).append({"date": date.isoformat(), "type": type(exc).__name__})
+                    if isinstance(exc, (URLError, TimeoutError, OSError)):
+                        consecutive_network_errors += 1
+                        if consecutive_network_errors >= 3:
+                            circuit_open = True
+                            result["status"] = "official_source_network_circuit_open"
+                            break
         except (ValueError, TypeError, OverflowError):
             result["status"] = "invalid_act_metadata"
         else:
-            if result.get("status") != "time_budget_exhausted":
+            if result.get("status") not in {"time_budget_exhausted", "official_source_network_circuit_open"}:
                 result["status"] = ("candidate_found" if result["candidates"] else
                                     "source_unreachable_or_partial" if result.get("errors") else
                                     "not_found_in_checked_dates")
@@ -107,6 +120,7 @@ def discover(registry, *, fetch=None, days=7, max_seconds=90):
             "candidates_found": sum(len(x["candidates"]) for x in results),
             "request_errors": sum(len(x.get("errors", [])) for x in results),
             "budget_exhausted": any(x["status"] == "time_budget_exhausted" for x in results),
+            "network_circuit_open": circuit_open,
             "legal_acceptance": False, "full_text_imported": 0, "results": results}
 
 
