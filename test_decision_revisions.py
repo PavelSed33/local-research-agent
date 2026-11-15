@@ -1,3 +1,4 @@
+from archive_test_requirements import originals_available
 """Synthetic revision checks do not certify legal conclusions or reviewer qualifications."""
 from concurrent.futures import ThreadPoolExecutor
 import sqlite3
@@ -94,6 +95,7 @@ class DecisionRevisionTests(unittest.TestCase):
         for sql in ('DELETE FROM decision_revisions','UPDATE decision_revisions SET root_artifact_id=artifact_id'):
             with self.store.connect(True) as db,self.assertRaises(sqlite3.IntegrityError):db.execute(sql)
 
+    @unittest.skipUnless(originals_available(), "Archived original PDFs intentionally absent; restore only authorized verified originals")
     def test_real_archived_card_can_be_enriched_and_reimport_reuses_latest(self):
         args={'matter_id':self.matter,'source_id':'vsrf-decision-2485538'}
         initial=dispatch(self.store,self.owner,'/workspace/sources/decision-draft',args)['artifact_id']
