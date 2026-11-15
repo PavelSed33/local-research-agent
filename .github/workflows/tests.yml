@@ -74,6 +74,7 @@ jobs:
       - name: Diagnose legal source coverage (informational; never masks failures)
         run: python scripts/diagnose_release_sources.py
       - name: Run unit tests
+        if: success() || failure()
         run: python -m unittest discover -v
       - name: Synthetic evaluation (not legal acceptance)
         if: success() || failure()
