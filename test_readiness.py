@@ -125,8 +125,8 @@ class WorkflowReadinessTests(unittest.TestCase):
                 patch('preflight.corpus_report', return_value={'entries': [{'id': 'synthetic'}], 'errors': []}):
             rows = workflows(inspect_runtime())
         self.assertEqual(rows['/privacy/check']['blockers'], ['evidence'])
-        self.assertEqual(rows['/legal/research']['blockers'], ['evidence'])
-        self.assertEqual(rows['/legal/coverage']['blockers'], ['evidence'])
+        self.assertEqual(rows['/legal/research']['blockers'], ['statutes', 'evidence'])
+        self.assertEqual(rows['/legal/coverage']['blockers'], ['statutes', 'evidence'])
         # A single synthetic extract is not complete statutory coverage.
         self.assertEqual(rows['/legal/corpus']['status'], 'blocked')
         self.assertIn('statutes', rows['/legal/corpus']['blockers'])
