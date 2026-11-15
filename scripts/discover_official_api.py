@@ -11,7 +11,7 @@ from urllib.request import Request, build_opener
 from scripts.monitor_official_sources import NoRedirect, REGISTRY
 
 BASE = "https://publication.pravo.gov.ru"
-EO = re.compile(r"^\\d{16}$")
+EO = re.compile(r"^\d{16}$")
 MAX_BYTES = 1_000_000
 
 
