@@ -18,7 +18,6 @@ MAX_BYTES = 3_000_000
 
 
 def quarantine(report, output, *, limit=5, opener=None):
-    opener = opener or build_opener(NoRedirect)
     output.mkdir(parents=True, exist_ok=True)
     records = []
     seen = set()
@@ -33,6 +32,8 @@ def quarantine(report, output, *, limit=5, opener=None):
             record = {"act_id": act.get("id"), "url": url, "accepted": False,
                       "edition_verified": False, "legal_reviewed": False}
             try:
+                if opener is None:
+                    opener = build_opener(NoRedirect)
                 with opener.open(Request(url, headers={"User-Agent": "LegalPublicationQuarantine/1.0"}),
                                  timeout=12) as response:
                     if response.status != 200:
