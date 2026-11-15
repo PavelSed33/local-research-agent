@@ -10,6 +10,7 @@ on:
       - 'test_official_publication_discovery.py'
       - 'scripts/monitor_official_sources.py'
       - 'scripts/quarantine_official_publications.py'
+      - 'test_official_publication_quarantine.py'
       - '.github/workflows/official-publication-discovery.yml'
 
 permissions:
@@ -25,7 +26,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Verify discovery security and matching
-        run: python -m unittest test_official_publication_discovery test_official_source_monitor -v
+        run: python -m unittest test_official_publication_discovery test_official_source_monitor test_official_publication_quarantine -v
       - name: Search 15 priority acts, bounded official index requests
         run: python scripts/discover_official_publications.py --limit 15 --days 2 --output official-publication-candidates.json
       - name: Download up to 5 candidate publications into temporary quarantine
