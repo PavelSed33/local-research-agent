@@ -7,6 +7,7 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
+from urllib.parse import urlencode
 import re
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, build_opener
@@ -34,28 +35,27 @@ def quarantine(report, output, *, limit=5, opener=None):
             try:
                 if opener is None:
                     opener = build_opener(NoRedirect)
-                with opener.open(Request(url, headers={"User-Agent": "LegalPublicationQuarantine/1.0"}),
+                pdf_url = "https://publication.pravo.gov.ru/File/Pdf?" + urlencode({"eoNumber": url.rsplit("/", 1)[-1]})
+                with opener.open(Request(pdf_url, headers={"User-Agent": "LegalPublicationQuarantine/1.0", "Accept": "application/pdf"}),
                                  timeout=12) as response:
                     if response.status != 200:
                         raise ValueError("Unexpected HTTP status")
                     mime = response.headers.get("Content-Type", "").split(";")[0].lower().strip()
-                    if mime not in {"text/html", "application/pdf"}:
+                    if mime != "application/pdf":
                         raise ValueError("Unsupported content type")
                     data = response.read(MAX_BYTES + 1)
                     if len(data) > MAX_BYTES:
                         raise ValueError("Oversized document")
                     if not data:
                         raise ValueError("Empty response")
-                    if mime == "application/pdf" and not data.startswith(b"%PDF-"):
+                    if not data.startswith(b"%PDF-"):
                         raise ValueError("Invalid PDF header")
-                    if mime == "text/html" and b"<html" not in data[:8192].lower() and b"<!doctype html" not in data[:8192].lower():
-                        raise ValueError("Invalid HTML header")
                     digest = hashlib.sha256(data).hexdigest()
-                    suffix = ".pdf" if mime == "application/pdf" else ".html"
+                    suffix = ".pdf"
                     filename = digest + suffix
                     (output / filename).write_bytes(data)
                     record.update({"status": "quarantined_unverified", "sha256": digest,
-                                   "bytes": len(data), "content_type": mime, "filename": filename})
+                                   "bytes": len(data), "content_type": mime, "download_url": pdf_url, "filename": filename})
             except (HTTPError, URLError, OSError, ValueError, TimeoutError) as exc:
                 record.update({"status": "download_error", "error_type": type(exc).__name__})
             records.append(record)
