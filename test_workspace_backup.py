@@ -1,3 +1,4 @@
+from archive_test_requirements import originals_available
 """Local recovery exercises use temporary databases; no real user credentials printed."""
 from concurrent.futures import ThreadPoolExecutor
 import hashlib
@@ -30,6 +31,7 @@ class WorkspaceBackupTests(unittest.TestCase):
             definition=db.execute('SELECT sql FROM sqlite_master WHERE name=?',(trigger,)).fetchone()[0]
             db.execute('DROP TRIGGER '+trigger);db.execute(sql,args);db.execute(definition)
 
+    @unittest.skipUnless(originals_available(), "Archived original PDFs intentionally absent; restore only authorized verified originals")
     def test_wal_snapshot_preserves_originals_tasks_revisions_acl_and_disables_old_tokens(self):
         with self.store.connect() as keeper:
             keeper.execute('SELECT COUNT(*) FROM documents').fetchone()
