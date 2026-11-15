@@ -756,5 +756,34 @@
     "total_library_pdfs_checked": 10,
     "pdf_open_failures": 0,
     "constitution_first_page_requires_text_layer_or_scan_review": true
-  }
+  },
+  "external_edition_checks": [
+    {
+      "act": "152-ФЗ",
+      "uploaded_file": "federalnyy_zakon_ot_27_07_2006_n_152_fz_red_ot_08_08_2024.pdf",
+      "uploaded_edition": "2024-08-08",
+      "evidence_urls": [
+        "https://mintrud.gov.ru/docs/laws/130",
+        "https://www.consultant.ru/document/cons_doc_LAW_61801/"
+      ],
+      "finding": "Later amendments listed through 2025 by government ministry, and 2026 by legal reference provider; uploaded edition is outdated",
+      "status": "outdated_confirmed",
+      "official_publication_document_url": null,
+      "current_effective_edition_verified": false,
+      "production_approved": false
+    },
+    {
+      "act": "63-ФЗ об электронной подписи",
+      "uploaded_file": "20110406_20250731_FZ_N_63_FZ.pdf",
+      "uploaded_edition": "2025-07-31",
+      "evidence_urls": [
+        "https://rpn.gov.ru/upload/iblock/91c/kspxccato6lny6cjashmxhzz023pzkrg/Federalnyy-zakon-ot-06.04.2011-N-63_FZ-_red.-ot-31.07.2025_.pdf"
+      ],
+      "finding": "Agency-hosted document is labelled 2025-07-31 but contains ConsultantPlus editorial material; no official 2026 current-edition verification",
+      "status": "historical_edition_corrobated_only",
+      "official_publication_document_url": null,
+      "current_effective_edition_verified": false,
+      "production_approved": false
+    }
+  ]
 }
