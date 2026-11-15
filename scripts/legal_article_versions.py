@@ -45,7 +45,13 @@ def select_article_version(versions, as_of, article_id):
     target = _date(as_of, "as_of")
     matching = []
     intervals = []
+    if not isinstance(versions, list):
+        raise LegalVersionError("article corpus must be a list")
+    if not isinstance(article_id, str) or not article_id.strip():
+        raise LegalVersionError("article_id required")
     for item in versions:
+        if not isinstance(item, dict):
+            raise LegalVersionError("invalid article corpus record")
         if item.get("article_id") != article_id:
             continue
         start = _date(item.get("effective_from"), "effective_from")
