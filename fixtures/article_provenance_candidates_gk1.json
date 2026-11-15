@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "checked_on": "2026-11-15",
+  "purpose": "First real-article provenance candidate; not accepted into legal corpus",
+  "article_id": "gk1:article:1",
+  "act": "Гражданский кодекс РФ (часть первая)",
+  "act_number": "51-ФЗ",
+  "act_signed_on": "1994-11-30",
+  "article_number": "1",
+  "article_title": "Основные начала гражданского законодательства",
+  "reported_article_revision_act": "302-ФЗ",
+  "reported_article_revision_signed_on": "2012-12-30",
+  "reported_article_revision_effective_from": "2013-03-01",
+  "source_leads": [
+    {
+      "url": "https://www.minjust.gov.ru/ru/pages/grazhdanskij-kodeks/",
+      "kind": "official_ministry_index",
+      "notes": "Official ministry index of four code parts; not exact original publication"
+    },
+    {
+      "url": "https://base.garant.ru/58056065/1cafb24d049dcd1e7707a22d98e9858f/",
+      "kind": "secondary_amendment_chronology",
+      "notes": "Reports Article 1 revised by 302-FZ effective 2013-03-01"
+    },
+    {
+      "url": "https://www.consultant.ru/document/cons_doc_LAW_5142/d65fbe0a603d59546c3338bcfc6bf09bb0332817/",
+      "kind": "secondary_article_reference",
+      "notes": "Article 1 visible; publisher content not imported"
+    }
+  ],
+  "official_original_publication_url": null,
+  "official_amending_act_publication_url": null,
+  "source_sha256": null,
+  "verified_article_text": null,
+  "article_text_sha256": null,
+  "amendment_history_checked": false,
+  "reviewer_accepted": false,
+  "verified": false,
+  "production_approved": false,
+  "remaining_checks": [
+    "Locate exact official publication of 51-FZ and 302-FZ",
+    "Verify Article 1 wording from official sources",
+    "Check all later Article 1 amendments and effective-date transitions",
+    "Capture official bytes and compute SHA-256",
+    "Have legal reviewer approve exact article and historical applicability"
+  ],
+  "warning": "No copied article text; secondary-source date is a candidate pending official verification"
+}
