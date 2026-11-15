@@ -666,27 +666,77 @@
   "policy": "No deletion or copying of publisher materials; all listed evidence remains unverified.",
   "hash_verification": {
     "verified_on": "2026-11-15",
-    "method": "SHA-256 of original bytes materialized from ChatGPT Library",
+    "method": "SHA-256 of raw Library PDF bytes; pypdf opened each file and inspected first page text",
     "files": [
       {
-        "file": "0001202210060013.pdf",
-        "sha256": "f17dcd8054ebedbd4b688e47a3f0e88999d678e9087710f0135c80f55d464510"
-      },
-      {
-        "file": "0001202210060013(1).pdf",
-        "sha256": "f17dcd8054ebedbd4b688e47a3f0e88999d678e9087710f0135c80f55d464510"
+        "file": "Prikaz_FSTJEK_Rossii_21.pdf",
+        "sha256": "786f5c8533b9ef46fec5fc8d215f84cc8ce6de9deb454e0ee2a1f834e707f204",
+        "bytes": 428879,
+        "pages": 20,
+        "first_page_text_extracted": true
       },
       {
         "file": "20110406_20250731_FZ_N_63_FZ.pdf",
-        "sha256": "fc0b071ed503066062c2a7b6da4fb6aa9bad4734313688b2eec29b19892954c2"
+        "sha256": "fc0b071ed503066062c2a7b6da4fb6aa9bad4734313688b2eec29b19892954c2",
+        "bytes": 452181,
+        "pages": 51,
+        "first_page_text_extracted": true
+      },
+      {
+        "file": "federalnyy_zakon_ot_27_07_2006_n_152_fz_red_ot_08_08_2024.pdf",
+        "sha256": "36aced47c1fd40559a6002a11fdbf4a1652d031db68546da039a82097848ac7b",
+        "bytes": 492456,
+        "pages": 36,
+        "first_page_text_extracted": true
       },
       {
         "file": "Zakon_Rossiyskoy_Federatsii_63.pdf",
-        "sha256": "9af57493e1b3996be3d23dbdc3cc4637f2be5b9a1211e386c3e63a2b78da96db"
+        "sha256": "9af57493e1b3996be3d23dbdc3cc4637f2be5b9a1211e386c3e63a2b78da96db",
+        "bytes": 208053,
+        "pages": 17,
+        "first_page_text_extracted": true
+      },
+      {
+        "file": "1270721.pdf",
+        "sha256": "44596f2168b2d5649141a15a5abe6401f3e692853744df0eafceed75d085320a",
+        "bytes": 814536,
+        "pages": 119,
+        "first_page_text_extracted": true
+      },
+      {
+        "file": "446.pdf",
+        "sha256": "30d31c03e7364d5bda2d803ae76501680a5ddd80e419b24cdb31ee27bf561371",
+        "bytes": 95737,
+        "pages": 4,
+        "first_page_text_extracted": true
+      },
+      {
+        "file": "Гр.pdf",
+        "sha256": "c3dc066cb57c2e51c7413a5cde418ae0e3b91ec8ce1c5b4cc7fd29c84f44377a",
+        "bytes": 2618685,
+        "pages": 293,
+        "first_page_text_extracted": true
       },
       {
         "file": "Гражданский кодекс Российской Федерации.pdf",
-        "sha256": "0969f009e35c7058621d5c88c430881b71cf72a6de7f25036216ce3e2518ee73"
+        "sha256": "0969f009e35c7058621d5c88c430881b71cf72a6de7f25036216ce3e2518ee73",
+        "bytes": 5445997,
+        "pages": 736,
+        "first_page_text_extracted": true
+      },
+      {
+        "file": "0001202210060013(1).pdf",
+        "sha256": "f17dcd8054ebedbd4b688e47a3f0e88999d678e9087710f0135c80f55d464510",
+        "bytes": 3871723,
+        "pages": 76,
+        "first_page_text_extracted": false
+      },
+      {
+        "file": "0001202210060013.pdf",
+        "sha256": "f17dcd8054ebedbd4b688e47a3f0e88999d678e9087710f0135c80f55d464510",
+        "bytes": 3871723,
+        "pages": 76,
+        "first_page_text_extracted": false
       }
     ],
     "exact_duplicate_groups": [
@@ -702,6 +752,9 @@
       ]
     ],
     "legal_edition_verified": false,
-    "files_deleted": 0
+    "files_deleted": 0,
+    "total_library_pdfs_checked": 10,
+    "pdf_open_failures": 0,
+    "constitution_first_page_requires_text_layer_or_scan_review": true
   }
 }
