@@ -36,8 +36,8 @@ jobs:
         run: python -m scripts.probe_official_legal_sources --output official-source-connectivity.json
       - name: Search 5 priority acts with 60-second discovery budget
         run: python -m scripts.discover_official_publications --limit 5 --days 1 --max-seconds 60 --output official-publication-candidates.json
-      - name: Search official read-only JSON API by exact act number and date
-        run: python -m scripts.discover_official_api --limit 5 --output official-api-candidates.json
+      - name: Search all 59 registered acts via official read-only JSON API by exact act number and date
+        run: python -m scripts.discover_official_api --limit 59 --output official-api-candidates.json
       - name: Download up to 5 candidate publications into temporary quarantine
         run: python -m scripts.quarantine_official_publications --candidates official-api-candidates.json --output legal-source-quarantine --limit 5
       - name: Store candidate metadata
