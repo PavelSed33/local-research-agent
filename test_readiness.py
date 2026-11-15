@@ -92,7 +92,7 @@ class WorkflowReadinessTests(unittest.TestCase):
 
     def test_empty_legal_evidence_blocks_evidence_dependent_workflows(self):
         # Missing evidence must not be reported as locally ready, even when
-        the statutory corpus is otherwise available.
+        # the statutory corpus is otherwise available.
         with patch.dict('os.environ', {}, clear=True), \
                 patch('preflight.evidence_report', return_value={'entries': [], 'errors': []}), \
                 patch('preflight.corpus_report', return_value={'entries': [{'id': 'synthetic'}], 'errors': []}):
