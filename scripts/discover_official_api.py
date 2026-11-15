@@ -30,11 +30,11 @@ def api_candidates(registry, *, fetch=None, limit=5):
                 return json.loads(data)
     results = []
     errors = 0
-    for act in registry["acts"][:limit]:
+    # Prioritize acts signed after electronic official publication began in 2011.\n    # Older statutes remain eligible but their original texts may not exist in this API.\n    ordered = sorted(registry["acts"], key=lambda act: (\n        str(act.get("signed_on", "")) < "2011-10-21",\n        str(act.get("signed_on", "")), str(act.get("id", ""))))\n    for act in ordered[:limit]:
         item = {"id": act["id"], "number": act.get("number"),
                 "candidates": [], "verified": False, "imported": False,
                 "edition_scope": "original_official_publication_only",
-                "current_consolidated_edition_required": True}
+                "current_consolidated_edition_required": True,\n                "original_predates_electronic_publication": str(act.get("signed_on", "")) < "2011-10-21"}
         if errors >= 3:
             item["status"] = "network_circuit_open"
             results.append(item)
