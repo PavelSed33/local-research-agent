@@ -91,6 +91,17 @@ class WorkflowReadinessTests(unittest.TestCase):
         self.assertEqual(rows['/legal/corpus']['blockers'], ['statutes'])
         self.assertTrue(rows['/diff']['can_attempt'])
 
+    def test_statutory_readiness_reports_missing_coverage_without_faking_acceptance(self):
+        with patch.dict('os.environ', {}, clear=True), \
+                patch('preflight.corpus_report', return_value={'entries': [], 'errors': []}):
+            report = inspect_runtime()
+        coverage = report['statutory_corpus']
+        self.assertGreater(coverage['expected_card_count'], 0)
+        self.assertEqual(coverage['missing_card_count'], coverage['expected_card_count'])
+        self.assertFalse(coverage['coverage_complete'])
+        self.assertFalse(coverage['legal_acceptance'])
+        self.assertIn('statutes', workflows(report)['/legal/corpus']['blockers'])
+
     def test_empty_legal_evidence_blocks_evidence_dependent_workflows(self):
         # Missing evidence must not be reported as locally ready, even when
         # the statutory corpus is otherwise available.
