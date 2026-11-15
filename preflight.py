@@ -102,9 +102,11 @@ def inspect_runtime() -> dict:
         registry = json.loads((Path(__file__).parent / 'fixtures' / 'legal_coverage.json').read_text(encoding='utf-8'))
         expected_cards = {card['id'] for card in registry['cards']}
         actual_cards = {entry['card_id'] for entry in statutes['entries']}
+        registry_has_duplicates = len(expected_cards) != len(registry['cards'])
         expected_card_count = len(expected_cards)
         missing_card_count = len(expected_cards - actual_cards)
         statutes_complete = (bool(expected_cards)
+                             and not registry_has_duplicates
                              and actual_cards == expected_cards
                              and len(statutes['entries']) == len(expected_cards)
                              and not statutes['errors'])
