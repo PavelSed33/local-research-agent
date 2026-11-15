@@ -37,10 +37,13 @@ jobs:
           name: official-publication-candidates
           path: official-publication-candidates.json
           retention-days: 14
-      - name: Store temporary unverified legal-source quarantine separately
+      - name: Store quarantine metadata only (no downloaded legal documents)
         uses: actions/upload-artifact@v4
         with:
-          name: unverified-official-publications
-          path: legal-source-quarantine/
-          retention-days: 1
+          name: unverified-official-publication-manifest
+          path: legal-source-quarantine/quarantine_manifest.json
+          retention-days: 7
           if-no-files-found: error
+      - name: Remove unverified legal text from runner
+        if: always()
+        run: rm -rf legal-source-quarantine
