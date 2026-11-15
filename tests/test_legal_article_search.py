@@ -34,6 +34,22 @@ class GkArticleSearchTests(unittest.TestCase):
         self.assertEqual(result["status"], "unverified")
         self.assertIsNone(result["text"])
 
+    def test_empty_server_corpus_fails_closed(self):
+        result = search_verified_article([], article_id="gk1:article:1", as_of="2026-11-15")
+        self.assertEqual(result["status"], "unverified")
+        self.assertIsNone(result["text"])
+
+    def test_unverified_record_never_leaks_text(self):
+        record = dict(article_id="gk1:article:1", text="unapproved text",
+                      effective_from="2013-03-01", effective_until=None,
+                      published_on="2012-12-31", official_publication_url=None,
+                      source_sha256=None, verified=False, reviewer_accepted=False,
+                      amendment_history_checked=False)
+        result = search_verified_article([record], article_id="gk1:article:1", as_of="2026-11-15")
+        self.assertEqual(result["status"], "unverified")
+        self.assertIsNone(result["text"])
+        self.assertIsNone(result["source_url"])
+
 
 if __name__ == "__main__":
     unittest.main()
