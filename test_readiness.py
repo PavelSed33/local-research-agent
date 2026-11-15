@@ -21,7 +21,10 @@ def workflows(report):
 
 class WorkflowReadinessTests(unittest.TestCase):
     def test_local_features_available_without_providers_or_network(self):
-        with patch.dict('os.environ', {}, clear=True), patch.object(socket, 'create_connection', side_effect=AssertionError('external network')):
+        with patch.dict('os.environ', {}, clear=True), \
+                patch.object(socket, 'create_connection', side_effect=AssertionError('external network')), \
+                patch('preflight.evidence_report', return_value={'entries': [], 'errors': []}), \
+                patch('preflight.corpus_report', return_value={'entries': [], 'errors': []}):
             report = inspect_runtime()
         rows = workflows(report)
         for identity in ['/diff', '/extract/local']:
