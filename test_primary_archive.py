@@ -1,3 +1,4 @@
+from archive_test_requirements import originals_available
 import copy
 from concurrent.futures import ThreadPoolExecutor
 import json
@@ -35,6 +36,7 @@ class PrimaryArchiveValidationTests(unittest.TestCase):
             self.assertNotIn(str(root), str(caught.exception))
             self.assertNotIn('Traceback', str(caught.exception))
 
+    @unittest.skipUnless(originals_available(), "Archived original PDFs intentionally absent; restore only authorized verified originals")
     def test_seven_physical_originals_have_identity_and_page_maps_without_legal_acceptance(self):
         sources = source_catalog()
         self.assertEqual(len(sources['sources']), 7)
@@ -70,6 +72,7 @@ class PrimaryArchiveValidationTests(unittest.TestCase):
                        lambda data: data['sources'][0]['pages'][0].update(end=10000000)]:
             self.mutation(change)
 
+    @unittest.skipUnless(originals_available(), "Archived original PDFs intentionally absent; restore only authorized verified originals")
     def test_header_amendment_mention_is_literal_not_complete_history(self):
         row = next(row for row in load_sources() if row['document_number'] == '7')
         mention = row['amendment_mentions'][0]
@@ -89,6 +92,7 @@ class PrimaryArchiveValidationTests(unittest.TestCase):
                 with self.assertRaises(PrimarySourceError):
                     load_sources(directory)
 
+    @unittest.skipUnless(originals_available(), "Archived original PDFs intentionally absent; restore only authorized verified originals")
     def test_original_is_rechecked_after_catalog_load(self):
         with tempfile.TemporaryDirectory() as directory:
             shutil.copytree(ROOT, directory, dirs_exist_ok=True)
@@ -110,6 +114,7 @@ class PrimaryArchiveImportTests(unittest.TestCase):
         return dispatch(self.store, user or self.owner, '/workspace/sources/import',
                         {'matter_id': matter or self.matter, 'source_id': identity})
 
+    @unittest.skipUnless(originals_available(), "Archived original PDFs intentionally absent; restore only authorized verified originals")
     def test_concurrent_retries_reuse_one_original_and_one_index(self):
         with ThreadPoolExecutor(max_workers=4) as pool:
             results = list(pool.map(lambda _: self.do_import(), range(8)))
@@ -118,6 +123,7 @@ class PrimaryArchiveImportTests(unittest.TestCase):
         self.assertEqual(len(self.store.documents(self.owner, self.matter)['documents']), 1)
         self.assertTrue(self.store.verify_audit())
 
+    @unittest.skipUnless(originals_available(), "Archived original PDFs intentionally absent; restore only authorized verified originals")
     def test_deduplication_is_scoped_to_matter_and_preserves_write_permissions(self):
         first = self.do_import()
         second_matter = self.store.create_matter(self.owner, 'Другое дело')['matter_id']
@@ -128,6 +134,7 @@ class PrimaryArchiveImportTests(unittest.TestCase):
         with self.assertRaises(WorkspaceError):
             self.do_import(user=user)
 
+    @unittest.skipUnless(originals_available(), "Archived original PDFs intentionally absent; restore only authorized verified originals")
     def test_reimport_rejects_corrupted_original_instead_of_reusing_it(self):
         first = self.do_import()
         with self.store.connect(True) as db:
@@ -148,6 +155,7 @@ class OfficialDecisionTests(unittest.TestCase):
                        lambda row: row.update(disposition_quote='Выдуманный результат судебного рассмотрения.')]:
             PrimaryArchiveValidationTests().mutation(lambda data: mutate(data['sources'][3]))
 
+    @unittest.skipUnless(originals_available(), "Archived original PDFs intentionally absent; restore only authorized verified originals")
     def test_real_first_pages_and_dispositions_can_form_unreviewed_dossiers(self):
         evidence = ReviewedEvidence(self.store)
         for source in load_sources():
@@ -167,6 +175,7 @@ class OfficialDecisionTests(unittest.TestCase):
             self.assertEqual(len(timeline['decisions']),1)
             self.assertFalse(timeline['complete_history'])
 
+    @unittest.skipUnless(originals_available(), "Archived original PDFs intentionally absent; restore only authorized verified originals")
     def test_future_archived_decisions_are_excluded_on_date(self):
         self.do_import('vsrf-decision-2485538')
         before=prepare_answer(self.store,self.owner,{'matter_id':self.matter,'question':'поставка неустойка','as_of':'2025-09-03','demo':True})
@@ -182,6 +191,7 @@ class OfficialDecisionTests(unittest.TestCase):
         self.assertFalse(date_quoted('2025-09-04','2025-09-040'))
 
 
+    @unittest.skipUnless(originals_available(), "Archived original PDFs intentionally absent; restore only authorized verified originals")
     def test_decision_card_import_is_atomic_idempotent_and_keeps_review_empty(self):
         def create(_):
             return dispatch(self.store,self.owner,'/workspace/sources/decision-draft',{'matter_id':self.matter,'source_id':'vsrf-decision-2485538'})
@@ -194,6 +204,7 @@ class OfficialDecisionTests(unittest.TestCase):
             self.assertEqual(db.execute('SELECT COUNT(*) FROM reviews').fetchone()[0],0)
         self.assertTrue(self.store.verify_audit())
 
+    @unittest.skipUnless(originals_available(), "Archived original PDFs intentionally absent; restore only authorized verified originals")
     def test_citation_whitespace_keeps_returned_quote_and_offsets_consistent(self):
         imported=self.do_import('vsrf-decision-2485538')
         # Use an actual literal fragment, preserving the extraction as the source of truth.
@@ -203,6 +214,7 @@ class OfficialDecisionTests(unittest.TestCase):
             ref=ReviewedEvidence(self.store)._quote(db,self.owner,self.matter,{'document_id':imported['document_id'],'quote':'  '+quote+'  '})
         self.assertEqual(body[ref['start']:ref['end']],ref['quote'])
 
+    @unittest.skipUnless(originals_available(), "Archived original PDFs intentionally absent; restore only authorized verified originals")
     def test_eleven_procedural_mentions_are_literal_not_archived_lower_court_acts(self):
         sources=load_sources()
         mentions=[(source,mention) for source in sources for mention in source.get('procedural_mentions',[])]
