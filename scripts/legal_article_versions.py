@@ -25,8 +25,13 @@ def _date(value, field):
 def _official_url(url):
     if not isinstance(url, str):
         return False
-    p = urlparse(url)
-    return p.scheme == "https" and p.hostname in {"publication.pravo.gov.ru", "pravo.gov.ru"}
+    try:
+        p = urlparse(url)
+        return (p.scheme == "https" and p.hostname in {"publication.pravo.gov.ru", "pravo.gov.ru"}
+                and p.username is None and p.password is None and p.port in (None, 443)
+                and bool(p.path.strip("/")) and not p.fragment)
+    except ValueError:
+        return False
 
 
 def select_article_version(versions, as_of, article_id):
@@ -34,10 +39,12 @@ def select_article_version(versions, as_of, article_id):
 
     Each version requires article_id, text, effective_from, effective_until
     (nullable, exclusive), published_on, official_publication_url,
-    source_sha256 and verified=True. Overlaps and gaps are rejected.
+    source_sha256 and verified=True. Overlaps and gaps at the requested date
+    are rejected. An approved record is still subject to human legal review.
     """
     target = _date(as_of, "as_of")
     matching = []
+    intervals = []
     for item in versions:
         if item.get("article_id") != article_id:
             continue
@@ -48,8 +55,13 @@ def select_article_version(versions, as_of, article_id):
             raise LegalVersionError("invalid effective interval")
         if published > start:
             raise LegalVersionError("publication after claimed effective date: manual review required")
+        intervals.append((start, end))
         if start <= target and (end is None or target < end):
             matching.append(item)
+    intervals.sort(key=lambda pair: pair[0])
+    for previous, following in zip(intervals, intervals[1:]):
+        if previous[1] is None or previous[1] > following[0]:
+            raise LegalVersionError("overlapping article version intervals")
     if len(matching) != 1:
         raise LegalVersionError(f"expected one version on {as_of}; found {len(matching)}")
     selected = matching[0]
