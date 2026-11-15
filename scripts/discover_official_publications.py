@@ -48,7 +48,7 @@ def publication_candidates(html, *, number, signed_on):
         match = DOCUMENT.search(url)
         if (match and allowed_url(url) and
                 re.search(r"(?<![\\w])" + re.escape(number) + r"(?![\\w])", label, re.I) and
-                signed_on in label):
+                (signed_on in label or dt.date.fromisoformat(signed_on).strftime("%d.%m.%Y") in label)):
             found.append({"url": url, "publication_number": match.group(1),
                           "matched_link_text": label[:350],
                           "status": "candidate_requires_manual_identity_edition_rights_review",
