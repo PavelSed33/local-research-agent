@@ -7,6 +7,7 @@ on:
       - fix/recover-research-engine-20261112
     paths:
       - 'scripts/discover_official_publications.py'
+      - 'scripts/probe_official_legal_sources.py'
       - 'test_official_publication_discovery.py'
       - 'scripts/monitor_official_sources.py'
       - 'scripts/quarantine_official_publications.py'
@@ -27,6 +28,8 @@ jobs:
           python-version: '3.12'
       - name: Verify discovery security and matching
         run: python -m unittest test_official_publication_discovery test_official_source_monitor test_official_publication_quarantine -v
+      - name: Diagnose official legal portals without downloading documents
+        run: python -m scripts.probe_official_legal_sources --output official-source-connectivity.json
       - name: Search 5 priority acts with 60-second discovery budget
         run: python -m scripts.discover_official_publications --limit 5 --days 1 --max-seconds 60 --output official-publication-candidates.json
       - name: Download up to 5 candidate publications into temporary quarantine
@@ -35,7 +38,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: official-publication-candidates
-          path: official-publication-candidates.json
+          path: |
+            official-publication-candidates.json
+            official-source-connectivity.json
           retention-days: 14
       - name: Store quarantine metadata only (no downloaded legal documents)
         uses: actions/upload-artifact@v4
