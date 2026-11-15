@@ -104,6 +104,22 @@ class WorkflowReadinessTests(unittest.TestCase):
         self.assertFalse(coverage['legal_acceptance'])
         self.assertIn('statutes', workflows(report)['/legal/corpus']['blockers'])
 
+    def test_complete_synthetic_coverage_is_not_legal_acceptance(self):
+        registry_path = Path(__file__).parent / 'fixtures' / 'legal_coverage.json'
+        registry = json.loads(registry_path.read_text(encoding='utf-8'))
+        entries = [{'card_id': card['id']} for card in registry['cards']]
+        with patch.dict('os.environ', {}, clear=True), \
+                patch('preflight.corpus_report', return_value={'entries': entries, 'errors': []}), \
+                patch('preflight.evidence_report', return_value={'entries': [], 'errors': []}):
+            report = inspect_runtime()
+        coverage = report['statutory_corpus']
+        self.assertTrue(coverage['coverage_complete'])
+        self.assertEqual(coverage['missing_card_count'], 0)
+        self.assertFalse(coverage['legal_acceptance'])
+        self.assertFalse(report['legal_acceptance'])
+        self.assertEqual(workflows(report)['/legal/corpus']['status'], 'ready_locally')
+        self.assertEqual(workflows(report)['/legal/research']['blockers'], ['evidence'])
+
     def test_duplicate_registry_card_ids_cannot_claim_complete_coverage(self):
         original_loads = json.loads
         registry_path = Path(__file__).parent / 'fixtures' / 'legal_coverage.json'
