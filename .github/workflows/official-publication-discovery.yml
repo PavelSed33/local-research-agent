@@ -8,6 +8,7 @@ on:
     paths:
       - 'scripts/discover_official_publications.py'
       - 'test_official_publication_discovery.py'
+      - 'scripts/monitor_official_sources.py'
       - '.github/workflows/official-publication-discovery.yml'
 
 permissions:
