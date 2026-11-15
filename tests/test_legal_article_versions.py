@@ -47,6 +47,27 @@ class ArticleVersionTests(unittest.TestCase):
         with self.assertRaises(LegalVersionError):
             select_article_version([self.old], "2026-11-15", "gk:11")
 
+    def test_overlap_in_historical_period_fails(self):
+        first = dict(self.old, effective_from="2025-01-01", effective_until="2026-01-01")
+        second = dict(self.old, effective_from="2025-06-01", effective_until="2026-06-01")
+        with self.assertRaises(LegalVersionError):
+            select_article_version([first, second, self.old], "2026-11-15", "gk:10")
+
+    def test_official_domain_in_username_fails(self):
+        bad = dict(self.old, official_publication_url="https://publication.pravo.gov.ru@evil.example/Document/View/1")
+        with self.assertRaises(LegalVersionError):
+            select_article_version([bad], "2026-11-15", "gk:10")
+
+    def test_official_homepage_not_document_fails(self):
+        bad = dict(self.old, official_publication_url="https://publication.pravo.gov.ru/")
+        with self.assertRaises(LegalVersionError):
+            select_article_version([bad], "2026-11-15", "gk:10")
+
+    def test_open_ended_historical_version_fails(self):
+        previous = dict(self.old, effective_until=None)
+        with self.assertRaises(LegalVersionError):
+            select_article_version([previous, self.new], "2026-11-15", "gk:10")
+
 
 if __name__ == "__main__":
     unittest.main()
