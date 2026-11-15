@@ -21,16 +21,16 @@ class QuarantineTests(unittest.TestCase):
     def test_official_document_is_quarantined_not_accepted(self):
         class Response:
             status = 200
-            headers = {"Content-Type": "text/html"}
+            headers = {"Content-Type": "application/pdf"}
             def __enter__(self):
                 return self
             def __exit__(self, *args):
                 return False
             def read(self, n):
-                return b"<!doctype html><html>unverified</html>"
+                return b"%PDF-1.4\\n%unverified fixture"
         class Opener:
             def open(self, request, timeout):
-                assert request.full_url == "https://publication.pravo.gov.ru/document/0001200607270001"
+                assert request.full_url == "https://publication.pravo.gov.ru/File/Pdf?eoNumber=0001200607270001"
                 return Response()
         with tempfile.TemporaryDirectory() as temp:
             report = quarantine({"results": [{"id": "a", "candidates": [
