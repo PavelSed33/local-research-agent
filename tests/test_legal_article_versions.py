@@ -13,6 +13,18 @@ class ArticleVersionTests(unittest.TestCase):
                         effective_from="2027-01-01", effective_until=None,
                         published_on="2026-08-04", source_sha256="b" * 64)
 
+    def test_non_dict_record_fails_closed(self):
+        with self.assertRaises(LegalVersionError):
+            select_article_version([None, self.old], "2026-11-15", "gk:10")
+
+    def test_invalid_corpus_container_fails_closed(self):
+        with self.assertRaises(LegalVersionError):
+            select_article_version({"article_id": "gk:10"}, "2026-11-15", "gk:10")
+
+    def test_missing_article_id_fails_closed(self):
+        with self.assertRaises(LegalVersionError):
+            select_article_version([self.old], "2026-11-15", "")
+
     def test_before_change(self):
         self.assertIs(select_article_version([self.old, self.new], "2026-11-15", "gk:10"), self.old)
 
