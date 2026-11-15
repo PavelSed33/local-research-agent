@@ -31,7 +31,7 @@ def allowed_url(url):
 
 
 def check(registry, *, online=False):
-    opener = build_opener(NoRedirect)
+    opener = build_opener(NoRedirect) if online else None
     results = []
     for act in registry["acts"]:
         url = act.get("source_document_url")
