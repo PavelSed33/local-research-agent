@@ -1250,6 +1250,7 @@ def create_server(
     request_timeout_seconds: float | None = None,
     max_active_requests: int = 3,
     workspace_db: Path | str | None = None,
+    persist_results: bool = False,
 ) -> ThreadingHTTPServer:
     if not api_token.strip() and host not in ("127.0.0.1", "::1", "localhost"):
         raise ValueError("API_TOKEN обязателен для внешнего сетевого интерфейса.")
@@ -1258,7 +1259,9 @@ def create_server(
     server.api_token = api_token.strip()
     server.sessions = SessionStore()
     server.metrics = Metrics()
-    server.persist_results = False
+    if not isinstance(persist_results, bool):
+        raise ValueError("persist_results must be a boolean")
+    server.persist_results = persist_results
     if workspace_db is not None:
         from workspace_store import WorkspaceStore
         server.workspace = WorkspaceStore(workspace_db)
