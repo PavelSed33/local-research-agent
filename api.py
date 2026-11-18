@@ -61,6 +61,7 @@ from scoring import handle_scoring
 from timeline import handle_timeline
 from triage import handle_triage
 from review import handle_review
+from legal_skills import load_skills, skill_options, SkillRegistryError
 
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8080
@@ -1033,8 +1034,9 @@ class LegalApiHandler(BaseHTTPRequestHandler):
             self._send_json(200, privacy_options())
             self.server.metrics.record("GET /privacy/options", 200, (time.perf_counter() - started) * 1000)
         elif self.path == "/legal/skills/options":
-            from legal_skills import skill_options, SkillRegistryError
             try:
+                # Resolve through the API boundary so registry failures can be isolated.
+                load_skills()
                 self._send_json(200, skill_options())
                 status = 200
             except SkillRegistryError:
