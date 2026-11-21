@@ -16,3 +16,11 @@ downloads/
 # Quarantined third-party statute extracts (retain provenance manifest only)
 fixtures/statute_corpus/*.json
 !fixtures/statute_corpus/manifest.json
+
+# Temporary files
+*.backup
+*.b64
+*.zip
+test_report.txt
+tests_before.txt
+patch*
