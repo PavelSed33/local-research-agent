@@ -15,6 +15,14 @@ class DataAuditTests(unittest.TestCase):
         cls.workflows = json.loads((ROOT / 'fixtures/legal_workflows.json').read_text())
         cls.benchmarks = json.loads((ROOT / 'fixtures/legal_benchmarks.json').read_text())
         cls.corpus = corpus_report(include_text=True)
+        # The real legal corpus is intentionally empty after quarantine. Build
+        # synthetic extracts for mutation tests without restoring source texts.
+        cls.synthetic_corpus = copy.deepcopy(cls.corpus)
+        cls.synthetic_corpus['entries'] = [
+            {'card_id': card['id'], 'captured_on': '2026-11-01',
+             'period_supported': False, 'text': f'Synthetic audit fixture {index}'}
+            for index, card in enumerate(cls.registry['cards'][:3])
+        ]
 
     def report(self, registry=None, corpus=None):
         return audit_data(registry or self.registry, self.workflows, self.benchmarks,
@@ -37,7 +45,7 @@ class DataAuditTests(unittest.TestCase):
         self.assertTrue(any(row['code'] == 'reversed_effective_interval' for row in self.report(registry)['findings']))
 
     def test_missing_extract_future_capture_and_duplicate_texts_are_distinct(self):
-        corpus = copy.deepcopy(self.corpus)
+        corpus = copy.deepcopy(self.synthetic_corpus)
         corpus['entries'].pop()
         corpus['entries'][0]['captured_on'] = '2027-01-01'
         corpus['entries'][1]['text'] = corpus['entries'][0]['text']
@@ -45,5 +53,5 @@ class DataAuditTests(unittest.TestCase):
         self.assertTrue({'missing_corpus_extract', 'capture_after_audit_date', 'duplicate_normalized_extract'} <= codes)
 
     def test_audit_reports_never_include_source_text(self):
-        report = self.report()
-        self.assertNotIn(self.corpus['entries'][0]['text'], json.dumps(report, ensure_ascii=False))
+        report = self.report(corpus=self.synthetic_corpus)
+        self.assertNotIn(self.synthetic_corpus['entries'][0]['text'], json.dumps(report, ensure_ascii=False))

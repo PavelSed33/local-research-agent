@@ -133,6 +133,8 @@ def handle_skill(payload):
     if payload.get('jurisdiction', 'RU') != 'RU':
         raise ValueError('Адаптеры поддерживают только юрисдикцию RU.')
     entry = skills[skill_id]
+    if 'demo' in payload and not isinstance(payload['demo'], bool):
+        raise ValueError('demo должен быть логическим значением.')
     demo = parse_demo_flag(payload)
     as_of = validate_as_of(payload.get('as_of')) or current_check_date()
     document = resolve_document(payload)

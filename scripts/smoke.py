@@ -82,8 +82,12 @@ def smoke(base_url: str) -> list[str]:
             assert result['status'] == 'needs_facts' and result['verified'] is False
         if path == '/legal/corpus':
             assert result['verified'] is False and not result['errors']
-            assert 'Статья 165.1.' in result['entries'][0]['text']
-            assert result['entries'][0]['period_supported'] is False
+            if result['entries']:
+                assert 'Статья 165.1.' in result['entries'][0]['text']
+                assert result['entries'][0]['period_supported'] is False
+            else:
+                assert any(gap['status'] == 'quarantined_and_removed'
+                           for gap in result['refresh_gaps'])
         if path == '/review/legal' and payload.get('contract_type') == 'work':
             expected = 'draft' if payload['facts'].get('result_handover') else 'needs_facts'
             assert result['status'] == expected and result['verified'] is False
