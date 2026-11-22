@@ -137,6 +137,20 @@ def dispatch(store, principal, path, payload):
         return store.grant(principal, p.get('matter_id'), p.get('user_id'), p.get('role'))
     if path == '/workspace/documents/add':
         return store.add_document(principal, p.get('matter_id'), p)
+    if path == '/workspace/documents/upload':
+        from document_tools import parse_file, _decode
+        file_args = {key: p[key] for key in ('filename', 'file_base64', 'ocr', 'ocr_language') if key in p}
+        parsed = parse_file(file_args)
+        raw = _decode(p.get('file_base64'))
+        return store.add_document(
+            principal, p.get('matter_id'),
+            {'title': p.get('title', p.get('filename')), 'document': parsed['document'],
+             'source_url': p.get('source_url', ''), 'pages': parsed['pages']},
+            provenance={'origin': 'uploaded_original', 'original_sha256': parsed['original_sha256'],
+                        'text_sha256': parsed['document_sha256'], 'current_validity_verified': False,
+                        'legal_completeness_verified': False},
+            original=(p['filename'], raw))
+
     if path == '/workspace/documents/list':
         return store.documents(principal, p.get('matter_id'))
     if path == '/workspace/documents/read':

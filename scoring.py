@@ -23,7 +23,7 @@ from pathlib import Path
 from typing import Any
 
 from agent import LEGAL_DISCLAIMER, AgentError, LanguageModel, OpenAICompatibleModel, load_dotenv
-from doctext import read_document_file, resolve_document
+from doctext import read_document_file, resolve_document, ensure_document_transfer_allowed
 from review import MIN_DOCUMENT_CHARS, DemoReviewModel, review_contract
 
 BASE_SCORE = 100
@@ -89,9 +89,13 @@ def handle_scoring(payload: dict[str, Any]) -> dict[str, Any]:
     document = resolve_document(payload)
     if len(document) < MIN_DOCUMENT_CHARS:
         raise ScoringError(f"Текст договора слишком короткий: нужно от {MIN_DOCUMENT_CHARS} символов.")
-    demo = bool(payload.get("demo", False))
+    demo = payload.get("demo", False)
+    if not isinstance(demo, bool):
+        raise ScoringError("Поле demo должно быть логическим значением.")
+    if not demo:
+        ensure_document_transfer_allowed()
     model: LanguageModel = DemoReviewModel() if demo else OpenAICompatibleModel()
-    review, repaired = review_contract(model, document.strip())
+    review, repaired = review_contract(model, document.strip(), demo=demo)
     scoring = compute_score(review.get("risks", []), review.get("missing_clauses", []))
     return {
         "status": "draft",

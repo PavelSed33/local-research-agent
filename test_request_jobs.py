@@ -36,6 +36,11 @@ class RequestControlTests(unittest.TestCase):
             def log_message(self, *args):
                 pass
         self.provider = ThreadingHTTPServer(('127.0.0.1', 0), SlowProvider)
+        # Register all cleanups before anything that may fail during setUp.
+        # Otherwise a failed server construction leaks a global Popen mock.
+        self.addCleanup(self.provider.server_close)
+        self.addCleanup(self.provider.shutdown)
+        self.addCleanup(self.release.set)
         threading.Thread(target=self.provider.serve_forever, daemon=True).start()
         self.env = patch.dict(os.environ, {
             'LLM_BASE_URL': f'http://127.0.0.1:{self.provider.server_port}/v1',
@@ -44,6 +49,7 @@ class RequestControlTests(unittest.TestCase):
             'TAVILY_API_URL': f'http://127.0.0.1:{self.provider.server_port}/search',
             'ALLOW_CLOUD_DOCUMENTS': 'true'})
         self.env.start()
+        self.addCleanup(self.env.stop)
         self.children = []
         spawn = subprocess.Popen
         def track(*args, **kwargs):
@@ -52,10 +58,13 @@ class RequestControlTests(unittest.TestCase):
             return process
         self.spawn_patch = patch('request_jobs.subprocess.Popen', side_effect=track)
         self.spawn_patch.start()
+        self.addCleanup(self.spawn_patch.stop)
         self.directory = tempfile.TemporaryDirectory()
+        self.addCleanup(self.directory.cleanup)
         self.server = create_server('127.0.0.1', 0, self.directory.name, 'test-token', request_timeout_seconds=4)
+        self.addCleanup(self.server.server_close)
+        self.addCleanup(self.server.shutdown)
         threading.Thread(target=self.server.serve_forever, daemon=True).start()
-        self.addCleanup(self.cleanup)
 
     def cleanup(self):
         self.server.server_close()
