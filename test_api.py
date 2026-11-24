@@ -93,12 +93,17 @@ class AskEndpointTests(ApiTestCase):
             "POST", "/ask", {"question": "Тестовый правовой вопрос", "demo": True}
         )
         self.assertEqual(status, 200)
-        self.assertIn("# Тестовый правовой вопрос", payload["answer"])
+        self.assertIn("Демонстрационный ответ", payload["answer"])
+        self.assertIn("Тестовый правовой вопрос", payload["answer"])
         self.assertEqual(payload["disclaimer"], LEGAL_DISCLAIMER)
-        self.assertEqual(len(payload["sources"]), 2)
-        self.assertEqual(payload["sources"][0]["url"], "https://example.org/demo-agent")
+        self.assertEqual(payload["sources"], [])
         self.assertTrue(payload["checked_on"])
         self.assertTrue(payload["demo"])
+
+    def test_real_research_fails_closed_when_pipeline_is_missing(self):
+        status, payload = self.request("POST", "/ask", {"question": "Правовой вопрос"})
+        self.assertEqual(status, 502)
+        self.assertIn("временно недоступен", payload["error"])
 
     def test_missing_question_returns_400(self):
         status, payload = self.request("POST", "/ask", {"demo": True})
