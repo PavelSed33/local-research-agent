@@ -12,6 +12,7 @@ from legal_catalog import review_checklist, review_timing
 from legal_coverage import contract_coverage
 from legal_evidence import cached_contract_sources, evidence_report, contract_evidence_cards
 from statute_corpus import statutory_review_sources
+from supply_references import supply_review_materials
 from contract_scope import contract_qualification, scope_options
 from doctext import ensure_document_transfer_allowed, parse_demo_flag, resolve_document, document_fingerprint, quote_span
 from review import (DemoReviewModel, MIN_DOCUMENT_CHARS, build_review_prompt,
@@ -118,6 +119,9 @@ def handle_legal_review(payload: dict[str, Any]) -> dict[str, Any]:
     captures = {}
     statutory_cached = []
     statutory_captures = {}
+    supply_materials = {}
+    if any(rule['id'] == 'supply-performance' for rule in checklist['rules']):
+        base['supply_references'], supply_materials = supply_review_materials(document)
     if not demo:
         ensure_document_transfer_allowed()
         statutory_cached, statute_report = statutory_review_sources(profile, contract_type, as_of)
@@ -139,7 +143,7 @@ def handle_legal_review(payload: dict[str, Any]) -> dict[str, Any]:
         # sources. Remaining slots can still be filled with fresh results in quarantine.
         transitions = [source for source in cached
                        if captures.get(source.url, {}).get('kind') == 'government_amending_act_copy']
-        candidates = [*sources[:2], *transitions, *statutory_cached, *sources[2:], *cached]
+        candidates = [*supply_materials, *sources[:2], *transitions, *statutory_cached, *sources[2:], *cached]
         sources = []
         urls = set()
         for source in candidates:
@@ -197,9 +201,11 @@ def handle_legal_review(payload: dict[str, Any]) -> dict[str, Any]:
     return {**base, **{k: result.get(k, [] if k != 'summary' else '') for k in ('summary', 'risks', 'missing_clauses')},
             'status': 'draft', 'search_errors': errors,
             'sources': [{'id': i, 'title': s.title, 'url': s.url, 'text': s.text,
-                         'retrieval_mode': ('local_statutory_extract' if s in statutory_cached else
+                         'retrieval_mode': ('supply_snapshot_excerpt' if s in supply_materials else
+                                            'local_statutory_extract' if s in statutory_cached else
                                             'local_web_extract' if s in cached else 'search_result'),
-                         'capture': ({key: captures[s.url][key] for key in
+                         'capture': (supply_materials[s] if s in supply_materials else
+                                     {key: captures[s.url][key] for key in
                                       ('id', 'file', 'sha256', 'captured_on', 'capture_kind', 'raw_http_response')}
                                      if s in cached and s.url in captures else
                                      {key: statutory_captures[s.url][key] for key in

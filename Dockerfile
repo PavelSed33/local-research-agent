@@ -12,13 +12,13 @@ RUN if [ "$INSTALL_PDF_OCR" = "1" ]; then \
 COPY agent.py api.py api_worker.py request_jobs.py preflight.py ./
 COPY audit.py check.py doctext.py draft.py duty.py export.py extract.py penalty.py protocol.py redline.py registry.py review.py scoring.py timeline.py triage.py ./
 COPY case_law.py contract_scope.py legal_catalog.py legal_coverage.py legal_evidence.py legal_history.py legal_research.py legal_review.py legal_skills.py privacy_review.py ./
-COPY pravo_ips.py pravo_portal.py primary_sources.py source_admission.py statute_corpus.py ./
+COPY pravo_ips.py pravo_portal.py primary_sources.py source_admission.py statute_corpus.py supply_references.py ./
 COPY benchmark_tasks.py case_report.py document_tools.py docx_redline.py local_extract.py matter_research.py reviewed_evidence.py workspace_api.py workspace_backup.py workspace_store.py ./
 COPY scripts/manage_workspace.py ./scripts/
 COPY web ./web
 COPY skills ./skills
 COPY third_party ./third_party
-COPY fixtures/legal_benchmarks.json fixtures/legal_coverage.json fixtures/legal_workflows.json fixtures/contract_rule_catalog.json ./fixtures/
+COPY fixtures/legal_benchmarks.json fixtures/legal_coverage.json fixtures/legal_workflows.json fixtures/contract_rule_catalog.json fixtures/supply_references.json ./fixtures/
 COPY fixtures/legal_evidence ./fixtures/legal_evidence
 COPY fixtures/statute_corpus/manifest.json ./fixtures/statute_corpus/
 COPY fixtures/primary_sources/manifest.json fixtures/primary_sources/vsrf-*.txt ./fixtures/primary_sources/
