@@ -11,12 +11,13 @@ import threading
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from api import create_server, API_VERSION
+from scripts.synthetic_archive import temporary_archive
 from workspace_store import WorkspaceStore
 
 
 def run_acceptance():
     checks = 0
-    with tempfile.TemporaryDirectory(prefix='legal-workspace-acceptance-') as directory:
+    with temporary_archive(), tempfile.TemporaryDirectory(prefix='legal-workspace-acceptance-') as directory:
         store = WorkspaceStore(Path(directory) / 'workspace.db')
         admin = store.create_user('Синтетический администратор', 'admin')
         server = create_server('127.0.0.1', 0, Path(directory) / 'results', workspace_db=store.path)

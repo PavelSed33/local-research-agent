@@ -16,22 +16,28 @@ import argparse
 import difflib
 import json
 import sys
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from agent import LEGAL_DISCLAIMER
-from doctext import read_document_file, resolve_document
+from agent import LEGAL_DISCLAIMER, current_check_date
+from doctext import read_document_path, resolve_document
 from review import MIN_DOCUMENT_CHARS
 
 MAX_CHANGED_PAIRS_NOTE = "Количество удалённых и добавленных строк в блоке различается."
+MAX_DIFF_DOCUMENT_CHARS = 200_000
+MAX_DIFF_DOCUMENT_LINES = 5_000
 
 
 def diff_documents(old: str, new: str) -> dict[str, Any]:
     """Сравнивает две редакции построчно и возвращает структурированный список изменений."""
+    if len(old) > MAX_DIFF_DOCUMENT_CHARS or len(new) > MAX_DIFF_DOCUMENT_CHARS:
+        raise ValueError(f"Каждая редакция не должна превышать {MAX_DIFF_DOCUMENT_CHARS} символов для сравнения.")
     old_lines = old.splitlines()
     new_lines = new.splitlines()
-    matcher = difflib.SequenceMatcher(a=old_lines, b=new_lines, autojunk=False)
+    if len(old_lines) > MAX_DIFF_DOCUMENT_LINES or len(new_lines) > MAX_DIFF_DOCUMENT_LINES:
+        raise ValueError(f"Каждая редакция не должна превышать {MAX_DIFF_DOCUMENT_LINES} строк для сравнения.")
+    # autojunk=True avoids pathological quadratic behavior on repetitive long documents.
+    matcher = difflib.SequenceMatcher(a=old_lines, b=new_lines, autojunk=True)
     changes: list[dict[str, str]] = []
     counts = {"added": 0, "removed": 0, "changed": 0, "unchanged": 0}
     for tag, i1, i2, j1, j2 in matcher.get_opcodes():
@@ -84,7 +90,7 @@ def handle_diff(payload: dict[str, Any]) -> dict[str, Any]:
         "summary": result["summary"],
         "changes": result["changes"],
         "diff": result["diff"],
-        "checked_on": datetime.now(timezone.utc).date().isoformat(),
+        "checked_on": current_check_date(),
         "disclaimer": LEGAL_DISCLAIMER,
     }
 
@@ -99,8 +105,8 @@ def main() -> int:
             print(f"Ошибка: файл не найден: {path}", file=sys.stderr)
             return 1
     try:
-        old = read_document_file(args.old_file.read_bytes(), args.old_file.name)
-        new = read_document_file(args.new_file.read_bytes(), args.new_file.name)
+        old = read_document_path(args.old_file)
+        new = read_document_path(args.new_file)
         result = handle_diff({"document_a": old, "document_b": new})
     except ValueError as exc:
         print(f"\nОшибка: {exc}", file=sys.stderr)

@@ -7,11 +7,13 @@ from pathlib import Path
 import shutil
 import tempfile
 import unittest
+
+from scripts.synthetic_archive import synthetic_archive
 from unittest.mock import patch
 
 from doctext import extract_docx_text
 from document_tools import capabilities, export_docx, parse_file, redact
-from primary_sources import ROOT, load_sources
+from primary_sources import load_sources
 
 
 class DocumentToolsTests(unittest.TestCase):
@@ -68,24 +70,26 @@ class DocumentToolsTests(unittest.TestCase):
                 parse_file({'filename': 'scan.pdf', 'file_base64': base64.b64encode(b'%PDF-1.4').decode(), 'ocr': True})
 
     def test_original_source_integrity_and_corruption_detection(self):
+        root = synthetic_archive(self)
         rows = load_sources()
         self.assertEqual(len(rows), 7)
-        self.assertEqual(len(rows[0]['pages']), 16)
+        self.assertEqual(len(rows[0]['pages']), 2)
         self.assertFalse(rows[0]['current_validity_verified'])
         with tempfile.TemporaryDirectory() as directory:
-            shutil.copytree(ROOT, directory, dirs_exist_ok=True)
+            shutil.copytree(root, directory, dirs_exist_ok=True)
             (Path(directory) / rows[0]['text_file']).write_text('corrupted')
             with self.assertRaises(ValueError):
                 load_sources(directory)
 
     @unittest.skipUnless(shutil.which('pdftotext') and shutil.which('pdfinfo'), 'Poppler not installed')
-    def test_real_official_pdf_all_sixteen_pages_extract_and_keep_offsets(self):
+    def test_synthetic_pdf_all_pages_extract_and_keep_offsets(self):
+        root = synthetic_archive(self)
         source = load_sources()[0]
-        raw = (ROOT / source['original_file']).read_bytes()
+        raw = (root / source['original_file']).read_bytes()
         result = parse_file({'filename': 'original.pdf', 'file_base64': base64.b64encode(raw).decode()})
-        self.assertEqual(len(result['pages']), 16)
+        self.assertEqual(len(result['pages']), 2)
         self.assertEqual(result['document_sha256'], source['text_sha256'])
-        self.assertIn('ПЛЕНУМА', result['document'])
+        self.assertIn('Учебный пример', result['document'])
         for page in result['pages']:
             self.assertTrue(result['document'][page['start']:page['end']].strip())
 
@@ -104,8 +108,9 @@ class DocumentToolsTests(unittest.TestCase):
         from reportlab.pdfgen import canvas
         from reportlab.lib.utils import ImageReader
         image = Image.new('RGB', (1200, 350), 'white')
-        font_path = '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'
-        if not Path(font_path).exists():
+        fonts = ('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', '/System/Library/Fonts/Supplemental/Arial.ttf')
+        font_path = next((name for name in fonts if Path(name).is_file()), None)
+        if not font_path:
             self.skipTest('Test font not installed')
         draw = ImageDraw.Draw(image)
         draw.text((40, 100), label, fill='black', font=ImageFont.truetype(font_path, 65))

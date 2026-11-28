@@ -66,20 +66,24 @@ class ConsumerTransitionEvidenceTests(unittest.TestCase):
         self.assertFalse(result['verified'])
         self.assertIn('переходных положений не заменяет', model.return_value.complete.call_args.args[0])
 
-    def test_source_budget_keeps_transition_and_statute_with_fresh_search(self):
-        fresh = [Source('Synthetic source', f'https://example.org/{i}', 'Synthetic text', '')
-                 for i in range(5)]
-        with patch('legal_review.ensure_document_transfer_allowed'), patch('legal_review.TavilySearch') as search, patch('legal_review.OpenAICompatibleModel') as model:
-            search.return_value.search.return_value = fresh
-            model.return_value.complete.return_value = json.dumps({'summary': 'Черновик', 'risks': [], 'missing_clauses': []})
-            result = handle_legal_review({'document': 'Условный потребительский договор для проверки лимита.',
-                'profile': 'consumer', 'as_of': '2026-11-08',
-                'facts': {'customer_is_individual': True, 'personal_use': True, 'seller_is_business': True}})
-        self.assertLessEqual(len(result['sources']), 5)
-        self.assertEqual([s['url'] for s in result['sources'][:2]], [s.url for s in fresh[:2]])
-        self.assertIn(URL, {s['url'] for s in result['sources']})
-        self.assertTrue(any(s['retrieval_mode'] == 'local_statutory_extract' for s in result['sources']))
-        self.assertFalse(result['verified'])
+    def test_source_budget_keeps_transition_with_and_without_available_statutes(self):
+        fresh = [Source('Synthetic source', f'https://example.org/{i}', 'Synthetic text', '') for i in range(5)]
+        statute = Source('Synthetic article', 'https://example.org/statute', 'Synthetic extract', 'local statutory extract')
+        for local_statutes in ([], [statute]):
+            with self.subTest(available=bool(local_statutes)), patch('legal_review.ensure_document_transfer_allowed'), \
+                    patch('legal_review.TavilySearch') as search, patch('legal_review.OpenAICompatibleModel') as model, \
+                    patch('legal_review.statutory_review_sources', return_value=(local_statutes, {'entries': []})):
+                search.return_value.search.return_value = fresh
+                model.return_value.complete.return_value = json.dumps({'summary': 'Черновик', 'risks': [], 'missing_clauses': []})
+                result = handle_legal_review({'document': 'Условный потребительский договор для проверки лимита.',
+                    'profile': 'consumer', 'as_of': '2026-11-08',
+                    'facts': {'customer_is_individual': True, 'personal_use': True, 'seller_is_business': True}})
+                self.assertEqual(len(result['sources']), 5)
+                self.assertEqual([s['url'] for s in result['sources'][:2]], [s.url for s in fresh[:2]])
+                self.assertIn(URL, {s['url'] for s in result['sources']})
+                self.assertEqual([s['url'] for s in result['sources'] if s['retrieval_mode'] == 'local_statutory_extract'],
+                                 [source.url for source in local_statutes])
+                self.assertFalse(result['verified'])
 
     def test_news_and_lookalike_host_cannot_pose_as_saved_amending_act(self):
         for url in ['https://zpp.rospotrebnadzor.ru/news/389825',

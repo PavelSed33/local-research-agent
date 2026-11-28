@@ -29,7 +29,7 @@ from agent import (
     extract_json,
     load_dotenv,
 )
-from doctext import read_document_file, resolve_document
+from doctext import ensure_document_transfer_allowed, parse_demo_flag, read_document_file, resolve_document
 from redline import diff_documents
 from review import MIN_DOCUMENT_CHARS, normalize_text
 
@@ -185,7 +185,7 @@ def handle_protocol(payload: dict[str, Any]) -> dict[str, Any]:
         raise ProtocolError(f"Тексты редакций слишком короткие: нужно от {MIN_DOCUMENT_CHARS} символов каждый.")
     party_a = str(payload.get("party_a", "")).strip() or "Сторона А"
     party_b = str(payload.get("party_b", "")).strip() or "Сторона Б"
-    demo = bool(payload.get("demo", False))
+    demo = parse_demo_flag(payload)
 
     diff = diff_documents(document_a, document_b)
     disputed = collect_disputed(diff["changes"])
@@ -199,6 +199,8 @@ def handle_protocol(payload: dict[str, Any]) -> dict[str, Any]:
         )
         disputed = disputed[:MAX_DISPUTED_FOR_PROMPT]
 
+    if not demo:
+        ensure_document_transfer_allowed()
     model: LanguageModel = DemoProtocolModel() if demo else OpenAICompatibleModel()
     result, repaired = make_protocol(model, disputed, document_a, document_b)
     return {

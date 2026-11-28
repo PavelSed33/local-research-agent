@@ -70,6 +70,8 @@ def import_corpus(download_dir, destination):
     sources = {source['id']: source for source in data['sources']}
     cards = {(card['act_id'], card['provision']): card for card in data['cards']}
     previous = corpus_report(corpus_dir=destination, include_text=True)
+    if (destination / 'manifest.json').exists() and (previous['errors'] or previous.get('quarantined_card_ids')):
+        raise ValueError('Целевой корпус повреждён или содержит карантинные записи. Используйте отдельный каталог импорта.')
     retained = {entry['card_id']: {key: entry[key] for key in
                 ('card_id', 'act_id', 'provision', 'title', 'heading', 'text', 'url', 'kind',
                  'captured_on', 'sha256', 'response_sha256', 'edition_label')}

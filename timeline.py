@@ -28,7 +28,7 @@ from agent import (
     extract_json,
     load_dotenv,
 )
-from doctext import read_document_file
+from doctext import ensure_document_transfer_allowed, parse_demo_flag, read_document_file
 from penalty import parse_date_ru
 from review import normalize_text
 
@@ -195,7 +195,9 @@ def handle_timeline(payload: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(payload, dict):
         raise TimelineError("Тело запроса должно быть JSON-объектом.")
     materials = validate_materials(payload)
-    demo = bool(payload.get("demo", False))
+    demo = parse_demo_flag(payload)
+    if not demo:
+        ensure_document_transfer_allowed()
     model: LanguageModel = DemoTimelineModel() if demo else OpenAICompatibleModel()
     result, repaired = extract_timeline(model, materials)
     dated, undated = sort_events(result.get("events", []))
