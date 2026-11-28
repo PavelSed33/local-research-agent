@@ -7,7 +7,7 @@ import re
 from agent import AgentError, Source
 
 INDEX = Path(__file__).parent / 'fixtures' / 'supply_references.json'
-INDEX_SHA256 = 'f5279f1d00d3a62cc79048e24025c87b0366136567780500b650ec912aa6e774'
+INDEX_SHA256 = 'a171ebbf8b6fa75eda4d1f9576d9f978ab646e3a2faf31ded81647567e016544'
 
 
 def supply_review_materials(document):
