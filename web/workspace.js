@@ -2,6 +2,7 @@
 const w = id => document.getElementById(id);
 let activeMatter = '', parsedPages = [], currentJob = null, busy = false, pendingOriginal = null;
 let primarySources = [];
+let missingOriginalCount = 0;
 let workspaceEpoch = 0, actionContext = null;
 function assertActionContext(){
  if(actionContext&&(actionContext.epoch!==workspaceEpoch||actionContext.token!==w('workspace-token').value.trim()))
@@ -86,10 +87,10 @@ async function refreshEvidence(){const data=await call('/workspace/evidence/list
 w('evidence-list').addEventListener('change',clearReview);
 w('workspace-token').addEventListener('input',()=>{pendingOriginal=null});
 w('matter-list').addEventListener('change',()=>{pendingOriginal=null});
-function primarySourceNote(){const source=primarySources.find(row=>row.id===w('primary-source').value);w('primary-source-note').textContent=source?source.page_count+' стр. · '+source.edition_label+(source.case_number?' Дело '+source.case_number+'. Полная цепочка инстанций не загружена.':' История изменений полностью не подтверждена.'):'Каталог недоступен; работа с документами дела остаётся доступной.'}
-async function refreshPrimarySources(){w('primary-source').replaceChildren();primarySources=[];try{const data=await call('/workspace/sources/list',{});primarySources=data.sources;for(const source of data.sources){const option=document.createElement('option');option.value=source.id;option.textContent=source.title;w('primary-source').append(option)}}catch{}primarySourceNote()}
+function primarySourceNote(){const source=primarySources.find(row=>row.id===w('primary-source').value);w('primary-source-note').textContent=source?source.page_count+' стр. · '+source.edition_label+(source.case_number?' Дело '+source.case_number+'. Полная цепочка инстанций не загружена.':' История изменений полностью не подтверждена.'):(missingOriginalCount ? 'Для импорта подключите локальные PDF. Отсутствует оригиналов: '+missingOriginalCount+'.' : 'Каталог недоступен; работа с документами дела остаётся доступной.')}
+async function refreshPrimarySources(){w('primary-source').replaceChildren();primarySources=[];missingOriginalCount=0;try{const data=await call('/workspace/sources/list',{});primarySources=data.sources;missingOriginalCount=data.missing_original_ids?.length||0;for(const source of data.sources){const option=document.createElement('option');option.value=source.id;option.textContent=source.title;w('primary-source').append(option)}}catch{}primarySourceNote()}
 w('primary-source').addEventListener('change',primarySourceNote);
-w('workspace-token').addEventListener('input',()=>{primarySources=[];w('primary-source').replaceChildren();primarySourceNote()});
+w('workspace-token').addEventListener('input',()=>{primarySources=[];missingOriginalCount=0;w('primary-source').replaceChildren();primarySourceNote()});
 w('refresh-evidence').addEventListener('click',()=>run(refreshEvidence));
 w('read-evidence').addEventListener('click',()=>run(async()=>{if(!w('evidence-list').value)throw Error('Выберите материал.');const data=await call('/workspace/evidence/read',{artifact_id:w('evidence-list').value});show(data);w('workspace-result').textContent=JSON.stringify(data.payload,null,2)}));
 w('review-evidence').addEventListener('submit',event=>{event.preventDefault();run(async()=>{if(!w('evidence-list').value)throw Error('Выберите материал.');show(await call('/workspace/evidence/review',{artifact_id:w('evidence-list').value,decision:w('review-decision').value,note:w('review-note').value,attestations:{source_authenticity:w('attest-source').checked,completeness:w('attest-completeness').checked,temporal_applicability:w('attest-period').checked,legal_reasoning:w('attest-reasoning').checked}}));await refreshEvidence()})});

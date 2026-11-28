@@ -135,21 +135,19 @@ def handle_legal_review(payload: dict[str, Any]) -> dict[str, Any]:
             sources = TavilySearch().search(query, 5)
         except AgentError:
             errors.append('Не удалось получить сетевые правовые источники; локальные извлечения, если есть, неполны.')
-        # Keep retrieved source IDs stable and prefer a newly retrieved copy for the same URL.
-        urls = {source.url for source in sources}
-        # Keep fresh search IDs stable while reserving room for article-specific local texts.
-        if statutory_cached:
-            sources = sources[:2]
-            urls = {source.url for source in sources}
-            # Keep the consumer transition beside the article copies even when
-            # the five-source budget is filled by fresh results and local texts.
-            transitions = [source for source in cached if
-                           captures.get(source.url, {}).get('kind') == 'government_amending_act_copy']
-            sources.extend(source for source in transitions if source.url not in urls)
-            urls = {source.url for source in sources}
-            sources.extend(source for source in statutory_cached if source.url not in urls)
-            urls = {source.url for source in sources}
-        sources.extend(source for source in cached if source.url not in urls)
+        # Reserve two fresh search results, then the transition and article-specific
+        # sources. Remaining slots can still be filled with fresh results in quarantine.
+        transitions = [source for source in cached
+                       if captures.get(source.url, {}).get('kind') == 'government_amending_act_copy']
+        candidates = [*sources[:2], *transitions, *statutory_cached, *sources[2:], *cached]
+        sources = []
+        urls = set()
+        for source in candidates:
+            if source.url not in urls:
+                sources.append(source)
+                urls.add(source.url)
+            if len(sources) == 5:
+                break
     sources = [Source(s.title[:500], s.url[:2000], s.text[:12000], s.query) for s in sources[:5]]
     model = DemoReviewModel() if demo else OpenAICompatibleModel()
     system, _ = build_review_prompt(document)

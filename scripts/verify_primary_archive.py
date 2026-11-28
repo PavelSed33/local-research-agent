@@ -7,11 +7,13 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from document_tools import parse_file
-from primary_sources import load_sources, original_bytes
+from primary_sources import archive_inventory, original_bytes
 
 
 def verify(parse_pdfs=False):
-    sources = load_sources()
+    inventory = archive_inventory()
+    missing = [row['id'] for row in inventory if not row['integrity_checked']]
+    sources = [row for row in inventory if row['integrity_checked']]
     results = []
     for source in sources:
         raw = original_bytes(source)
@@ -27,7 +29,10 @@ def verify(parse_pdfs=False):
         else:
             result['status'] = 'passed'
         results.append(result)
-    return {'status': 'passed' if all(row['status'] == 'passed' for row in results) else 'extraction_differs',
+    status = 'incomplete' if missing else 'passed'
+    if any(row['status'] != 'passed' for row in results):
+        status = 'extraction_differs'
+    return {'status': status, 'missing_original_ids': missing,
             'sources': len(sources), 'total_pages': sum(row['pages'] for row in results),
             'total_characters': sum(row['text_characters'] for row in results),
             'native_pdf_replay': parse_pdfs, 'external_requests_attempted': False,

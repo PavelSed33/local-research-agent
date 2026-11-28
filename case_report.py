@@ -161,10 +161,12 @@ class CaseReport:
                 document = documents[document_id]
                 if document['provenance'].get('origin') == 'pinned_primary_archive':
                     if archive is None:
-                        from primary_sources import load_sources
-                        archive = {source['id']: source for source in load_sources()}
+                        from primary_sources import archive_inventory
+                        archive = {source['id']: source for source in archive_inventory()}
                     source = archive.get(document['provenance'].get('source_id'))
-                    if source is None or source['text_sha256'] != document['sha256']:
+                    original = db.execute('SELECT bytes FROM originals WHERE document_id=?', (document_id,)).fetchone()
+                    if (source is None or source['text_sha256'] != document['sha256'] or original is None
+                            or hashlib.sha256(original['bytes']).hexdigest() != source['original_sha256']):
                         raise evidence_error()
                     for mention in source.get('procedural_mentions', []):
                         start = document['text'].find(mention['quote'])

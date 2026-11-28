@@ -2,6 +2,7 @@
 from datetime import date
 import hashlib
 import json
+import os
 from pathlib import Path
 import re
 from urllib.parse import urlsplit
@@ -72,7 +73,7 @@ def _document_identity(row, first_page, signed):
             and _date_in_text(signed, first_page))
 
 
-def _load(root):
+def _load(root, pdf_dir):
     manifest = json.loads(_read(root, 'manifest.json', 262144))
     if (not isinstance(manifest, dict) or type(manifest.get('schema_version')) is not int
             or manifest['schema_version'] != 1 or not isinstance(manifest.get('sources'), list)
@@ -109,11 +110,15 @@ def _load(root):
         for field, digest_field, extension in [('original_file', 'original_sha256', 'pdf'), ('text_file', 'text_sha256', 'txt')]:
             if row[field] != f'{identity}.{extension}' or not isinstance(row[digest_field], str) or not re.fullmatch(r'[0-9a-f]{64}', row[digest_field]):
                 raise ValueError('invalid_archive_fingerprint')
-            raw = _read(root, row[field], 10 * 1024 * 1024 if extension == 'pdf' else 800000)
+            directory = pdf_dir if extension == 'pdf' else root
+            path = directory / row[field]
+            if extension == 'pdf' and not path.is_symlink() and not path.exists():
+                continue
+            raw = _read(directory, row[field], 10 * 1024 * 1024 if extension == 'pdf' else 800000)
             if hashlib.sha256(raw).hexdigest() != row[digest_field]:
                 raise ValueError('archive_fingerprint_mismatch')
             originals[extension] = raw
-        if not originals['pdf'].startswith(b'%PDF'):
+        if 'pdf' in originals and not originals['pdf'].startswith(b'%PDF'):
             raise ValueError('archive_original_not_pdf')
         value = originals['txt'].decode('utf-8')
         if not 20 <= len(value) <= 200000 or value != value.strip():
@@ -173,31 +178,55 @@ def _load(root):
                     or quote not in value or not _number(mention['document_number'], quote)
                     or _human_day(day) not in _normalized(quote)):
                 raise ValueError('unconfirmed_amendment_mention')
-        result.append({**row, 'text': value, 'integrity_checked': True, 'history_complete': False})
+        result.append({**row, 'text': value, 'integrity_checked': 'pdf' in originals, 'history_complete': False})
     return result
 
 
-def load_sources(root=ROOT):
+def _pdf_directory(root):
+    if root is not None:
+        return Path(root)
+    return Path(os.environ.get('PRIMARY_ARCHIVE_PDF_DIR') or ROOT)
+
+
+def archive_inventory(root=None):
+    """Validate pinned metadata and extracts. Mark entries with missing original PDFs."""
     try:
-        return _load(Path(root))
+        return _load(Path(root) if root is not None else ROOT, _pdf_directory(root))
     except (OSError, ValueError, KeyError, TypeError, AttributeError, IndexError, RecursionError) as exc:
         raise PrimarySourceError('Архив первоисточников недоступен или не прошёл проверку целостности.') from exc
 
 
+def load_sources(root=None):
+    """Only sources whose complete original bytes and text passed integrity checks."""
+    return [source for source in archive_inventory(root) if source['integrity_checked']]
+
+
+def importable_source(source_id):
+    for source in archive_inventory():
+        if source['id'] == source_id:
+            if not source['integrity_checked']:
+                raise PrimarySourceError('Для импорта нужен оригинальный PDF с указанной контрольной суммой.')
+            return source
+    raise ValueError('Неизвестный source_id.')
+
+
 def source_catalog():
+    inventory = archive_inventory()
+    missing = [row['id'] for row in inventory if not row['integrity_checked']]
     keys = ('id', 'material_type', 'title', 'source_url', 'source_page', 'captured_on',
             'document_number', 'signed_on', 'edition_label', 'original_sha256', 'text_sha256',
             'integrity_checked', 'current_validity_verified', 'legal_completeness_verified',
             'lawyer_reviewed', 'history_complete', 'amendment_mentions')
     return {'sources': [{**{key: row[key] for key in keys},
                          **{key: row[key] for key in ('case_number', 'disposition_quote') if key in row}, 'page_count': len(row['pages']),
-                         'text_char_count': len(row['text'])} for row in load_sources()],
+                         'text_char_count': len(row['text'])} for row in inventory if row['integrity_checked']],
+            'missing_original_ids': missing, 'complete': not missing,
             'legal_acceptance': False, 'external_requests_attempted': False}
 
 
-def original_bytes(source, root=ROOT):
+def original_bytes(source, root=None):
     try:
-        raw = _read(Path(root), source['original_file'], 10 * 1024 * 1024)
+        raw = _read(_pdf_directory(root), source['original_file'], 10 * 1024 * 1024)
         if not raw.startswith(b'%PDF') or hashlib.sha256(raw).hexdigest() != source['original_sha256']:
             raise ValueError('original_changed_after_catalog_read')
         return raw

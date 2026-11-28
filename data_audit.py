@@ -63,8 +63,12 @@ def audit_data(registry, workflows, benchmarks, corpus, *, checked_on):
     received = {row['card_id'] for row in entries}
     if len(received) != len(entries):
         issue('duplicate_corpus_cards', 'corpus')
+    quarantined = set(corpus.get('quarantined_card_ids', []))
     for identity in sorted(cards.keys() - received):
-        issue('missing_corpus_extract', identity)
+        if identity in quarantined:
+            issue('quarantined_corpus_extract', identity, 'gap')
+        else:
+            issue('missing_corpus_extract', identity)
     if corpus.get('errors'):
         issue('corpus_integrity_failed', 'corpus')
     texts = defaultdict(list)

@@ -7,6 +7,8 @@ import sqlite3
 import subprocess
 import sys
 import unittest
+
+from scripts.synthetic_archive import synthetic_archive
 from unittest.mock import patch
 import zipfile
 import zlib
@@ -31,6 +33,7 @@ class WorkspaceBackupTests(unittest.TestCase):
             db.execute('DROP TRIGGER '+trigger);db.execute(sql,args);db.execute(definition)
 
     def test_wal_snapshot_preserves_originals_tasks_revisions_acl_and_disables_old_tokens(self):
+        synthetic_archive(self)
         with self.store.connect() as keeper:
             keeper.execute('SELECT COUNT(*) FROM documents').fetchone()
             document=self.store.add_document(self.owner,self.matter,{'title':'Private fixture','document':'PRIVATE synthetic original for recovery.'},original=('fixture.txt',b'PRIVATE synthetic original for recovery.'))['document_id']

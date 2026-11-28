@@ -22,6 +22,7 @@ def coverage_report(module_ids=None, as_of=None, *, card_ids=None):
     requested = available if card_ids is None else set(card_ids)
     evidence = evidence_report(list(requested), date)
     statutory = corpus_report(list(requested), date)
+    quarantined = set(statutory.get('quarantined_card_ids', []))
     by_statute = {entry['card_id']: entry for entry in statutory['entries']}
     by_card = {}
     for entry in evidence['entries']:
@@ -46,6 +47,7 @@ def coverage_report(module_ids=None, as_of=None, *, card_ids=None):
                             'source_found': bool(card['source_ids']), 'quote_checked': False,
                             'period_supported': False, 'verified': False,
                             'text_received': card['id'] in by_statute,
+                            'extract_quarantined': card['id'] in quarantined,
                             'statutory_extract': by_statute.get(card['id']),
                             'supporting_evidence': by_card.get(card['id'], [])} for card in cards]})
     used = {sid for module in modules for card in module['cards'] for sid in card['source_ids']}

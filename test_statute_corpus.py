@@ -1,104 +1,100 @@
-"""Tests for statute corpus module."""
-import unittest
+"""Regression checks for the HTTP catalog and quarantined statutory data."""
 import json
-import os
+from pathlib import Path
 import tempfile
-import shutil
+import unittest
+from unittest.mock import patch
 
-from statute_corpus import StatuteCorpus, get_statute_text, search_statutes
-
-
-class StatuteCorpusTests(unittest.TestCase):
-    """Test statute corpus functionality."""
-
-    def setUp(self):
-        """Set up test fixtures."""
-        self.base_dir = 'fixtures/statutes'
-        self.corpus = StatuteCorpus(base_dir=self.base_dir)
-
-    def test_list_statutes(self):
-        """Test listing all statutes."""
-        statutes = self.corpus.list_statutes()
-        self.assertGreater(len(statutes), 0)
-        self.assertIn('gk_part1', statutes)
-        self.assertIn('gk_part2', statutes)
-        self.assertIn('tk_rf', statutes)
-
-    def test_get_statute(self):
-        """Test getting a specific statute."""
-        statute = self.corpus.get_statute('gk_part1')
-        self.assertIsNotNone(statute)
-        self.assertEqual(statute['statute_id'], 'gk_part1')
-        self.assertIn('articles', statute)
-
-    def test_get_article(self):
-        """Test getting a specific article."""
-        article = self.corpus.get_article('gk_part1', '432')
-        self.assertIsNotNone(article)
-        self.assertEqual(article['number'], '432')
-        self.assertIn('договор', article['text'].lower())
-
-    def test_get_statute_text(self):
-        """Test convenience function get_statute_text."""
-        text = get_statute_text('gk_part1', '432')
-        self.assertIsNotNone(text)
-        self.assertIn('договор', text.lower())
-
-    def test_search_statutes(self):
-        """Test searching in statutes."""
-        results = search_statutes('договор', limit=5)
-        self.assertGreater(len(results), 0)
-        self.assertIn('statute_id', results[0])
-        self.assertIn('article', results[0])
-
-    def test_search_no_results(self):
-        """Test search with no results."""
-        results = search_statutes('несуществующийтермин12345', limit=5)
-        self.assertEqual(len(results), 0)
-
-    def test_search_relevance(self):
-        """Test search relevance sorting."""
-        results = search_statutes('договор', statute_ids=['gk_part1', 'gk_part2'], limit=10)
-        if len(results) > 1:
-            relevances = [r['relevance'] for r in results]
-            self.assertEqual(relevances, sorted(relevances, reverse=True))
-
-    def test_metadata_integrity(self):
-        """Test that metadata is consistent."""
-        metadata = self.corpus.metadata
-        self.assertIn('statutes', metadata)
-        self.assertGreater(len(metadata['statutes']), 0)
-
-        for statute_id in self.corpus.list_statutes():
-            self.assertIn(statute_id, metadata['statutes'])
+from scripts.import_statutes import import_corpus
+from statute_corpus import ROOT, corpus_report, search_statutory_sources
+from test_api import ApiTestCase
 
 
-class StatuteCorpusIntegrationTests(unittest.TestCase):
-    """Integration tests with real data."""
+class StatuteCatalogTests(ApiTestCase):
+    api_token = 'catalog-test-token'
 
-    def test_real_article_content(self):
-        """Test that real article content is loaded."""
-        corpus = StatuteCorpus()
+    def test_catalog_excludes_quarantined_excerpts_and_legacy_placeholders(self):
+        report = corpus_report(include_text=True)
+        self.assertEqual(report['entries'], [])
+        self.assertFalse(report['errors'])
+        self.assertEqual(search_statutory_sources('статья 432 ГК РФ о договоре', None), [])
+        status, catalog = self.request('GET', '/statutes/list', token=self.api_token)
+        self.assertEqual(status, 200)
+        self.assertEqual(catalog['statutes'], [])
+        self.assertEqual(catalog['status'], 'no_usable_texts')
+        status, results = self.request('POST', '/statutes/search', {'query': 'текст документа'}, self.api_token)
+        self.assertEqual(status, 200)
+        self.assertEqual(results['results'], [])
+        status, result = self.request('POST', '/statutes/get', {
+            'statute_id': 'gk_part1', 'article_number': '432'}, self.api_token)
+        self.assertEqual(status, 404)
+        self.assertFalse(result['verified'])
 
-        # Test ГК РФ Ст. 432
-        article = corpus.get_article('gk_part1', '432')
-        self.assertIsNotNone(article)
-        self.assertIn('существенным условиям', article['text'])
+    def test_catalog_routes_validate_authorization_and_payload(self):
+        status, _ = self.request('GET', '/statutes/list')
+        self.assertEqual(status, 401)
+        status, _ = self.request('POST', '/statutes/search', {'query': ' '}, self.api_token)
+        self.assertEqual(status, 400)
+        status, _ = self.request('POST', '/statutes/search', {'query': 'договор', 'limit': True}, self.api_token)
+        self.assertEqual(status, 400)
+        status, _ = self.request('POST', '/statutes/get', {'statute_id': 'gk1'}, self.api_token)
+        self.assertEqual(status, 400)
 
-        # Test ТК РФ Ст. 136
-        article = corpus.get_article('tk_rf', '136')
-        self.assertIsNotNone(article)
-        self.assertIn('заработной платы', article['text'])
+    def test_catalog_returns_source_and_review_status_for_an_admitted_extract(self):
+        extract = {
+            'card_id': 'synthetic:1', 'act_id': 'synthetic', 'provision': '1',
+            'heading': 'Договор', 'text': 'Синтетический текст про договор.',
+            'url': 'https://example.org/synthetic', 'temporal_status': 'incomplete_history',
+            'verified': False,
+        }
+        report = {'status': 'partial_statutory_texts', 'entries': [extract],
+                  'errors': [], 'as_of': '2026-01-01'}
+        with patch('statute_corpus.corpus_report', return_value=report):
+            status, result = self.request('POST', '/statutes/search', {
+                'query': 'ДОГОВОР', 'statute_ids': ['synthetic'], 'limit': 1}, self.api_token)
+            self.assertEqual(status, 200)
+            self.assertEqual(result['results'][0]['url'], extract['url'])
+            self.assertFalse(result['results'][0]['verified'])
+            status, result = self.request('POST', '/statutes/get', {
+                'statute_id': 'synthetic', 'article_number': '1'}, self.api_token)
+            self.assertEqual(status, 200)
+            self.assertEqual(result['text'], extract['text'])
 
-    def test_all_statutes_have_content(self):
-        """Test that all statutes have content.json."""
-        corpus = StatuteCorpus()
-
-        for statute_id in corpus.list_statutes():
-            statute = corpus.get_statute(statute_id)
-            self.assertIsNotNone(statute, f"Statute {statute_id} not found")
-            self.assertIn('articles', statute, f"Statute {statute_id} has no articles")
+    def test_catalog_reports_integrity_failure(self):
+        report = {'status': 'unavailable', 'entries': [], 'errors': ['missing'], 'as_of': '2026-01-01'}
+        with patch('statute_corpus.corpus_report', return_value=report):
+            status, result = self.request('GET', '/statutes/list', token=self.api_token)
+        self.assertEqual(status, 503)
+        self.assertEqual(result['status'], 'unavailable')
 
 
-if __name__ == '__main__':
-    unittest.main()
+class QuarantineIntegrityTests(unittest.TestCase):
+    def test_unlisted_missing_card_and_inconsistent_manifest_are_errors(self):
+        manifest = json.loads((ROOT / 'manifest.json').read_text())
+        gap = manifest['gaps'][0]
+        omitted = gap['card_ids'].pop()
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            path = root / 'manifest.json'
+            path.write_text(json.dumps(manifest))
+            self.assertEqual(corpus_report(corpus_dir=root)['status'], 'unavailable')
+            gap['removed_article_extracts'] -= 1
+            path.write_text(json.dumps(manifest))
+            result = corpus_report(corpus_dir=root)
+            self.assertTrue(result['errors'])
+            self.assertNotIn(omitted, result['quarantined_card_ids'])
+            self.assertIn(omitted, result['missing_card_ids'])
+
+    def test_quarantine_cannot_mask_missing_group_or_be_overwritten_by_import(self):
+        raw = (ROOT / 'manifest.json').read_bytes()
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            path = root / 'manifest.json'
+            path.write_bytes(raw)
+            with self.assertRaisesRegex(ValueError, 'карантин'):
+                import_corpus(root / 'staging', root)
+            self.assertEqual(path.read_bytes(), raw)
+            manifest = json.loads(raw)
+            manifest['groups'] = [{'file': 'missing.json', 'sha256': 'a' * 64}]
+            path.write_text(json.dumps(manifest))
+            self.assertTrue(corpus_report(corpus_dir=root)['errors'])
