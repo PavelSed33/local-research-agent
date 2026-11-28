@@ -5,6 +5,8 @@ from pathlib import Path
 import tempfile
 import threading
 import unittest
+
+from scripts.synthetic_archive import synthetic_archive
 import uuid
 from unittest.mock import patch
 
@@ -95,10 +97,11 @@ class WorkspaceHttpTests(unittest.TestCase):
         self.assertNotIn('PRIVATE-', json.dumps(data))
 
     def test_original_source_import_and_document_tools_work_via_http(self):
+        synthetic_archive(self)
         matter = self.matter()
         status, source = self.request('/workspace/sources/import', {'matter_id': matter, 'source_id': 'vsrf-plenum-49-2018'})
         self.assertEqual(status, 200)
-        self.assertGreater(source['text_char_count'], 40000)
+        self.assertEqual(source['text_char_count'], len(self.store.document(self.admin['user_id'], source['document_id'])['text']))
         archived = self.request('/workspace/documents/read', {'document_id': source['document_id']})[1]
         self.assertEqual(archived['provenance']['origin'], 'pinned_primary_archive')
         self.assertEqual(len(archived['provenance']['original_sha256']), 64)
@@ -118,6 +121,7 @@ class WorkspaceHttpTests(unittest.TestCase):
             self.assertEqual(self.request(path, payload)[0], 400)
 
     def test_archive_catalog_and_repeat_import_are_available_without_duplicates(self):
+        synthetic_archive(self)
         status, catalog = self.request('/workspace/sources/list')
         self.assertEqual(status, 200)
         self.assertEqual(len(catalog['sources']), 7)
@@ -175,6 +179,7 @@ class WorkspaceHttpTests(unittest.TestCase):
 
 
     def test_case_report_http_schema_limits_and_revoked_access(self):
+        synthetic_archive(self)
         matter = self.matter()
         args = {'matter_id': matter, 'case_number': 'А56-119496/2023', 'as_of': '2025-09-04'}
         self.assertEqual(self.request('/workspace/sources/decision-draft', {'matter_id':matter, 'source_id':'vsrf-decision-2485538'})[0],200)

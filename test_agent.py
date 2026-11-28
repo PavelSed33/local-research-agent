@@ -177,7 +177,10 @@ class IterativeResearchTests(unittest.TestCase):
     def test_additional_research_and_mandatory_update_check(self):
         model = IterativeModel()
         search = IterativeSearch()
-        with patch("agent.OpenAICompatibleModel", return_value=model), patch("agent.TavilySearch", return_value=search):
+        with (patch("agent.OpenAICompatibleModel", return_value=model),
+              patch("agent.TavilySearch", return_value=search),
+              patch("pravo_portal.PravoPortalSearch.search", return_value=[]),
+              patch("pravo_ips.PravoIpsBank.search", return_value=[])):
             with tempfile.TemporaryDirectory() as directory:
                 _, run_path = run("Вопрос", 1, 6, Path(directory))
                 journal = json.loads(run_path.read_text(encoding="utf-8"))
@@ -264,7 +267,10 @@ class CourtStageDegradationTests(unittest.TestCase):
     def test_court_stage_failure_does_not_break_run(self):
         model = CourtFailingModel()
         search = IterativeSearch()
-        with patch("agent.OpenAICompatibleModel", return_value=model), patch("agent.TavilySearch", return_value=search):
+        with (patch("agent.OpenAICompatibleModel", return_value=model),
+              patch("agent.TavilySearch", return_value=search),
+              patch("pravo_portal.PravoPortalSearch.search", return_value=[]),
+              patch("pravo_ips.PravoIpsBank.search", return_value=[])):
             with tempfile.TemporaryDirectory() as directory:
                 _, run_path = run("Вопрос", 1, 6, Path(directory))
                 journal = json.loads(run_path.read_text(encoding="utf-8"))

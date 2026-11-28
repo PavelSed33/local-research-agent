@@ -4,6 +4,8 @@ import json
 from unittest.mock import patch
 import unittest
 
+from scripts.synthetic_archive import synthetic_archive
+
 import test_reviewed_evidence as evidence_tests
 from case_report import CaseReport, fence
 from primary_sources import load_sources
@@ -22,9 +24,12 @@ class CaseReportTests(unittest.TestCase):
     def report(self, **kwargs):
         return CaseReport(self.store).build(kwargs.get('user',self.owner),kwargs.get('matter',self.matter),kwargs.get('case','А00-1/2025'),kwargs.get('as_of','2025-06-01'))
 
-    def test_real_archive_quotes_hashes_pages_and_export_agree(self):
+    def test_archive_quotes_hashes_pages_and_export_agree(self):
+        archive = synthetic_archive(self)
         source=next(row for row in load_sources() if row['id']=='vsrf-decision-2485538')
         dispatch(self.store,self.owner,'/workspace/sources/decision-draft',{'matter_id':self.matter,'source_id':source['id']})
+        # After an import the saved case original can back the report offline.
+        (archive / source['original_file']).unlink()
         result=self.report(case=source['case_number'],as_of='2025-09-04')
         self.assertEqual(result['report']['act_count'],1)
         self.assertEqual(result['report']['acts'][0]['review_status'],'draft')
@@ -161,6 +166,7 @@ class CaseReportTests(unittest.TestCase):
             with self.assertRaises(ValueError):dispatch(self.store,self.owner,'/workspace/cases/report',payload)
 
     def test_known_lower_act_mentions_are_explicit_gaps_with_source_proofs(self):
+        synthetic_archive(self)
         dispatch(self.store,self.owner,'/workspace/sources/decision-draft',{'matter_id':self.matter,'source_id':'vsrf-decision-2332384'})
         result=self.report(case='А40-255028/2022',as_of='2024-01-29')
         references=result['report']['acts'][0]['referenced_acts']
@@ -177,6 +183,7 @@ class CaseReportTests(unittest.TestCase):
         self.assertFalse(result['report']['complete_history'])
 
     def test_date_candidate_does_not_claim_court_correspondence_or_original_authenticity(self):
+        synthetic_archive(self)
         dispatch(self.store,self.owner,'/workspace/sources/decision-draft',{'matter_id':self.matter,'source_id':'vsrf-decision-2332384'})
         body='Синтетический иной суд. Первая инстанция. Дело А40-255028/2022 от 23.01.2023\nУчебный результат только для проверки механизма.'
         document=self.store.add_document(self.owner,self.matter,{'title':'СИНТЕТИЧЕСКИЙ АКТ','document':body})['document_id']

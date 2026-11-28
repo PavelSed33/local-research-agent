@@ -27,7 +27,7 @@ from agent import (
     extract_json,
     load_dotenv,
 )
-from doctext import read_document_file
+from doctext import ensure_document_transfer_allowed, parse_demo_flag, read_document_file
 from review import normalize_text
 
 MIN_FACTS_CHARS = 30
@@ -178,7 +178,9 @@ def handle_draft(payload: dict[str, Any]) -> dict[str, Any]:
     if len(facts) < MIN_FACTS_CHARS:
         raise DraftError(f"Поле facts обязательно: опишите ситуацию (от {MIN_FACTS_CHARS} символов).")
     contract = str(payload.get("contract", "")).strip()
-    demo = bool(payload.get("demo", False))
+    demo = parse_demo_flag(payload)
+    if not demo:
+        ensure_document_transfer_allowed()
     model: LanguageModel = DemoDraftModel() if demo else OpenAICompatibleModel()
     result, repaired = draft_document(model, doc_type, facts, contract)
     placeholders = [

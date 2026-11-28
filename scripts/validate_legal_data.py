@@ -58,10 +58,11 @@ def validate():
     if corpus['errors'] or evidence['errors']:
         raise ValueError('Invalid source corpus')
     received = {entry['card_id'] for entry in corpus['entries']}
-    if received != cards.keys():
-        raise ValueError('Not every declared card has a text extract')
+    quarantined = set(corpus.get('quarantined_card_ids', []))
+    if received & quarantined or received | quarantined != cards.keys():
+        raise ValueError('Every card must have an extract or an explicit quarantine record')
     return {'pinned_legal_skills': len(skills), 'modules': len(modules), 'acts': len(acts), 'research_cards': len(cards),
-            'statutory_extracts': len(received), 'workflows': len(ids),
+            'statutory_extracts': len(received), 'quarantined_extracts': len(quarantined), 'workflows': len(ids),
             'draft_synthetic_cases': len(case_ids), 'legal_acceptance': False}
 
 

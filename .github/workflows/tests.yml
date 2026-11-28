@@ -32,6 +32,11 @@ jobs:
         run: python scripts/check_copyright_hygiene.py
       - name: Compile source
         run: python -m compileall -q .
+      - name: Install PDF, OCR and DOCX test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends poppler-utils tesseract-ocr tesseract-ocr-eng tesseract-ocr-rus fonts-dejavu-core
+          python -m pip install python-docx Pillow reportlab
       - name: Run unit tests
         run: python -m unittest discover -v
       - name: Synthetic evaluation (not legal acceptance)
@@ -48,40 +53,62 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build image
-        run: docker build -t legal-agent:test .
-      - name: Start API
-        run: docker run -d --name legal-agent-test -p 127.0.0.1:18080:8080 -e API_TOKEN=ci-smoke-token legal-agent:test
-      - name: Verify health and demo research
         run: |
+          touch fixtures/legal_evidence/local-only-test.txt
+          docker build -t legal-agent:test .
+      - name: Initialize workspace volume
+        run: |
+          docker volume create legal-agent-ci
+          admin_token=$(docker run --rm -v legal-agent-ci:/data legal-agent:test python scripts/manage_workspace.py init --db /data/workspace.db | jq -er '.token')
+          echo "::add-mask::$admin_token"
+          echo "API_TOKEN=$admin_token" >> "$GITHUB_ENV"
+      - name: Start workspace API
+        run: docker run -d --name legal-agent-test -v legal-agent-ci:/data -p 127.0.0.1:18080:8080 -e WORKSPACE_DB=/data/workspace.db legal-agent:test
+      - name: Verify image and HTTP workspace
+        run: |
+          docker exec legal-agent-test sh -ec 'test "$(id -u)" = 10001 && test ! -e /app/.env && test ! -d /app/fixtures/statutes && test ! -e /app/fixtures/legal_evidence/local-only-test.txt'
           python - <<'PY'
-          import json, time, urllib.request
+          import json
+          import os
+          import time
+          import urllib.request
+
+          base = 'http://127.0.0.1:18080'
           for attempt in range(30):
               try:
-                  with urllib.request.urlopen('http://127.0.0.1:18080/health', timeout=2) as response:
-                      assert json.load(response)['status'] == 'ok'
+                  with urllib.request.urlopen(base + '/health', timeout=2) as response:
+                      assert json.load(response)['workspace_enabled'] is True
                   break
               except OSError:
                   if attempt == 29:
                       raise
                   time.sleep(1)
-          request = urllib.request.Request(
-              'http://127.0.0.1:18080/ask',
-              data=json.dumps({'question': 'Тест', 'demo': True, 'as_of': '2023-03-01'}).encode(),
-              headers={'Content-Type': 'application/json', 'Authorization': 'Bearer ci-smoke-token'})
-          with urllib.request.urlopen(request, timeout=30) as response:
-              payload = json.load(response)
-          assert payload['demo'] is True
-          assert payload['as_of'] == '2023-03-01'
-          assert payload['answer']
+
+          def call(path, payload=None):
+              request = urllib.request.Request(base + path,
+                  data=json.dumps(payload).encode() if payload is not None else None,
+                  headers={'Content-Type': 'application/json', 'Authorization': 'Bearer ' + os.environ['API_TOKEN']})
+              with urllib.request.urlopen(request, timeout=30) as response:
+                  return json.load(response)
+
+          assert call('/workspace/me', {})['role'] == 'admin'
+          matter = call('/workspace/matters/create', {'title': 'Docker smoke'})['matter_id']
+          assert call('/workspace/cases/report', {'matter_id': matter, 'case_number': 'А00-1/2025',
+                                                  'as_of': '2025-01-01'})['report']['status'] == 'no_evidence'
+          assert not call('/statutes/search', {'query': 'текст документа'})['results']
+          capabilities = call('/documents/capabilities')
+          assert all(capabilities['tools'].values()) and {'eng', 'rus'} <= set(capabilities['ocr_languages'])
+          with urllib.request.urlopen(base + '/workspace', timeout=5) as response:
+              assert response.headers.get_content_type() == 'text/html'
           PY
       - name: Demo acceptance suite
-        env:
-          API_TOKEN: ci-smoke-token
         run: python scripts/smoke.py --base-url http://127.0.0.1:18080
       - name: Container logs
         if: always()
         run: docker logs legal-agent-test
       - name: Stop container
         if: always()
-        run: docker rm -f legal-agent-test
+        run: |
+          docker rm -f legal-agent-test
+          docker volume rm legal-agent-ci
 

@@ -71,14 +71,11 @@ def dispatch(store, principal, path, payload):
             store._user(db, principal)
         return source_catalog()
     if path in ('/workspace/sources/import', '/workspace/sources/decision-draft'):
-        from primary_sources import load_sources, original_bytes
+        from primary_sources import importable_source, original_bytes
         source_id = text(p.get('source_id'), 'source_id', 80)
         with store.connect() as db:
             store._access(db, principal, p.get('matter_id'), ('owner', 'editor'))
-        sources = [row for row in load_sources() if row['id'] == source_id]
-        if len(sources) != 1:
-            raise ValueError('Неизвестный source_id.')
-        source = sources[0]
+        source = importable_source(source_id)
         if path.endswith('/decision-draft') and source['material_type'] != 'official_court_decision':
             raise ValueError('Карточка требует отдельный судебный акт из архива.')
         imported = store.add_document(principal, p.get('matter_id'),

@@ -28,6 +28,8 @@ from extract import handle_extract
 CSV_NAME = "реестр.csv"
 EXPIRING_NAME = "истекающие-договоры.md"
 SUPPORTED_SUFFIXES = (".txt", ".docx")
+MAX_REGISTRY_FILE_BYTES = 10 * 1024 * 1024
+MAX_REGISTRY_FILES = 500
 
 COLUMNS = (
     "файл",
@@ -110,6 +112,7 @@ def build_registry(folder: Path, demo: bool) -> tuple[list[dict[str, str]], list
     rows: list[dict[str, str]] = []
     extractions: list[dict[str, Any]] = []
     skipped: list[str] = []
+    supported_seen = 0
     for path in sorted(folder.iterdir()):
         if not path.is_file():
             continue
@@ -118,7 +121,15 @@ def build_registry(folder: Path, demo: bool) -> tuple[list[dict[str, str]], list
             continue
         if path.suffix.lower() not in SUPPORTED_SUFFIXES:
             continue
+        supported_seen += 1
+        if supported_seen > MAX_REGISTRY_FILES:
+            skipped.append(f"Достигнут лимит: обработано не более {MAX_REGISTRY_FILES} файлов за запуск")
+            break
         try:
+            file_size = path.stat().st_size
+            if file_size > MAX_REGISTRY_FILE_BYTES:
+                skipped.append(f"{path.name}: файл больше допустимых {MAX_REGISTRY_FILE_BYTES} байт")
+                continue
             document = read_document_file(path.read_bytes(), path.name)
             extraction = handle_extract({"document": document, "demo": demo})
         except (AgentError, ValueError, OSError) as exc:
@@ -163,6 +174,8 @@ def main() -> int:
     parser.add_argument("--days", type=int, default=30, help="Горизонт отчёта по срокам в днях (по умолчанию 30)")
     parser.add_argument("--demo", action="store_true", help="Извлечение без API-ключей и внешних запросов")
     args = parser.parse_args()
+    if not 1 <= args.days <= 3650:
+        parser.error("--days должен быть от 1 до 3650.")
     if not args.folder.is_dir():
         print(f"Ошибка: папка не найдена: {args.folder}", file=sys.stderr)
         return 1
