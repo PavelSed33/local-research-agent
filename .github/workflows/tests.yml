@@ -52,10 +52,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Restore pinned court PDFs from a clean checkout
+        run: |
+          test -z "$(find fixtures/primary_sources -name '*.pdf' -print -quit)"
+          test ! -e "$RUNNER_TEMP/primary-pdfs"
+          python3 scripts/restore_primary_archive.py --output-dir "$RUNNER_TEMP/primary-pdfs"
+          chmod a+rx "$RUNNER_TEMP/primary-pdfs"
+          chmod a+r "$RUNNER_TEMP"/primary-pdfs/*.pdf
       - name: Build image
         run: |
           touch fixtures/legal_evidence/local-only-test.txt
           docker build -t legal-agent:test .
+      - name: Replay all PDF pages and hashes using the image's PDF tools
+        run: |
+          docker run --rm \
+            -v "$RUNNER_TEMP/primary-pdfs:/private-pdf:ro" \
+            -v "$PWD/scripts/verify_primary_archive.py:/app/scripts/verify_primary_archive.py:ro" \
+            -e PRIMARY_ARCHIVE_PDF_DIR=/private-pdf \
+            legal-agent:test python scripts/verify_primary_archive.py --parse-pdfs
       - name: Initialize workspace volume
         run: |
           docker volume create legal-agent-ci
@@ -63,13 +77,17 @@ jobs:
           echo "::add-mask::$admin_token"
           echo "API_TOKEN=$admin_token" >> "$GITHUB_ENV"
       - name: Start workspace API
-        run: docker run -d --name legal-agent-test -v legal-agent-ci:/data -p 127.0.0.1:18080:8080 -e WORKSPACE_DB=/data/workspace.db legal-agent:test
+        run: |
+          docker run -d --name legal-agent-test -v legal-agent-ci:/data -p 127.0.0.1:18080:8080 \
+            -v "$RUNNER_TEMP/primary-pdfs:/private-pdf:ro" -e PRIMARY_ARCHIVE_PDF_DIR=/private-pdf \
+            -e WORKSPACE_DB=/data/workspace.db legal-agent:test
       - name: Verify image and HTTP workspace
         run: |
           docker exec legal-agent-test sh -ec 'test "$(id -u)" = 10001 && test ! -e /app/.env && test ! -d /app/fixtures/statutes && test ! -e /app/fixtures/legal_evidence/local-only-test.txt'
           python - <<'PY'
           import json
           import os
+          from pathlib import Path
           import time
           import urllib.request
 
@@ -92,6 +110,28 @@ jobs:
                   return json.load(response)
 
           assert call('/workspace/me', {})['role'] == 'admin'
+          manifest = json.loads(Path('fixtures/primary_sources/manifest.json').read_text())
+          expected = {source['id']: source['original_sha256'] for source in manifest['sources']}
+          archive = call('/workspace/sources/list', {})
+          assert archive['complete'] and archive['missing_original_ids'] == []
+          assert len(expected) == len(archive['sources']) == 7
+          assert all(source['integrity_checked'] for source in archive['sources'])
+          assert {source['id']: source['original_sha256'] for source in archive['sources']} == expected
+          print('HTTP: all seven court PDFs match the archive manifest')
+
+          supply = {'profile': 'business', 'contract_type': 'supply', 'demo': True,
+                    'document': 'Поставщик передаёт покупателю партию оборудования по спецификации.',
+                    'facts': {'both_businesses': True, 'goods_nonpersonal_purpose': True,
+                              'mixed_contract': False, 'special_regime': False}}
+          review = call('/review/legal', {**supply, 'as_of': '2026-11-28'})
+          refs = review['supply_references']
+          assert review['verified'] is False and refs['period_supported'] is False
+          assert len(refs['sources']) == 2 and len(refs['articles']) == 130
+          assert any(a['number'] == '506' and 'поставщик' in a['excerpt'].lower() for a in refs['articles'])
+          earlier = call('/review/legal', {**supply, 'as_of': '2026-11-27'})
+          assert 'supply_references' not in earlier
+          print('HTTP: B2B supply review exposes 130 articles from the two sources at the capture date only or later')
+
           matter = call('/workspace/matters/create', {'title': 'Docker smoke'})['matter_id']
           assert call('/workspace/cases/report', {'matter_id': matter, 'case_number': 'А00-1/2025',
                                                   'as_of': '2025-01-01'})['report']['status'] == 'no_evidence'

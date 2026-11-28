@@ -9,6 +9,7 @@ test_*.py
 !fixtures/legal_coverage.json
 !fixtures/legal_workflows.json
 !fixtures/contract_rule_catalog.json
+!fixtures/supply_references.json
 !fixtures/legal_evidence/manifest.json
 !fixtures/legal_evidence/retrieval_attempts_2026-11-08.json
 !fixtures/legal_evidence/mintrud-152-art9.txt

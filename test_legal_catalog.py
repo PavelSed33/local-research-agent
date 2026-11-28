@@ -11,7 +11,7 @@ from legal_review import handle_legal_review
 class LegalCatalogTests(unittest.TestCase):
     def test_all_rules_have_source_and_explicit_limits(self):
         catalog = json.loads((Path(__file__).parent / 'fixtures/contract_rule_catalog.json').read_text())
-        self.assertEqual(len(catalog['rules']), 16)
+        self.assertEqual(len(catalog['rules']), 17)
         self.assertFalse(catalog['lawyer_reviewed'])
         sources = {source['id'] for source in catalog['sources']}
         for rule in catalog['rules']:
@@ -19,10 +19,55 @@ class LegalCatalogTests(unittest.TestCase):
             self.assertTrue(rule['caution'])
             self.assertFalse(rule['verified'])
 
+    def test_supply_snapshot_is_only_selected_for_business_supply_after_capture(self):
+        def selected(profile, kind, date):
+            return {rule['id']: rule for rule in review_checklist(profile, kind, date)['rules']}
+
+        rule = selected('business', 'supply', '2026-11-28')['supply-performance']
+        self.assertFalse(rule['verified'])
+        self.assertEqual(len(rule['sources']), 2)
+        for source in rule['sources']:
+            self.assertEqual(source['date_role'], 'snapshot_retrieval_date')
+            self.assertRegex(source['response_sha256'], r'^[0-9a-f]{64}$')
+        self.assertNotIn('supply-performance', selected('business', 'supply', '2026-11-27'))
+        self.assertNotIn('supply-performance', selected('consumer', 'supply', '2026-11-28'))
+        self.assertNotIn('supply-performance', selected('business', 'work', '2026-11-28'))
+
     def test_consumer_rules_do_not_leak_into_business_profile(self):
         selected = review_checklist('business', 'services', '2026-11-07')
         self.assertFalse(any(rule['id'].startswith('consumer-') for rule in selected['rules']))
         self.assertFalse(selected['verified'])
+
+    def test_supply_review_offers_bound_excerpts_to_model_and_checks_a_returned_citation(self):
+        document = 'Поставщик и покупатель согласовали порядок отказа по статье 523 ГК РФ.'
+        payload = {'document': document, 'profile': 'business', 'contract_type': 'supply', 'as_of': '2026-11-28',
+                   'facts': {'both_businesses': True, 'goods_nonpersonal_purpose': True,
+                             'mixed_contract': False, 'special_regime': False}}
+        title = 'Статья 523. Односторонний отказ от исполнения договора поставки'
+        quote = title + '\n1. Односторонний отказ от исполнения договора поставки'
+        result = {'summary': 'Черновик', 'missing_clauses': [], 'risks': [{
+            'category': 'односторонние права', 'severity': 'low', 'quote': document,
+            'comment': 'Проверить условие об отказе.', 'recommendation': 'Уточнить основания.',
+            'legal_basis': [{'source_id': 2, 'provision': 'Статья 523', 'quote': quote}]}]}
+        with patch('legal_review.ensure_document_transfer_allowed'), patch('legal_review.TavilySearch') as search, patch('legal_review.OpenAICompatibleModel') as model:
+            search.return_value.search.return_value = []
+            model.return_value.complete.return_value = json.dumps(result)
+            review = handle_legal_review(payload)
+        self.assertIn(quote, model.return_value.complete.call_args.args[1])
+        self.assertEqual(review['sources'][1]['retrieval_mode'], 'supply_snapshot_excerpt')
+        self.assertEqual(review['sources'][1]['capture']['article_number'], '523')
+        self.assertEqual(review['sources'][1]['authority_class'], 'official_acts_bank')
+        basis = review['risks'][0]['legal_basis'][0]
+        self.assertTrue(basis['quote_checked'])
+        self.assertFalse(basis['period_supported'])
+        self.assertFalse(basis['verified'])
+        refs = review['supply_references']
+        self.assertEqual(len({(a['source_id'], a['number']) for a in refs['articles']}), 130)
+        self.assertFalse(refs['period_supported'])
+        early = handle_legal_review({**payload, 'as_of': '2026-11-27', 'demo': True})
+        self.assertNotIn('supply_references', early)
+        missing_facts = handle_legal_review({**payload, 'demo': True, 'facts': {}})
+        self.assertNotIn('supply_references', missing_facts)
 
     def test_work_deadline_rule_does_not_apply_to_services(self):
         services = review_checklist('business', 'services', '2026-11-07')
