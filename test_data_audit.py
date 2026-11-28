@@ -5,7 +5,6 @@ import unittest
 from unittest.mock import patch
 
 from data_audit import ROOT, audit_data, audit_repository
-from statute_corpus import corpus_report
 
 
 class DataAuditTests(unittest.TestCase):
@@ -14,7 +13,9 @@ class DataAuditTests(unittest.TestCase):
         cls.registry = json.loads((ROOT / 'fixtures/legal_coverage.json').read_text())
         cls.workflows = json.loads((ROOT / 'fixtures/legal_workflows.json').read_text())
         cls.benchmarks = json.loads((ROOT / 'fixtures/legal_benchmarks.json').read_text())
-        cls.corpus = corpus_report(include_text=True)
+        cls.corpus = {'entries': [
+            {'card_id': card['id'], 'captured_on': '2026-11-07', 'text': f'Synthetic audit example {i}'}
+            for i, card in enumerate(cls.registry['cards'][:3])], 'errors': []}
 
     def report(self, registry=None, corpus=None):
         return audit_data(registry or self.registry, self.workflows, self.benchmarks,
@@ -24,6 +25,9 @@ class DataAuditTests(unittest.TestCase):
         with patch.object(socket, 'create_connection', side_effect=AssertionError('network')):
             report = audit_repository(checked_on='2026-11-08')
         self.assertEqual(report['counts'], {'error': 0, 'warning': 0, 'gap': 938})
+        quarantined = [row for row in report['findings'] if row['code'] == 'quarantined_corpus_extract']
+        self.assertEqual({row['id'] for row in quarantined}, {card['id'] for card in self.registry['cards']})
+        self.assertTrue(all(row['severity'] == 'gap' for row in quarantined))
         self.assertFalse(report['legal_acceptance'])
         self.assertEqual(report['coverage']['cards'], 454)
 

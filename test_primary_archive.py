@@ -6,17 +6,22 @@ import shutil
 import tempfile
 import unittest
 
-from primary_sources import ROOT, PrimarySourceError, load_sources, original_bytes, source_catalog
+import primary_sources
+from scripts.synthetic_archive import synthetic_archive
+from primary_sources import PrimarySourceError, load_sources, original_bytes, source_catalog
 from workspace_api import dispatch, prepare_answer
 from reviewed_evidence import ReviewedEvidence, date_quoted
 from workspace_store import WorkspaceStore, WorkspaceError
 
 
 class PrimaryArchiveValidationTests(unittest.TestCase):
+    def setUp(self):
+        self.archive = synthetic_archive(self)
+
     def mutation(self, change):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            shutil.copytree(ROOT, root, dirs_exist_ok=True)
+            shutil.copytree(primary_sources.ROOT, root, dirs_exist_ok=True)
             path = root / 'manifest.json'
             data = json.loads(path.read_text())
             change(data)
@@ -28,13 +33,35 @@ class PrimaryArchiveValidationTests(unittest.TestCase):
     def test_seven_physical_originals_have_identity_and_page_maps_without_legal_acceptance(self):
         sources = source_catalog()
         self.assertEqual(len(sources['sources']), 7)
-        self.assertEqual(sum(row['page_count'] for row in sources['sources']), 90)
+        self.assertEqual(sum(row['page_count'] for row in sources['sources']), 14)
         self.assertEqual({row['document_number'] for row in sources['sources']}, {'49', '7', '54', '307-ЭС24-20538', '307-ЭС25-3481', '305-ЭС23-19099', '305-ЭС18-10125'})
         self.assertFalse(sources['legal_acceptance'])
         for row in sources['sources']:
             self.assertNotIn('text', row)
             self.assertFalse(row['history_complete'])
             self.assertFalse(row['current_validity_verified'])
+
+    def test_private_original_directory_can_be_empty_or_partial(self):
+        from unittest.mock import patch
+        from scripts.verify_primary_archive import verify
+        row = load_sources()[0]
+        with tempfile.TemporaryDirectory() as directory, patch.dict('os.environ', {'PRIMARY_ARCHIVE_PDF_DIR': directory}):
+            catalog = source_catalog()
+            self.assertEqual(catalog['sources'], [])
+            self.assertFalse(catalog['complete'])
+            self.assertEqual(len(catalog['missing_original_ids']), 7)
+            self.assertEqual(verify()['status'], 'incomplete')
+            with self.assertRaises(PrimarySourceError):
+                primary_sources.importable_source(row['id'])
+            path = Path(directory) / row['original_file']
+            shutil.copyfile(self.archive / row['original_file'], path)
+            catalog = source_catalog()
+            self.assertEqual([source['id'] for source in catalog['sources']], [row['id']])
+            self.assertEqual(len(catalog['missing_original_ids']), 6)
+            self.assertEqual(original_bytes(row), path.read_bytes())
+            path.write_bytes(b'%PDF corrupted')
+            with self.assertRaises(PrimarySourceError):
+                source_catalog()
 
     def test_schema_duplicates_paths_and_urls_fail_closed(self):
         for change in [lambda data: data.update(schema_version=True),
@@ -73,7 +100,7 @@ class PrimaryArchiveValidationTests(unittest.TestCase):
             with tempfile.TemporaryDirectory() as directory:
                 path = Path(directory) / 'manifest.json'
                 if mode == 'symlink':
-                    path.symlink_to(ROOT / 'manifest.json')
+                    path.symlink_to(primary_sources.ROOT / 'manifest.json')
                 else:
                     path.write_text(' ' * 262145)
                 with self.assertRaises(PrimarySourceError):
@@ -81,7 +108,7 @@ class PrimaryArchiveValidationTests(unittest.TestCase):
 
     def test_original_is_rechecked_after_catalog_load(self):
         with tempfile.TemporaryDirectory() as directory:
-            shutil.copytree(ROOT, directory, dirs_exist_ok=True)
+            shutil.copytree(primary_sources.ROOT, directory, dirs_exist_ok=True)
             row = load_sources(directory)[0]
             (Path(directory) / row['original_file']).write_bytes(b'%PDF changed')
             with self.assertRaises(PrimarySourceError):
@@ -90,6 +117,7 @@ class PrimaryArchiveValidationTests(unittest.TestCase):
 
 class PrimaryArchiveImportTests(unittest.TestCase):
     def setUp(self):
+        self.archive = synthetic_archive(self)
         self.directory = tempfile.TemporaryDirectory()
         self.addCleanup(self.directory.cleanup)
         self.store = WorkspaceStore(Path(self.directory.name) / 'workspace.db')
@@ -138,7 +166,7 @@ class OfficialDecisionTests(unittest.TestCase):
                        lambda row: row.update(disposition_quote='Выдуманный результат судебного рассмотрения.')]:
             PrimaryArchiveValidationTests().mutation(lambda data: mutate(data['sources'][3]))
 
-    def test_real_first_pages_and_dispositions_can_form_unreviewed_dossiers(self):
+    def test_first_pages_and_dispositions_can_form_unreviewed_dossiers(self):
         evidence = ReviewedEvidence(self.store)
         for source in load_sources():
             if source['material_type'] != 'official_court_decision': continue

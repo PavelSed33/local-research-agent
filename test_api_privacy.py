@@ -1,6 +1,7 @@
 import contextlib
 import io
 import json
+import os
 from pathlib import Path
 import tempfile
 import threading
@@ -55,6 +56,27 @@ class ApiPrivacyTests(unittest.TestCase):
             self.assertTrue(Path(result['report_file']).exists())
             self.assertTrue(result['results_persisted'])
         self.assertNotIn('PRIVATE-MARKER', log.getvalue())
+
+    def test_document_handlers_require_opt_in_for_remote_model_from_cli_or_http(self):
+        from draft import handle_draft
+        from protocol import handle_protocol
+        from scoring import handle_scoring
+        from timeline import handle_timeline
+        from triage import handle_triage
+
+        document = 'Учебный договор. Поставка товара в течение десяти рабочих дней.'
+        cases = [(handle_draft, {'type': 'claim', 'facts': document}),
+                 (handle_protocol, {'document_a': document, 'document_b': document.replace('десяти', 'пяти')}),
+                 (handle_scoring, {'document': document}),
+                 (handle_timeline, {'materials': [{'name': 'Тест', 'text': document}]}),
+                 (handle_triage, {'text': document})]
+        with patch.dict(os.environ, {'LLM_BASE_URL': 'https://example.invalid/v1',
+                                     'ALLOW_CLOUD_DOCUMENTS': 'false'}):
+            for handler, payload in cases:
+                with self.subTest(route=handler.__name__), patch(handler.__module__ + '.OpenAICompatibleModel') as model:
+                    with self.assertRaisesRegex(ValueError, 'ALLOW_CLOUD_DOCUMENTS'):
+                        handler(payload)
+                    model.assert_not_called()
 
     def test_upstream_error_body_is_not_exposed(self):
         error = urllib.error.HTTPError('https://example.test', 400, 'bad', {}, io.BytesIO(b'PRIVATE-DOCUMENT'))

@@ -41,7 +41,7 @@ def inspect_configuration() -> dict:
     }
 
 
-def workflow_readiness(configuration, *, statutes_ok=True, evidence_ok=True, skills_ok=True, skill_entries=None):
+def workflow_readiness(configuration, *, statutes_ok=True, catalog_ok=True, evidence_ok=True, skills_ok=True, skill_entries=None):
     """Configuration readiness is distinct from a successful provider request."""
     workflows = [
         ('/ask', 'Правовой вопрос', ('llm', 'search')),
@@ -52,9 +52,9 @@ def workflow_readiness(configuration, *, statutes_ok=True, evidence_ok=True, ski
         ('/diff', 'Сравнение редакций', ()),
         ('/extract/local', 'Локальные реквизиты', ()),
         ('/privacy/check', 'Анкеты персональных данных', ('evidence',)),
-        ('/legal/research', 'Правовые сценарии', ('statutes', 'evidence')),
+        ('/legal/research', 'Правовые сценарии', ('catalog', 'evidence')),
         ('/legal/corpus', 'Нормативные извлечения', ('statutes',)),
-        ('/legal/coverage', 'Матрица покрытия', ('statutes', 'evidence')),
+        ('/legal/coverage', 'Матрица покрытия', ('catalog', 'evidence')),
         ('contract-playbook', 'Договор по правилам компании', ('llm', 'document_transfer', 'skills')),
         ('contract-risk', 'Пять групп рисков', ('llm', 'document_transfer', 'skills')),
         ('claim-audit', 'Аудит утверждений', ('llm', 'search', 'document_transfer', 'skills')),
@@ -68,7 +68,7 @@ def workflow_readiness(configuration, *, statutes_ok=True, evidence_ok=True, ski
             workflows.append((entry['id'], entry['title'], requirements))
     available = {**configuration['provider_configuration'],
                  'document_transfer': configuration['document_transfer_permitted_by_configuration'],
-                 'statutes': statutes_ok, 'evidence': evidence_ok, 'skills': skills_ok}
+                 'statutes': statutes_ok, 'catalog': catalog_ok, 'evidence': evidence_ok, 'skills': skills_ok}
     result = []
     for identity, title, requirements in workflows:
         blockers = [name for name in requirements if not available[name]]
@@ -99,12 +99,15 @@ def inspect_runtime() -> dict:
         'ui_files_present': ui,
         'local_captures': {'checked_count': len(corpus['entries']), 'errors': corpus['errors'],
                            'original_publication_count': 0, 'legal_acceptance': False},
-        'statutory_corpus': {'checked_count': len(statutes['entries']), 'errors': statutes['errors'],
+        'statutory_corpus': {'status': statutes.get('status', 'unavailable'),
+                             'quarantined_count': len(statutes.get('quarantined_card_ids', [])),
+                             'checked_count': len(statutes['entries']), 'errors': statutes['errors'],
                              'period_supported': False, 'legal_acceptance': False},
         **configuration,
         'research_configuration_present': all(configuration['provider_configuration'].values()),
         'legal_skills': {'checked_count': skills_count, 'integrity_ok': skills_ok},
         'workflows': workflow_readiness(configuration, statutes_ok=bool(statutes['entries']) and not statutes['errors'],
+                                        catalog_ok=not statutes['errors'],
                                         evidence_ok=bool(corpus['entries']) and not corpus['errors'], skills_ok=skills_ok,
                                         skill_entries=skill_entries),
         'docker_binary_present': shutil.which('docker') is not None,

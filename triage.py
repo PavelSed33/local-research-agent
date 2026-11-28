@@ -28,6 +28,7 @@ from agent import (
     extract_json,
     load_dotenv,
 )
+from doctext import ensure_document_transfer_allowed, parse_demo_flag
 from review import normalize_text
 
 MIN_TEXT_CHARS = 10
@@ -153,7 +154,9 @@ def handle_triage(payload: dict[str, Any]) -> dict[str, Any]:
     text = str(payload.get("text", "")).strip()
     if len(text) < MIN_TEXT_CHARS:
         raise TriageError(f"Поле text обязательно: текст обращения (от {MIN_TEXT_CHARS} символов).")
-    demo = bool(payload.get("demo", False))
+    demo = parse_demo_flag(payload)
+    if not demo:
+        ensure_document_transfer_allowed()
     model: LanguageModel = DemoTriageModel() if demo else OpenAICompatibleModel()
     result, repaired = triage_request(model, text)
     return {

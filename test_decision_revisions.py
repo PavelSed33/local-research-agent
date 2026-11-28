@@ -3,6 +3,8 @@ from concurrent.futures import ThreadPoolExecutor
 import sqlite3
 import unittest
 
+from scripts.synthetic_archive import synthetic_archive
+
 import test_reviewed_evidence as evidence_tests
 from primary_sources import load_sources
 from workspace_api import dispatch
@@ -94,7 +96,8 @@ class DecisionRevisionTests(unittest.TestCase):
         for sql in ('DELETE FROM decision_revisions','UPDATE decision_revisions SET root_artifact_id=artifact_id'):
             with self.store.connect(True) as db,self.assertRaises(sqlite3.IntegrityError):db.execute(sql)
 
-    def test_real_archived_card_can_be_enriched_and_reimport_reuses_latest(self):
+    def test_archived_card_can_be_enriched_and_reimport_reuses_latest(self):
+        synthetic_archive(self)
         args={'matter_id':self.matter,'source_id':'vsrf-decision-2485538'}
         initial=dispatch(self.store,self.owner,'/workspace/sources/decision-draft',args)['artifact_id']
         original=self.evidence.get(self.owner,initial)
