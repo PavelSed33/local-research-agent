@@ -1,0 +1,386 @@
+{
+  "source_url": "https://www.wipo.int/wipolex/ru/legislation/details/23256",
+  "pdf_url": "https://wipolex-res.wipo.int/edocs/lexdocs/laws/ru/ru/ru459ru_1.pdf",
+  "pdf_sha256": "86b261af0f265be112baf1c025c3c61e0d33942b554c209f57a3596e7207f3bb",
+  "compared_source": "http://www.kremlin.ru/acts/bank/7279/print",
+  "compared_source_sha256": "661c5c8b2822f107632e8da3303f119d83add21b1e6b612888dde4ba33d8947f",
+  "edition_label": "По карточке ВОИС: изменения в консолидированном тексте по 03.08.2025. PDF датирован составителем 18.08.2025.",
+  "method": "Посимвольное сравнение полных заголовков и текста статей после удаления пробелов, фиксированных колонтитулов PDF и явно маркированных редакционных ссылок на поправки и судебные акты в президентском источнике. Вставные номера заголовков приведены к записи через точку. Если сохранилось любое различие, полное совпадение не засчитывалось.",
+  "rights_note": "В PDF, размещённом в базе ВОИС, указан составитель ГАРАНТ. В результирующем пакете — только результаты сопоставления, реквизиты и хеш; цитаты для сценария взяты из российского государственного банка документов.",
+  "current_validity_verified": false,
+  "scope": "Сопоставление исторического снимка; не устанавливает действующую редакцию или периоды.",
+  "articles": [
+    {
+      "article": "15",
+      "match": true,
+      "normalized_sha256": "0838b1ac86bb1063d8fa524289ce3d745ddc11953d70d5515428c0bf205b4bda"
+    },
+    {
+      "article": "160",
+      "match": false,
+      "normalized_sha256": null
+    },
+    {
+      "article": "165.1",
+      "match": true,
+      "normalized_sha256": "151465d8c628362d1829ccfe0be6108499de244929fda378c2a499c669b7db5c"
+    },
+    {
+      "article": "166",
+      "match": true,
+      "normalized_sha256": "083d4907281135ac608d10ece7964f25286f27584680d7b6ab105b59ec2a7a19"
+    },
+    {
+      "article": "167",
+      "match": true,
+      "normalized_sha256": "c93719aedca145b412d1f32fdee768248a91f75c4c8f23a4ec2e37923dbf3791"
+    },
+    {
+      "article": "168",
+      "match": true,
+      "normalized_sha256": "946e8446a6df437f8611836ec37974c6de1926bd8883cf03fa465bf305493add"
+    },
+    {
+      "article": "170",
+      "match": true,
+      "normalized_sha256": "96b3b7c4c0633feca1af2a44cae61d92493e866b9639340d2755c5455e682349"
+    },
+    {
+      "article": "174",
+      "match": true,
+      "normalized_sha256": "386fd5a64f7671e9a2399de74904aff185ca6c8a96d8cea2c91ac77c348d70ab"
+    },
+    {
+      "article": "178",
+      "match": true,
+      "normalized_sha256": "a9e983c0af4a589f7693afbb2ed7ee964a27aa1092cd0cf2b4fc4a7dab552c86"
+    },
+    {
+      "article": "179",
+      "match": true,
+      "normalized_sha256": "0691b9ad621ecbe69d4c2090002c7e565cfa5c2a4c52b91d675f235c9f9224b5"
+    },
+    {
+      "article": "180",
+      "match": true,
+      "normalized_sha256": "6c039cdaaa04b7ba64fe82bec91247718d140f1c50e916afc9eecc09cdb2099b"
+    },
+    {
+      "article": "181",
+      "match": true,
+      "normalized_sha256": "1a80f154c732672fee8ad1ba9de70a6a8f1b24705c42535226c61e04b2cd717a"
+    },
+    {
+      "article": "182",
+      "match": true,
+      "normalized_sha256": "9245b2d80decda5f892bc359c8efdabb1e86df26daa70a872f7b8fcaa9e0ddef"
+    },
+    {
+      "article": "183",
+      "match": true,
+      "normalized_sha256": "e710f71871a46de7d1fe091067c695712068c55cb21a12857fd567fe396b546f"
+    },
+    {
+      "article": "185",
+      "match": true,
+      "normalized_sha256": "1058ce01d6816676f0a1668a5c9dbe62e38e135d8bc7273631e9c06f3d2fd377"
+    },
+    {
+      "article": "185.1",
+      "match": true,
+      "normalized_sha256": "292c938d6f942b51c9fea482114c2c92535a3e23a1e4c0c7eda3dd8b395ff9fe"
+    },
+    {
+      "article": "186",
+      "match": true,
+      "normalized_sha256": "018a45c63487b82972f2942a54d9295fbd5547599d4610c5bbadd67915590f5e"
+    },
+    {
+      "article": "188",
+      "match": false,
+      "normalized_sha256": null
+    },
+    {
+      "article": "189",
+      "match": true,
+      "normalized_sha256": "a96f8600582df126d7801267dcadb03a5c821d5490190726fad9dbbee661d54c"
+    },
+    {
+      "article": "190",
+      "match": true,
+      "normalized_sha256": "b8248957a68f3e25a65da7de2648dfa9612868b3d7e90b59ffac8582f720febc"
+    },
+    {
+      "article": "191",
+      "match": true,
+      "normalized_sha256": "6b958a97fd011e12fe5abb5388840616b60fcb38e1bc313223ec04acd430879d"
+    },
+    {
+      "article": "192",
+      "match": true,
+      "normalized_sha256": "f0c05e007fa6ee27329e46c0599ff525899acb0d6bfefeedd49aaee0467d7297"
+    },
+    {
+      "article": "193",
+      "match": true,
+      "normalized_sha256": "0b32547081ed46f50e46ae08bda2dc8928362d7d6f078f5df52ee79313702bbc"
+    },
+    {
+      "article": "194",
+      "match": true,
+      "normalized_sha256": "f517ffe351e842a7add3aa3c69ba684f3ed41dae040a2f2577e51c5bb0eb50b2"
+    },
+    {
+      "article": "195",
+      "match": true,
+      "normalized_sha256": "b49e9e87c67b7d724c6c25e8e42e116ae72262112ea211bd0468771a1a5bcffa"
+    },
+    {
+      "article": "196",
+      "match": false,
+      "normalized_sha256": null
+    },
+    {
+      "article": "199",
+      "match": true,
+      "normalized_sha256": "e8b4570d88e361a6f82a6017a3aee919aebf209aede47aa04e6cb72e2e672568"
+    },
+    {
+      "article": "200",
+      "match": true,
+      "normalized_sha256": "669f6cb00dca74706a5f100ca97d9dcd31d7b34512b073dffc82f3b72bb36dda"
+    },
+    {
+      "article": "202",
+      "match": true,
+      "normalized_sha256": "617a661ebfada7e70bb3d47b13441fdd6613007d0721687fe71eec06aa3e017f"
+    },
+    {
+      "article": "203",
+      "match": true,
+      "normalized_sha256": "d223f0042e4a7bea550e81c85fa9a4ae45702e71f6a2effc9ce881dc06435ac8"
+    },
+    {
+      "article": "204",
+      "match": true,
+      "normalized_sha256": "1112700f143417c439c05506af5e9f7f5a573c5e6ca16bee1d76af8ff05a50e1"
+    },
+    {
+      "article": "205",
+      "match": true,
+      "normalized_sha256": "ba4dfc932416f0a43c640ab2897e7b3e65c31816e66b4e3035d0b86ee0637897"
+    },
+    {
+      "article": "206",
+      "match": true,
+      "normalized_sha256": "9a0e61772ce2fab61e826f798e607fe3b0ac2e7e05d62a684cc99785b468de08"
+    },
+    {
+      "article": "207",
+      "match": true,
+      "normalized_sha256": "c34b22351d10abf1465a2f1ec94883b43c34aec00bb4fb4ebabb82329aa28708"
+    },
+    {
+      "article": "208",
+      "match": false,
+      "normalized_sha256": null
+    },
+    {
+      "article": "309",
+      "match": true,
+      "normalized_sha256": "693e137ba29d8eb1ff4b894d3943e7acb6cb378700b38ff2ebb20de4ad1dfcf5"
+    },
+    {
+      "article": "310",
+      "match": true,
+      "normalized_sha256": "171debfece1d0aa955ff2ca224379f8791eada69c09a37fe69ae1e9109674a3d"
+    },
+    {
+      "article": "314",
+      "match": true,
+      "normalized_sha256": "c48fd50e241b079ebe00442941d5bc0e8bbd90c486fb6b9b3bf7f650b26a052b"
+    },
+    {
+      "article": "317",
+      "match": true,
+      "normalized_sha256": "913bad69339b6ed833793ac2a77a11d11abec9c3f66c15886802f667bb74a680"
+    },
+    {
+      "article": "317.1",
+      "match": true,
+      "normalized_sha256": "172c94b1fb3f037044b877255767eda472cb850bd3bae0da051679ef853a5472"
+    },
+    {
+      "article": "319",
+      "match": true,
+      "normalized_sha256": "a4096e0aed8d714e50280803fdc902125d9dea021809eaebda820dfd2ba11716"
+    },
+    {
+      "article": "328",
+      "match": true,
+      "normalized_sha256": "3674513c911e1e659f318f0c9ff1e74c5972f4febc7aacbb6ff686e963fa67ec"
+    },
+    {
+      "article": "330",
+      "match": true,
+      "normalized_sha256": "e8d82736f48b49f7150d086841a06a44b08e919a01e99cb0808b8071ea0d9dd7"
+    },
+    {
+      "article": "333",
+      "match": true,
+      "normalized_sha256": "095381200540fe3a8637c0653f6f32c786d2fca5ca99cf7568f4a789c78934ab"
+    },
+    {
+      "article": "393",
+      "match": true,
+      "normalized_sha256": "3eaf965e0711d4a1a0afc046e4e45956846ba8868d8ca8423f55dc374f0fc686"
+    },
+    {
+      "article": "393.1",
+      "match": true,
+      "normalized_sha256": "581c4da6b939a6d659761b352d9148e8d9dbca85b496a0297b5cbff032f6e73d"
+    },
+    {
+      "article": "394",
+      "match": true,
+      "normalized_sha256": "26b8ffdc897e21e448865c52af7a0ab12e1136bb458e3ffcf5b48b77acb67f4f"
+    },
+    {
+      "article": "395",
+      "match": true,
+      "normalized_sha256": "3853234e201d95f5949142f6ba26c198130f1d75f0038f3e68ef090eae55f745"
+    },
+    {
+      "article": "400",
+      "match": true,
+      "normalized_sha256": "a253b764ff71c04ba9c28657305f03f0a31ae54d9ae2eed42b2d8cc1f3841610"
+    },
+    {
+      "article": "401",
+      "match": true,
+      "normalized_sha256": "4ae2a7f10d36151943080aa53a5e6e7331c77235cc0966542424267e07a04004"
+    },
+    {
+      "article": "404",
+      "match": true,
+      "normalized_sha256": "f35f3027fe91e77635a8eacfe03066acd02da030a0eb5d7bb3d1dd1efc8dde45"
+    },
+    {
+      "article": "405",
+      "match": true,
+      "normalized_sha256": "c6637133c9fbb1ab7f9f6a815fef12faa8b91bc71cc7fc199627a31285763fc8"
+    },
+    {
+      "article": "406",
+      "match": true,
+      "normalized_sha256": "b59cc8093db9e6d29584b0e7b5b78e897ed0f779e7b031360980fc90cfbcbb52"
+    },
+    {
+      "article": "406.1",
+      "match": true,
+      "normalized_sha256": "22a60753af312cfc509afd2eed51d25d2c8d3eb2bcfc4b34aa13901bf1e32b17"
+    },
+    {
+      "article": "407",
+      "match": true,
+      "normalized_sha256": "c97c10c342ea58a38b58026d8b8bfffdc32f8bd92638b9d8634230d6a5faa0c8"
+    },
+    {
+      "article": "408",
+      "match": true,
+      "normalized_sha256": "02be4da35b112395ddc06e9e581bce3bb30c64e59df695b74a3113d8423384a0"
+    },
+    {
+      "article": "410",
+      "match": true,
+      "normalized_sha256": "08afa88456b78bcf4c23fce1eb19bb2655b17eba67ac03e09f03c504c9f225b7"
+    },
+    {
+      "article": "411",
+      "match": true,
+      "normalized_sha256": "586cd4468f714939242dbd80e29d9f8949e75725055fe722d40b7ba973321032"
+    },
+    {
+      "article": "421",
+      "match": true,
+      "normalized_sha256": "1fd9961d246b3b1f67bcf145619277145516b30b6b7e5280c224cf6c9553301e"
+    },
+    {
+      "article": "422",
+      "match": true,
+      "normalized_sha256": "4b4c17732dcecc21a7fd60c08390744c0d8d54223c4473bff5a91b88e5f99f61"
+    },
+    {
+      "article": "424",
+      "match": true,
+      "normalized_sha256": "2e3982942c2137f5efcbe2ec900cb5ff1790ff1c2b66b28a521ad28bd81e94cf"
+    },
+    {
+      "article": "425",
+      "match": true,
+      "normalized_sha256": "7bbee8cf9ba3f00cb5589e8162bb3d18624cbac26dbc39780975556160a1d760"
+    },
+    {
+      "article": "428",
+      "match": true,
+      "normalized_sha256": "1c9f4df34aef127571ccaac305a7e18e22133313756121c6eebbd8a1d05a1d71"
+    },
+    {
+      "article": "431",
+      "match": true,
+      "normalized_sha256": "352bac872fc166e77770a52212534b1219b864dca5d772bd663ec10cc00aa208"
+    },
+    {
+      "article": "431.1",
+      "match": true,
+      "normalized_sha256": "e61d881a5d76a1f5b98190d5bb3f01da46b5b8556df9d7c4502c0b6c516b3bb7"
+    },
+    {
+      "article": "431.2",
+      "match": true,
+      "normalized_sha256": "c41d46034b0113c92cc6c82178008057776d3634eb38fe6b69e17903b37f1207"
+    },
+    {
+      "article": "432",
+      "match": true,
+      "normalized_sha256": "a49f833b9141550b662bf2fca5baf75a42a881238bba1979038e0ed04df73b26"
+    },
+    {
+      "article": "434",
+      "match": true,
+      "normalized_sha256": "b18924df47f8f06e87e6767b111cb704733cc169180e690072448c0e3255b47a"
+    },
+    {
+      "article": "450",
+      "match": false,
+      "normalized_sha256": null
+    },
+    {
+      "article": "450.1",
+      "match": true,
+      "normalized_sha256": "03d506fce9f47e5fc9affa5d6659b7c35ab16846fb27eab44a8c8f5106c2843e"
+    },
+    {
+      "article": "451",
+      "match": true,
+      "normalized_sha256": "5cdba22bd30c32a2d05cc8219d1f06190a8c14b51054e44e7acc294203fa1a93"
+    },
+    {
+      "article": "452",
+      "match": true,
+      "normalized_sha256": "e0ea46627847d99f8ba3b103a70e492d10a14c330a84bacf74794d979ca9c048"
+    },
+    {
+      "article": "453",
+      "match": true,
+      "normalized_sha256": "2591e543e46dbb52dfa6aa56d11aa52d2b8408d890dc1f7add558935ae05573b"
+    }
+  ],
+  "unmatched_article_notes": {
+    "160": "Различается точка в ссылке на вставную статью.",
+    "188": "Различается точка в ссылке на вставную статью.",
+    "196": "В снимке 2026 года есть дополнительная ссылка на 327-ФЗ, подтверждённая пунктом 1 статьи 1 закона от 10.06.2026 № 167-ФЗ, опубликованного в Российской газете.",
+    "208": "Для обозначения номера акта источники используют № и N.",
+    "450": "Различается редакционная помета об утрате силы пункта 3."
+  }
+}

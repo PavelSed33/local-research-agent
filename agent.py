@@ -349,6 +349,8 @@ def classify_source_authority(url: str) -> str:
         return "unclassified"
     if host == "pravo.gov.ru" or host.endswith(".pravo.gov.ru"):
         return "official_legal_portal"
+    if host in {"kremlin.ru", "www.kremlin.ru"} and urlsplit(url).path.startswith("/acts/bank/"):
+        return "official_acts_bank"
     if host == "mintrud.gov.ru" or (host == "zpp.rospotrebnadzor.ru" and urlsplit(url).path.startswith("/npa/")):
         return "government_legal_reproduction"
     if host == "epp.genproc.gov.ru" or host == "rostrud.gov.ru" or host.endswith(".rostrud.gov.ru") or (host == "zpp.rospotrebnadzor.ru" and urlsplit(url).path.startswith("/news/")):
@@ -365,6 +367,7 @@ def classify_source_authority(url: str) -> str:
 def source_authority_label(url: str) -> str:
     labels = {
         "official_legal_portal": "официальный портал правовой информации",
+        "official_acts_bank": "Банк актов Президента России, консолидированный текст",
         "official_court": "официальный судебный сайт",
         "government_legal_reproduction": "ведомственная копия правового текста; не исходная публикация",
         "official_legal_explanation": "разъяснение государственного органа; не текст изменяющего акта",

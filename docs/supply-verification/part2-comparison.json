@@ -1,0 +1,112 @@
+{
+  "source_publisher": "Всемирная организация интеллектуальной собственности (WIPO Lex)",
+  "source_url": "https://www.wipo.int/wipolex/ru/legislation/details/23256",
+  "pdf_url": "https://wipolex-res.wipo.int/edocs/lexdocs/laws/ru/ru/ru459ru_1.pdf",
+  "wipo_edition": "2025; изменения в консолидированном тексте кодекса по 03.08.2025 включительно (по карточке ВОИС).",
+  "retrieved_on": "2026-11-28",
+  "pdf_sha256": "86b261af0f265be112baf1c025c3c61e0d33942b554c209f57a3596e7207f3bb",
+  "pdf_bytes": 2951414,
+  "compared_to": "http://www.kremlin.ru/acts/bank/8804/print",
+  "compared_snapshot_sha256": "a2c4126edab9b40115457ae1884abd2e3c5c2d54dbaabb01a1444147174924dc",
+  "method": "PDF загружен по HTTPS по ссылке из карточки ВОИС. Текст извлечён pdftotext -layout. Убраны фиксированные колонтитулы и пробельные символы. Каждый заголовок и полный текст статьи сравнивались посимвольно до следующего заголовка. Регистр, пунктуация и прочие символы сохранены.",
+  "current_validity_verified": false,
+  "scope": "Глава 30, § 3, статьи 506–524. Сопоставление двух снимков не устанавливает периоды действия и применимость нормы.",
+  "comparison_copy": "В электронном PDF ВОИС указан составитель ГАРАНТ. В комплект доказательств включены результаты сравнения и контрольная сумма; исходный PDF ВОИС доступен по карточке.",
+  "articles": [
+    {
+      "article": 506,
+      "match": true,
+      "normalized_sha256": "c3a7b62c1e083e5fd93cb40b90e2db1d64831961c04c9d47b5c185be9290fd97"
+    },
+    {
+      "article": 507,
+      "match": true,
+      "normalized_sha256": "10aad89e08ceda2f5c55dd88735a97c27132b2f8f2e774fce426db080861c62d"
+    },
+    {
+      "article": 508,
+      "match": true,
+      "normalized_sha256": "97765f7fa7b831f05316bc22c243222ed3ee39ea569eebf103915cb16c3cf423"
+    },
+    {
+      "article": 509,
+      "match": true,
+      "normalized_sha256": "ba10b9315c53a96f68d65ab74d7d9954828f94f44b5739bd39d22c0f24230c89"
+    },
+    {
+      "article": 510,
+      "match": true,
+      "normalized_sha256": "5e2cec26326d5d8d8e10a86664c36c3ec04bd1b016d4719d9253e89be16ffb76"
+    },
+    {
+      "article": 511,
+      "match": true,
+      "normalized_sha256": "5bd20f7937524d30c8e13e6d79a83c1833110fde3916e3f094c86e32999e80dc"
+    },
+    {
+      "article": 512,
+      "match": true,
+      "normalized_sha256": "69c1c7f67fd5b15787a645634aaa4ff04a97c1f285d05a7a47b085dd23f9c846"
+    },
+    {
+      "article": 513,
+      "match": true,
+      "normalized_sha256": "8f1217b08337a5eb392593e1fd2a51c581275a0a50a03327131f912605411ec3"
+    },
+    {
+      "article": 514,
+      "match": true,
+      "normalized_sha256": "28c09fcf8bd972193b0e8d91abb96606f7d2e3848dede9506ac29066363a10be"
+    },
+    {
+      "article": 515,
+      "match": true,
+      "normalized_sha256": "f772d39af24fdc6c68074069aae73f8f63b2302960c4773ca48e53efbf358695"
+    },
+    {
+      "article": 516,
+      "match": true,
+      "normalized_sha256": "1c4a622a20538256da7dc247ef46e0f45ca18396e9668490dd153dbb22cf3d15"
+    },
+    {
+      "article": 517,
+      "match": true,
+      "normalized_sha256": "1e88fae6a418bb8450e06d8330aeae35f1e0bd5ec446bb091ad798f5976ce547"
+    },
+    {
+      "article": 518,
+      "match": true,
+      "normalized_sha256": "9aefe97410d628d7cff2538988a3d749a4832c59211c13c129fc053f29d322b1"
+    },
+    {
+      "article": 519,
+      "match": true,
+      "normalized_sha256": "6e14c3f7766ad8028bcc6f0ee43f69be400aea8332574769a0c06f2127093c43"
+    },
+    {
+      "article": 520,
+      "match": true,
+      "normalized_sha256": "6866ef753aa1e0415562762c05459279a629de636de36de3d82e7dd0d06cd10c"
+    },
+    {
+      "article": 521,
+      "match": true,
+      "normalized_sha256": "cf3cd630235d8542b2587ec779a17a4ce5e78946d49eccb85cb47bc6feab17ca"
+    },
+    {
+      "article": 522,
+      "match": true,
+      "normalized_sha256": "6e969da087617bf843a0e7ac4008bc32deac99c1809fb53d0f20c9d517f2709f"
+    },
+    {
+      "article": 523,
+      "match": true,
+      "normalized_sha256": "f8931127dcf07cb5d73dd4507ee2713de43f9494526fd0f453b20bf7cbe2d4a0"
+    },
+    {
+      "article": 524,
+      "match": true,
+      "normalized_sha256": "ff07722c9bf55b3cc70b66a71350f6e8d49c04a1e9dd669239426f91f5e1350e"
+    }
+  ]
+}
