@@ -50,7 +50,7 @@ class LegalCatalogTests(unittest.TestCase):
             'comment': 'Проверить условие об отказе.', 'recommendation': 'Уточнить основания.',
             'legal_basis': [{'source_id': 2, 'provision': 'Статья 523', 'quote': quote}]}]}
         with patch('legal_review.ensure_document_transfer_allowed'), patch('legal_review.TavilySearch') as search, patch('legal_review.OpenAICompatibleModel') as model:
-            search.return_value.search.return_value = []
+            search.return_value.search_links.return_value = []
             model.return_value.complete.return_value = json.dumps(result)
             review = handle_legal_review(payload)
         self.assertIn(quote, model.return_value.complete.call_args.args[1])
@@ -106,7 +106,7 @@ class LegalCatalogTests(unittest.TestCase):
             'comment': 'Проверить', 'recommendation': 'Уточнить',
             'legal_basis': [{'source_id': 1, 'provision': 'Статья 32', 'quote': 'Выдуманная правовая цитата'}]}]}
         with patch('legal_review.ensure_document_transfer_allowed'), patch('legal_review.TavilySearch') as search, patch('legal_review.OpenAICompatibleModel') as model:
-            search.return_value.search.return_value = []
+            search.return_value.search_links.return_value = []
             model.return_value.complete.return_value = json.dumps(result)
             with self.assertRaises(AgentError):
                 handle_legal_review({'document': document, 'facts': {'both_businesses': True}})

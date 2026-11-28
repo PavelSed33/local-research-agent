@@ -15,7 +15,7 @@ import urllib.request
 from dataclasses import asdict, dataclass
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any, Protocol
+from typing import Any, Iterator, Protocol
 from urllib.parse import urlsplit
 
 try:
@@ -238,7 +238,7 @@ class TavilySearch:
         if not self.api_key:
             raise AgentError("Задайте TAVILY_API_KEY в файле .env.")
 
-    def search(self, query: str, limit: int) -> list[Source]:
+    def _results(self, query: str, limit: int, *, raw_content: bool) -> Iterator[tuple[str, dict]]:
         data = post_json(
             self.url,
             {
@@ -246,19 +246,33 @@ class TavilySearch:
                 "search_depth": "basic",
                 "max_results": limit,
                 "include_answer": False,
-                "include_raw_content": "text",
+                "include_raw_content": "text" if raw_content else False,
                 "include_domains": self.domains,
             },
             {"Authorization": f"Bearer {self.api_key}"},
             timeout=60,
         )
-        sources: list[Source] = []
         for item in data.get("results", []):
             if not isinstance(item, dict):
                 continue
             url = str(item.get("url", "")).strip()
             if not url.startswith(("https://", "http://")):
                 continue
+            yield url, item
+
+    def search_links(self, query: str, limit: int) -> list[str]:
+        """Return only result URLs for workflows without rights to the fetched pages."""
+        links = []
+        for url, _ in self._results(query, limit, raw_content=False):
+            # A browser text-fragment directive can include a verbatim excerpt in the URL.
+            base, _, fragment = url.partition("#")
+            anchor = fragment.partition(":~:")[0]
+            links.append(f"{base}#{anchor}" if anchor else base)
+        return links
+
+    def search(self, query: str, limit: int) -> list[Source]:
+        sources: list[Source] = []
+        for url, item in self._results(query, limit, raw_content=True):
             text = str(item.get("raw_content") or item.get("content") or "").strip()
             if not text:
                 continue

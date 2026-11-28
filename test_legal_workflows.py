@@ -44,17 +44,38 @@ class LegalReviewTests(unittest.TestCase):
         result['risks'][0]['legal_basis'][0]['provision'] = 'Статья 999'
         self.assertTrue(validate_legal_bases(result, DOCUMENT, [SOURCE]))
 
-    def test_contract_text_is_not_sent_to_search(self):
-        with patch('legal_review.ensure_document_transfer_allowed'), patch('legal_review.TavilySearch') as search, patch(
-            'legal_review.OpenAICompatibleModel'
-        ) as model:
-            search.return_value.search.return_value = [SOURCE]
-            model.return_value.complete.return_value = json.dumps(review_result())
+    def test_search_keeps_only_urls_outside_the_contract_and_local_evidence(self):
+        with patch('legal_review.ensure_document_transfer_allowed'), patch.dict('os.environ', TAVILY_API_KEY='test'), \
+                patch('agent.post_json') as search, patch('legal_review.OpenAICompatibleModel') as model:
+            search.return_value = {'results': [
+                {'url': SOURCE.url + '#:~:text=publisher-highlight', 'title': SOURCE.title,
+                 'content': SOURCE.text, 'raw_content': SOURCE.text},
+                {'url': 'https://example.org/second#article2'},
+            ]}
+            draft = review_result()
+            draft['risks'][0]['legal_basis'] = []
+            model.return_value.complete.return_value = json.dumps(draft)
             result = handle_legal_review({'document': DOCUMENT, 'facts': {'both_businesses': True}})
-        query = search.return_value.search.call_args.args[0]
-        self.assertNotIn(DOCUMENT, query)
-        self.assertFalse(result['verified'])
-        self.assertEqual(result['risks'][0]['basis_status'], 'quoted_source_unverified')
+        request = search.call_args.args[1]
+        self.assertNotIn(DOCUMENT, request['query'])
+        self.assertFalse(request['include_raw_content'])
+        prompt = model.return_value.complete.call_args.args[1]
+        self.assertIn(SOURCE.url, prompt)
+        self.assertEqual(result['sources'][0]['url'], SOURCE.url)
+        self.assertEqual(result['sources'][0]['text'], '')
+        self.assertEqual(result['sources'][1]['url'], 'https://example.org/second#article2')
+        for text in (SOURCE.title, SOURCE.text, 'publisher-highlight'):
+            self.assertNotIn(text, prompt)
+            self.assertNotIn(text, json.dumps(result, ensure_ascii=False))
+        self.assertEqual(result['risks'][0]['basis_status'], 'no_legal_evidence')
+
+    def test_search_link_cannot_be_cited_as_a_source_text(self):
+        with patch('legal_review.ensure_document_transfer_allowed'), patch('legal_review.TavilySearch') as search, \
+                patch('legal_review.OpenAICompatibleModel') as model:
+            search.return_value.search_links.return_value = [SOURCE.url]
+            model.return_value.complete.return_value = json.dumps(review_result())
+            with self.assertRaises(AgentError):
+                handle_legal_review({'document': DOCUMENT, 'facts': {'both_businesses': True}})
 
     def test_remote_document_transfer_guard_runs_before_search(self):
         with patch('legal_review.ensure_document_transfer_allowed', side_effect=ValueError('blocked')), patch('legal_review.TavilySearch') as search:

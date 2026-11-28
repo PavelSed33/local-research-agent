@@ -6,7 +6,6 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from agent import Source
 from legal_coverage import coverage_report
 from legal_evidence import DEFAULT_CORPUS, cached_contract_sources, evidence_report
 from legal_review import handle_legal_review
@@ -125,7 +124,7 @@ class EvidenceCorpusTests(unittest.TestCase):
     def test_search_failure_keeps_valid_local_source_and_provenance(self):
         from agent import AgentError
         with patch('legal_review.ensure_document_transfer_allowed'), patch('legal_review.TavilySearch') as search, patch('legal_review.OpenAICompatibleModel') as model:
-            search.return_value.search.side_effect = AgentError('offline')
+            search.return_value.search_links.side_effect = AgentError('offline')
             model.return_value.complete.return_value = json.dumps({'summary': 'Черновик', 'risks': [], 'missing_clauses': []})
             result = handle_legal_review({'document': 'Договор для технического теста локальных источников.',
                                          'facts': {'both_businesses': True}, 'as_of': '2026-11-07'})
@@ -137,26 +136,28 @@ class EvidenceCorpusTests(unittest.TestCase):
         self.assertIn('прерывисты', model.return_value.complete.call_args.args[0])
         self.assertFalse(result['verified'])
 
-    def test_newly_retrieved_same_url_keeps_ids_and_is_not_mislabelled_as_cached(self):
-        fresh = Source('Новая выборка', 'https://www.vsrf.ru/documents/all/8524', 'Новый текст для проверки.', '')
+    def test_search_link_to_local_source_uses_only_the_saved_text_and_its_provenance(self):
+        local = cached_contract_sources('2026-11-07')[0]
         with patch('legal_review.ensure_document_transfer_allowed'), patch('legal_review.TavilySearch') as search, patch('legal_review.OpenAICompatibleModel') as model:
-            search.return_value.search.return_value = [fresh]
+            search.return_value.search_links.return_value = [local.url]
             model.return_value.complete.return_value = json.dumps({'summary': 'Черновик', 'risks': [], 'missing_clauses': []})
             result = handle_legal_review({'document': 'Договор для технического теста локальных источников.',
                                          'facts': {'both_businesses': True}, 'as_of': '2026-11-07'})
         self.assertEqual(len(result['sources']), 2)
         self.assertEqual(result['sources'][0]['id'], 1)
-        self.assertEqual(result['sources'][0]['retrieval_mode'], 'search_result')
-        self.assertIsNone(result['sources'][0]['capture'])
+        self.assertEqual(result['sources'][0]['retrieval_mode'], 'local_web_extract')
+        self.assertEqual(result['sources'][0]['text'], local.text)
+        self.assertEqual(len(result['sources'][0]['capture']['sha256']), 64)
 
     def test_model_cannot_assign_itself_legal_acceptance_or_supported_period(self):
-        from test_legal_workflows import DOCUMENT, SOURCE, review_result
+        from test_legal_workflows import DOCUMENT, review_result
         output = review_result()
         output['risks'][0].update(verified=True, lawyer_reviewed=True, signed_opinion='invented')
-        output['risks'][0]['legal_basis'][0].update(verified=True, lawyer_reviewed=True,
-                                                  period_supported=True, effective_from='2000-01-01')
+        quote = '10. По общему правилу право на односторонний отказ'
+        output['risks'][0]['legal_basis'][0].update(quote=quote, provision='10.', verified=True,
+                                                  lawyer_reviewed=True, period_supported=True, effective_from='2000-01-01')
         with patch('legal_review.ensure_document_transfer_allowed'), patch('legal_review.TavilySearch') as search, patch('legal_review.OpenAICompatibleModel') as model:
-            search.return_value.search.return_value = [SOURCE]
+            search.return_value.search_links.return_value = []
             model.return_value.complete.return_value = json.dumps(output)
             result = handle_legal_review({'document': DOCUMENT, 'facts': {'both_businesses': True}})
         risk = result['risks'][0]

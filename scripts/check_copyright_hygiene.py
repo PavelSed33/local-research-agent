@@ -13,8 +13,8 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 BINARY_EXTENSIONS = {".pdf", ".doc", ".docx", ".rtf", ".zip", ".rar", ".7z", ".epub"}
 RESTRICTED_PATH_PARTS = {"legal_uploads", "legal_corpus", "case_files", "downloads"}
-# Only the quarantine manifest may remain; old article JSON extracts are blocked.
 QUARANTINED_CORPUS_DIR = pathlib.PurePosixPath("fixtures/statute_corpus")
+RETIRED_STATUTES_DIR = pathlib.PurePosixPath("fixtures/statutes")
 # A brand mention is not evidence of infringement. Flag only explicit ownership notices.
 PROPRIETARY_MARKERS = re.compile(
     r"(?i)(?:©|copyright|все права защищены)\s*"
@@ -34,7 +34,10 @@ def main() -> int:
             continue
         name = raw.decode("utf-8", errors="replace")
         path = pathlib.PurePosixPath(name)
-        if path.parent == QUARANTINED_CORPUS_DIR and path.name != "manifest.json":
+        if RETIRED_STATUTES_DIR in path.parents:
+            violations.append(f"Retired statutory collection must not be tracked: {name}")
+            continue
+        if QUARANTINED_CORPUS_DIR in path.parents and path != QUARANTINED_CORPUS_DIR / "manifest.json":
             violations.append(f"Quarantined statutory extract must not be tracked: {name}")
             continue
         if path.suffix.lower() in BINARY_EXTENSIONS:

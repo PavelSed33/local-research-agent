@@ -48,7 +48,7 @@ class ReviewTimingTests(unittest.TestCase):
         document = 'Условный договор оказания услуг для проверки.'
         output = {'summary': 'Черновик', 'risks': [], 'missing_clauses': []}
         with patch('legal_review.ensure_document_transfer_allowed'), patch('legal_review.TavilySearch') as search, patch('legal_review.OpenAICompatibleModel') as model:
-            search.return_value.search.return_value = []
+            search.return_value.search_links.return_value = []
             model.return_value.complete.return_value = json.dumps(output)
             result = handle_legal_review({'document': document, 'facts': {'both_businesses': True},
                                          'as_of': '2026-11-07', 'contract_signed_on': '2020-01-01',

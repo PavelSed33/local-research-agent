@@ -54,7 +54,7 @@ class ConsumerTransitionEvidenceTests(unittest.TestCase):
 
     def test_consumer_review_can_use_saved_transition_after_search_failure(self):
         with patch('legal_review.ensure_document_transfer_allowed'), patch('legal_review.TavilySearch') as search, patch('legal_review.OpenAICompatibleModel') as model:
-            search.return_value.search.side_effect = AgentError('offline')
+            search.return_value.search_links.side_effect = AgentError('offline')
             model.return_value.complete.return_value = json.dumps({'summary': 'Черновик', 'risks': [], 'missing_clauses': []})
             result = handle_legal_review({'document': 'Условный потребительский договор для проверки источников.',
                 'profile': 'consumer', 'as_of': '2026-11-08',
@@ -67,22 +67,27 @@ class ConsumerTransitionEvidenceTests(unittest.TestCase):
         self.assertIn('переходных положений не заменяет', model.return_value.complete.call_args.args[0])
 
     def test_source_budget_keeps_transition_with_and_without_available_statutes(self):
-        fresh = [Source('Synthetic source', f'https://example.org/{i}', 'Synthetic text', '') for i in range(5)]
+        fresh = [f'https://example.org/{i}' for i in range(5)]
         statute = Source('Synthetic article', 'https://example.org/statute', 'Synthetic extract', 'local statutory extract')
-        for local_statutes in ([], [statute]):
-            with self.subTest(available=bool(local_statutes)), patch('legal_review.ensure_document_transfer_allowed'), \
+        metadata = dict(url=statute.url, card_id='test', act_id='test', sha256='a' * 64, response_sha256='b' * 64,
+                        captured_on='2026-11-08', capture_kind='html_normative_text_extract',
+                        raw_response_archived=False, original_publication=False)
+        for kind in (None, 'government_consolidated_copy', 'secondary_statutory_reproduction'):
+            local_statutes = [statute] if kind else []
+            entries = [dict(metadata, kind=kind)] if kind else []
+            with self.subTest(kind=kind), patch('legal_review.ensure_document_transfer_allowed'), \
                     patch('legal_review.TavilySearch') as search, patch('legal_review.OpenAICompatibleModel') as model, \
-                    patch('legal_review.statutory_review_sources', return_value=(local_statutes, {'entries': []})):
-                search.return_value.search.return_value = fresh
+                    patch('legal_review.statutory_review_sources', return_value=(local_statutes, {'entries': entries})):
+                search.return_value.search_links.return_value = fresh
                 model.return_value.complete.return_value = json.dumps({'summary': 'Черновик', 'risks': [], 'missing_clauses': []})
                 result = handle_legal_review({'document': 'Условный потребительский договор для проверки лимита.',
                     'profile': 'consumer', 'as_of': '2026-11-08',
                     'facts': {'customer_is_individual': True, 'personal_use': True, 'seller_is_business': True}})
                 self.assertEqual(len(result['sources']), 5)
-                self.assertEqual([s['url'] for s in result['sources'][:2]], [s.url for s in fresh[:2]])
+                self.assertEqual([s['url'] for s in result['sources'][:2]], fresh[:2])
                 self.assertIn(URL, {s['url'] for s in result['sources']})
                 self.assertEqual([s['url'] for s in result['sources'] if s['retrieval_mode'] == 'local_statutory_extract'],
-                                 [source.url for source in local_statutes])
+                                 [statute.url] if kind == 'government_consolidated_copy' else [])
                 self.assertFalse(result['verified'])
 
     def test_news_and_lookalike_host_cannot_pose_as_saved_amending_act(self):

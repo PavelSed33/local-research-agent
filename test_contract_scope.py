@@ -113,7 +113,7 @@ class ContractQualificationTests(unittest.TestCase):
 
     def test_declared_facts_and_limits_reach_model_when_candidate(self):
         with patch('legal_review.ensure_document_transfer_allowed'), patch('legal_review.TavilySearch') as search, patch('legal_review.OpenAICompatibleModel') as model:
-            search.return_value.search.return_value = []
+            search.return_value.search_links.return_value = []
             model.return_value.complete.return_value = json.dumps({'summary': 'Черновик', 'risks': [], 'missing_clauses': []})
             result = handle_legal_review({'document': DOCUMENT, 'contract_type': 'services', 'facts': {
                 **BUSINESS, 'paid_activity': True, 'mixed_contract': False, 'special_regime': False}})
